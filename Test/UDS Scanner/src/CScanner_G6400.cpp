@@ -327,7 +327,12 @@ void CScanner_G6400::ImageTransfer(void)
 	strPath.Format(TEXT("d:\\a\\AVSDK%04d_sdk.tif"), fileNumber);
 	CommonFunc.GDISaveImage(psaveBuffer, strPath, m_ImageInfo);
 
-	m_pSaveData = psaveBuffer;  // 获取数据
+	//m_pSaveData = psaveBuffer;  // 获取数据
+
+	size_t size;
+	m_pSaveData = (BYTE *)malloc(size);
+	memcpy(m_pSaveData,psaveBuffer,size);
+
 	psaveTempBuffer = psaveBuffer;
 	delete []psaveTempBuffer;
 	psaveTempBuffer = NULL;

@@ -62,6 +62,7 @@ date 16.11.10
 2.将CScanner_FreeImage与CScanner_G6400都改为继承自CScanner_Base；
 3.更改文件Scanner_G6400.h与Scanner_G6400.cpp文件名为CScanner_G6400.h与CScanner_G6400.cpp
 4.win32.cpp中添加通过INI文件读取设备编号功能；
+5.修改函数ImageTransfer()；
 
 
 
