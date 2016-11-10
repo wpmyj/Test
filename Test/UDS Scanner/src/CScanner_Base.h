@@ -99,8 +99,9 @@ public:
 	*  @brief  获取图片数据.
 	*  @note 仅供扫描仪G6400使用
 	*  @param[out] buffer 保存图片数据buffer.
+	*  @param[out] dwReceived 传输的实际大小（以字节为单位）
 	*/
-	virtual void GetImageData(BYTE *buffer) {}
+	virtual void GetImageData(BYTE *buffer, DWORD &dwReceived) {}
 
 public:
 	WORD              m_nPaperSource;           /**< the current paper source ADF or Flatbed*/
