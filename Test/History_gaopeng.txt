@@ -1,0 +1,60 @@
++===========================================================+
++--------------------UDS Scanner项目历史--------------------+         
++===========================================================+
+
+date 16.11.01
+------------------------------------------------------------
+
+
+@author gao
+1.添加结构体 struct SFreeImage， CScanner_G6400类从它继承
+2.往类CScanner_G6400中加入四个函数：
+void Lock(void) {m_bReadOnly = true;}
+void Unlock(void) {m_bReadOnly = false;}
+SFreeImage getSetting() const;
+void setSetting(SFreeImage settings);
+
+
+date 16.11.02
+------------------------------------------------------------
+@author gao
+2.往类CScanner_G6400中加入函数 bool resetScanner();
+
+@author gao
+1.把结构体 SFreeImage的名称改为SUDS_Setting
+
+@author wan
+1.m_Scanner类型更改为CScanner_G6400;
+2.CScanner_G6400添加成员函数SUDS_SettingToG6400Setting()
+
+
+date 16.11.03
+------------------------------------------------------------
+@author gao
+
+1.把整个项目结构体 SFreeImage的名称改为SUDS_Setting（除CScanner_FreeImage外）
+2.往类CScanner_G6400中加入函数 bool resetScanner();
+ bool isFeederLoaded();
+ bool getDeviceOnline() const;
+ short GetMaxPagesInADF(void){return m_nMaxDocCount;}
+ void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;};
+ bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
+ short getDocumentCount() const;     ///< 获取要扫描的纸张数，默认全部扫完
+
+@author gao
+
+1.实现了函数bool isFeederLoaded()函数，在GScanner_G6400的构造函数中加入InitLibrary()和SelectScanner()函数。
+
+date 16.11.04
+------------------------------------------------------------
+<<<<<<< HEAD
+@author gao
+
+1.向GScanner_G6400加入void GetImageData(BYTE *buffer)函数。
+=======
+
+date 16.11.09
+-----------------------------------------------------------
+@author gao
+
+1.把common.cpp中的cstringtowchar(CString strIn)函数又重新实现了一遍。

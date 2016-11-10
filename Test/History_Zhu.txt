@@ -1,0 +1,59 @@
++===========================================================+
++--------------------UDS Scanner项目历史__Zhu---------------+         
++===========================================================+
+
+date 16.11.01
+------------------------------------------------------------
+@author zhu
+1.设置参数的默认值，扫描类型为自动进纸器、图形类型为彩色、分辨率为200、单面/双面为单面、对比度为0、亮度为0、阈值为230（滑动条上为0）、重张检测默认选中。
+2、CTWAINDS_UDS文件添加所用参数注释
+
+
+date 16.11.03
+------------------------------------------------------------
+@author zhu
+1.隐藏“显示图片”按钮，只供虚拟扫描仪使用
+2.重新排版基本设置界面
+3.修改流程，点击确定按钮时，才保存所选设置
+4.修改CPage_Base::OnOK()，使用map添加各下拉框改变时的状态监测，key值存ICAP等值，value存对应的数值
+
+@author zhu
+1.添加SetControl（），设置修改的参数
+2.添加“保存当前模板”按钮的消息响应函数OnBase_Btn_Saveprofile()；
+
+
+date 16.11.04
+------------------------------------------------------------
+@author zhu
+高级设置界面
+1、修改Combo纸张大小的值
+2、修改CTWAINDS_UDS的Initialize()，添加图像旋转所需功能（|| !pnCap->Add(ICAP_ROTATION)）及其值TWOR_ROT0，TWOR_ROT90，TWOR_ROT180，TWOR_ROT270
+3、添加Combo分辨率、图像旋转的值
+
+4.完善图像旋转功能
+
+5.同样添加SetControl函数，
+6.添加CPage_Advanced::OnOK()
+7.使用map添加“纸张方向、纸张大小、单位”下拉框改变时的状态监测
+
+8.添加高级设置界面分辨率与旋转图像下拉框 改变的消息响应函数OnCbnSelchangeAdvanced_Combo_Resolution与OnCbnSelchangeAdvanced_Combo_Rotate。
+9.使用GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(FALSE);方式设置多流输出下的选项默认不选中
+
+date 16.11.07
+------------------------------------------------------------
+@author zhu
+1.滑动条亮度、对比度以及编辑框均初始为False
+2.添加SetMultistream（）函数根据m_check_multistream.GetCheck()状态设置各参数能否使用
+
+date 16.11.08
+------------------------------------------------------------
+@author zhu
+1.修改基本界面与高级界面的控制流程。由于属性页的确认控制都是由一个OnOK控制的，如果当客户在选择了基本界面的参数后，又直接进入了高级设置，从高级设置界面点击确认按钮时，就只会设置高级设置界面的参数，所以讨论后仍然决定是每一次点击Combo时设置（SetCap）.
+2.添加OnNMCustomdrawAdvanced_Slider_Brightness，OnNMCustomdrawAdvanced_Slider_Contrast，OnEnChangeAdvanced_Edit_Contrast，OnEnChangeAdvanced_Edit_Brightness，（滑动条与编辑框的消息响应函数）
+3.调试高级界面图像旋转功能无效的问题。
+
+date 16.11.09
+------------------------------------------------------------
+@author zhu
+1、增加高级设置的滑动条等控制
+2、去除旋转相关的功能

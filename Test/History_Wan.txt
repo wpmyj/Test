@@ -1,0 +1,69 @@
++===========================================================+
++--------------------UDS Scanner项目历史__Wan---------------+         
++===========================================================+
+
+date 16.11.01
+------------------------------------------------------------
+@author wan
+1.UDS Scanner\src中添加: Scanner_G6400.h,Scanner_G6400.cpp,
+  CommonFunc.h,CommonFunc.cpp四个文件
+2.pub\external\bin中添加: AVSDK.dll一个文件
+3.pub\external\include中添加: AVSDK.h一个文件
+
+
+date 16.11.02
+------------------------------------------------------------
+@author wan
+1.更改项目属性
+2.更改History.txt文件格式
+3.更改m_Scanner类型为CScanner_FreeImage
+4.更改CScanner_FreeImage类成员函数与成员变量的访问权限
+
+
+date 16.11.03
+------------------------------------------------------------
+@author wan
+1.修改TWAIN_UI.cpp文件
+
+
+date 16.11.04
+------------------------------------------------------------
+@author wan
+1.GScanner_G6400添加获取DLL路径函数GetDLLPath();
+2.重写GScanner_G6400::ImageTransfer()
+3.修改CTWAINDS_UDS::transfer()
+4.继续编写GScanner_G6400::SUDS_SettingToG6400Setting()
+
+
+date 16.11.07
+------------------------------------------------------------
+@author wan
+1.添加调试信息
+2.更改AVSDK获取句柄方式并注释不需要的调试信息；
+3.isFeederLoaded()直接返回true；
+4.添加调试信息；
+5.将初始化SDK相关接口函数移动到GScanner_G6400构造函数中。
+
+
+date 16.11.08
+------------------------------------------------------------
+@author wan
+1.更改初始化SDK相关接口函数位置，否则无法显示界面；
+2.规范部分注释语句用法
+3.添加g_hwndSheet用于保存属性页对话框句柄；
+4.修改EnableDS()；
+5.base对话框添加button按钮用于测试；
+6.将CScanner_Sheet调用方式由DoModol改为Create,及模态改为非模态；
+
+date 16.11.10
+------------------------------------------------------------
+@author wan
+1.将结构体SUDS_Setting改为类CScanner_Base；
+2.将CScanner_FreeImage与CScanner_G6400都改为继承自CScanner_Base；
+3.更改文件Scanner_G6400.h与Scanner_G6400.cpp文件名为CScanner_G6400.h与CScanner_G6400.cpp
+4.win32.cpp中添加通过INI文件读取设备编号功能；
+
+
+
+
+
