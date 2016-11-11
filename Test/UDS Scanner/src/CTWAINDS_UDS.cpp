@@ -22,6 +22,8 @@
   #include <Winbase.h>
 #endif
 
+#include "public.h"
+
 extern HWND g_hwndDLG;
 extern int g_nDeviceNumber;  // 设备编号
 
@@ -35,13 +37,6 @@ typedef union {
 #endif
 
 using namespace std;
-
-/** 设备编号 */ //wan
-typedef enum DEVICE_NUMBER
-{
-	DEVICE_FREEIMAGE	= 1,  /**< 虚拟扫描仪 */
-	DEVICE_G6400      = 2   /**< 扫描仪G6400 */
-};
 
 
 // 中文版identity定义
@@ -70,7 +65,7 @@ TW_IDENTITY g_myIdentity_Chinese =
 	DG_IMAGE | DG_CONTROL | DF_DS2,     // TW_UINT32  SupportedGroups;  Bit field OR combination of DG_ constants
 	"UDS",              // TW_STR32   Manufacturer;     Manufacturer name, e.g. "Hewlett-Packard"
 	"UDS Scanner",    // TW_STR32   ProductFamily;    Product family name, e.g. "ScanJet"
-	"UDS Scanner" // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
+	"UDS General TWAIN Scanner" // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
 };
 
 // 原版identity定义

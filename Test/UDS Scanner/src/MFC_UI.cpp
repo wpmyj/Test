@@ -1,6 +1,7 @@
 #include "MFC_UI.h"
 //#include "UDS Scanner.h"
 #include "Sheet_Scanner.h"  // 必须放cpp文件中，因为重复包含
+#include "public.h"
 /**
 * @file   MFC_UI.cpp
 * @brief This is a brief description.
@@ -15,12 +16,7 @@ extern HWND   g_hwndDLG;
 extern int g_nDeviceNumber;  // 设备编号
 HWND g_hwndSheet;
 
-/** 设备编号 */
-typedef enum DEVICE_NUMBER
-{
-	DEVICE_FREEIMAGE	= 1,  /**< 虚拟扫描仪 */
-	DEVICE_G6400      = 2   /**< 扫描仪G6400 */
-};
+
 
 CTWAIN_UI* CreateUI(CTWAINDS_UDS *pDS)
 {

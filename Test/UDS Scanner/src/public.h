@@ -10,7 +10,12 @@
 #define __PUBLIC_H__
 
 
-
+/** …Ë±∏±‡∫≈ */
+typedef enum DEVICE_NUMBER
+{
+	DEVICE_FREEIMAGE	= 1,  /**< –Èƒ‚…®√Ë“« */
+	DEVICE_G6400      = 2   /**< …®√Ë“«G6400 */
+};
 
 
 
