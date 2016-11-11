@@ -65,7 +65,10 @@ date 16.11.10
 5.修改函数ImageTransfer()；
 6.修改函数GetImageData()；
 
-
+date 16.11.11
+------------------------------------------------------------
+@author wan
+1.CScanner_Base::getSetting()返回值类型改为CScanner_Base*；
 
 
 

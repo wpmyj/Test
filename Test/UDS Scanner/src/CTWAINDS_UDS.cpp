@@ -957,7 +957,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   }
 
   // Get the actual values used by the scanner.
-  CScanner_Base settings = m_pScanner->getSetting();
+  CScanner_Base settings = *(m_pScanner->getSetting());
 
   _pImageInfo->XResolution = FloatToFIX32(settings.m_fXResolution);
   _pImageInfo->YResolution = FloatToFIX32(settings.m_fYResolution);
@@ -1546,7 +1546,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   CScanner_Base settings;
 
   // Get current before updating
-  settings = m_pScanner->getSetting();
+  settings = *(m_pScanner->getSetting());
 
 //	::MessageBox(g_hwndDLG,"getSetting","UDS",MB_OK);
 

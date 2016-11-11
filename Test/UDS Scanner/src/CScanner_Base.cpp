@@ -31,7 +31,8 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_nOrientation = settings.m_nOrientation; //zhu
 }
 
-CScanner_Base CScanner_Base::getSetting() const
+CScanner_Base* CScanner_Base::getSetting() const
 {
-	return (CScanner_Base)(*this);
+	//return (CScanner_Base)(*this);
+	return (CScanner_Base*)(this);
 }

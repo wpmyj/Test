@@ -60,7 +60,7 @@ public:
   * get the current settings
   * @return the current scanner settngs
   */
-  virtual CScanner_Base getSetting() const  ;
+  virtual CScanner_Base* getSetting() const  ;
 
   /**
   * set the current settings
