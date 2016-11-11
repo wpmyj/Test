@@ -475,7 +475,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Orientation()
 	{
 		nval = TWOR_LANDSCAPE;
 	}
-	m_pUI->SetCapValueInt(ICAP_ORIENTATION,nval);	
+	m_pUI->SetCapValueInt(ICAP_ORIENTATION,nval); 
 	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_ORIENTATION, nval));
 	UpdateControls(); 
 }

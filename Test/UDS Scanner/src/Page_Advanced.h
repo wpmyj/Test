@@ -69,8 +69,8 @@ private:
 	CButton m_check_frontcolor;
 	CButton m_check_frontgray;
 
-	typedef map<int, int> MAP_CAP;
-	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
+	//typedef map<int, int> MAP_CAP;
+	//MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
 
 private:
 	void UpdateControls(void);  ///< 更新控件状态

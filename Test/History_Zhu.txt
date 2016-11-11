@@ -57,3 +57,16 @@ date 16.11.09
 @author zhu
 1、增加高级设置的滑动条等控制
 2、去除旋转相关的功能
+
+3.增加旋转的功能，分别在CTWAINDS_UDS类中的StoreCustomDSdata、ReadCustomDSdata、Initialize、updateScannerFromCaps函数中添加相应的代码，把ICAP_ROTATION增加进容器。
+4、在CScanner_FreeImage类中的SUDS_Setting结构体增加变量，并在resetScanner、setSetting函数添加对应的赋值语句
+5、最重要的是要在CScanner_FreeImage类的preScanPrep函数中增加相应的图像处理代码。
+但是该版本旋转90、270时只显示一半，旋转180时左侧图像有丢失。
+
+date 16.11.10
+------------------------------------------------------------
+@author zhu
+1、查找选择黑白时，出图为纯白色的问题，最终发现是因为阈值默认设置为0 ，所以把大于0的部分全部设置为白色了
+2、添加InitComboPixType（）函数，判断选择黑白图时，阈值可用，亮度、对比度不可用；其他相反。
+3、选择黑白图时阈值默认为230，其他按滑动条设置
+4、完成纸张方向（横向、纵向）；此处是逆时针旋转，旋转图像功能是顺时针旋转

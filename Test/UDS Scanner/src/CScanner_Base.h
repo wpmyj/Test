@@ -115,7 +115,8 @@ public:
 	float             m_fBrightness;            /**< Brightness */
 	float             m_fThreshold;             /**< Threshold */
 
-	//WORD              m_nRotation; //zhu
+	int               m_nRotation; //zhu
+	int               m_nOrientation; //zhu
 
 protected:
 	bool              m_bReadOnly;              /**< current mode */

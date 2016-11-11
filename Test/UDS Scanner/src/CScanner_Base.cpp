@@ -26,6 +26,9 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_fContrast    = settings.m_fContrast;
 	m_fBrightness  = settings.m_fBrightness;
 	m_fThreshold   = settings.m_fThreshold;
+
+	m_nRotation    = settings.m_nRotation; //zhu
+	m_nOrientation = settings.m_nOrientation; //zhu
 }
 
 CScanner_Base CScanner_Base::getSetting() const

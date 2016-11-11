@@ -36,7 +36,7 @@ typedef union {
 
 using namespace std;
 
-/** 设备编号 */
+/** 设备编号 */ //wan
 typedef enum DEVICE_NUMBER
 {
 	DEVICE_FREEIMAGE	= 1,  /**< 虚拟扫描仪 */
@@ -115,6 +115,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
   m_pGUI = CreateUI(this);
 //	GetImagePathFromINI();  
 
+	//wan
 	switch (g_nDeviceNumber)
 	{
 	case DEVICE_FREEIMAGE:
@@ -133,7 +134,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 			::MessageBox(g_hwndDLG,"不支持的设备！","UDS",MB_OK);
 		}
 		break;
-	}
+	}//wan
 	
   return;
 
@@ -990,8 +991,25 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
     break;
   }
 
-  _pImageInfo->Planar = FALSE;
-  _pImageInfo->Compression = TWCP_NONE;
+	_pImageInfo->Planar = FALSE;
+	_pImageInfo->Compression = TWCP_NONE;
+
+	//zhu
+	/*switch(settings.m_nRotation)
+	{
+	case TWOR_ROT0:
+	_pImageInfo->Rotation = 0;
+	break;
+	case TWOR_ROT90:
+	_pImageInfo->Rotation = 90;
+	break;
+	case TWOR_ROT180:
+	_pImageInfo->Rotation = 180;
+	break;
+	case TWOR_ROT270:
+	_pImageInfo->Rotation = 270;
+	break;
+	}*/
 
   return twrc;
 }
@@ -1620,16 +1638,28 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   }
 
 	//zhu
-	//if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
-	//{
-	//	cerr << "Could not get ICAP_ROTATION" << endl;
-	//	bret = false;
-	//}
-	//else
-	//{
-	//	pnCap->GetCurrent(nVal);
-	//	settings.m_nRotation = nVal;
-	//}//zhu
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
+	{
+		cerr << "Could not get ICAP_ROTATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nRotation = nVal;
+	}//zhu
+
+	//zhu
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
+	{
+		cerr << "Could not get ICAP_ORIENTATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nOrientation = nVal;
+	}//zhu
 
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_BRIGHTNESS))))

@@ -176,6 +176,9 @@ bool CScanner_FreeImage::resetScanner()
   m_fXResolution  = 200.0;
   m_fYResolution  = 200.0;
 
+	m_nRotation     = 0; //zhu
+	m_nOrientation  = TWOR_ROT0; //zhu 纵向
+
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
   {
     FreeImage_Unload(m_pDIB);
@@ -197,7 +200,6 @@ void CScanner_FreeImage::setSetting(CScanner_Base settings)
 //////////////////////////////////////////////////////////////////////////////
 bool CScanner_FreeImage::acquireImage()
 {
-	//::MessageBox(g_hwndDLG,"acquireImage","UDS",MB_OK);
 	//if (false == m_vector_string_imagepath.empty())  
 	//{
 	//	static vector<std::string.::iterator it = m_vector_string_imagepat..begin();
@@ -244,7 +246,7 @@ bool CScanner_FreeImage::acquireImage()
 	{
 		return false;
 	}
-
+	
 	return true;
 }
 
@@ -280,24 +282,6 @@ bool CScanner_FreeImage::preScanPrep()
     }
   }
 
-	//zhu
-	//if (m_nRotation == TWOR_ROT0)
-	//{
-	//	FreeImage_RotateClassic(m_pDIB, 0.00);
-	//} 
-	//else if (m_nRotation == TWOR_ROT90)
-	//{
-	//	FreeImage_RotateClassic(m_pDIB, 90.00);
-	//} 
-	//else if (m_nRotation == TWOR_ROT180)
-	//{
-	//	FreeImage_RotateClassic(m_pDIB, 180.00);
-	//}
-	//else if (m_nRotation == TWOR_ROT270)
-	//{
-	//	FreeImage_RotateClassic(m_pDIB, 270.00);
-	//} //zhu
-
 	// 获取影像的宽高，都以像素为单位 
   m_nSourceWidth   = FreeImage_GetWidth(m_pDIB);
   m_nSourceHeight  = FreeImage_GetHeight(m_pDIB);
@@ -313,7 +297,62 @@ bool CScanner_FreeImage::preScanPrep()
 
   cout << "ds: rescaling... to " << unNewWidth << " x " << unNewHeight << endl;
   pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
-  if(0 == pDib)
+  
+	//zhu FreeImage_RotateClassic
+	FIBITMAP *rotatedimg;
+	if(m_nOrientation == TWOR_LANDSCAPE)
+	{
+		::MessageBox(g_hwndDLG,"TWOR_LANDSCAPE","UDS",MB_OK);
+		rotatedimg = FreeImage_RotateClassic(pDib, -270);
+	}
+	else if (m_nRotation == TWOR_ROT0)// && m_nOrientation == TWOR_PORTRAIT) 
+	{
+		::MessageBox(g_hwndDLG,"不旋转","UDS",MB_OK);
+		rotatedimg = FreeImage_RotateClassic(pDib, 0);
+	} 
+	else if (m_nRotation == TWOR_ROT90)
+	{
+		::MessageBox(g_hwndDLG,"旋转90度","UDS",MB_OK);
+		rotatedimg = FreeImage_RotateClassic(pDib, -90);
+	} 
+	else if (m_nRotation == TWOR_ROT180)
+	{
+		rotatedimg = FreeImage_RotateClassic(pDib, -180);
+	}
+	else if (m_nRotation == TWOR_ROT270)// || m_nOrientation == TWOR_LANDSCAPE)
+	{
+		rotatedimg = FreeImage_RotateClassic(pDib, -270);
+	} 
+	
+	//m_pDIB = rotatedimg;
+	pDib = rotatedimg;
+	//zhu
+
+	//zhu FreeImage_RotateEx
+	//double x_orig = m_nSourceWidth / (double)2;
+	//double y_orig = m_nSourceHeight / (double)2;
+	//FIBITMAP *rotatedimg;
+	//if (m_nRotation == TWOR_ROT0)
+	//{
+	//	//::MessageBox(g_hwndDLG,"0","UDS",MB_OK);
+	//	rotatedimg = FreeImage_RotateEx(m_pDIB, 0, 0, 0, x_orig, y_orig, TRUE);
+	//} 
+	//else if (m_nRotation == TWOR_ROT90)
+	//{
+	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -90, 0, 0, x_orig, y_orig, TRUE);
+	//} 
+	//else if (m_nRotation == TWOR_ROT180)
+	//{
+	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -180, 0, 0, x_orig, y_orig, TRUE);
+	//}
+	//else if (m_nRotation == TWOR_ROT270)
+	//{
+	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -270, 0, 0, x_orig, y_orig, TRUE);
+	//} 
+	//m_pDIB = rotatedimg;
+	//zhu
+	
+	if(0 == pDib)
   {
     return false;
   }

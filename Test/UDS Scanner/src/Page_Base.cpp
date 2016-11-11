@@ -209,6 +209,8 @@ BOOL CPage_Base::OnInitDialog()
 	InitSliderCtrl();
 	InitComboProfile();
 
+	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
+
 	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
@@ -243,7 +245,7 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_contrast.GetPos();  // 获取滑块当前位置
-	m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, sldValue));
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, sldValue));
 	m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)sldValue);  // 设置对比度为当前滚动条值
 
 	str.Format("%d", sldValue);
@@ -264,7 +266,7 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pR
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_brightness.GetPos();  // 获取滑块当前位置
-	m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, sldValue));
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, sldValue));
 	m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)sldValue);  // 设置亮度为当前滚动条值
 
 	str.Format("%d", sldValue);
@@ -285,8 +287,16 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	UpdateData(TRUE); //接收数据
 	CString str;
 	int sldValue = m_slider_threshold.GetPos(); //获取滑块的当前位置
-	m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, sldValue));
-	//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 设置亮度为当前滚动条值
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, sldValue));
+	
+	if(0 == sldValue)
+	{
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,230);  // 设置亮度为当前滚动条值
+	}
+	else
+	{
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 设置亮度为当前滚动条值
+	}
 
 	str.Format("%d", sldValue);
 	m_edit_threshold.SetWindowText(str); //在编辑框同步显示滚动条值
@@ -315,7 +325,7 @@ void CPage_Base::OnEnChangeBase_Edit_Contrast()
 	m_edit_contrast.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_contrast.SetPos(nval);
-	m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, nval));
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, nval));
 	m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)nval);  // 设置对比度为当前滚动条值
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -340,7 +350,7 @@ void CPage_Base::OnEnChangeBase_Edit_Brightness()
 	m_edit_brightness.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_brightness.SetPos(nval);
-	m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, nval));
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, nval));
 	m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)nval);  // 设置对比度为当前滚动条值
 
 	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -363,8 +373,15 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 	m_edit_threshold.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_threshold.SetPos(nval); //_ttoi把CString类型转换为int
-	m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, nval));
-	//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)nval);  // 设置对比度为当前滚动条值
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, nval));
+	if(0 == nval)
+	{
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,230.0);  // 设置亮度为当前滚动条值
+	}
+	else
+	{
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)nval);  // 设置亮度为当前滚动条值
+	}
 
 	m_edit_threshold.SetSel(str.GetLength(), str.GetLength(), TRUE); //设置编辑框控件范围
 	UpdateControls();
@@ -393,7 +410,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Source()
 	{
 		nval = 1;
 	}
-	m_basemap.insert(map<int, int> :: value_type(CAP_FEEDERENABLED, nval));
+	//m_basemap.insert(map<int, int> :: value_type(CAP_FEEDERENABLED, nval));
 	m_pUI->SetCapValueInt(CAP_FEEDERENABLED,nval);  // 设置对应参数
 	UpdateControls();
 
@@ -403,12 +420,39 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Source()
 }
 
 
+void CPage_Base::InitComboPixType(void)
+{
+	int nIndex = m_combo_colormode.GetCurSel();
+
+	if (0 == nIndex) //黑白
+	{
+		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE);	
+
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE);	
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE);		
+	} 
+	else
+	{
+		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE);	
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE);
+	}
+}
+
 void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_colormode.GetCurSel();
+	InitComboPixType(); //zhu
 	// 直接根据当前序号nIndex设置图像类型
-	m_basemap.insert(map<int, int> :: value_type(ICAP_PIXELTYPE, nIndex));  
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_PIXELTYPE, nIndex));  
 	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex);  
 	UpdateControls();
 
@@ -458,7 +502,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 		nval = 1;
 	}
 
-	m_basemap.insert(map<int, int> :: value_type(CAP_DUPLEXENABLED, nval));
+//	m_basemap.insert(map<int, int> :: value_type(CAP_DUPLEXENABLED, nval));
 	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,nval?1:0);
 	UpdateControls();
 }

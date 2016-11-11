@@ -39,6 +39,8 @@ private:
 	void InitComboProfile();  ///< 初始化模版Combo
 	void LoadProfile();  ///< 加载模版
 
+	void InitComboPixType(void); //初始化图像类型编辑框
+
 	//void SetControl(void);  ///<设置参数
 
 	///** 
@@ -76,8 +78,8 @@ private:
 	CButton m_check_multifeeddetect; ///<"重张检测"
 	CButton m_btn_chooseimage; ///<"选择图片按钮"
 
-	typedef map<int, int> MAP_CAP;
-	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
+	//typedef map<int, int> MAP_CAP;
+	//MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 
 	//vector<string> m_vector_string_imagepath;  /**< 图片路劲 */
 
