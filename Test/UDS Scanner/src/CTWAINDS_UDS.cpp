@@ -575,16 +575,20 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    //|| !pnCap->Add(TWSS_NONE) //wan
    || !pnCap->Add(TWSS_USLETTER, true)  //纸张大小,默认USLETTER
    || !pnCap->Add(TWSS_USLEGAL)
+	 || !pnCap->Add(TWSS_A3)  //zhu
    || !pnCap->Add(TWSS_A4)  //wan
    || !pnCap->Add(TWSS_A5)  //wan
    || !pnCap->Add(TWSS_A6)  //
    || !pnCap->Add(TWSS_A7)  //wan
+	 || !pnCap->Add(TWSS_ISOB4) //zhu
    || !pnCap->Add(TWSS_ISOB5)  //wan
    || !pnCap->Add(TWSS_ISOB6)  //wan
    || !pnCap->Add(TWSS_ISOB7)  //wan
+	 || !pnCap->Add(TWSS_JISB4)  //zhu
    || !pnCap->Add(TWSS_JISB5)  //wan
    || !pnCap->Add(TWSS_JISB6)  //wan
    || !pnCap->Add(TWSS_JISB7)  //wan
+	 || !pnCap->Add(TWSS_MAXSIZE)  //zhu
 	 )
   {
     cerr << "Could not create ICAP_SUPPORTEDSIZES" << endl;

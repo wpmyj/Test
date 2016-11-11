@@ -174,6 +174,18 @@ void CPage_Advanced::UpdateControls(void)
 		case TWSS_USLEGAL:
 			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
 			break;
+		//case TWSS_PHOT64:
+		//	m_combo_standardsizes.InsertString(i,"US Letter (6\" x 4\")");  //152mm x 102mm
+		//	break;
+		//case TWSS_PHOT53:
+		//	m_combo_standardsizes.InsertString(i,"US Letter (5\" x 3\")");  //127mm x 76mm
+		//	break;
+		//case TWSS_LONG:
+		//	m_combo_standardsizes.InsertString(i,"长纸模式（<118英寸）"); 
+		//	break;
+		case TWSS_A3:
+			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //国际标准
+			break;
 		case TWSS_A4:
 			m_combo_standardsizes.InsertString(i,"ISO A4 (210mm x 297mm)"); //国际标准
 			break;
@@ -186,6 +198,9 @@ void CPage_Advanced::UpdateControls(void)
 		case TWSS_A7:
 			m_combo_standardsizes.InsertString(i,"ISO A7 (74mm x 105mm)");
 			break;
+		case TWSS_ISOB4:
+			m_combo_standardsizes.InsertString(i,"ISO B4 (250mm x 353mm)");
+			break;
 		case TWSS_ISOB5:
 			m_combo_standardsizes.InsertString(i,"ISO B5 (176mm x 250mm)");
 			break;
@@ -195,6 +210,9 @@ void CPage_Advanced::UpdateControls(void)
 		case TWSS_ISOB7:
 			m_combo_standardsizes.InsertString(i,"ISO B7 (88mm x 125mm)");
 			break;
+		case TWSS_JISB4:
+			m_combo_standardsizes.InsertString(i,"JIS B4 (257mm x 364mm)");//JIS日本标准
+			break;
 		case TWSS_JISB5:
 			m_combo_standardsizes.InsertString(i,"JIS B5 (182mm x 257mm)");//JIS日本标准
 			break;
@@ -203,6 +221,12 @@ void CPage_Advanced::UpdateControls(void)
 			break;
 		case TWSS_JISB7:
 			m_combo_standardsizes.InsertString(i,"JIS B7 (91mm x 128mm)");
+			break;
+		case CUSTCAP_LONGDOCUMENT:
+			m_combo_standardsizes.InsertString(i,"长纸模式");
+			break;
+		case TWSS_MAXSIZE:
+			m_combo_standardsizes.InsertString(i,"最大扫描范围");
 			break;
 		default:
 			continue;
@@ -409,6 +433,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	{
 		nval = TWSS_USLEGAL;
 	}
+	else if (strCBText.Find("ISO A3") >= 0)
+	{
+		nval = TWSS_A3;
+	}
 	else if (strCBText.Find("ISO A4") >= 0)
 	{
 		nval = TWSS_A4;
@@ -425,6 +453,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	{
 		nval = TWSS_A7;
 	}
+	else if (strCBText.Find("ISO B4") >= 0)
+	{
+		nval = TWSS_ISOB4;
+	}
 	else if (strCBText.Find("ISO B5") >= 0)
 	{
 		nval = TWSS_ISOB5;
@@ -437,6 +469,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	{
 		nval = TWSS_ISOB7;
 	}
+	else if (strCBText.Find("JIS B4") >= 0)
+	{
+		nval = TWSS_JISB4;
+	}
 	else if (strCBText.Find("JIS B5") >= 0)
 	{
 		nval = TWSS_JISB5;
@@ -448,6 +484,14 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	else if (strCBText.Find("JIS B7") >= 0)
 	{
 		nval = TWSS_JISB7;
+	}
+	else if (strCBText.Find("长纸模式") >= 0)
+	{
+		nval = CUSTCAP_LONGDOCUMENT;
+	}
+	else if (strCBText.Find("最大扫描") >= 0)
+	{
+		nval = TWSS_MAXSIZE;
 	}
 	else
 	{

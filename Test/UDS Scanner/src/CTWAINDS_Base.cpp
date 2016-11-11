@@ -352,7 +352,6 @@ CTWAINContainer* CTWAINDS_Base::findCapability(const TW_UINT16 _unCap)
   if(itCap == m_IndependantCapMap.end())
   {
     setConditionCode(TWCC_CAPUNSUPPORTED);
-		//::MessageBox(hwndDLG,"UnSupported","UDS",MB_OK);
   }
   else
   {

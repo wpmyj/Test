@@ -299,20 +299,24 @@ bool CScanner_FreeImage::preScanPrep()
   pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
   
 	//zhu FreeImage_RotateClassic
+	/*char buf[1024];
+	itoa((int)m_nRotation,buf,10);
+	::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);*/
+
 	FIBITMAP *rotatedimg;
-	if(m_nOrientation == TWOR_LANDSCAPE)
+	/*if(m_nOrientation == TWOR_LANDSCAPE)
 	{
-		::MessageBox(g_hwndDLG,"TWOR_LANDSCAPE","UDS",MB_OK);
+		::MessageBox(g_hwndDLG,"TWOR_LANDSCAPE","UDS",MB_OK);  //旋转框架，非图片
 		rotatedimg = FreeImage_RotateClassic(pDib, -270);
 	}
-	else if (m_nRotation == TWOR_ROT0)// && m_nOrientation == TWOR_PORTRAIT) 
+	else */if (m_nRotation == TWOR_ROT0)// && m_nOrientation == TWOR_PORTRAIT) 
 	{
 		::MessageBox(g_hwndDLG,"不旋转","UDS",MB_OK);
 		rotatedimg = FreeImage_RotateClassic(pDib, 0);
 	} 
 	else if (m_nRotation == TWOR_ROT90)
 	{
-		::MessageBox(g_hwndDLG,"旋转90度","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"旋转90度","UDS",MB_OK);
 		rotatedimg = FreeImage_RotateClassic(pDib, -90);
 	} 
 	else if (m_nRotation == TWOR_ROT180)
