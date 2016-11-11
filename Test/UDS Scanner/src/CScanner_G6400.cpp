@@ -327,7 +327,13 @@ void CScanner_G6400::ImageTransfer(void)
 	strPath.Format(TEXT("d:\\a\\AVSDK%04d_sdk.tif"), fileNumber);
 	CommonFunc.GDISaveImage(psaveBuffer, strPath, m_ImageInfo);
 
-	m_pSaveData = psaveBuffer;  // 获取数据
+	//m_pSaveData = psaveBuffer;  // 获取数据
+
+	//psaveBuffer += dwTotal;
+	//size_t size;
+	m_pSaveData = (BYTE *)malloc(dwTotal);
+	memcpy(m_pSaveData,psaveBuffer,dwTotal);
+
 	psaveTempBuffer = psaveBuffer;
 	delete []psaveTempBuffer;
 	psaveTempBuffer = NULL;
@@ -471,13 +477,17 @@ bool CScanner_G6400::isFeederLoaded()
 	return rtn;
 }
 
-void CScanner_G6400::GetImageData(BYTE *buffer)
+void CScanner_G6400::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
 	//bool bret = acquireImage();
 	//CString str;
 	//str.Format("%d",bret);
 	//AfxMessageBox(str);
-	buffer = m_pSaveData;
+	//buffer = m_pSaveData;
+
+	//buffer = (BYTE *)malloc(dwTotal);
+	memcpy(buffer,m_pSaveData,sizeof(m_pSaveData));
+	dwReceived = sizeof(m_pSaveData);
 }
 
 void CScanner_G6400::GetDLLPath(char* dllPath)

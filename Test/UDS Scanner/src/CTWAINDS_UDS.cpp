@@ -1361,15 +1361,15 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		// CScanner_G6400
 		//m_pScanner->GetImageData(pImageData);
 		//::MessageBox(g_hwndDLG,"transfer:GetImageData","UDS",MB_OK);
-
+		DWORD       dwRead;
+		DWORD       dwReceived;
 
 		switch (g_nDeviceNumber)
 		{
 		case DEVICE_FREEIMAGE:
 			{
 				//CScanner_FreeImage
-				DWORD       dwRead;
-				DWORD       dwReceived;
+			
 
 				do
 				{
@@ -1392,7 +1392,8 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		case DEVICE_G6400:
 			{
 				// CScanner_G6400
-				m_pScanner->GetImageData(pImageData);
+				m_pScanner->GetImageData(pImageData,dwReceived);
+				pImageData += dwReceived;
 			}
 			break;
 		default:
