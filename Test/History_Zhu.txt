@@ -84,3 +84,5 @@ date 16.11.14
 1、解决长纸模式未加入的问题，在CTWAIN_UDS的Initialize中忘记Add(CUSTCAP_LONGDOCUMENT)
 2、为二值化添加下拉框的选项值，添加OnCbnSelchangeAdvanced_Combo_Binarization函数，以及OnCbnSelchangeAdvanced_Combo_SpiltImage函数
 3、添加函数SetBinarization，处理二值化选择动态阈值时，对应去除斑点滑动条的范围，设置默认值为20；选择固定阈值时，对应底色保留滑动条的范围，设置默认值为128；两者互斥。
+
+4、合并与宛的冲突的代码

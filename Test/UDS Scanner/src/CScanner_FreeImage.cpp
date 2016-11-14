@@ -179,6 +179,9 @@ bool CScanner_FreeImage::resetScanner()
 	m_nRotation     = 0; //zhu
 	m_nOrientation  = TWOR_ROT0; //zhu 纵向
 
+	//m_nBinarization = TWBZ_DynaThreshold; //zhu 动态阈值
+	//m_nSpiltImage   = TWSI_NONE; //zhu 不分割
+
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
   {
     FreeImage_Unload(m_pDIB);
@@ -192,7 +195,6 @@ bool CScanner_FreeImage::resetScanner()
 //////////////////////////////////////////////////////////////////////////////
 void CScanner_FreeImage::setSetting(CScanner_Base settings)
 {
-	//m_nRotation    = settings.m_nRotation;
   CScanner_Base::setSetting(settings);  // 调用父类的方法
   m_nDocCount = m_nMaxDocCount;
 }
@@ -310,52 +312,27 @@ bool CScanner_FreeImage::preScanPrep()
 		::MessageBox(g_hwndDLG,"TWOR_LANDSCAPE","UDS",MB_OK);  //旋转框架，非图片
 		rotatedimg = FreeImage_RotateClassic(pDib, -270);
 	}
-	else */if (m_nRotation == TWOR_ROT0)// && m_nOrientation == TWOR_PORTRAIT) 
+	else */switch(m_nRotation)
 	{
-		::MessageBox(g_hwndDLG,"不旋转","UDS",MB_OK);
+	case TWOR_ROT0:
 		rotatedimg = FreeImage_RotateClassic(pDib, 0);
-	} 
-	else if (m_nRotation == TWOR_ROT90)
-	{
-		//::MessageBox(g_hwndDLG,"旋转90度","UDS",MB_OK);
+		break;
+	case TWOR_ROT90:
 		rotatedimg = FreeImage_RotateClassic(pDib, -90);
-	} 
-	else if (m_nRotation == TWOR_ROT180)
-	{
+		break;
+	case TWOR_ROT180:
 		rotatedimg = FreeImage_RotateClassic(pDib, -180);
-	}
-	else if (m_nRotation == TWOR_ROT270)// || m_nOrientation == TWOR_LANDSCAPE)
-	{
+		break;
+	case TWOR_ROT270:
 		rotatedimg = FreeImage_RotateClassic(pDib, -270);
+		break;
+	default:
+		break;
 	} 
-	
-	//m_pDIB = rotatedimg;
 	pDib = rotatedimg;
-	//zhu
+	//zhu 或者使用FreeImage_RotateEx
 
-	//zhu FreeImage_RotateEx
-	//double x_orig = m_nSourceWidth / (double)2;
-	//double y_orig = m_nSourceHeight / (double)2;
-	//FIBITMAP *rotatedimg;
-	//if (m_nRotation == TWOR_ROT0)
-	//{
-	//	//::MessageBox(g_hwndDLG,"0","UDS",MB_OK);
-	//	rotatedimg = FreeImage_RotateEx(m_pDIB, 0, 0, 0, x_orig, y_orig, TRUE);
-	//} 
-	//else if (m_nRotation == TWOR_ROT90)
-	//{
-	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -90, 0, 0, x_orig, y_orig, TRUE);
-	//} 
-	//else if (m_nRotation == TWOR_ROT180)
-	//{
-	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -180, 0, 0, x_orig, y_orig, TRUE);
-	//}
-	//else if (m_nRotation == TWOR_ROT270)
-	//{
-	//	rotatedimg = FreeImage_RotateEx(m_pDIB, -270, 0, 0, x_orig, y_orig, TRUE);
-	//} 
-	//m_pDIB = rotatedimg;
-	//zhu
+	//需要增加二值化、图像分割的处理
 	
 	if(0 == pDib)
   {

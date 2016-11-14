@@ -358,7 +358,9 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_GAMMA,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,CUSTCAP_LONGDOCUMENT,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,ICAP_ROTATION,0,TWON_ONEVALUE); //zhu
-  return bResult;
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_BINARIZATION,0,TWON_ONEVALUE); //zhu 二值化
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  分割图像
+	return bResult;
 }
 
 bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
@@ -389,6 +391,8 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
   bResult = bResult && ReadCapFromStream(DsData,ICAP_ORIENTATION,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_FRAMES,0);
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_ROTATION,0); //zhu
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_BINARIZATION,0); //zhu 
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_SPLITIMAGE,0); //zhu
   return bResult;
 }
 
@@ -445,6 +449,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(CUSTCAP_DOCS_IN_ADF) 
    || !pnCap->Add(CAP_CUSTOMDSDATA) 
 	 || !pnCap->Add(ICAP_ROTATION) //图像旋转 zhu
+	 || !pnCap->Add(CUSTCAP_BINARIZATION) // 二值化zhu
+	 || !pnCap->Add(CUSTCAP_SPLITIMAGE) //分割图像zhu
 
    )
   {
@@ -584,18 +590,23 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
    //|| !pnCap->Add(TWSS_NONE) //wan
-   || !pnCap->Add(TWSS_USLETTER, true)  //纸张大小,默认USLETTER
-   || !pnCap->Add(TWSS_USLEGAL)
-   || !pnCap->Add(TWSS_A4)  //wan
-   || !pnCap->Add(TWSS_A5)  //wan
-   || !pnCap->Add(TWSS_A6)  //
-   || !pnCap->Add(TWSS_A7)  //wan
-   || !pnCap->Add(TWSS_ISOB5)  //wan
-   || !pnCap->Add(TWSS_ISOB6)  //wan
-   || !pnCap->Add(TWSS_ISOB7)  //wan
-   || !pnCap->Add(TWSS_JISB5)  //wan
-   || !pnCap->Add(TWSS_JISB6)  //wan
-   || !pnCap->Add(TWSS_JISB7)  //wan
+	 || !pnCap->Add(TWSS_USLETTER, true)  //纸张大小，默认USLETTER
+	 || !pnCap->Add(TWSS_USLEGAL)
+	 || !pnCap->Add(TWSS_A3)  //zhu
+	 || !pnCap->Add(TWSS_A4)  //wan
+	 || !pnCap->Add(TWSS_A5)  //wan
+	 || !pnCap->Add(TWSS_A6)  //
+	 || !pnCap->Add(TWSS_A7)  //wan
+	 || !pnCap->Add(TWSS_ISOB4) //zhu
+	 || !pnCap->Add(TWSS_ISOB5)  //wan
+	 || !pnCap->Add(TWSS_ISOB6)  //wan
+	 || !pnCap->Add(TWSS_ISOB7)  //wan
+	 || !pnCap->Add(TWSS_JISB4)  //zhu 
+	 || !pnCap->Add(TWSS_JISB5)  //wan
+	 || !pnCap->Add(TWSS_JISB6)  //wan
+	 || !pnCap->Add(TWSS_JISB7)  //wan
+	 || !pnCap->Add(CUSTCAP_LONGDOCUMENT) //zhu 长纸模式
+	 || !pnCap->Add(TWSS_MAXSIZE)  //zhu
 	 )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_SUPPORTEDSIZES !"),MB_CAPTION,MB_OK);
@@ -618,6 +629,35 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	} //zhu
 		
+
+	//zhu 分割
+	m_IndependantCapMap[CUSTCAP_SPLITIMAGE] = new CTWAINContainerInt(CUSTCAP_SPLITIMAGE, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_SPLITIMAGE]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_SPLITIMAGE"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	//zhu 二值化
+	m_IndependantCapMap[CUSTCAP_BINARIZATION] = new CTWAINContainerInt(CUSTCAP_BINARIZATION, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_BINARIZATION]))
+		|| !pnCap->Add(TWBZ_DynaThreshold, true) //默认动态阈值
+		|| !pnCap->Add(TWBZ_FixedThreshold)
+		|| !pnCap->Add(TWBZ_Halftone1)
+		|| !pnCap->Add(TWBZ_Halftone2)
+		|| !pnCap->Add(TWBZ_Halftone3)
+		|| !pnCap->Add(TWBZ_Halftone4)
+		|| !pnCap->Add(TWBZ_Halftone5)
+		|| !pnCap->Add(TWBZ_ErrorDiff))  
+	{
+		cerr<<"Could not create CUSTCAP_BINARIZATION"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
 
   m_IndependantCapMap[ICAP_ORIENTATION] = new CTWAINContainerInt(ICAP_ORIENTATION, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ORIENTATION]))
@@ -1678,6 +1718,30 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pnCap->GetCurrent(nVal);
 		settings.m_nRotation = nVal;
+	}//zhu
+
+	//zhu
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_SPLITIMAGE))))
+	{
+		cerr << "Could not get CUSTCAP_SPLITIMAGE" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nSpiltImage = nVal;
+	}//zhu
+
+	//zhu
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_BINARIZATION))))
+	{
+		cerr << "Could not get CUSTCAP_BINARIZATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nBinarization = nVal;
 	}//zhu
 
 	//zhu
