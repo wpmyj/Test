@@ -116,8 +116,10 @@ public:
 	float             m_fBrightness;            /**< Brightness */
 	float             m_fThreshold;             /**< Threshold */
 
-	int               m_nRotation; //zhu
-	int               m_nOrientation; //zhu
+	int               m_nRotation; //zhu        /**< 旋转 */
+	int               m_nOrientation; //zhu     /**< 纸张方向 */
+	int               m_nBinarization; //zhu    /**< 二值化 */
+	int               m_nSpiltImage; //zhu      /**< 分割图像 */
 
 protected:
 	bool              m_bReadOnly;              /**< current mode */

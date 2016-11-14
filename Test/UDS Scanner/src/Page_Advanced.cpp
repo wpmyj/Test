@@ -11,6 +11,15 @@
 	/** 滑动条最大值 */
 #define SLIDER_MAX  100 
 
+/** 去除斑点最小值 */
+#define SLIDER_MIN_SENSITIVITY 1 
+/** 去除斑点最大值 */
+#define SLIDER_MAX_SENSITIVITY 30 
+
+/** 底色保留最小值 */
+#define SLIDER_MIN_THRESHOLD 1 
+/** 底色保留最大值 */
+#define SLIDER_MAX_THRESHOLD 255 
 
 // CPage_Advanced 对话框
 
@@ -40,9 +49,11 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_BINARIZATION, m_combo_binarization);
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_CONTRAST, m_edit_contrast);
+	DDX_Control(pDX, IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, m_edit_sensitive_threshold);
 	DDX_Control(pDX, IDC_CHECK_MULTISTREAM, m_check_multistream);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_CONTRAST, m_slider_contrast);
+	DDX_Control(pDX, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, m_slider_sensitive_threshold);
 	DDX_Control(pDX, IDC_CHECK_BACKBW, m_check_backbw);
 	DDX_Control(pDX, IDC_CHECK_BACKCOLOR, m_check_backcolor);
 	DDX_Control(pDX, IDC_CHECK_BACKGRAY, m_check_backgray);
@@ -57,7 +68,9 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_ORIENTATION, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Orientation)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_UINTS, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Uints)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_RESOLUTION, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Resolution)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_BINARIZATION, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Binarization)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_ROTATE, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Rotate)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_SPLITIMG, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage)
 	ON_BN_CLICKED(IDC_CHECK_MULTISTREAM, &CPage_Advanced::OnAdvanced_Btn_Check_Multistream)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_BRIGHTNESS, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Brightness)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_CONTRAST, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Contrast)
@@ -69,6 +82,8 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_BACKGRAY, &CPage_Advanced::OnAdvanced_Btn_Check_BackGray)
 	ON_BN_CLICKED(IDC_CHECK_BACKCOLOR, &CPage_Advanced::OnAdvanced_Btn_Check_BackColor)
 	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Advanced::OnAdvanced_Btn_Check_BackBW)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, &CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold)
 END_MESSAGE_MAP()
 
 //void CPage_Advanced::OnOK()
@@ -179,9 +194,6 @@ void CPage_Advanced::UpdateControls(void)
 		//	break;
 		//case TWSS_PHOT53:
 		//	m_combo_standardsizes.InsertString(i,"US Letter (5\" x 3\")");  //127mm x 76mm
-		//	break;
-		//case TWSS_LONG:
-		//	m_combo_standardsizes.InsertString(i,"长纸模式（<118英寸）"); 
 		//	break;
 		case TWSS_A3:
 			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //国际标准
@@ -299,10 +311,42 @@ void CPage_Advanced::UpdateControls(void)
 	m_combo_uints.SetCurSel(nCapIndex);
 
 	//多流输出-二值化
-	//m_combo_binarization.ResetContent(); //清空内容
-	//nCapIndex = m_pUI->GetCurrentCapIndex();
-	//lstCapValues = m_pUI->GetValidCap();
-
+	m_combo_binarization.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(CUSTCAP_BINARIZATION);
+	lstCapValues = m_pUI->GetValidCap(CUSTCAP_BINARIZATION);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWBZ_DynaThreshold:
+			m_combo_binarization.InsertString(i,"动态阈值");
+			break;
+		case TWBZ_FixedThreshold:
+			m_combo_binarization.InsertString(i,"固定阈值"); 
+			break;
+		case TWBZ_Halftone1:
+			m_combo_binarization.InsertString(i,"半色调1");
+			break;
+		case TWBZ_Halftone2:
+			m_combo_binarization.InsertString(i,"半色调2");
+			break;
+		case TWBZ_Halftone3:
+			m_combo_binarization.InsertString(i,"半色调3");
+			break;
+		case TWBZ_Halftone4:
+			m_combo_binarization.InsertString(i,"半色调4");
+			break;
+		case TWBZ_Halftone5:
+			m_combo_binarization.InsertString(i,"半色调5");
+			break;
+		case TWBZ_ErrorDiff:
+			m_combo_binarization.InsertString(i,"误差扩散");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_binarization.SetCurSel(nCapIndex);
 
 	//多流输出-分辨率
 	m_combo_resolution.ResetContent(); //清空内容
@@ -343,12 +387,28 @@ void CPage_Advanced::UpdateControls(void)
 	}
 	m_combo_rotate.SetCurSel(nCapIndex);
 
-
 	//图像设置-图像分割
-	//m_combo_splitimage.ResetContent(); //清空内容
-	//nCapIndex = m_pUI->GetCurrentCapIndex();
-	//lstCapValues = m_pUI->GetValidCap();
-
+	m_combo_splitimage.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(CUSTCAP_SPLITIMAGE);
+	lstCapValues = m_pUI->GetValidCap(CUSTCAP_SPLITIMAGE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWSI_NONE:
+			m_combo_splitimage.InsertString(i,"不分割图像");
+			break;
+		case TWSI_HORIZONTAL:
+			m_combo_splitimage.InsertString(i,"水平分割图像"); 
+			break;
+		case TWSI_VERTICAL:
+			m_combo_splitimage.InsertString(i,"垂直分割图像");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_splitimage.SetCurSel(nCapIndex);
 }
 
 
@@ -365,7 +425,6 @@ BOOL CPage_Advanced::OnInitDialog()
 	//多流输出下的选项默认不使用
 	m_check_multistream.SetCheck(FALSE);
 	SetMultistream();
-	
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -384,15 +443,16 @@ void CPage_Advanced::SetMultistream(void)
 
 		GetDlgItem(IDC_ADVANCED_COMBO_BINARIZATION)->EnableWindow(TRUE); //二值化
 		GetDlgItem(IDC_ADVANCED_COMBO_RESOLUTION)->EnableWindow(TRUE); //分辨率
-
+		GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); //去除斑点
 		GetDlgItem(IDC_ADVANCED_SLIDER_CONTRAST)->EnableWindow(TRUE); //对比度
 		GetDlgItem(IDC_ADVANCED_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); //亮度
+
+		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); //去除斑点Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
 
 		SetColorGrayImage();
 		SetBWImage();
-
 	} 
 	else
 	{
@@ -405,13 +465,56 @@ void CPage_Advanced::SetMultistream(void)
 
 		GetDlgItem(IDC_ADVANCED_COMBO_BINARIZATION)->EnableWindow(FALSE); //二值化
 		GetDlgItem(IDC_ADVANCED_COMBO_RESOLUTION)->EnableWindow(FALSE); //分辨率
-
+		GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); //去除斑点
 		GetDlgItem(IDC_ADVANCED_SLIDER_BRIGHTNESS)->EnableWindow(FALSE); //亮度
 		GetDlgItem(IDC_ADVANCED_SLIDER_CONTRAST)->EnableWindow(FALSE); //对比度
+
+		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); //去除斑点Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS)->EnableWindow(FALSE); //亮度Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(FALSE); //对比度Edit
 	}
 }
+
+
+void CPage_Advanced::SetBinarization(void)
+{
+	if (m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+	{
+		GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); 
+		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); 
+
+		CString strCBText;
+		GetDlgItemText(IDC_ADVANCED_COMBO_BINARIZATION,strCBText);
+		if (strCBText.Find("动态阈值") >= 0)
+		{
+			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("去除斑点"));
+			m_slider_sensitive_threshold.SetRange(SLIDER_MIN_SENSITIVITY,SLIDER_MAX_SENSITIVITY);
+			m_slider_sensitive_threshold.SetTicFreq(1);
+			m_slider_sensitive_threshold.SetPos(20);//设置为默认值20
+		}
+		else if(strCBText.Find("固定阈值") >= 0)
+		{
+			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("底色保留"));
+
+			m_slider_sensitive_threshold.SetRange(SLIDER_MIN_THRESHOLD,SLIDER_MAX_THRESHOLD);
+			m_slider_sensitive_threshold.SetTicFreq(1);
+			m_slider_sensitive_threshold.SetPos(128);//设置为默认值128
+		}
+		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
+		{
+			GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); 
+			GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); 
+		}
+	}
+	else
+	{
+		GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); 
+		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); 
+	}
+
+	UpdateData(FALSE);
+}
+
 
 void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 {
@@ -655,6 +758,81 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Rotate()
 }
 
 
+void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Binarization()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_binarization.GetCurSel();
+	CString strCBText; 
+	m_combo_binarization.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("动态阈值") >= 0)
+	{
+		nval = TWBZ_DynaThreshold;
+	}
+	else if(strCBText.Find("固定阈值") >= 0)
+	{
+		nval = TWBZ_FixedThreshold; 
+	}
+	else if(strCBText.Find("半色调1") >= 0)
+	{
+		nval = TWBZ_Halftone1; 
+	}
+	else if(strCBText.Find("半色调2") >= 0)
+	{
+		nval = TWBZ_Halftone2; 
+	}
+	else if(strCBText.Find("半色调3") >= 0)
+	{
+		nval = TWBZ_Halftone3; 
+	}
+	else if(strCBText.Find("半色调4") >= 0)
+	{
+		nval = TWBZ_Halftone4; 
+	}
+	else if(strCBText.Find("半色调5") >= 0)
+	{
+		nval = TWBZ_Halftone5; 
+	}
+	else if(strCBText.Find("误差扩散") >= 0)
+	{
+		nval = TWBZ_ErrorDiff; 
+	}
+	else
+	{}
+	m_pUI->SetCapValueInt(CUSTCAP_BINARIZATION,nval); 
+
+	SetBinarization();
+	UpdateControls();
+}
+
+
+void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_splitimage.GetCurSel();
+	CString strCBText; 
+	m_combo_splitimage.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("不分割图像") >= 0)
+	{
+		nval = TWSI_NONE;
+	}
+	else if(strCBText.Find("水平分割图像") >= 0)
+	{
+		nval = TWSI_HORIZONTAL; 
+	}
+	else if(strCBText.Find("垂直分割图像") >= 0)
+	{
+		nval = TWSI_VERTICAL; 
+	}
+	else
+	{}
+	m_pUI->SetCapValueInt(CUSTCAP_SPLITIMAGE,nval); 
+	UpdateControls();
+}
+
+
+
 void CPage_Advanced::OnAdvanced_Btn_Check_Multistream()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -672,6 +850,25 @@ void CPage_Advanced::InitSliderCtrl()
 	m_slider_brightness.SetPos(0);//设置为中间
 
 	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_sensitive_threshold.GetPos();  // 获取滑块当前位置
+	m_pUI->SetCapValueFloat(CUSTCAP_SENSITIVETHRESHOLD,(float)sldValue);  
+
+	str.Format("%d", sldValue);
+	m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	UpdateData(FALSE);  // 更新控件
+	UpdateControls();
+	/*// 设置应用按钮为可用状态
+	SetModified(TRUE);*/
+	*pResult = 0;
 }
 
 
@@ -739,6 +936,32 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Contrast()
 }
 
 
+
+void CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CPropertyPage::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_sensitive_threshold.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_sensitive_threshold.SetPos(nval);
+
+	m_pUI->SetCapValueFloat(CUSTCAP_SENSITIVETHRESHOLD,(float)nval);  
+
+	m_edit_sensitive_threshold.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+	UpdateControls();
+
+	/*// 设置应用按钮为可用状态
+	SetModified(TRUE);*/
+}
+
+
 void CPage_Advanced::OnEnChangeAdvanced_Edit_Brightness()
 {
 	// TODO:  如果该控件是 RICHEDIT 控件，它将不
@@ -794,6 +1017,7 @@ void CPage_Advanced::SetBWImage(void)
 	{
 		GetDlgItem(IDC_ADVANCED_COMBO_BINARIZATION)->EnableWindow(FALSE);
 	}
+	SetBinarization(); //设置“去除斑点”还是“底色保留”
 }
 
 void CPage_Advanced::OnAdvanced_Btn_Check_FrontColor()
@@ -836,3 +1060,4 @@ void CPage_Advanced::OnAdvanced_Btn_Check_BackBW()
 	// TODO: 在此添加控件通知处理程序代码
 	SetBWImage();
 }
+

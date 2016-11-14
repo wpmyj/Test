@@ -58,8 +58,10 @@ private:
 
 	CEdit m_edit_brightness; ///< 多流输出,亮度
 	CEdit m_edit_contrast; ///< 多流输出，对比度
+	CEdit m_edit_sensitive_threshold; ///< 多流输出，去除斑点
 	CSliderCtrl m_slider_brightness;
 	CSliderCtrl m_slider_contrast;
+	CSliderCtrl m_slider_sensitive_threshold;
 
 	CButton m_check_multistream;
 	CButton m_check_backbw;
@@ -79,6 +81,7 @@ private:
 	void SetMultistream(void); ///<设置多流输出配套参数
 	void SetColorGrayImage(void); ///<设置彩色和灰度，亮度、对比度可用
 	void SetBWImage(void); ///<设置黑白图片时二值化可用
+	void SetBinarization(void); ///<设置二值化分别选择不同值时，该显示“去除斑点”还是“底色保留”
 
 private:
 	virtual BOOL OnInitDialog();
@@ -90,6 +93,9 @@ private:
 	
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Resolution();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Rotate();
+
+	afx_msg void OnCbnSelchangeAdvanced_Combo_Binarization();
+	afx_msg void OnCbnSelchangeAdvanced_Combo_SpiltImage();
 
 	afx_msg void OnAdvanced_Btn_Check_Multistream();
 	
@@ -104,4 +110,8 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_BackGray();
 	afx_msg void OnAdvanced_Btn_Check_BackColor();
 	afx_msg void OnAdvanced_Btn_Check_BackBW();
+
+public:
+	afx_msg void OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeAdvanced_Edit_SensitiveThreshold();
 };

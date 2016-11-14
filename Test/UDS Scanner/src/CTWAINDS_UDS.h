@@ -18,6 +18,26 @@
 #define CUSTCAP_LONGDOCUMENT CAP_CUSTOMBASE+1
 #define CUSTCAP_DOCS_IN_ADF  CAP_CUSTOMBASE+2
 
+#define CUSTCAP_BINARIZATION CAP_CUSTOMBASE+3  //zhu 二值化
+#define CUSTCAP_SPLITIMAGE CAP_CUSTOMBASE+4  //zhu 图像分割
+#define CUSTCAP_SENSITIVETHRESHOLD CAP_CUSTOMBASE+5 //zhu 去除斑点
+
+/* CUSTCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值zhu*/
+#define TWBZ_DynaThreshold         0
+#define TWBZ_FixedThreshold        1
+#define TWBZ_Halftone1             2
+#define TWBZ_Halftone2             3
+#define TWBZ_Halftone3             4
+#define TWBZ_Halftone4             5
+#define TWBZ_Halftone5             6
+#define TWBZ_ErrorDiff             7
+/* Added by zhu */
+
+/* CUSTCAP_SPLITIMAGE values (SI_ means SPLITIMAGE) 分割图像对应取值zhu*/
+#define TWSI_NONE                  0
+#define TWSI_HORIZONTAL            1
+#define TWSI_VERTICAL              2
+
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{A4FAF845-1383-4036-AEDC-17C3968188B4}"
 

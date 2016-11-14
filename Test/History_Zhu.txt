@@ -77,3 +77,10 @@ date 16.11.11
 1、补全纸张大小的所有参数选项，增加A3,ISOB4,JISB4,最大扫描，并测试通过
 2、查找其他功能参数在twain中的对应，注释twain.h
 3、调试但未解决一个Bug,长纸模式未加入纸张大小选项中。
+
+date 16.11.14
+------------------------------------------------------------
+@author zhu
+1、解决长纸模式未加入的问题，在CTWAIN_UDS的Initialize中忘记Add(CUSTCAP_LONGDOCUMENT)
+2、为二值化添加下拉框的选项值，添加OnCbnSelchangeAdvanced_Combo_Binarization函数，以及OnCbnSelchangeAdvanced_Combo_SpiltImage函数
+3、添加函数SetBinarization，处理二值化选择动态阈值时，对应去除斑点滑动条的范围，设置默认值为20；选择固定阈值时，对应底色保留滑动条的范围，设置默认值为128；两者互斥。
