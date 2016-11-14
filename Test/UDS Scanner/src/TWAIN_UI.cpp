@@ -190,7 +190,7 @@ void CTWAIN_UI::Scan()
 {
   if(m_pDS->StartScanning())
   {
-		//::MessageBox(g_hwndDLG,"StartScanning","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
     m_bScanning = m_pDS->DoXferReadyEvent();
   }
 }
@@ -223,7 +223,7 @@ bool CTWAIN_UI::processEvent(pTW_EVENT _pEvent)
 int CTWAIN_UI::GetCurrentCapIndex(const TW_UINT16 _unCap)
 {
   CTWAINContainer  *pfCap = m_pDS->findCapability(_unCap);
-	//::MessageBox(hwndDLG,"findCapability","UDS",MB_OK);
+	//::MessageBox(hwndDLG,"findCapability",MB_CAPTION,MB_OK);
   if(pfCap==NULL)
   {
     assert(0);
@@ -562,7 +562,7 @@ bool CTWAIN_UI::TW_LoadProfileFromFile(string strFileName)
   TW_HANDLE hData;
   strFileName  = m_strProfilesDirectory+strFileName+FILEEXTENTION;
 	//CString str(strFileName);
-	//::MessageBox(g_hwndDLG,strFileName.c_str(),"UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,strFileName.c_str(),MB_CAPTION,MB_OK);
   FILE *pFile = NULL;
   //open file
   FOPEN(pFile, strFileName.c_str(), "rb");

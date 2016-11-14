@@ -101,7 +101,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 				break;
 			default:
 				{
-					::MessageBox(g_hwndDLG,"不支持的设备！","UDS",MB_OK);
+					::MessageBox(g_hwndDLG,"不支持的设备！",MB_CAPTION,MB_OK);
 				}
 				break;
 			}

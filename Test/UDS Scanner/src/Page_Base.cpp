@@ -98,7 +98,7 @@ void CPage_Base::OnOK()
 	}
 	else  
 	{
-		//::MessageBox(g_hwndDLG,"OnOK","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
 		m_pUI->Scan();
 	}
 

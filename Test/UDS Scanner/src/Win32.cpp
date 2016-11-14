@@ -6,6 +6,7 @@
 #include "dllmain.h"
 #include <list>
 #include "resource.h"
+#include "public.h"
 //////////////////////////////////////////////////////////////////////////////
 /************************************************************************
 Most DLL developers have faced the challenge of detecting a HMODULE/HINSTANCE
@@ -25,23 +26,6 @@ problem:
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 #endif
 #endif
-
-/** INI配置文件名常量 */
-#define INI_FILENAME TEXT("UDS_Scanner.ini")
-
-/** INI节常量 */
-#define INI_APP_DEVICE TEXT("Device")
-
-/** INI键(Key)常量 */
-#define INI_KEY_DEVICENUMBER TEXT("DeviceNumber")
-
-
-///** 设备编号 */
-//typedef enum	
-//{
-//	DEVICE_FREEIMAGE	= 1,  /**< 虚拟扫描仪 */
-//	DEVICE_G6400      = 2   /**< 扫描仪G6400 */
-//} DEVICE_NUMBER ;
 
 int g_nDeviceNumber;
 

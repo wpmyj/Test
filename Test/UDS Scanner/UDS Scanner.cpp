@@ -63,7 +63,7 @@ BOOL CUDSScannerApp::InitInstance()
 {
 	//g_hinstance = (HINSTANCE)GetCurrentModule(); //获取DLL自身的句柄
 	CWinApp::InitInstance();
-	//::MessageBox(hwndDLG,"Init","UDS",MB_OK);
+	//::MessageBox(hwndDLG,"Init",MB_CAPTION,MB_OK);
 
 	//该方法得到的是调用的exe的句柄
 	//AFX_MODULE_STATE* state = AfxGetModuleState();
@@ -72,7 +72,7 @@ BOOL CUDSScannerApp::InitInstance()
 	//获取DLL的绝对路径
 	/*TCHAR lib_name[MAX_PATH]; 
 	::GetModuleFileName( GetCurrentModule(), lib_name, MAX_PATH );
-	::MessageBox(hwndDLG,lib_name,"UDS",MB_OK);*/
+	::MessageBox(hwndDLG,lib_name,MB_CAPTION,MB_OK);*/
 
 	return TRUE;
 }

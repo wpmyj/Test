@@ -63,9 +63,9 @@ TW_IDENTITY g_myIdentity_Chinese =
 	3,                                  // TW_UINT16  ProtocolMajor;    Application and DS must set to TWON_PROTOCOLMAJOR
 	2,                                  // TW_UINT16  ProtocolMinor;    Application and DS must set to TWON_PROTOCOLMINOR
 	DG_IMAGE | DG_CONTROL | DF_DS2,     // TW_UINT32  SupportedGroups;  Bit field OR combination of DG_ constants
-	"UDS",              // TW_STR32   Manufacturer;     Manufacturer name, e.g. "Hewlett-Packard"
+	MB_CAPTION,              // TW_STR32   Manufacturer;     Manufacturer name, e.g. "Hewlett-Packard"
 	"UDS Scanner",    // TW_STR32   ProductFamily;    Product family name, e.g. "ScanJet"
-	"UDS General TWAIN Scanner" // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
+	MB_CAPTION // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
 };
 
 // 原版identity定义
@@ -121,24 +121,23 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	case DEVICE_G6400:
 		{
 			m_pScanner = new CScanner_G6400;
-			//::MessageBox(g_hwndDLG,"G6400","UDS",MB_OK);
+			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
 		}
 		break;
 	default:
 		{
-			::MessageBox(g_hwndDLG,"不支持的设备！","UDS",MB_OK);
+			::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
 		}
 		break;
 	}//wan
-	
   return;
-
+	
 	
 }
 
 bool CTWAINDS_UDS::StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx, TW_UINT16 unContType)
 {
-	//::MessageBox(g_hwndDLG,"StoreCapInStream","UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,"StoreCapInStream",MB_CAPTION,MB_OK);
   CUST_DS_DATA_ELEMENT *pCapCon =(CUST_DS_DATA_ELEMENT*) new BYTE[sizeof(CUST_DS_DATA_ELEMENT)];
   CTWAINContainer *pCap = findCapability(_unCapID);
   TW_UINT16 unType = pCap->GetItemType();
@@ -231,7 +230,7 @@ bool CTWAINDS_UDS::StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, T
 }
 
 bool CTWAINDS_UDS::ReadCapFromStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx)
-{//::MessageBox(g_hwndDLG,"ReadCapFromStream","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("ReadCapFromStream"),MB_CAPTION,MB_OK);
   _DsData.seekg(0, ios_base::beg);
   DWORD dwSize = sizeof(CUST_DS_DATA_ELEMENT);
   CUST_DS_DATA_ELEMENT *pCapCon =(CUST_DS_DATA_ELEMENT*) new BYTE[dwSize];
@@ -335,7 +334,7 @@ bool CTWAINDS_UDS::ReadCapFromStream(stringstream &_DsData, TW_UINT16 _unCapID, 
 }
 
 bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
-{//::MessageBox(g_hwndDLG,"StoreCustomDSdata","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("StoreCustomDSdata"),MB_CAPTION,MB_OK);
   bool bResult = true;
   bResult = bResult && StoreCapInStream(DsData,CAP_FEEDERENABLED,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,CAP_DUPLEXENABLED,0,TWON_ONEVALUE);
@@ -363,7 +362,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 }
 
 bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
-{//::MessageBox(g_hwndDLG,"ReadCustomDSdata","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("ReadCustomDSdata"),MB_CAPTION,MB_OK);
   // When adding to Capabiltiy remember the order of operations 
   // Some capabilities are dependent on others.
   // see: http://www.twain.org/docs/CapOrderForWeb.PDF
@@ -395,7 +394,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::Initialize()
-{//::MessageBox(g_hwndDLG,"Initialize","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("Initialize"),MB_CAPTION,MB_OK);
   // When adding to Capabiltiy remember the order of operations 
   // Some capabilities are dependent on others.
   // see: http://www.twain.org/docs/CapOrderForWeb.PDF
@@ -449,7 +448,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
    )
   {
-    cerr << "Could not create CAP_SUPPORTEDCAPS" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_SUPPORTEDCAPS" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -458,7 +458,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
    || !pnCap->Add(TWCP_NONE, true) )
   {
-    cerr << "Could not create ICAP_COMPRESSION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_COMPRESSION !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_COMPRESSION" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -469,7 +470,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   /// @todo support TWPC_PLANAR
   // || !pnCap->Add(TWPC_PLANAR)
   {
-    cerr << "Could not create ICAP_PLANARCHUNKY" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_PLANARCHUNKY !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_PLANARCHUNKY" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -483,7 +485,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWUN_POINTS)
    || !pnCap->Add(TWUN_TWIPS) )
   {
-    cerr << "Could not create ICAP_UNITS" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_UNITS !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_UNITS" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -495,7 +498,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWSX_NATIVE, true)
    )
   {
-    cerr << "Could not create ICAP_XFERMECH" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_XFERMECH !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_XFERMECH" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -507,7 +511,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWPT_RGB, true)  //图形类型，默认彩色
    ) 
   {
-    cerr << "Could not create ICAP_PIXELTYPE" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_PIXELTYPE !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_PIXELTYPE" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -516,7 +521,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_UICONTROLLABLE]))
    || !pbCap->Add(TRUE, true) )
   {
-    cerr << "Could not create CAP_UICONTROLLABLE" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_UICONTROLLABLE !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_UICONTROLLABLE" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -525,7 +531,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_ENABLEDSUIONLY]))
    || !pbCap->Add(TRUE, true) )
   {
-    cerr << "Could not create CAP_ENABLEDSUIONLY" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_ENABLEDSUIONLY !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_ENABLEDSUIONLY" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -534,7 +541,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CAP_XFERCOUNT]))
    || !pnCap->Add(TWON_DONTCARE32, true) )
   {
-    cerr << "Could not create CAP_XFERCOUNT" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_XFERCOUNT !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_XFERCOUNT" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -544,7 +552,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWBO_LSBFIRST, true)
    || !pnCap->Add(TWBO_MSBFIRST) )
   {
-    cerr << "Could not create ICAP_BITORDER" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BITORDER !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_BITORDER" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -554,7 +563,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWFF_BMP, true)
    || !pnCap->Add(TWFF_TIFF) )
   {
-    cerr << "Could not create ICAP_IMAGEFILEFORMAT" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_IMAGEFILEFORMAT !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_IMAGEFILEFORMAT" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -565,7 +575,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_PIXELFLAVOR]))
    || !pnCap->Add(TWPF_CHOCOLATE, true))
   {
-    cerr << "Could not create ICAP_PIXELFLAVOR" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_PIXELFLAVOR !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_PIXELFLAVOR" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -575,23 +586,20 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    //|| !pnCap->Add(TWSS_NONE) //wan
    || !pnCap->Add(TWSS_USLETTER, true)  //纸张大小,默认USLETTER
    || !pnCap->Add(TWSS_USLEGAL)
-	 || !pnCap->Add(TWSS_A3)  //zhu
    || !pnCap->Add(TWSS_A4)  //wan
    || !pnCap->Add(TWSS_A5)  //wan
    || !pnCap->Add(TWSS_A6)  //
    || !pnCap->Add(TWSS_A7)  //wan
-	 || !pnCap->Add(TWSS_ISOB4) //zhu
    || !pnCap->Add(TWSS_ISOB5)  //wan
    || !pnCap->Add(TWSS_ISOB6)  //wan
    || !pnCap->Add(TWSS_ISOB7)  //wan
-	 || !pnCap->Add(TWSS_JISB4)  //zhu
    || !pnCap->Add(TWSS_JISB5)  //wan
    || !pnCap->Add(TWSS_JISB6)  //wan
    || !pnCap->Add(TWSS_JISB7)  //wan
-	 || !pnCap->Add(TWSS_MAXSIZE)  //zhu
 	 )
   {
-    cerr << "Could not create ICAP_SUPPORTEDSIZES" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_SUPPORTEDSIZES !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_SUPPORTEDSIZES" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -604,7 +612,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !pnCap->Add(TWOR_ROT180)
 		|| !pnCap->Add(TWOR_ROT270))  
 	{
-		cerr<<"Could not create ICAP_ROTATION"<<endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ROTATION !"),MB_CAPTION,MB_OK);
+		//cerr<<"Could not create ICAP_ROTATION"<<endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	} //zhu
@@ -615,7 +624,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(TWOR_LANDSCAPE)  //wan
 	 || !pnCap->Add(TWOR_PORTRAIT, true))
   {
-    cerr << "Could not create ICAP_ORIENTATION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ORIENTATION !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_ORIENTATION" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -625,7 +635,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(TRUE, true)
    || !pbCap->Add(FALSE) )
   {
-    cerr << "Could not create CAP_DEVICEONLINE" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_DEVICEONLINE !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_DEVICEONLINE" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -635,7 +646,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(TRUE, true)
    || !pbCap->Add(FALSE))
   {
-    cerr << "Could not create CAP_INDICATORS" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_INDICATORS !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_INDICATORS" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -644,7 +656,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_MAXFRAMES]))
    || !pnCap->Add(1, true) )
   {
-    cerr << "Could not create ICAP_MAXFRAMES" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_MAXFRAMES !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_MAXFRAMES" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -654,7 +667,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(FALSE)
    || !pbCap->Add(TRUE, true) )  //wan，扫描模式，默认自动进纸器
   {
-    cerr << "Could not create CAP_FEEDERENABLED" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_FEEDERENABLED !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_FEEDERENABLED" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -665,7 +679,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(TWDX_1PASSDUPLEX)  // wan
 	 )
   {
-    cerr << "Could not create CAP_DUPLEX" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_DUPLEX !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_DUPLEX" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -676,7 +691,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pbCap->Add(TRUE)  
 	 )
   {
-    cerr << "Could not create CAP_DUPLEXENABLED" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_DUPLEXENABLED !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_DUPLEXENABLED" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -685,7 +701,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(TRUE)
    || !pbCap->Add(FALSE, true) )  
   {
-    cerr << "Could not create CAP_FEEDERLOADED" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_FEEDERLOADED !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_FEEDERLOADED" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -695,7 +712,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(TRUE, true)
    || !pbCap->Add(FALSE) )
   {
-    cerr << "Could not create CAP_AUTOFEED" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_AUTOFEED !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_AUTOFEED" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -704,7 +722,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_PAPERDETECTABLE]))
    || !pbCap->Add(TRUE, true) )
   {
-    cerr << "Could not create CAP_PAPERDETECTABLE" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_PAPERDETECTABLE !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_PAPERDETECTABLE" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -714,7 +733,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pbCap->Add(TRUE)
    || !pbCap->Add(FALSE, true) )
   {
-    cerr << "Could not create CUSTCAP_LONGDOCUMENT" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CUSTCAP_LONGDOCUMENT !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CUSTCAP_LONGDOCUMENT" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -723,7 +743,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_DOCS_IN_ADF]))
    || !pnCap->Add(m_pScanner->GetMaxPagesInADF()))
   {
-    cerr << "Could not create CUSTCAP_DOCS_IN_ADF" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CUSTCAP_DOCS_IN_ADF !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CUSTCAP_DOCS_IN_ADF" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -732,7 +753,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_CUSTOMDSDATA]))
    || !pbCap->Add(TRUE, true) )
   {
-    cerr << "Could not create CAP_CUSTOMDSDATA" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_CUSTOMDSDATA !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_CUSTOMDSDATA" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -741,7 +763,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_BitDepthMap[TWPT_BW] = new CTWAINContainerInt(ICAP_BITDEPTH, TWTY_UINT16, TWON_ENUMERATION))
    || !m_BitDepthMap[TWPT_BW]->Add(1, true) )
   {
-    cerr << "Could not create ICAP_BITDEPTH" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BITDEPTH !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_BITDEPTH" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -749,7 +772,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_BitDepthMap[TWPT_GRAY] = new CTWAINContainerInt(ICAP_BITDEPTH, TWTY_UINT16, TWON_ENUMERATION))
    || !m_BitDepthMap[TWPT_GRAY]->Add(8, true) )
   {
-    cerr << "Could not create ICAP_BITDEPTH" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BITDEPTH !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_BITDEPTH" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -757,7 +781,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_BitDepthMap[TWPT_RGB] = new CTWAINContainerInt(ICAP_BITDEPTH, TWTY_UINT16, TWON_ENUMERATION))
    || !m_BitDepthMap[TWPT_RGB]->Add(24, true) )
   {
-    cerr << "Could not create ICAP_BITDEPTH" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BITDEPTH !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_BITDEPTH" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -766,7 +791,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pstrCap = dynamic_cast<CTWAINContainerString*>(m_IndependantCapMap[CAP_CUSTOMINTERFACEGUID]))
     || !pstrCap->Add(kCUSTOMDSGUI, true))
   {
-    cerr << "Could not create CAP_CUSTOMINTERFACEGUID" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_CUSTOMINTERFACEGUID !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create CAP_CUSTOMINTERFACEGUID" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -775,7 +801,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_GAMMA]))
     || !pfixCap->Add(1, true))
   {
-    cerr << "Could not create ICAP_GAMMA" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_GAMMA !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_GAMMA" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -787,7 +814,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_THRESHOLD] = new CTWAINContainerFix32Range(ICAP_THRESHOLD,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_THRESHOLD]))
   {
-    cerr << "Could not create ICAP_THRESHOLD" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_THRESHOLD !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_THRESHOLD" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -799,7 +827,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_CONTRAST] = new CTWAINContainerFix32Range(ICAP_CONTRAST,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_CONTRAST]))
   {
-    cerr << "Could not create ICAP_CONTRAST" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_CONTRAST !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_CONTRAST" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -811,7 +840,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_BRIGHTNESS] = new CTWAINContainerFix32Range(ICAP_BRIGHTNESS,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_BRIGHTNESS]))
   {
-    cerr << "Could not create ICAP_BRIGHTNESS" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BRIGHTNESS !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_BRIGHTNESS" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -827,7 +857,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(500)
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(600))
   {
-    cerr << "Could not create ICAP_XRESOLUTION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_XRESOLUTION !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_XRESOLUTION" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -844,7 +875,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(500)
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(600))
   {
-    cerr << "Could not create ICAP_YRESOLUTION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_YRESOLUTION !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_YRESOLUTION" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -858,7 +890,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_ICAP_UNIT_Dependant[ICAP_PHYSICALWIDTH] = new CTWAINContainerFix32(ICAP_PHYSICALWIDTH, TWON_ONEVALUE, TWQC_GETS))
    || !m_ICAP_UNIT_Dependant[ICAP_PHYSICALWIDTH]->Add(8.5, true) )
   {
-    cerr << "Could not create ICAP_PHYSICALWIDTH" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_PHYSICALWIDTH !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_PHYSICALWIDTH" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -866,7 +899,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_ICAP_UNIT_Dependant[ICAP_PHYSICALHEIGHT] = new CTWAINContainerFix32(ICAP_PHYSICALHEIGHT, TWON_ONEVALUE, TWQC_GETS))
    || !m_ICAP_UNIT_Dependant[ICAP_PHYSICALHEIGHT]->Add(14.0, true) )
   {
-    cerr << "Could not create ICAP_PHYSICALHEIGHT" << endl;
+		::MessageBox(g_hwndDLG,TEXT(" !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_PHYSICALHEIGHT" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -877,7 +911,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (m_pICAP_FRAMES = new CTWAINContainerFrame(ICAP_FRAMES, TWON_ENUMERATION, TWQC_ALL))
    || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) )
   {
-    cerr << "Could not create ICAP_FRAMES" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_FRAMES !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not create ICAP_FRAMES" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
@@ -890,7 +925,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   }
   else
   {
-    cerr << "Could not getCurrentUnits" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not getCurrentUnits !"),MB_CAPTION,MB_OK);
+    //cerr << "Could not getCurrentUnits" << endl;
     setConditionCode(TWCC_BUMMER);
     return TWRC_FAILURE;
    }
@@ -901,7 +937,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
 //////////////////////////////////////////////////////////////////////////////
 CTWAINDS_UDS::~CTWAINDS_UDS()
-{//::MessageBox(g_hwndDLG,"~CTWAINDS_UDS","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"~CTWAINDS_UDS",MB_CAPTION,MB_OK);
   DestroyUI(m_pGUI);
 	
   // free all resources belonging to m_IndependantCapMap
@@ -937,13 +973,13 @@ CTWAINDS_UDS::~CTWAINDS_UDS()
 
 //////////////////////////////////////////////////////////////////////////////
 void CTWAINDS_UDS::fillIdentityStructure(TW_IDENTITY& _idStruct)
-{//::MessageBox(g_hwndDLG,"fillIdentityStructure","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"fillIdentityStructure",MB_CAPTION,MB_OK);
   _idStruct = m_TheIdentity;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
-{//::MessageBox(g_hwndDLG,"getImageInfo","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"getImageInfo",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   memset(_pImageInfo, 0, sizeof(TW_IMAGEINFO));
@@ -1016,7 +1052,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
 {
-//::MessageBox(g_hwndDLG,"openDS","UDS",MB_OK);
+//::MessageBox(g_hwndDLG,"openDS",MB_CAPTION,MB_OK);
   TW_INT16 ret = TWRC_SUCCESS;
   // this basic version of the DS only supports one connection from the DSM
   if( m_App.Id != 0 )
@@ -1045,7 +1081,7 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
   }
   else
   {
-		//::MessageBox(g_hwndDLG,"resetScanner() Success","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"resetScanner() Success",MB_CAPTION,MB_OK);
     m_CurrentState = dsState_Open;
   }
 
@@ -1054,7 +1090,7 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::closeDS()
-{//::MessageBox(g_hwndDLG,"closeDS","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"closeDS",MB_CAPTION,MB_OK);
   // check if ok to return success
   // Must be in state 4
   if( dsState_Open != m_CurrentState )
@@ -1070,7 +1106,7 @@ TW_INT16 CTWAINDS_UDS::closeDS()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 {
-	//::MessageBox(g_hwndDLG,"enableDS","UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
 	g_hwndDLG = (HWND)_pData->hParent;
   if( dsState_Open != m_CurrentState )
   {
@@ -1088,7 +1124,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   {
     pnCap->GetCurrent(Count);
   }
-	//::MessageBox(g_hwndDLG,"CAP_XFERCOUNT","UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,"CAP_XFERCOUNT",MB_CAPTION,MB_OK);
   m_Xfers.Count = Count;
 
   // Indicate we have not transferred any images yet
@@ -1099,17 +1135,17 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
 
-	//::MessageBox((HWND)_pData->hParent,"Enable","UDS",MB_OK);
+	//::MessageBox((HWND)_pData->hParent,"Enable",MB_CAPTION,MB_OK);
 
   if(FALSE == _pData->ShowUI)
   {   
-		::MessageBox(g_hwndDLG,"ShowUI","UDS",MB_OK);
-		//::MessageBox((HWND)_pData->hParent,"NoUI","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"ShowUI",MB_CAPTION,MB_OK);
+		//::MessageBox((HWND)_pData->hParent,"NoUI",MB_CAPTION,MB_OK);
     // Update the scanner with the latest negotiated caps
     if(!updateScannerFromCaps())
     {
-			::MessageBox(g_hwndDLG," Run updateScannerFromCaps() Failed! ","UDS",MB_OK);
-      cerr << "ds: There was an error while prepping the image for scanning" << endl;
+			::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
+      //cerr << "ds: There was an error while prepping the image for scanning" << endl;
       setConditionCode(TWCC_BADVALUE);
       return TWRC_FAILURE;
     }
@@ -1122,13 +1158,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
     // need in order to prepare for the next few calls and the scan.
     // get the scanner to load the image so that image info calls can be done
 
-		///* acquireImage移到GetImageData中调用 */
-		::MessageBox(g_hwndDLG," EnableDS: acquireImage! ","UDS",MB_OK);
+		
+		//::MessageBox(g_hwndDLG," EnableDS: acquireImage! ",MB_CAPTION,MB_OK);
     if(!m_pScanner->acquireImage())
     {
-			::MessageBox(g_hwndDLG," Run acquireImage() Failed! ","UDS",MB_OK);
-			//::MessageBox((HWND)_pData->hParent,"Acquire Image Failured","UDS",MB_OK);
-      cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
+			::MessageBox(g_hwndDLG,TEXT("There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
+      //cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
       m_CurrentState = dsState_Open;
       setConditionCode(TWCC_SEQERROR);
       return TWRC_FAILURE;
@@ -1161,7 +1196,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::enableDSOnly()
-{//::MessageBox(g_hwndDLG,"enableDSOnly","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("enableDSOnly"),MB_CAPTION,MB_OK);
   if( dsState_Open != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1187,7 +1222,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{//::MessageBox(g_hwndDLG,"disableDS","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1207,7 +1242,7 @@ TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
-{//::MessageBox(g_hwndDLG,"getMemoryXfer","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"getMemoryXfer",MB_CAPTION,MB_OK);
   // valid to call for 4, 5, & 6
   if( !(dsState_Open      == m_CurrentState ||
         dsState_Enabled   == m_CurrentState ||
@@ -1245,7 +1280,8 @@ TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
    
     if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_BITDEPTH))))
     {
-      cerr << "Could not get ICAP_BITDEPTH" << endl;
+			::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_BITDEPTH!"),MB_CAPTION,MB_OK);
+      //cerr << "Could not get ICAP_BITDEPTH" << endl;
       setConditionCode(TWCC_BUMMER);
       return TWRC_FAILURE;
     }
@@ -1256,7 +1292,8 @@ TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
 
     if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_XRESOLUTION))))
     {
-      cerr << "Could not get ICAP_XRESOLUTION" << endl;
+			::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_XRESOLUTION!"),MB_CAPTION,MB_OK);
+      //cerr << "Could not get ICAP_XRESOLUTION" << endl;
       setConditionCode(TWCC_BUMMER);
       return TWRC_FAILURE;
     }
@@ -1267,7 +1304,8 @@ TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
 
     if(!m_pICAP_FRAMES->GetCurrent(frame))
     {
-      cerr << "Could not get ICAP_FRAMES" << endl;
+			::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_FRAMES!"),MB_CAPTION,MB_OK);
+      //cerr << "Could not get ICAP_FRAMES" << endl;
       setConditionCode(TWCC_BUMMER);
       return TWRC_FAILURE;
     }
@@ -1285,7 +1323,7 @@ TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
-{//::MessageBox(g_hwndDLG,"processEvent","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"processEvent",MB_CAPTION,MB_OK);
   TW_UINT16 twRc = TWRC_SUCCESS;
 
   if( dsState_Enabled > m_CurrentState )
@@ -1320,7 +1358,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
-{//::MessageBox(g_hwndDLG,"transfer","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1355,21 +1393,13 @@ TW_INT16 CTWAINDS_UDS::transfer()
     TW_MEMREF   pData       = _DSM_LockMemory(m_hImageData);
     BYTE       *pImageData  = (BYTE*)pData;
 
-	
-
-		// CScanner_G6400
-		//m_pScanner->GetImageData(pImageData);
-		//::MessageBox(g_hwndDLG,"transfer:GetImageData","UDS",MB_OK);
 		DWORD       dwRead;
 		DWORD       dwReceived;
 
 		switch (g_nDeviceNumber)
 		{
-		case DEVICE_FREEIMAGE:
-			{
-				//CScanner_FreeImage
-			
-
+		case DEVICE_FREEIMAGE:  //CScanner_FreeImage
+			{				
 				do
 				{
 					dwRead = MIN(64000, nImageSize) / nDestBytesPerRow * nDestBytesPerRow;
@@ -1388,16 +1418,15 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 			}
 			break;
-		case DEVICE_G6400:
-			{
-				// CScanner_G6400
+		case DEVICE_G6400:  // CScanner_G6400
+			{				
 				m_pScanner->GetImageData(pImageData,dwReceived);
 				pImageData += dwReceived;
 			}
 			break;
 		default:
 			{
-				::MessageBox(g_hwndDLG,"不支持的设备！","UDS",MB_OK);
+				::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
 			}
 			break;
 		}
@@ -1422,7 +1451,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
-{//::MessageBox(g_hwndDLG,"endXfer","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( !( dsState_XferReady == m_CurrentState ||
@@ -1459,10 +1488,11 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
     {
       // More images are requested, go to scan and try to get the next
       // image in pre-emption of the app asking for it
-			//::MessageBox(g_hwndDLG," endXfer: acquireImage()! ","UDS",MB_OK);
+			//::MessageBox(g_hwndDLG," endXfer: acquireImage()! ",MB_CAPTION,MB_OK);
       if(!m_pScanner->acquireImage())
       {
-        cerr << "ds: There was an error while prepping the image for scanning" << endl;
+				::MessageBox(g_hwndDLG,TEXT("ds: There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
+        //cerr << "ds: There was an error while prepping the image for scanning" << endl;
         setConditionCode(TWCC_BUMMER);
         twrc = TWRC_FAILURE;
       }
@@ -1490,7 +1520,7 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::getXfer(pTW_PENDINGXFERS _pXfers)
-{//::MessageBox(g_hwndDLG,"getXfer","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"getXfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( dsState_XferReady != m_CurrentState )
@@ -1512,7 +1542,7 @@ TW_INT16 CTWAINDS_UDS::getXfer(pTW_PENDINGXFERS _pXfers)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::resetXfer(pTW_PENDINGXFERS _pXfers)
-{//::MessageBox(g_hwndDLG,"resetXfer","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"resetXfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( dsState_Loaded == m_CurrentState )
@@ -1538,7 +1568,7 @@ TW_INT16 CTWAINDS_UDS::resetXfer(pTW_PENDINGXFERS _pXfers)
 
 //////////////////////////////////////////////////////////////////////////////
 bool CTWAINDS_UDS::updateScannerFromCaps()
-{//::MessageBox(g_hwndDLG,"updateScannerFromCaps","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"updateScannerFromCaps",MB_CAPTION,MB_OK);
   int   nVal;
   float fVal;
   bool  bret = true;  // Set to false if anything fails
@@ -1547,7 +1577,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   // Get current before updating
   settings = *(m_pScanner->getSetting());
 
-//	::MessageBox(g_hwndDLG,"getSetting","UDS",MB_OK);
+//	::MessageBox(g_hwndDLG,"getSetting",MB_CAPTION,MB_OK);
 
   CTWAINContainerInt    *pnCap = 0;
   CTWAINContainerFix32  *pfCap = 0;
@@ -1555,8 +1585,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
   if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_PIXELTYPE))))
   {
-    cerr << "Could not get ICAP_PIXELTYPE" << endl;
-		::MessageBox(g_hwndDLG,"Could not get ICAP_PIXELTYPE","UDS",MB_OK);
+    //cerr << "Could not get ICAP_PIXELTYPE" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_PIXELTYPE!"),MB_CAPTION,MB_OK);
     bret = false;
   }
   else
@@ -1568,8 +1598,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   // X resolution the same.
   if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_XRESOLUTION))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_XRESOLUTION","UDS",MB_OK);
-    cerr << "Could not get ICAP_XRESOLUTION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_XRESOLUTION!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_XRESOLUTION" << endl;
     bret = false;
   }
   else
@@ -1581,8 +1611,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   // Y resolution the same.
   if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_YRESOLUTION))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_YRESOLUTION","UDS",MB_OK);
-    cerr << "Could not get ICAP_YRESOLUTION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_YRESOLUTION!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_YRESOLUTION" << endl;
     bret = false;
   }
   else
@@ -1595,8 +1625,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   InternalFrame frame;
   if(!m_pICAP_FRAMES->GetCurrent(frame))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_FRAMES","UDS",MB_OK);
-    cerr << "Could not get ICAP_FRAMES" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_FRAMES!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_FRAMES" << endl;
     bret = false;
   }
   else
@@ -1615,8 +1645,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_THRESHOLD))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_THRESHOLD","UDS",MB_OK);
-    cerr << "Could not get ICAP_THRESHOLD" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_THRESHOLD!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_THRESHOLD" << endl;
     bret = false;
   }
   else
@@ -1627,8 +1657,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_CONTRAST))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_CONTRAST","UDS",MB_OK);
-    cerr << "Could not get ICAP_CONTRAST" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_CONTRAST!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_CONTRAST" << endl;
     bret = false;
   }
   else
@@ -1640,7 +1670,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
 	{
-		cerr << "Could not get ICAP_ROTATION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ROTATION!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_ROTATION" << endl;
 		bret = false;
 	}
 	else
@@ -1652,7 +1683,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
 	{
-		cerr << "Could not get ICAP_ORIENTATION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ORIENTATION!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_ORIENTATION" << endl;
 		bret = false;
 	}
 	else
@@ -1664,8 +1696,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_BRIGHTNESS))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_BRIGHTNESS","UDS",MB_OK);
-    cerr << "Could not get ICAP_BRIGHTNESS" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_BRIGHTNESS!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_BRIGHTNESS" << endl;
     bret = false;
   }
   else
@@ -1673,14 +1705,14 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     pfRCap->GetCurrent(fVal);
 	/*	char buf[1024];
     itoa((int)fVal,buf,10);
-		::MessageBox(hwndDLG,buf,"UDS",MB_OK);*/
+		::MessageBox(hwndDLG,buf,MB_CAPTION,MB_OK);*/
     settings.m_fBrightness = fVal;
   }
   // Y resolution the same.
   if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_GAMMA))))
   {
-		::MessageBox(g_hwndDLG,"Could not get ICAP_GAMMA","UDS",MB_OK);
-    cerr << "Could not get ICAP_GAMMA" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_GAMMA!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get ICAP_GAMMA" << endl;
     bret = false;
   }
   else
@@ -1691,7 +1723,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
   if(bret)
   {
-		//::MessageBox(g_hwndDLG,"setSetting","UDS",MB_OK);
+		//::MessageBox(g_hwndDLG,"setSetting",MB_CAPTION,MB_OK);
     m_pScanner->setSetting(settings);
   }
   return bret;
@@ -1699,7 +1731,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
 //////////////////////////////////////////////////////////////////////////////
 bool CTWAINDS_UDS::DoCloseDSOkEvent()
-{//::MessageBox(g_hwndDLG,"DoCloseDSOkEvent","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"DoCloseDSOkEvent",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1718,7 +1750,7 @@ bool CTWAINDS_UDS::DoCloseDSOkEvent()
 
 //////////////////////////////////////////////////////////////////////////////
 CTWAINContainer* CTWAINDS_UDS::findCapability(const TW_UINT16 _unCap)
-{//::MessageBox(g_hwndDLG,"findCapability","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"findCapability",MB_CAPTION,MB_OK);
   CTWAINContainer *pRet = 0;
   // When adding to findCapabiltiy remember the order of operations 
   // Some capabilities are dependent on others.
@@ -1790,7 +1822,7 @@ CTWAINContainer* CTWAINDS_UDS::findCapability(const TW_UINT16 _unCap)
 
 //////////////////////////////////////////////////////////////////////////////
 CTWAINContainer* CTWAINDS_UDS::getICAP_BITDEPTH()
-{//::MessageBox(g_hwndDLG,"getICAP_BITDEPTH","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"getICAP_BITDEPTH",MB_CAPTION,MB_OK);
   CTWAINContainer* pRet = 0;
 
   // BitDepth depends on PixelType
@@ -1817,7 +1849,7 @@ CTWAINContainer* CTWAINDS_UDS::getICAP_BITDEPTH()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::dat_imagelayout(TW_UINT16         _MSG,
                                              pTW_IMAGELAYOUT   _pData)
-{//::MessageBox(g_hwndDLG,"dat_imagelayout","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("dat_imagelayout"),MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   switch(_MSG)
@@ -1975,7 +2007,7 @@ TW_INT16 CTWAINDS_UDS::dat_imagelayout(TW_UINT16         _MSG,
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::GetGustomDSData(pTW_CUSTOMDSDATA _pDSData)
-{//::MessageBox(g_hwndDLG,"GetGustomDSData","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"GetGustomDSData",MB_CAPTION,MB_OK);
   stringstream DsData;
   if(StoreCustomDSdata(DsData))
   {
@@ -2009,7 +2041,7 @@ TW_INT16 CTWAINDS_UDS::GetGustomDSData(pTW_CUSTOMDSDATA _pDSData)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::SetGustomDSData(pTW_CUSTOMDSDATA _pDSData)
-{//::MessageBox(g_hwndDLG,"SetGustomDSData","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"SetGustomDSData",MB_CAPTION,MB_OK);
   if(_pDSData->hData==0 || _pDSData->InfoLength<=sizeof(TW_GUID))
   {
     setConditionCode(TWCC_BADVALUE);
@@ -2044,7 +2076,7 @@ TW_INT16 CTWAINDS_UDS::SetGustomDSData(pTW_CUSTOMDSDATA _pDSData)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType, BYTE* _pContainer)
-{//::MessageBox(g_hwndDLG,"validateCapabilitySet","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"validateCapabilitySet",MB_CAPTION,MB_OK);
   TW_INT16 twrc  = CTWAINDS_Base::validateCapabilitySet(_Cap,_ConType,_pContainer);
   if(twrc!=TWRC_SUCCESS)
   {
@@ -2079,16 +2111,16 @@ TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType
 }
 
 bool CTWAINDS_UDS::StartScanning()
-{//::MessageBox(g_hwndDLG,"StartScanning","UDS",MB_OK);
+{//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {
-		::MessageBox(g_hwndDLG,"updateScannerFromCaps()","UDS",MB_OK);
-    cerr << "ds: There was an error while prepping the image for scanning" << endl;
+		::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
+    //cerr << "ds: There was an error while prepping the image for scanning" << endl;
     setConditionCode(TWCC_BADVALUE);
     return false;
   }
-	//::MessageBox(g_hwndDLG,"Before acquireImage","UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,"Before acquireImage",MB_CAPTION,MB_OK);
   return m_pScanner->acquireImage();
 };
 
@@ -2117,7 +2149,7 @@ void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagep
 //		char szTemp[64] = {0};
 //		_itoa_s(i,szTemp,10); 
 //		
-//		//::MessageBox(g_hwndDLG,szTemp,"UDS",MB_OK);
+//		//::MessageBox(g_hwndDLG,szTemp,MB_CAPTION,MB_OK);
 //		
 //		char szImagePath[MAX_PATH];
 //		string str_key_imagepath = INI_KEY_PREFIX_IMAGEPATH ;
@@ -2129,7 +2161,7 @@ void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagep
 //		
 //		string str_image_path(szImagePath);
 //		vector_string_imagepath.push_back(str_image_path);
-//		//::MessageBox(g_hwndDLG,str_image_path.c_str(),"UDS",MB_OK);
+//		//::MessageBox(g_hwndDLG,str_image_path.c_str(),MB_CAPTION,MB_OK);
 //	}
 //	
 //	m_pScanner->SetImagePath_Multi(vector_string_imagepath);

@@ -38,7 +38,7 @@
 * @date   2016/9/12 
 */ 
 #include "DSMInterface.h"
-
+#include "public.h"
 #include <iostream>
 using namespace std;
 
@@ -46,6 +46,8 @@ using namespace std;
 * gloabal pointer to the Data Source Manager
 */
 HMODULE gpDSM = 0;
+
+extern HWND g_hwndDLG;
 
 /**
 * gloabal pointer to the Data Source Manager's Entry point 
@@ -123,17 +125,20 @@ TW_UINT16 _DSM_Entry( pTW_IDENTITY _pOrigin,
 
       if((0 == gpDSM) && !LoadDSMLib(DSMName))
       {
-        cerr << "Could not load the DSM" << endl;
+				::MessageBox(g_hwndDLG,TEXT("Could not load the DSM!"),MB_CAPTION,MB_OK);
+        //cerr << "Could not load the DSM" << endl;
         return TWRC_FAILURE;
       }
 
       if(0 == g_DSM_Entry.DSM_Entry)
       {
-        cerr << "No Entry Point for DSM_Entry" << endl;
+				::MessageBox(g_hwndDLG,TEXT("No Entry Point for DSM_Entry!"),MB_CAPTION,MB_OK);
+        //cerr << "No Entry Point for DSM_Entry" << endl;
         return TWRC_FAILURE;
       }
     #else
-      cerr << "No Entry Point for DSM_Entry" << endl;
+			::MessageBox(g_hwndDLG,TEXT("No Entry Point for DSM_Entry!"),MB_CAPTION,MB_OK);
+      //cerr << "No Entry Point for DSM_Entry" << endl;
       return TWRC_FAILURE;
     #endif
   }
@@ -163,23 +168,27 @@ bool LoadDSMLib(char* _pszLibName)
     if((g_DSM_Entry.DSM_Entry=(DSMENTRYPROC)LOADFUNCTION(gpDSM, "DSM_Entry")) == 0)
     {
 #ifdef TWH_CMP_MSC // dlsym returning NULL is not an error on Unix
-      cerr << "Error - Could not find DSM_Entry function in DSM: " << _pszLibName << endl;
+			::MessageBox(g_hwndDLG,TEXT("Error - Could not find DSM_Entry function in DSM: "),MB_CAPTION,MB_OK);
+      //cerr << "Error - Could not find DSM_Entry function in DSM: " << _pszLibName << endl;
       return false; 
 #endif //TWH_CMP_MSC
     }
 #ifdef TWH_CMP_GNU
     if ((error = dlerror()) != 0)
     {
-      cerr << "App - dlsym: " << error << endl;
+			::MessageBox(g_hwndDLG,TEXT("App - dlsym: "),MB_CAPTION,MB_OK);
+      //cerr << "App - dlsym: " << error << endl;
       return false;
     }
 #endif //TWH_CMP_GNU
   }
   else
   {
-    cerr << "Error - Could not load DSM: " << _pszLibName << endl;
+		::MessageBox(g_hwndDLG,TEXT("Error - Could not load DSM: "),MB_CAPTION,MB_OK);
+    //cerr << "Error - Could not load DSM: " << _pszLibName << endl;
 #ifdef TWH_CMP_GNU
-    cerr << "App - dlopen: " << dlerror() << endl;
+		::MessageBox(g_hwndDLG,TEXT("App - dlopen: "),MB_CAPTION,MB_OK);
+    //cerr << "App - dlopen: " << dlerror() << endl;
 #endif //TWH_CMP_GNU
     return false;
   }

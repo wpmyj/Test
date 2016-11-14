@@ -50,7 +50,7 @@ bool CScanner_G6400::InitLibrary(void)
 {
 	char szDll_Path[MAX_PATH];  // AVSDK.dllµÄÂ·¾¶
 	GetDLLPath(szDll_Path);
-	//::MessageBox(g_hwndDLG,szDll_Path,"UDS",MB_OK);
+	//::MessageBox(g_hwndDLG,szDll_Path,MB_CAPTION,MB_OK);
 
 	hDriver = LoadLibrary(szDll_Path);
 
@@ -379,7 +379,7 @@ void CScanner_G6400::setSetting(CScanner_Base settings)
 
 bool CScanner_G6400::resetScanner()
 {
-	 //::MessageBox(g_hwndDLG,"resetScanner()","UDS",MB_OK);
+	 //::MessageBox(g_hwndDLG,"resetScanner()",MB_CAPTION,MB_OK);
 		bool bret = true;
 
 		// Unlock the scanner 

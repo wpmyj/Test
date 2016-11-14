@@ -57,7 +57,7 @@
 #endif
 
 #include "DSMInterface.h"
-
+#include "public.h"
 
 extern HWND g_hwndDLG;
 
@@ -223,8 +223,8 @@ bool CScanner_FreeImage::acquireImage()
 	// get the image if it exists
 	if(FALSE == FILE_EXISTS(m_szSourceImagePath))
 	{
-		//::MessageBox(hwndDLG,"File don't Exist","UDS",MB_OK);
-		cerr << "ds: Could not find required file: " << m_szSourceImagePath << endl;
+		::MessageBox(g_hwndDLG,TEXT("ds: Could not find required file: "),"UDS",MB_OK);
+		//cerr << "ds: Could not find required file: " << m_szSourceImagePath << endl;
 		return false;
 	}
 
@@ -233,7 +233,8 @@ bool CScanner_FreeImage::acquireImage()
 
 	if(0 == m_pDIB)
 	{
-		cout << "ds: Failed - could not acquire image" << endl;
+		::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
+		//cout << "ds: Failed - could not acquire image" << endl;
 		return false;
 	}
 
@@ -576,7 +577,7 @@ void CScanner_FreeImage::SetImagePath_Multi(vector<string> vector_string_imagepa
 {
 	if (vector_string_imagepath.empty())  // œ»≈–∂œvector_string_imagepath «∑ÒŒ™ø’
 	{
-		::MessageBox(g_hwndDLG, "Œ¥—°‘ÒÕº∆¨£°", NULL, 0);  
+		::MessageBox(g_hwndDLG, TEXT("Œ¥—°‘ÒÕº∆¨!"), NULL, 0);  
 		return;
 	}
 
