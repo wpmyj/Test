@@ -45,6 +45,8 @@
 #include "FreeImage.h"
 #include "CommonTWAIN.h"
 
+#include "public.h"
+
 #ifdef TWH_CMP_MSC
   #include "resource.h"
 #endif

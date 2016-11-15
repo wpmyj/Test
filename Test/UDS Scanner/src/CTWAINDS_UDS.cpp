@@ -645,14 +645,14 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//zhu 二值化
 	m_IndependantCapMap[CUSTCAP_BINARIZATION] = new CTWAINContainerInt(CUSTCAP_BINARIZATION, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_BINARIZATION]))
-		|| !pnCap->Add(TWBZ_DynaThreshold, true) //默认动态阈值
-		|| !pnCap->Add(TWBZ_FixedThreshold)
-		|| !pnCap->Add(TWBZ_Halftone1)
-		|| !pnCap->Add(TWBZ_Halftone2)
-		|| !pnCap->Add(TWBZ_Halftone3)
-		|| !pnCap->Add(TWBZ_Halftone4)
-		|| !pnCap->Add(TWBZ_Halftone5)
-		|| !pnCap->Add(TWBZ_ErrorDiff))  
+		|| !pnCap->Add(TWBZ_DYNATHRESHOLD, true) //默认动态阈值
+		|| !pnCap->Add(TWBZ_FIXEDTHRESHOLD)
+		|| !pnCap->Add(TWBZ_HALFTONE1)
+		|| !pnCap->Add(TWBZ_HALFTONE2)
+		|| !pnCap->Add(TWBZ_HALFTONE3)
+		|| !pnCap->Add(TWBZ_HALFTONE4)
+		|| !pnCap->Add(TWBZ_HALFTONE5)
+		|| !pnCap->Add(TWBZ_ERRORDIFF))  
 	{
 		cerr<<"Could not create CUSTCAP_BINARIZATION"<<endl;
 		setConditionCode(TWCC_LOWMEMORY);

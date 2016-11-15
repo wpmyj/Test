@@ -179,7 +179,7 @@ bool CScanner_FreeImage::resetScanner()
 	m_nRotation     = 0; //zhu
 	m_nOrientation  = TWOR_ROT0; //zhu 纵向
 
-	//m_nBinarization = TWBZ_DynaThreshold; //zhu 动态阈值
+	//m_nBinarization = TWBZ_DYNATHRESHOLD; //zhu 动态阈值
 	//m_nSpiltImage   = TWSI_NONE; //zhu 不分割
 
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
@@ -299,8 +299,19 @@ bool CScanner_FreeImage::preScanPrep()
   WORD unNewHeight = WORD(m_nSourceHeight/(WORD)((float)res/39.37 + 0.5)* m_fYResolution);
 
   cout << "ds: rescaling... to " << unNewWidth << " x " << unNewHeight << endl;
-  pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
+  //pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
   
+
+	if (m_nOrientation == TWOR_PORTRAIT)
+	{
+		pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
+	} 
+	else if(m_nOrientation == TWOR_LANDSCAPE)
+	{
+		pDib = FreeImage_Rescale( m_pDIB, unNewHeight, unNewWidth, FILTER_BILINEAR);
+	}
+	else{}
+
 	//zhu FreeImage_RotateClassic
 	/*char buf[1024];
 	itoa((int)m_nRotation,buf,10);

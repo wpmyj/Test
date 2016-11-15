@@ -318,28 +318,28 @@ void CPage_Advanced::UpdateControls(void)
 	{
 		switch(lstCapValues->at(i))
 		{
-		case TWBZ_DynaThreshold:
+		case TWBZ_DYNATHRESHOLD:
 			m_combo_binarization.InsertString(i,"动态阈值");
 			break;
-		case TWBZ_FixedThreshold:
+		case TWBZ_FIXEDTHRESHOLD:
 			m_combo_binarization.InsertString(i,"固定阈值"); 
 			break;
-		case TWBZ_Halftone1:
+		case TWBZ_HALFTONE1:
 			m_combo_binarization.InsertString(i,"半色调1");
 			break;
-		case TWBZ_Halftone2:
+		case TWBZ_HALFTONE2:
 			m_combo_binarization.InsertString(i,"半色调2");
 			break;
-		case TWBZ_Halftone3:
+		case TWBZ_HALFTONE3:
 			m_combo_binarization.InsertString(i,"半色调3");
 			break;
-		case TWBZ_Halftone4:
+		case TWBZ_HALFTONE4:
 			m_combo_binarization.InsertString(i,"半色调4");
 			break;
-		case TWBZ_Halftone5:
+		case TWBZ_HALFTONE5:
 			m_combo_binarization.InsertString(i,"半色调5");
 			break;
-		case TWBZ_ErrorDiff:
+		case TWBZ_ERRORDIFF:
 			m_combo_binarization.InsertString(i,"误差扩散");
 			break;
 		default:
@@ -767,35 +767,35 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Binarization()
 	int nval;
 	if (strCBText.Find("动态阈值") >= 0)
 	{
-		nval = TWBZ_DynaThreshold;
+		nval = TWBZ_DYNATHRESHOLD;
 	}
 	else if(strCBText.Find("固定阈值") >= 0)
 	{
-		nval = TWBZ_FixedThreshold; 
+		nval = TWBZ_FIXEDTHRESHOLD; 
 	}
 	else if(strCBText.Find("半色调1") >= 0)
 	{
-		nval = TWBZ_Halftone1; 
+		nval = TWBZ_HALFTONE1; 
 	}
 	else if(strCBText.Find("半色调2") >= 0)
 	{
-		nval = TWBZ_Halftone2; 
+		nval = TWBZ_HALFTONE2; 
 	}
 	else if(strCBText.Find("半色调3") >= 0)
 	{
-		nval = TWBZ_Halftone3; 
+		nval = TWBZ_HALFTONE3; 
 	}
 	else if(strCBText.Find("半色调4") >= 0)
 	{
-		nval = TWBZ_Halftone4; 
+		nval = TWBZ_HALFTONE4; 
 	}
 	else if(strCBText.Find("半色调5") >= 0)
 	{
-		nval = TWBZ_Halftone5; 
+		nval = TWBZ_HALFTONE5; 
 	}
 	else if(strCBText.Find("误差扩散") >= 0)
 	{
-		nval = TWBZ_ErrorDiff; 
+		nval = TWBZ_ERRORDIFF; 
 	}
 	else
 	{}
