@@ -403,7 +403,7 @@ bool CTWAIN_UI::SetCapValueInt(const TW_UINT16 _unCap, int nVal)
 {
   CTWAINContainer *pCapCont = m_pDS->findCapability(_unCap);
 
-  if(pCapCont ==0)
+  if(pCapCont == 0)
   {
     return false;
   }
@@ -433,6 +433,7 @@ bool CTWAIN_UI::SetCapValueInt(const TW_UINT16 _unCap, int nVal)
     return true;
   }
 
+	//::MessageBox(g_hwndDLG,TEXT("·µ»Øfalse"),MB_CAPTION,MB_OK);
   return false;
 }
 

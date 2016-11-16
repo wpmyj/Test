@@ -60,6 +60,15 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_FRONTBW, m_check_frontbw);
 	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
 	DDX_Control(pDX, IDC_CHECK_FRONTGRAY, m_check_frontgray);
+	DDX_Control(pDX, IDC_CHECK_REMOVEBLANK, m_check_removeblank);
+	DDX_Control(pDX, IDC_CHECK_REMOVEPUNCH, m_check_removepunch);
+	DDX_Control(pDX, IDC_CHECK_SHARPEN, m_check_sharpen);
+	DDX_Control(pDX, IDC_CHECK_GAMMA, m_check_gamma);
+	DDX_Control(pDX, IDC_CHECK_MIRROR, m_check_mirror);
+	DDX_Control(pDX, IDC_CHECK_REMOVEBACK, m_check_removeback);
+	DDX_Control(pDX, IDC_CHECK_REMOVEDESCREEN, m_check_removedescreen);
+	DDX_Control(pDX, IDC_CHECK_REMOVEDEMOISE, m_check_removedenoise);
+	DDX_Control(pDX, IDC_CHECK_AUTOCROP, m_check_autocrop);
 }
 
 
@@ -84,6 +93,15 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Advanced::OnAdvanced_Btn_Check_BackBW)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, &CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold)
+	ON_BN_CLICKED(IDC_CHECK_REMOVEBLANK, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank)
+	ON_BN_CLICKED(IDC_CHECK_REMOVEPUNCH, &CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch)
+	ON_BN_CLICKED(IDC_CHECK_SHARPEN, &CPage_Advanced::OnAdvanced_Btn_Check_Sharpen)
+	ON_BN_CLICKED(IDC_CHECK_GAMMA, &CPage_Advanced::OnAdvanced_Btn_Check_Gamma)
+	ON_BN_CLICKED(IDC_CHECK_MIRROR, &CPage_Advanced::OnAdvanced_Btn_Check_Mirror)
+	ON_BN_CLICKED(IDC_CHECK_REMOVEBACK, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack)
+	ON_BN_CLICKED(IDC_CHECK_REMOVEDEMOISE, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise)
+	ON_BN_CLICKED(IDC_CHECK_REMOVEDESCREEN, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen)
+	ON_BN_CLICKED(IDC_CHECK_AUTOCROP, &CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop)
 END_MESSAGE_MAP()
 
 //void CPage_Advanced::OnOK()
@@ -1061,3 +1079,168 @@ void CPage_Advanced::OnAdvanced_Btn_Check_BackBW()
 	SetBWImage();
 }
 
+//去除空白页
+void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removeblank.GetCheck())
+	{
+		AfxMessageBox("去除空白页选中");
+		nval = TWBP_AUTO;
+	} 
+	else
+	{
+		AfxMessageBox("去除空白页未选中");
+		nval = TWBP_DISABLE;
+	}
+	int ms = m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
+
+	CString str;
+	str.Format("%d",ms);
+	AfxMessageBox(str);
+}
+
+
+//去除穿孔
+void CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removepunch.GetCheck())
+	{
+		//AfxMessageBox("去除穿孔选中");
+		nval = TWRP_AUTO;
+	} 
+	else
+	{
+		//AfxMessageBox("去除穿孔未选中");
+		nval = TWRP_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_PUNCHHOLEREMOVEL,nval); 
+
+	/*CString str;
+	str.Format("%d",nval);
+	AfxMessageBox(str);*/
+}
+
+
+//锐化图像
+void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_sharpen.GetCheck())
+	{
+		//AfxMessageBox("锐化图像选中");
+		nval = TWSP_AUTO;
+	} 
+	else
+	{
+		//AfxMessageBox("锐化图像未选中");
+		nval = TWSP_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_SHARPEN,nval); 
+}
+
+
+//Gamma图像校正
+void CPage_Advanced::OnAdvanced_Btn_Check_Gamma()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_gamma.GetCheck())
+	{
+		nval = TWGM_AUTO;
+	} 
+	else
+	{
+		nval = TWGM_DISABLE;
+	}
+	m_pUI->SetCapValueInt(ICAP_GAMMA,nval); 
+}
+
+
+//图像镜像处理
+void CPage_Advanced::OnAdvanced_Btn_Check_Mirror()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_mirror.GetCheck())
+	{
+		nval = TWMR_AUTO;
+	} 
+	else
+	{
+		nval = TWMR_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_MIRROR,nval); 
+}
+
+
+//去除背景
+void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removeback.GetCheck())
+	{
+		nval = TWRB_AUTO;
+	} 
+	else
+	{
+		nval = TWRB_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_REMOVEBACKGROUND,nval); 
+}
+
+
+//去除网纹
+void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removedescreen.GetCheck())
+	{
+		nval = TWDS_AUTO;
+	} 
+	else
+	{
+		nval = TWDS_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_DESCREEN,nval); 
+}
+
+
+//去除噪声
+void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removedenoise.GetCheck())
+	{
+		nval = TWDN_AUTO;
+	} 
+	else
+	{
+		nval = TWDN_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_DENOISE,nval); 
+}
+
+
+//自动裁切及校正
+void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_autocrop.GetCheck())
+	{
+		nval = TWAC_AUTO;
+	} 
+	else
+	{
+		nval = TWAC_DISABLE;
+	}
+	m_pUI->SetCapValueInt(CUSTCAP_AUTOCROP,nval); 
+}

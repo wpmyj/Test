@@ -355,11 +355,20 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_THRESHOLD,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_CONTRAST,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_BRIGHTNESS,0,TWON_ONEVALUE);
-  bResult = bResult && StoreCapInStream(DsData,ICAP_GAMMA,0,TWON_ONEVALUE);
+  bResult = bResult && StoreCapInStream(DsData,ICAP_GAMMA,0,TWON_ONEVALUE); //Gamma图像校正
   bResult = bResult && StoreCapInStream(DsData,CUSTCAP_LONGDOCUMENT,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,ICAP_ROTATION,0,TWON_ONEVALUE); //zhu
 	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_BINARIZATION,0,TWON_ONEVALUE); //zhu 二值化
 	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  分割图像
+
+	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  去除空白页
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  去除穿孔
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_SHARPEN,0,TWON_ONEVALUE); //zhu  锐化图像
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_MIRROR,0,TWON_ONEVALUE); //zhu  图像镜像处理
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_REMOVEBACKGROUND,0,TWON_ONEVALUE); //zhu  去除背景
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_DESCREEN,0,TWON_ONEVALUE); //zhu  去除网纹
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_DENOISE,0,TWON_ONEVALUE); //zhu  去除噪声
+	bResult = bResult && StoreCapInStream(DsData,CUSTCAP_AUTOCROP,0,TWON_ONEVALUE); //zhu  自动裁切及校正
 	return bResult;
 }
 
@@ -386,13 +395,22 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
   bResult = bResult && ReadCapFromStream(DsData,ICAP_COMPRESSION,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_CONTRAST,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_BRIGHTNESS,0);
-  bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);
+  bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gamma校正 
   bResult = bResult && ReadCapFromStream(DsData,ICAP_SUPPORTEDSIZES,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_ORIENTATION,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_FRAMES,0);
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_ROTATION,0); //zhu
 	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_BINARIZATION,0); //zhu 
 	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_SPLITIMAGE,0); //zhu
+
+	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_PUNCHHOLEREMOVEL,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_SHARPEN,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_MIRROR,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_REMOVEBACKGROUND,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_DESCREEN,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_DENOISE,0);
+	bResult = bResult && ReadCapFromStream(DsData,CUSTCAP_AUTOCROP,0);
   return bResult;
 }
 
@@ -452,6 +470,14 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(CUSTCAP_BINARIZATION) // 二值化zhu
 	 || !pnCap->Add(CUSTCAP_SPLITIMAGE) //分割图像zhu
 
+	 || !pnCap->Add(ICAP_AUTODISCARDBLANKPAGES) //去除空白页
+	 || !pnCap->Add(CUSTCAP_PUNCHHOLEREMOVEL)
+	 || !pnCap->Add(CUSTCAP_SHARPEN)
+	 || !pnCap->Add(CUSTCAP_MIRROR)
+	 || !pnCap->Add(CUSTCAP_REMOVEBACKGROUND)
+	 || !pnCap->Add(CUSTCAP_DESCREEN)
+	 || !pnCap->Add(CUSTCAP_DENOISE)
+	 || !pnCap->Add(CUSTCAP_AUTOCROP)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -629,7 +655,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	} //zhu
 		
-
 	//zhu 分割
 	m_IndependantCapMap[CUSTCAP_SPLITIMAGE] = new CTWAINContainerInt(CUSTCAP_SPLITIMAGE, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_SPLITIMAGE]))
@@ -658,6 +683,95 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	} //zhu
+
+	// 去除空白页等
+	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerInt(ICAP_AUTODISCARDBLANKPAGES, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+		|| !pnCap->Add(TWBP_DISABLE, true)  
+		|| !pnCap->Add(TWBP_AUTO))  
+	{
+		cerr<<"Could not create ICAP_AUTODISCARDBLANKPAGES"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_PUNCHHOLEREMOVEL] = new CTWAINContainerInt(CUSTCAP_PUNCHHOLEREMOVEL, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_PUNCHHOLEREMOVEL]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_PUNCHHOLEREMOVEL"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_SHARPEN] = new CTWAINContainerInt(CUSTCAP_SHARPEN, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_SHARPEN]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_SHARPEN"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_MIRROR] = new CTWAINContainerInt(CUSTCAP_MIRROR, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_MIRROR]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_MIRROR"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_REMOVEBACKGROUND] = new CTWAINContainerInt(CUSTCAP_REMOVEBACKGROUND, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_REMOVEBACKGROUND]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_REMOVEBACKGROUND"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_DESCREEN] = new CTWAINContainerInt(CUSTCAP_DESCREEN, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_DESCREEN]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_DESCREEN"<<endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_DENOISE] = new CTWAINContainerInt(CUSTCAP_DENOISE, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_DENOISE]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_DENOISE"<<endl; 
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} //zhu
+
+	m_IndependantCapMap[CUSTCAP_AUTOCROP] = new CTWAINContainerInt(CUSTCAP_AUTOCROP, TWTY_UINT16, TWON_ENUMERATION);
+	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CUSTCAP_AUTOCROP]))
+		|| !pnCap->Add(TWSI_NONE, true)  
+		|| !pnCap->Add(TWSI_HORIZONTAL)
+		|| !pnCap->Add(TWSI_VERTICAL))  
+	{
+		cerr<<"Could not create CUSTCAP_AUTOCROP"<<endl; 
+			setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	} 
+	//zhu
 
   m_IndependantCapMap[ICAP_ORIENTATION] = new CTWAINContainerInt(ICAP_ORIENTATION, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ORIENTATION]))
@@ -1732,6 +1846,103 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nSpiltImage = nVal;
 	}//zhu
 
+
+	//去除空白页等8项
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_ROTATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		char buf[10];
+		itoa((int)settings.m_nRemoveBlank,buf,10);
+		::MessageBox(g_hwndDLG,buf,"去除空白页",MB_OK);
+
+		pnCap->GetCurrent(nVal);
+		settings.m_nRemoveBlank = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_PUNCHHOLEREMOVEL))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_PUNCHHOLEREMOVEL!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_ROTATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nRemovePunch = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_SHARPEN))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_SHARPEN!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_ROTATION" << endl;
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nSharpen = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_MIRROR))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_MIRROR!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nMirror = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_REMOVEBACKGROUND))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_REMOVEBACKGROUND!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nRemoveBack = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_DESCREEN))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_DESCREEN!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nDescreen = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_DENOISE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_DENOISE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nDenoise = nVal;
+	}//zhu
+
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_AUTOCROP))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get CUSTCAP_AUTOCROP!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nAutoCrop = nVal;
+	}//zhu
+
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CUSTCAP_BINARIZATION))))
 	{
@@ -1743,6 +1954,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nBinarization = nVal;
 	}//zhu
+
 
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
@@ -1756,7 +1968,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nOrientation = nVal;
 	}//zhu
-
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_BRIGHTNESS))))
   {

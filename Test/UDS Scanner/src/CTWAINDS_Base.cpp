@@ -323,6 +323,7 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
     // Now handle the cap if one was found
     if(0 != pCap)
     {
+			::MessageBox(g_hwndDLG,TEXT("0 != pCap"),MB_CAPTION,MB_OK);
       twrc = handleCap(_MSG, pCap, _pCap);
 
       // when some capabilities are successfully changed with Set or Reset 
