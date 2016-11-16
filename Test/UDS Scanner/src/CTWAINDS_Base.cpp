@@ -325,7 +325,6 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
     {
 			//::MessageBox(g_hwndDLG,TEXT("0 != pCap"),MB_CAPTION,MB_OK);
       twrc = handleCap(_MSG, pCap, _pCap);
-
       // when some capabilities are successfully changed with Set or Reset 
       // it requires changing others
       if( (twrc == TWRC_SUCCESS || twrc == TWRC_CHECKSTATUS) && 
@@ -865,6 +864,9 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
       break;
 
     } // switch(_pContainer->GetGetType())
+		/*char buf[1024];
+		itoa((int)twrc,buf,10);
+		::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);*/
 
     if(TWRC_SUCCESS == twrc)
     {
@@ -887,6 +889,7 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
         case MSG_GET:
           _pCap->ConType = _pContainer->GetGetType(_MSG);
           twrc = updatePreDependencies(_pContainer);
+
           if(twrc != TWRC_SUCCESS)
           {
             break;
@@ -897,7 +900,7 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
           break;
 
         case MSG_SET:
-          {
+					{
             if(m_CurrentState >= dsState_XferReady)
             {
               setConditionCode(TWCC_SEQERROR);
@@ -935,6 +938,7 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
               setConditionCode(Condition);
               if(twrc == TWRC_SUCCESS && twrc2 != TWRC_SUCCESS)
               {
+								::MessageBox(g_hwndDLG,TEXT("twrc2 != TWRC_SUCCESS"),MB_CAPTION,MB_OK);
                 twrc = twrc2;
               }
             }

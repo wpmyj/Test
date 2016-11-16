@@ -31,14 +31,15 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_nOrientation  = settings.m_nOrientation; //zhu
 	m_nBinarization = settings.m_nBinarization;
 	m_nSpiltImage   = settings.m_nSpiltImage;
-	m_nRemoveBlank  = settings.m_nRemoveBlank;
-	m_nRemovePunch  = settings.m_nRemovePunch;
-	m_nSharpen      = settings.m_nSharpen;
-	m_nMirror       = settings.m_nMirror;
-	m_nRemoveBack   = settings.m_nRemoveBack;
-	m_nDescreen     = settings.m_nDescreen;
-	m_nDenoise      = settings.m_nDenoise;
-	m_nAutoCrop     = settings.m_nAutoCrop;
+
+	m_fRemoveBlank  = settings.m_fRemoveBlank;
+	m_fRemovePunch  = settings.m_fRemovePunch;
+	m_fSharpen      = settings.m_fSharpen;
+	m_fMirror       = settings.m_fMirror;
+	m_fRemoveBack   = settings.m_fRemoveBack;
+	m_fDescreen     = settings.m_fDescreen;
+	m_fDenoise      = settings.m_fDenoise;
+	m_fAutoCrop     = settings.m_fAutoCrop;
 }
 
 CScanner_Base* CScanner_Base::getSetting() const

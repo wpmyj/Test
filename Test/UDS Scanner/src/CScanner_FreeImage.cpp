@@ -183,14 +183,14 @@ bool CScanner_FreeImage::resetScanner()
 	m_nSpiltImage   = TWSI_NONE; //zhu 不分割
 
 	//默认不选中
-	m_nRemoveBlank  = TWRP_DISABLE; 
-	m_nRemovePunch  = TWSP_DISABLE;
-	m_nSharpen      = TWGM_DISABLE;
-	m_nMirror       = TWMR_DISABLE;
-	m_nRemoveBack   = TWRB_DISABLE;
-	m_nDescreen     = TWDS_DISABLE;
-	m_nDenoise      = TWDN_DISABLE;
-	m_nAutoCrop     = TWAC_DISABLE;
+	m_fRemoveBlank  = TWRP_DISABLE; 
+	m_fRemovePunch  = TWSP_DISABLE;
+	m_fSharpen      = TWGM_DISABLE;
+	m_fMirror       = TWMR_DISABLE;
+	m_fRemoveBack   = TWRB_DISABLE;
+	m_fDescreen     = TWDS_DISABLE;
+	m_fDenoise      = TWDN_DISABLE;
+	m_fAutoCrop     = TWAC_DISABLE;
 
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
   {
@@ -349,112 +349,7 @@ bool CScanner_FreeImage::preScanPrep()
 	//zhu 或者使用FreeImage_RotateEx
 
 	//需要增加二值化、图像分割及其他checkbox对应图像处理的处理
-	/*if(m_nBinarization == TWBZ_HALFTONE4)
-	{
-	::MessageBox(g_hwndDLG,TEXT("半色调4"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nBinarization == TWBZ_DYNATHRESHOLD)
-	{
-	::MessageBox(g_hwndDLG,TEXT("二值化自动可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_nSpiltImage == TWSI_NONE)
-	{
-	::MessageBox(g_hwndDLG,TEXT("分割图像不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nSpiltImage == TWSI_HORIZONTAL)
-	{
-	::MessageBox(g_hwndDLG,TEXT("水平分割可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nSpiltImage == TWSI_VERTICAL)
-	{
-	::MessageBox(g_hwndDLG,TEXT("垂直分割可用"),MB_CAPTION,MB_OK);
-	}*/
-
-	if(m_nRemoveBlank == TWBP_DISABLE)
-	{
-		//::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nRemoveBlank == TWBP_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除空白页可用"),MB_CAPTION,MB_OK);
-	}
-	else
-	{
-		char buf[1024];
-		itoa((int)m_nRemovePunch,buf,10);
-		::MessageBox(g_hwndDLG,buf,"去除穿孔值",MB_OK);
-	}
-
-	//if(m_nRemovePunch == TWRP_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除穿孔不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nRemovePunch == TWRP_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除穿孔可用"),MB_CAPTION,MB_OK);
-	//}
-	//else
-	//{
-	//	/*char buf[1024];
-	//	itoa((int)m_nRemovePunch,buf,10);
-	//	::MessageBox(g_hwndDLG,buf,"去除穿孔值",MB_OK);*/
-	//}
-
-	//if(m_nSharpen == TWSP_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("图像锐化不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nSharpen == TWSP_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("图像锐化可用"),MB_CAPTION,MB_OK);
-	//}
-
-	//if(m_nMirror == TWMR_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("镜像不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nMirror == TWMR_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("镜像可用"),MB_CAPTION,MB_OK);
-	//}
-
-	//if(m_nRemoveBack == TWRB_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除背景不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nRemoveBack == TWRB_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除背景可用"),MB_CAPTION,MB_OK);
-	//}
-
-	//if(m_nDescreen == TWDS_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除网纹不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nDescreen == TWDS_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除网纹可用"),MB_CAPTION,MB_OK);
-	//}
-
-	//if(m_nDenoise == TWDN_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除噪声不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nDenoise == TWDN_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("去除噪声可用"),MB_CAPTION,MB_OK);
-	//}
-
-	//if(m_nAutoCrop == TWAC_DISABLE)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("自动裁切不可用"),MB_CAPTION,MB_OK);
-	//}
-	//else if(m_nAutoCrop == TWAC_AUTO)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("自动裁切可用"),MB_CAPTION,MB_OK);
-	//}
-	//
+	
 	if(0 == pDib)
   {
     return false;

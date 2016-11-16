@@ -121,15 +121,15 @@ public:
 	int               m_nBinarization; //zhu    /**< ¶þÖµ»¯ */
 	int               m_nSpiltImage; //zhu      /**< ·Ö¸îÍ¼Ïñ */
 
-	int               m_nRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
-	int               m_nRemovePunch;           /**< È¥³ý´©¿× */
-	int               m_nSharpen;               /**< Í¼ÏñÈñ»¯*/
+	float             m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
+	float             m_fRemovePunch;           /**< È¥³ý´©¿× */
+	float             m_fSharpen;               /**< Í¼ÏñÈñ»¯*/
 	//int             m_nGamma;                 /**< Gamma */
-	int               m_nMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */
-	int               m_nRemoveBack;            /**< È¥³ý±³¾° */
-	int               m_nDescreen;              /**< È¥ÍøÎÆ */
-	int               m_nDenoise;               /**< È¥ÔëÉù */
-	int               m_nAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
+	float             m_fMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */
+	float             m_fRemoveBack;            /**< È¥³ý±³¾° */
+	float             m_fDescreen;              /**< È¥ÍøÎÆ */ //weizhaojian
+	float             m_fDenoise;               /**< È¥ÔëÉù */
+	float             m_fAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
 
 protected:
 	bool              m_bReadOnly;              /**< current mode */

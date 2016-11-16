@@ -40,6 +40,7 @@
 #include "CommonDS.h"
 #include <algorithm>
 
+extern HWND g_hwndDLG;
 
 CTWAINContainerInt::CTWAINContainerInt(const TW_UINT16 _unCapID, 
                                        const TW_UINT16 _unItemType, 
@@ -210,14 +211,15 @@ int CTWAINContainerInt::getValue(const pTW_ONEVALUE _pVal)
     break;
 
     case TWTY_UINT8:
-      nRet = *((TW_UINT8*)&(_pVal->Item));
+			nRet = *((TW_UINT8*)&(_pVal->Item));
     break;
 
     case TWTY_UINT16:
+			//::MessageBox(g_hwndDLG,TEXT("TWTY_BOOL"),MB_CAPTION,MB_OK);
       nRet = *((TW_UINT16*)&(_pVal->Item));
     break;
 
-    case TWTY_UINT32:
+		case TWTY_UINT32:
       nRet = *((TW_UINT32*)&(_pVal->Item));
     break;
 
@@ -225,7 +227,6 @@ int CTWAINContainerInt::getValue(const pTW_ONEVALUE _pVal)
       nRet = *((TW_BOOL*)&(_pVal->Item));
     break;
   }
-  
   return nRet;
 }
 
@@ -254,6 +255,7 @@ TW_INT16 CTWAINContainerInt::Set(pTW_CAPABILITY _pCap, TW_INT16 &Condition)
 
           if( (nVal = getIndexForValue(getValue(pCap))) >= 0 )
           {
+						//::MessageBox(g_hwndDLG,TEXT("getIndexForValue³É¹¦"),MB_CAPTION,MB_OK);
             m_nCurrent = nVal;
           }
           else

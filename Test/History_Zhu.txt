@@ -98,3 +98,132 @@ date 16.11.16
 ------------------------------------------------------------
 @author zhu
 1、SetCapInt返回0，错误，调试到_datCap
+2、SetCapValueInt一直返回为0，证明是CAP的问题，尝试修改为SetCapValueFloat，并把参数类型也改为float型等
+3、改为SetCapValueFloat正确。
+CTWAINDS_UDS::Initialize()中改为：
+	FLOAT_RANGE fRange;
+	fRange.fCurrentValue = 0.0f;
+	fRange.fMaxValue = 10.0f;
+	fRange.fMinValue = -10.0f;
+	fRange.fStepSize = 1.0f;
+	// 去除空白页等
+	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+CTWAINDS_UDS::updateScannerFromCaps()中改为：
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fRemoveBlank = fVal;
+	}
+4、调试语句
+	if(m_nBinarization == TWBZ_HALFTONE4)
+	{
+	::MessageBox(g_hwndDLG,TEXT("半色调4"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nBinarization == TWBZ_DYNATHRESHOLD)
+	{
+	::MessageBox(g_hwndDLG,TEXT("二值化自动可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_nSpiltImage == TWSI_NONE)
+	{
+	::MessageBox(g_hwndDLG,TEXT("分割图像不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL)
+	{
+	::MessageBox(g_hwndDLG,TEXT("水平分割可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL)
+	{
+	::MessageBox(g_hwndDLG,TEXT("垂直分割可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemoveBlank == TWBP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemoveBlank == TWBP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除空白页可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemovePunch == TWRP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除穿孔不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemovePunch == TWRP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除穿孔可用"),MB_CAPTION,MB_OK);
+	}
+	/*char buf[1024];
+	itoa((int)m_fRemovePunch,buf,10);
+	::MessageBox(g_hwndDLG,buf,"去除穿孔值",MB_OK);*/
+
+	if(m_fSharpen == TWSP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("图像锐化不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fSharpen == TWSP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("图像锐化可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fMirror == TWMR_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("镜像不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fMirror == TWMR_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("镜像可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemoveBack == TWRB_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除背景不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemoveBack == TWRB_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除背景可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fDescreen == TWDS_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除网纹不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fDescreen == TWDS_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除网纹可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fDenoise == TWDN_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除噪声不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fDenoise == TWDN_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除噪声可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fAutoCrop == TWAC_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("自动裁切不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fAutoCrop == TWAC_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("自动裁切可用"),MB_CAPTION,MB_OK);
+	}
+
+5、修改CUSTCAP_PUNCHHOLEREMOVEL等参数为UDSCAP_PUNCHHOLEREMOVEL
