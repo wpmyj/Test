@@ -1575,7 +1575,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		case DEVICE_G6400:  // CScanner_G6400
 			{				
 				m_pScanner->GetImageData(pImageData,dwReceived);
-				pImageData += dwReceived;
+				//pImageData += dwReceived;
 			}
 			break;
 		default:

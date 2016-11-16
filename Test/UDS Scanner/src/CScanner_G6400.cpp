@@ -272,16 +272,16 @@ void CScanner_G6400::ImageTransfer(void)
 	//OutputDebugString(TEXT("Batch ImageTransfer In\n"));
 
 	//m_btnBatchImage.ShowWindow(SW_HIDE);
-	TransferParam.Status = TRANSFER_DONE;     ///默认发送完成  
+	TransferParam.Status = TRANSFER_DONE;  // 默认发送完成  
 	do
 	{
-		if(TransferParam.Status == TRANSFER_DONE || TransferParam.Status == TRANSFER_PAGEDONE)   ///如果发送完成
+		if(TransferParam.Status == TRANSFER_DONE || TransferParam.Status == TRANSFER_PAGEDONE)  // 如果发送完成
 		{
-			GetImageInformationFun(&m_ImageInfo);                       ///获取图像信息
-			ZeroMemory(&TransferParam, sizeof(IMAGETRANSFERPARAM));  ///ZeroMemory:用0来填充一块内存区域
-			dwTotal = m_ImageInfo.BytesPerLine * m_ImageInfo.Length; ///总字节数
+			GetImageInformationFun(&m_ImageInfo);  // 获取图像信息
+			ZeroMemory(&TransferParam, sizeof(IMAGETRANSFERPARAM));  // ZeroMemory:用0来填充一块内存区域
+			dwTotal = m_ImageInfo.BytesPerLine * m_ImageInfo.Length;  // 总字节数
 
-			if(psaveTempBuffer)   ///若psaveTempBuffer不为空，将之前数据清零
+			if(psaveTempBuffer)  // 若psaveTempBuffer不为空，将之前数据清零
 			{
 				delete []psaveTempBuffer;     
 				psaveTempBuffer = NULL;
@@ -289,29 +289,29 @@ void CScanner_G6400::ImageTransfer(void)
 
 			//if(psaveTempBuffer == NULL)
 			{
-				psaveTempBuffer = new BYTE[dwTotal];   ///重新分配新的内存
+				psaveTempBuffer = new BYTE[dwTotal];  // 重新分配新的内存
 				psaveBuffer = psaveTempBuffer;
 			}
 		}
 
-		TransferParam.pImageData = psaveTempBuffer;//pBuffer;
+		TransferParam.pImageData = psaveTempBuffer;
 		TransferParam.XferSize = dwBlock;
 
-		ImageTransferFun(&TransferParam);    ///将图像数据传输至结构体TransferParam
+		ImageTransferFun(&TransferParam);  // 将图像数据传输至结构体TransferParam
 
-		psaveTempBuffer += dwBlock;   ///dwBlock = 1024*1024
+		psaveTempBuffer += dwBlock;  // dwBlock = 1024*1024
 
 		//int result = TransferParam.Status;
 		//CString str;
 		//str.Format(TEXT("%d"),result);
 		//AfxMessageBox(str);
 
-		if(TransferParam.Status != TRANSFER_SUCCESS)   ///
+		if(TransferParam.Status != TRANSFER_SUCCESS)   
 		{
-			if(TransferParam.Status == TRANSFER_PAGEDONE) ///若一页传输成功
+			if(TransferParam.Status == TRANSFER_PAGEDONE)  // 若一页传输成功
 			{
 				CString strPath;
-				strPath.Format(TEXT("d:\\a\\AVSDK%04d_sdk.tif"), fileNumber);        ///图片名字
+				strPath.Format(TEXT("d:\\a\\AVSDK%04d_sdk.tif"), fileNumber);  // 图片名字
 				CommonFunc.GDISaveImage(psaveBuffer, strPath, m_ImageInfo);
 				fileNumber++;
 				psaveTempBuffer = psaveBuffer;
@@ -331,6 +331,7 @@ void CScanner_G6400::ImageTransfer(void)
 
 	//psaveBuffer += dwTotal;
 	//size_t size;
+	m_dwImageSize = dwTotal;
 	m_pSaveData = (BYTE *)malloc(dwTotal);
 	memcpy(m_pSaveData,psaveBuffer,dwTotal);
 
@@ -486,8 +487,8 @@ void CScanner_G6400::GetImageData(BYTE *buffer, DWORD &dwReceived)
 	//buffer = m_pSaveData;
 
 	//buffer = (BYTE *)malloc(dwTotal);
-	memcpy(buffer,m_pSaveData,sizeof(m_pSaveData));
-	dwReceived = sizeof(m_pSaveData);
+	memcpy(buffer,m_pSaveData,m_dwImageSize);
+	dwReceived = m_dwImageSize;
 }
 
 void CScanner_G6400::GetDLLPath(char* dllPath)

@@ -373,7 +373,7 @@ bool CScanner_FreeImage::preScanPrep()
 
 	if(m_nRemoveBlank == TWBP_DISABLE)
 	{
-		::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
+		//::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
 	}
 	else if(m_nRemoveBlank == TWBP_AUTO)
 	{

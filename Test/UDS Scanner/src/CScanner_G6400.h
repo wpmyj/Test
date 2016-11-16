@@ -140,6 +140,7 @@ protected:
 	IMAGEINFORMATION	      m_ImageInfo;              /**< 图片信息 */
 	char	                  szSelectScanner[64];      /**< 扫描仪的名称 */
 	BYTE                   *m_pSaveData;              /**< 图片内存地址 */
+	DWORD                   m_dwImageSize;              /**< 图片大小 */
 };
 
 #endif  // __CSCANNER_G6400_H__
