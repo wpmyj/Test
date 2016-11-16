@@ -46,7 +46,11 @@ MFC_UI::MFC_UI(CTWAINDS_UDS *pDS):CTWAIN_UI(pDS)
 
 MFC_UI::~MFC_UI(void)
 {
-	//m_pSheet->DestroyWindow();
+	if (DEVICE_G6400 == g_nDeviceNumber)
+	{
+		m_pSheet->DestroyWindow();
+	}
+	
 	if (m_pSheet)
 	{
 		delete m_pSheet;

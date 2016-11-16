@@ -193,7 +193,7 @@ bool CScanner_G6400::InitLibrary(void)
 bool CScanner_G6400::acquireImage()
 {
 	
-	//AfxMessageBox("acquireImage()");
+	AfxMessageBox("acquireImage()");
 	static bool bRunned = false;
 
 	if (false == bRunned)
@@ -331,9 +331,9 @@ void CScanner_G6400::ImageTransfer(void)
 
 	//psaveBuffer += dwTotal;
 	//size_t size;
-	m_dwImageSize = dwTotal;
-	m_pSaveData = (BYTE *)malloc(dwTotal);
-	memcpy(m_pSaveData,psaveBuffer,dwTotal);
+	m_dwImageSize = dwBlock;
+	m_pSaveData = (BYTE *)malloc(dwBlock);
+	memcpy(m_pSaveData,psaveBuffer,dwBlock);
 
 	psaveTempBuffer = psaveBuffer;
 	delete []psaveTempBuffer;
@@ -347,7 +347,7 @@ bool CScanner_G6400::SelectScanner(void)
 	//AfxMessageBox("SelectScanner!");
 	//—°‘Ò…®√Ë“«
 	SELECTSCANNERPARAM SelectScannerParam = {0};
-	SelectScannerParam.ShowSelect = FALSE;
+	SelectScannerParam.ShowSelect = TRUE;
 
 	SelectScannerFun(&SelectScannerParam);  // SelectScannerProc SelectScanner;
 	strcpy_s(szSelectScanner, (const char*)SelectScannerParam.DefaultScanner);

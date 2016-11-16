@@ -1566,10 +1566,12 @@ TW_INT16 CTWAINDS_UDS::transfer()
 						break;
 					}
 					pImageData += dwReceived;
-
+					TCHAR str[1024] = {0};
+					sprintf(str,"%02x",pImageData);
+					::MessageBox(g_hwndDLG,str,MB_CAPTION,MB_OK);
 					nImageSize -= dwReceived;
 				}while(nImageSize>0 && twrc == TWRC_SUCCESS);
-
+				
 			}
 			break;
 		case DEVICE_G6400:  // CScanner_G6400
@@ -2386,7 +2388,7 @@ TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType
 }
 
 bool CTWAINDS_UDS::StartScanning()
-{//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
+{  ::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {
