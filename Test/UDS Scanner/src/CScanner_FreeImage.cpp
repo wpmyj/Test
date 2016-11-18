@@ -175,6 +175,7 @@ bool CScanner_FreeImage::resetScanner()
   m_nHeight       = 0;
   m_fXResolution  = 200.0;
   m_fYResolution  = 200.0;
+	m_fGamma        = 100.0; //zhu 默认为1
 
 	m_nRotation     = 0; //zhu
 	m_nOrientation  = TWOR_ROT0; //zhu 纵向
@@ -289,9 +290,11 @@ bool CScanner_FreeImage::preScanPrep()
     {
       FreeImage_AdjustContrast(m_pDIB, m_fContrast/10);
     }
-    if(m_fGamma!=1.0)
+
+    //if(m_fGamma!=1.0)
+		if(m_fGamma!=100.0) //zhu
     {
-      FreeImage_AdjustGamma(m_pDIB, m_fGamma);
+			FreeImage_AdjustGamma(m_pDIB, m_fGamma/100); //取值范围为10~255，此处需要除以100，缩小取值
     }
   }
 
@@ -312,11 +315,11 @@ bool CScanner_FreeImage::preScanPrep()
   //pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
   
 	//zhu
-	if (m_nOrientation == TWOR_PORTRAIT)
+	if (m_nOrientation == TWOR_PORTRAIT) //横向
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
 	} 
-	else if(m_nOrientation == TWOR_LANDSCAPE)
+	else if(m_nOrientation == TWOR_LANDSCAPE) //纵向
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewHeight, unNewWidth, FILTER_BILINEAR);
 	}
@@ -327,7 +330,7 @@ bool CScanner_FreeImage::preScanPrep()
 	itoa((int)m_nRotation,buf,10);
 	::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);*/
 
-	FIBITMAP *rotatedimg;
+	FIBITMAP *rotatedimg = 0;
 	switch(m_nRotation)
 	{
 	case TWOR_ROT0:
@@ -343,11 +346,39 @@ bool CScanner_FreeImage::preScanPrep()
 		rotatedimg = FreeImage_RotateClassic(pDib, -270);
 		break;
 	default:
+		rotatedimg = pDib;
 		break;
 	} 
 	pDib = rotatedimg;
 	//zhu 或者使用FreeImage_RotateEx
 
+	//FreeImage_Invert(pDib);//翻转每一个像素值，0变为1，1变为0；
+	
+	//图像镜像处理
+	if(m_fMirror == TWMR_AUTO)
+	{
+		FreeImage_FlipHorizontal(pDib);
+	}
+	else
+	{}
+
+	FIBITMAP *splitimg = 0;
+	//图像分割
+	if(m_nSpiltImage == TWSI_NONE)
+	{
+		//::MessageBox(g_hwndDLG,TEXT("不分割图像"),MB_CAPTION,MB_OK);
+		splitimg = pDib;
+	}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
+	{
+		splitimg = FreeImage_Copy(pDib,0,0,unNewWidth,unNewHeight/2);
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
+	{
+		splitimg = FreeImage_Copy(pDib,0,0,unNewWidth/2,unNewHeight);
+	}
+	pDib = splitimg;
+	
 	//需要增加二值化、图像分割及其他checkbox对应图像处理的处理
 	
 	if(0 == pDib)
@@ -448,7 +479,7 @@ bool CScanner_FreeImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD
   
   BYTE   *pBits     = NULL;
   WORD    nRow      = 0;
-  WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows to be transfered during this call (function of buffer size and line size)
+  WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows行 to be transfered during this call (function of buffer size and line size)
 
   if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )
   {

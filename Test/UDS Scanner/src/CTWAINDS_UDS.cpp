@@ -872,7 +872,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
   m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32(ICAP_GAMMA,TWON_ONEVALUE, TWQC_ALL);
   if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_GAMMA]))
-    || !pfixCap->Add(1, true))
+   // || !pfixCap->Add(1, true))
+	 || !pfixCap->Add(100, true)) //zhu
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_GAMMA !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_GAMMA" << endl;

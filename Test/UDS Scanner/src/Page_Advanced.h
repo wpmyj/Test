@@ -59,9 +59,12 @@ private:
 	CEdit m_edit_brightness; ///< 多流输出,亮度
 	CEdit m_edit_contrast; ///< 多流输出，对比度
 	CEdit m_edit_sensitive_threshold; ///< 多流输出，去除斑点
+	CEdit m_edit_gamma; ///< Gamma校正
 	CSliderCtrl m_slider_brightness;
 	CSliderCtrl m_slider_contrast;
 	CSliderCtrl m_slider_sensitive_threshold;
+	CSliderCtrl m_slider_gamma;
+
 
 	CButton m_check_multistream;
 	CButton m_check_backbw;
@@ -74,7 +77,7 @@ private:
 	CButton m_check_removeblank;
 	CButton m_check_removepunch;
 	CButton m_check_sharpen;
-	CButton m_check_gamma;
+//	CButton m_check_gamma;
 	CButton m_check_mirror;
 	CButton m_check_removeback;
 	CButton m_check_removedescreen;
@@ -112,10 +115,12 @@ private:
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnEnChangeAdvanced_Edit_Contrast();
 	afx_msg void OnEnChangeAdvanced_Edit_Brightness();
 	afx_msg void OnEnChangeAdvanced_Edit_SensitiveThreshold();
+	afx_msg void OnEnChangeAdvanced_Edit_Gamma();
 
 	afx_msg void OnAdvanced_Btn_Check_FrontColor();
 	afx_msg void OnAdvanced_Btn_Check_FrontGray();
@@ -127,11 +132,11 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_RemoveBlank();
 	afx_msg void OnAdvanced_Btn_Check_RemovePunch();
 	afx_msg void OnAdvanced_Btn_Check_Sharpen();
-	afx_msg void OnAdvanced_Btn_Check_Gamma();
 	afx_msg void OnAdvanced_Btn_Check_Mirror();
 	afx_msg void OnAdvanced_Btn_Check_RemoveBack();
 	afx_msg void OnAdvanced_Btn_Check_RemoveDenoise();
 	afx_msg void OnAdvanced_Btn_Check_RemoveDescreen();
 	afx_msg void OnAdvanced_Btn_Check_AutoCrop();
+	
 	
 };

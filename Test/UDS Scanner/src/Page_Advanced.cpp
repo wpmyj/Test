@@ -21,6 +21,11 @@
 /** 底色保留最大值 */
 #define SLIDER_MAX_THRESHOLD 255 
 
+/** Gamma校正最小值 */
+#define SLIDER_MIN_GAMMA 10 
+/** Gamma校正最大值 */
+#define SLIDER_MAX_GAMMA 255 
+
 // CPage_Advanced 对话框
 
 IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
@@ -50,10 +55,12 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, m_edit_sensitive_threshold);
+	DDX_Control(pDX, IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, m_edit_gamma);
 	DDX_Control(pDX, IDC_CHECK_MULTISTREAM, m_check_multistream);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_CONTRAST, m_slider_contrast);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, m_slider_sensitive_threshold);
+	DDX_Control(pDX, IDC_ADVANCED_SLIDER_SENSITIVE_GAMMA, m_slider_gamma);
 	DDX_Control(pDX, IDC_CHECK_BACKBW, m_check_backbw);
 	DDX_Control(pDX, IDC_CHECK_BACKCOLOR, m_check_backcolor);
 	DDX_Control(pDX, IDC_CHECK_BACKGRAY, m_check_backgray);
@@ -63,7 +70,6 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_REMOVEBLANK, m_check_removeblank);
 	DDX_Control(pDX, IDC_CHECK_REMOVEPUNCH, m_check_removepunch);
 	DDX_Control(pDX, IDC_CHECK_SHARPEN, m_check_sharpen);
-	DDX_Control(pDX, IDC_CHECK_GAMMA, m_check_gamma);
 	DDX_Control(pDX, IDC_CHECK_MIRROR, m_check_mirror);
 	DDX_Control(pDX, IDC_CHECK_REMOVEBACK, m_check_removeback);
 	DDX_Control(pDX, IDC_CHECK_REMOVEDESCREEN, m_check_removedescreen);
@@ -83,20 +89,21 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_MULTISTREAM, &CPage_Advanced::OnAdvanced_Btn_Check_Multistream)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_BRIGHTNESS, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Brightness)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_CONTRAST, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Contrast)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_SENSITIVE_GAMMA, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_CONTRAST, &CPage_Advanced::OnEnChangeAdvanced_Edit_Contrast)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_BRIGHTNESS, &CPage_Advanced::OnEnChangeAdvanced_Edit_Brightness)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, &CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, &CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma)
 	ON_BN_CLICKED(IDC_CHECK_FRONTCOLOR, &CPage_Advanced::OnAdvanced_Btn_Check_FrontColor)
 	ON_BN_CLICKED(IDC_CHECK_FRONTGRAY, &CPage_Advanced::OnAdvanced_Btn_Check_FrontGray)
 	ON_BN_CLICKED(IDC_CHECK_FRONTBW, &CPage_Advanced::OnAdvanced_Btn_Check_FrontBW)
 	ON_BN_CLICKED(IDC_CHECK_BACKGRAY, &CPage_Advanced::OnAdvanced_Btn_Check_BackGray)
 	ON_BN_CLICKED(IDC_CHECK_BACKCOLOR, &CPage_Advanced::OnAdvanced_Btn_Check_BackColor)
 	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Advanced::OnAdvanced_Btn_Check_BackBW)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold)
-	ON_EN_CHANGE(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, &CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEBLANK, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEPUNCH, &CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch)
 	ON_BN_CLICKED(IDC_CHECK_SHARPEN, &CPage_Advanced::OnAdvanced_Btn_Check_Sharpen)
-	ON_BN_CLICKED(IDC_CHECK_GAMMA, &CPage_Advanced::OnAdvanced_Btn_Check_Gamma)
 	ON_BN_CLICKED(IDC_CHECK_MIRROR, &CPage_Advanced::OnAdvanced_Btn_Check_Mirror)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEBACK, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEDEMOISE, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise)
@@ -305,13 +312,13 @@ void CPage_Advanced::UpdateControls(void)
 		switch(lstCapValues->at(i))
 		{
 		case TWUN_INCHES:
-			m_combo_uints.InsertString(i,"Inches");
+			m_combo_uints.InsertString(i,"Inches"); //英寸
 			break;
 		case TWUN_PIXELS:
-			m_combo_uints.InsertString(i,"Pixels");
+			m_combo_uints.InsertString(i,"Pixels"); //像素
 			break;
 		case TWUN_CENTIMETERS:
-			m_combo_uints.InsertString(i,"Centimeters");
+			m_combo_uints.InsertString(i,"Centimeters"); //厘米
 			break;
 		case TWUN_PICAS:
 			m_combo_uints.InsertString(i,"Picas");
@@ -320,7 +327,7 @@ void CPage_Advanced::UpdateControls(void)
 			m_combo_uints.InsertString(i,"Points");
 			break;
 		case TWUN_TWIPS:
-			m_combo_uints.InsertString(i,"Twips");
+			m_combo_uints.InsertString(i,"Twips"); //缇
 			break;
 		default:
 			continue;
@@ -439,6 +446,7 @@ BOOL CPage_Advanced::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	UpdateControls();
+	InitSliderCtrl(); //初始化滑块
 
 	//多流输出下的选项默认不使用
 	m_check_multistream.SetCheck(FALSE);
@@ -867,7 +875,30 @@ void CPage_Advanced::InitSliderCtrl()
 	m_slider_brightness.SetTicFreq(1);
 	m_slider_brightness.SetPos(0);//设置为中间
 
+	m_slider_gamma.SetRange(SLIDER_MIN_GAMMA,SLIDER_MAX_GAMMA);
+	m_slider_gamma.SetTicFreq(1);
+	m_slider_gamma.SetPos(100);  //默认设置位置为100，不为10
+
 	UpdateData(FALSE);  // 更新控件
+}
+
+//Gamma图像校正
+void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_gamma.GetPos();  // 获取滑块当前位置
+	m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
+
+	str.Format("%d", sldValue);
+	m_edit_gamma.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	UpdateData(FALSE);  // 更新控件
+	UpdateControls();
+	/*// 设置应用按钮为可用状态
+	SetModified(TRUE);*/
+	*pResult = 0;
 }
 
 
@@ -972,6 +1003,31 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold()
 	m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)nval);  
 
 	m_edit_sensitive_threshold.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+	UpdateControls();
+
+	/*// 设置应用按钮为可用状态
+	SetModified(TRUE);*/
+}
+
+
+void CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CPropertyPage::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_gamma.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_gamma.SetPos(nval);
+	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, nval));
+	m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval);  // 设置对比度为当前滚动条值
+
+	m_edit_gamma.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
 	UpdateControls();
 
@@ -1095,7 +1151,7 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank()
 		nval = TWBP_DISABLE;
 	}
 	m_pUI->SetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES,(float)nval); 
-
+	//m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
 	//CString str;
 	//str.Format("空白页%d",ms);
 	//AfxMessageBox(str);
@@ -1141,27 +1197,6 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
 		nval = TWSP_DISABLE;
 	}
 	m_pUI->SetCapValueFloat(UDSCAP_SHARPEN,(float)nval); 
-}
-
-
-//Gamma图像校正
-void CPage_Advanced::OnAdvanced_Btn_Check_Gamma()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_gamma.GetCheck())
-	{
-		nval = TWGM_AUTO;
-	} 
-	else
-	{
-		nval = TWGM_DISABLE;
-	}
-	int ms = m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval); 
-
-	/*CString str;
-	str.Format("%d",ms);
-	AfxMessageBox(str);*/
 }
 
 
@@ -1248,3 +1283,7 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	}
 	m_pUI->SetCapValueFloat(UDSCAP_AUTOCROP,(float)nval); 
 }
+
+
+
+

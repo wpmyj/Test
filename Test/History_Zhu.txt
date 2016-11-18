@@ -227,3 +227,16 @@ CTWAINDS_UDS::updateScannerFromCaps()中改为：
 	}
 
 5、修改CUSTCAP_PUNCHHOLEREMOVEL等参数为UDSCAP_PUNCHHOLEREMOVEL
+
+date 16.11.17
+------------------------------------------------------------
+@author zhu
+1、增加图像分割功能，使用FreeImage_Copy实现；
+2、增加镜像处理功能，FreeImage_FlipHorizontal实现
+3、修改Gamma校正的方式，从checkBox改为滑动条，滑动条范围为10~255，但实际操作范围为0.1~2.55；
+4、但有一个问题就是图像会变为黑白，调试中
+
+date 16.11.18
+------------------------------------------------------------
+@author zhu
+1、解决图像变为黑白的问题；查找到问题在于FreeImage_AdjustGamma时参数m_fGamma为10，导致在FreeImage_AdjustGamma(m_pDIB, m_fGamma/100);后，第二个参数过小，所以导致图像变暗，类似黑白；调整CTWAINDS_UDS.Initialize中，容器pfixCap->Add(1, true)改为pfixCap->Add(100, true)；这样修改后直接从基本界面扫描没有问题，但从高级界面扫描仍然不对，是因为滑动条默认设置为10了，改为100后，正确；从而后面的镜像处理与图像分割功能正常；
