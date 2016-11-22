@@ -111,6 +111,15 @@
     <ClCompile Include="src\CScanner_G6400.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Page_ImageProcess.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page_Muiltstream.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page_Paper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -213,6 +222,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\CScanner_G6400.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_ImageProcess.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Muiltstream.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Paper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

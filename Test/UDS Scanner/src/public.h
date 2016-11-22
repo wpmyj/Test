@@ -29,6 +29,8 @@ typedef enum DEVICE_NUMBER
 };
 
 
+#define UDSCAP_LONGDOCUMENT             CAP_CUSTOMBASE+1
+#define UDSCAP_DOCS_IN_ADF              CAP_CUSTOMBASE+2
 /* Added by zhu */
 /** 添加的功能及其值 */   
 #define UDSCAP_BINARIZATION             CAP_CUSTOMBASE+3  /**< 二值化 */
@@ -37,12 +39,15 @@ typedef enum DEVICE_NUMBER
 
 #define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
 #define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+7  /**< 图像锐化 */
-//#define CUSTCAP_GAMMA                 CAP_CUSTOMBASE+8  /**< Gamma图像校正 Twain已有ICAP_GAMMA*/
+//#define CUSTCAP_GAMMA                 CAP_CUSTOMBASE+8  /**< Gamma图像校正    Twain已有ICAP_GAMMA*/
 #define UDSCAP_MIRROR                   CAP_CUSTOMBASE+9  /**< 图像镜像处理 */
 #define UDSCAP_REMOVEBACKGROUND         CAP_CUSTOMBASE+10 /**< 去除背景 */
 #define UDSCAP_DESCREEN                 CAP_CUSTOMBASE+11 /**< 去网纹 */
 #define UDSCAP_DENOISE                  CAP_CUSTOMBASE+12 /**< 去噪声 */
 #define UDSCAP_AUTOCROP                 CAP_CUSTOMBASE+13 /**< 自动裁切校正 */
+
+#define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
+#define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -89,6 +94,11 @@ typedef enum DEVICE_NUMBER
 
 /* UDSCAP_AUTOCROP values (AC_ means AUTOCROP)自动裁切校正。*/
 #define TWAC_DISABLE              -2
-#define TWAC_AUTO                 -1 
+#define TWAC_AUTO                 -1
+
+
+/* ICAP_SUPPORTEDSIZES values (SS_ means Supported Sizes) 典型页面大小的固定的帧大小。added by zhu*/
+#define TWSS_PHOT64               55
+#define TWSS_PHOT53               56
 
 #endif //__PUBLIC_H__

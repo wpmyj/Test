@@ -5,7 +5,6 @@
 #include "UDS Scanner.h"
 #include "Sheet_Scanner.h"
 
-
 // CSheet_Scanner
 
 IMPLEMENT_DYNAMIC(CSheet_Scanner, CPropertySheet)
@@ -21,6 +20,15 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
 
+	m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);
+
+	m_p_page_muilstream = new CPage_Muiltstream(pUI);
+	AddPage(m_p_page_muilstream);
+
+	m_p_page_imageprocess = new CPage_ImageProcess(pUI);
+	AddPage(m_p_page_imageprocess);
+
 	AddPage(&m_page_about);
 	
 }
@@ -35,6 +43,15 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
+
+	m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);
+
+	m_p_page_muilstream = new CPage_Muiltstream(pUI);
+	AddPage(m_p_page_muilstream);
+
+	m_p_page_imageprocess = new CPage_ImageProcess(pUI);
+	AddPage(m_p_page_imageprocess);
 
 	AddPage(&m_page_about);
 	
@@ -53,6 +70,25 @@ CSheet_Scanner::~CSheet_Scanner()
 		delete m_p_page_advanced;
 		m_p_page_advanced = NULL;
 	}
+
+	if (m_p_page_paper)
+	{
+		delete m_p_page_paper;
+		m_p_page_paper = NULL;
+	}
+
+	if (m_p_page_muilstream)
+	{
+		delete m_p_page_muilstream;
+		m_p_page_muilstream = NULL;
+	}
+
+	if (m_p_page_imageprocess)
+	{
+		delete m_p_page_imageprocess;
+		m_p_page_imageprocess = NULL;
+	}
+
 }
 
 
@@ -102,5 +138,11 @@ BOOL CSheet_Scanner::OnInitDialog()
 	{
 		GetDlgItem(IDOK)->SetWindowText("扫描");
 	}
+
+	//暂时移除后三个界面
+	RemovePage(m_p_page_paper);
+	RemovePage(m_p_page_muilstream);
+	RemovePage(m_p_page_imageprocess);
+
 	return bResult;
 }

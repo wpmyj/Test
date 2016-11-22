@@ -6,9 +6,10 @@
 #include "Page_Advanced.h"
 #include "afxdialogex.h"
 
+
 /** 滑动条最小值 */
 #define SLIDER_MIN -100  
-	/** 滑动条最大值 */
+/** 滑动条最大值 */
 #define SLIDER_MAX  100 
 
 /** 去除斑点最小值 */
@@ -205,21 +206,21 @@ void CPage_Advanced::UpdateControls(void)
 	{
 		switch(lstCapValues->at(i))
 		{
-			/*case TWSS_NONE:
+		case TWSS_NONE:
 			m_combo_standardsizes.InsertString(i,"自定义");
-			break;*/
+			break;
 		case TWSS_USLETTER:
 			m_combo_standardsizes.InsertString(i,"US Letter (8.5\" x 11\")");  //216mm x 280mm
 			break;
 		case TWSS_USLEGAL:
 			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
 			break;
-		//case TWSS_PHOT64:
-		//	m_combo_standardsizes.InsertString(i,"US Letter (6\" x 4\")");  //152mm x 102mm
-		//	break;
-		//case TWSS_PHOT53:
-		//	m_combo_standardsizes.InsertString(i,"US Letter (5\" x 3\")");  //127mm x 76mm
-		//	break;
+		case TWSS_PHOT64:
+			m_combo_standardsizes.InsertString(i,"照片64 (6\" x 4\")");  //152mm x 102mm
+			break;
+		case TWSS_PHOT53:
+			m_combo_standardsizes.InsertString(i,"照片53 (5\" x 3\")");  //127mm x 76mm
+			break;
 		case TWSS_A3:
 			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //国际标准
 			break;
@@ -259,7 +260,7 @@ void CPage_Advanced::UpdateControls(void)
 		case TWSS_JISB7:
 			m_combo_standardsizes.InsertString(i,"JIS B7 (91mm x 128mm)");
 			break;
-		case CUSTCAP_LONGDOCUMENT:
+		case UDSCAP_LONGDOCUMENT:
 			m_combo_standardsizes.InsertString(i,"长纸模式");
 			break;
 		case TWSS_MAXSIZE:
@@ -271,25 +272,17 @@ void CPage_Advanced::UpdateControls(void)
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
 
-	/*
 	if(TWSS_NONE == lstCapValues->at(nCapIndex))  ///<　纸张大小：自定义。
 	{
 		m_edit_custom_width.EnableWindow(TRUE);
 		m_edit_custom_height.EnableWindow(TRUE);
-		m_combo_orientation.EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_STATIC_CUSTOM_WIDTH)->EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_STATIC_CUSTOM_HEIGHT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_STATIC_ORIENTATION)->EnableWindow(FALSE);
 	} 
 	else
-	{*/
+	{
 		m_edit_custom_width.EnableWindow(FALSE);
 		m_edit_custom_height.EnableWindow(FALSE);
-		m_combo_orientation.EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_STATIC_CUSTOM_WIDTH)->EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_STATIC_CUSTOM_HEIGHT)->EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_STATIC_ORIENTATION)->EnableWindow(TRUE);
-	//}
+		//GetDlgItem(IDC_ADVANCED_STATIC_ORIENTATION)->EnableWindow(TRUE);
+	}
 
 	// 自定义宽与高
 	TW_FRAME frame;
@@ -550,13 +543,21 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	m_combo_standardsizes.GetLBText( nIndex, strCBText);
 	int nval;
 	//int nval = _ttoi(strCBText);  // CString 转 int
-	/*if (strCBText.Find("自定义") >= 0)
+	if (strCBText.Find("自定义") >= 0)
 	{
 	nval = TWSS_NONE;
 	}
-	else*/ if (strCBText.Find("US Letter") >= 0)
+	else if (strCBText.Find("US Letter") >= 0)
 	{
 		nval = TWSS_USLETTER;
+	}
+	else if (strCBText.Find("照片64") >= 0)
+	{
+		nval = TWSS_PHOT64;
+	}
+	else if (strCBText.Find("照片53") >= 0)
+	{
+		nval = TWSS_PHOT53;
 	}
 	else if (strCBText.Find("US Legal") >= 0)
 	{
@@ -616,7 +617,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	}
 	else if (strCBText.Find("长纸模式") >= 0)
 	{
-		nval = CUSTCAP_LONGDOCUMENT;
+		nval = UDSCAP_LONGDOCUMENT;
 	}
 	else if (strCBText.Find("最大扫描") >= 0)
 	{

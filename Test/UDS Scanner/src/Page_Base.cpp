@@ -184,11 +184,11 @@ void CPage_Base::UpdateControls(void)
 	// 单面/双面扫
 	// @see CTWAINDS_FreeIMage.cpp Line 675
 	m_combo_scanside.ResetContent();  // 清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED); //1
 	lstCapValues = m_pUI->GetValidCap(CAP_DUPLEXENABLED);
 	if(lstCapValues && lstCapValues->size()>0)
 	{
-		m_combo_scanside.InsertString(0,lstCapValues->at(0)!=0?"双面":"单面");
+		m_combo_scanside.InsertString(0,lstCapValues->at(0)!=0?"双面":"单面"); //插入顺序是 0-单面，1-双面
 		if(lstCapValues->size()>1)
 		{
 			m_combo_scanside.InsertString(1,lstCapValues->at(1)!=0?"双面":"单面");
@@ -291,11 +291,11 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	
 	if(0 == sldValue)
 	{
-		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,230);  // 设置亮度为当前滚动条值
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  //虚拟默认128.G6400默认230
 	}
 	else
 	{
-		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 设置亮度为当前滚动条值
+		m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 
 	}
 
 	str.Format("%d", sldValue);
@@ -508,6 +508,20 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 }
 
 
+void CPage_Base::OnClicked_Check_Multifeeddetect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (m_check_multifeeddetect.GetCheck()) //点中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
+	} 
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);	
+	}
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void CPage_Base::OnBase_Btn_Chooseimage()
 {
@@ -518,7 +532,7 @@ void CPage_Base::OnBase_Btn_Chooseimage()
 	//if (true == MyBrowseForSignalImage(szFilePath))
 	//{
 	//	m_pUI->m_pDS->SetScannerImagePath_Signal(szFilePath);
-	//	//m_pUI->SetCapValueInt(CUSTCAP_DOCS_IN_ADF,2);  
+	//	//m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2);  
 	//}
 	
 
@@ -528,7 +542,7 @@ void CPage_Base::OnBase_Btn_Chooseimage()
 
 	unsigned int nCount = vector_string_imagepath.size();
 
-	m_pUI->SetCapValueInt(CUSTCAP_DOCS_IN_ADF,nCount);	
+	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,nCount);	
 	m_pUI->m_pDS->SetScannerImagePath_Multi(vector_string_imagepath); // 传递多张图片路径
 
 }
@@ -639,20 +653,6 @@ vector<string> CPage_Base::MyBrowseForMultiImages()
 	}
 	return vectorFileName;
 	//return false;
-}
-
-
-void CPage_Base::OnClicked_Check_Multifeeddetect()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_check_multifeeddetect.GetCheck()) //点中
-	{
-	//	temp_generalsetting.MultifeedDetection = TRUE;
-	} 
-	else
-	{
-	//	temp_generalsetting.MultifeedDetection = FALSE;
-	}
 }
 
 

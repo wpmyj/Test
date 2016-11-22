@@ -14,9 +14,6 @@
 #include "CTWAINDS_Base.h"
 #include "CScanner_FreeImage.h"
 
-#define CUSTCAP_LONGDOCUMENT CAP_CUSTOMBASE+1
-#define CUSTCAP_DOCS_IN_ADF  CAP_CUSTOMBASE+2
-
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{A4FAF845-1383-4036-AEDC-17C3968188B4}"
 

@@ -161,6 +161,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClCompile Include="src\Page_Base.cpp" />
     <ClCompile Include="src\CScanner_Base.cpp" />
     <ClCompile Include="src\CScanner_G6400.cpp" />
+    <ClCompile Include="src\Page_ImageProcess.cpp" />
+    <ClCompile Include="src\Page_Muiltstream.cpp" />
+    <ClCompile Include="src\Page_Paper.cpp" />
     <ClCompile Include="src\Sheet_Scanner.cpp" />
     <ClCompile Include="src\TWAINContainer.cpp" />
     <ClCompile Include="src\TWAINContainerBool.cpp" />
@@ -197,6 +200,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClInclude Include="src\Page_About.h" />
     <ClInclude Include="src\Page_Advanced.h" />
     <ClInclude Include="src\Page_Base.h" />
+    <ClInclude Include="src\Page_ImageProcess.h" />
+    <ClInclude Include="src\Page_Muiltstream.h" />
+    <ClInclude Include="src\Page_Paper.h" />
     <ClInclude Include="src\public.h" />
     <ClInclude Include="src\CScanner_Base.h" />
     <ClInclude Include="src\CScanner_G6400.h" />

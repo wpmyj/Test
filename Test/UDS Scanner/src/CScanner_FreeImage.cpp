@@ -164,34 +164,48 @@ bool CScanner_FreeImage::resetScanner()
   // Unlock the scanner 
   Unlock();
 
-  m_nScanLine        = 0;
-  m_nDestBytesPerRow = 0;
+  m_nScanLine           = 0;
+  m_nDestBytesPerRow    = 0;
 
-  m_nDocCount     = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
-  m_nPixelType    = TWPT_RGB;
-  m_nPaperSource  = SFI_PAPERSOURCE_ADF;
-  m_bDuplex       = false;
-  m_nWidth        = 0;
-  m_nHeight       = 0;
-  m_fXResolution  = 200.0;
-  m_fYResolution  = 200.0;
-	m_fGamma        = 100.0; //zhu 默认为1
+  m_nDocCount           = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
 
-	m_nRotation     = 0; //zhu
-	m_nOrientation  = TWOR_ROT0; //zhu 纵向
+	//Base界面
+  m_nPaperSource        = SFI_PAPERSOURCE_ADF;  //扫描模式-自动进纸器
+	m_nPixelType          = TWPT_RGB; //图形类型-彩色 zhu
+	m_fXResolution        = 200.0;
+	m_fYResolution        = 200.0; //分辨率-200.0
+  m_bDuplex             = false; //单面/双面-单面
+	m_fContrast           = 0.0; //对比度-0.0
+	m_fBrightness         = 0.0; //亮度-0.0
+	m_fThreshold          = 128.0; //阈值-128.0 ，虚拟默认128.G6400默认230
+	m_bMultifeedDetection = true; //重张检测-选中
+ 
+	//Advanced界面
+	m_nOrientation        = TWOR_ROT0; //zhu 纸张方向-纵向
+	m_nStandardsizes      = TWSS_USLETTER; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-TWSS_USLETTER
+	m_nUnits              = TWUN_INCHES;  //zhu 单位-英寸
 
-	m_nBinarization = TWBZ_DYNATHRESHOLD; //zhu 动态阈值
-	m_nSpiltImage   = TWSI_NONE; //zhu 不分割
+	m_nWidth              = 0;
+	m_nHeight             = 0;
 
+	m_nRotation           = 0; //旋转-不旋转zhu
+	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
+	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
+	m_fMirror             = TWMR_DISABLE; //镜像-不选中
+	
+	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
+	m_bMultiStream        = false; //多流输出-不选中
+	m_fSensitiveThreshold = 0.0; //去除斑点-0.0
+
+	//其他图像处理
 	//默认不选中
-	m_fRemoveBlank  = TWRP_DISABLE; 
-	m_fRemovePunch  = TWSP_DISABLE;
-	m_fSharpen      = TWGM_DISABLE;
-	m_fMirror       = TWMR_DISABLE;
-	m_fRemoveBack   = TWRB_DISABLE;
-	m_fDescreen     = TWDS_DISABLE;
-	m_fDenoise      = TWDN_DISABLE;
-	m_fAutoCrop     = TWAC_DISABLE;
+	m_fRemoveBlank        = TWRP_DISABLE; 
+	m_fRemovePunch        = TWSP_DISABLE;
+	m_fSharpen            = TWGM_DISABLE;
+	m_fRemoveBack         = TWRB_DISABLE;
+	m_fDescreen           = TWDS_DISABLE;
+	m_fDenoise            = TWDN_DISABLE;
+	m_fAutoCrop           = TWAC_DISABLE;
 
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
   {
@@ -681,7 +695,7 @@ void CScanner_FreeImage::SetImagePath_Multi(vector<string> vector_string_imagepa
 //		m_vector_string_imagepath.push_back(str_image_path);
 //	}
 //
-//	//m_pUI->SetCapValueInt(CUSTCAP_DOCS_IN_ADF,nCount);	
+//	//m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,nCount);	
 //}
 
 

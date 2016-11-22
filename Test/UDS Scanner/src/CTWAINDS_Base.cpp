@@ -938,7 +938,7 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
               setConditionCode(Condition);
               if(twrc == TWRC_SUCCESS && twrc2 != TWRC_SUCCESS)
               {
-								::MessageBox(g_hwndDLG,TEXT("twrc2 != TWRC_SUCCESS"),MB_CAPTION,MB_OK);
+								//::MessageBox(g_hwndDLG,TEXT("twrc2 != TWRC_SUCCESS"),MB_CAPTION,MB_OK); //zhu
                 twrc = twrc2;
               }
             }

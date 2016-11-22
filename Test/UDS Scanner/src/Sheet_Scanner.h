@@ -5,6 +5,9 @@
 #include "Page_About.h"
 #include "Page_Base.h"
 #include "Page_Advanced.h"
+#include "Page_Paper.h"
+#include "Page_Muiltstream.h"
+#include "Page_ImageProcess.h"
 
 class MFC_UI;
 // CSheet_Scanner
@@ -27,6 +30,10 @@ private:
 public:
 	CPage_Base *m_p_page_base;
 	CPage_Advanced *m_p_page_advanced;
+	CPage_Paper *m_p_page_paper;
+	CPage_Muiltstream *m_p_page_muilstream;
+	CPage_ImageProcess *m_p_page_imageprocess;
+
 	CPage_About m_page_about;
 	
 public:

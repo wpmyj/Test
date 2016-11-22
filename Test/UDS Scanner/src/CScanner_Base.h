@@ -116,10 +116,18 @@ public:
 	float             m_fBrightness;            /**< Brightness */
 	float             m_fThreshold;             /**< Threshold */
 
-	int               m_nRotation; //zhu        /**< 旋转 */
+	bool              m_bMultifeedDetection;//zhu/**<重张检测 */
+
 	int               m_nOrientation; //zhu     /**< 纸张方向 */
+	int               m_nStandardsizes; //zhu   /**< 纸张大小 */
+	int               m_nUnits;     //zhu       /**< 单位*/
+
+	int               m_nRotation; //zhu        /**< 旋转 */	
 	int               m_nBinarization; //zhu    /**< 二值化 */
 	int               m_nSpiltImage; //zhu      /**< 分割图像 */
+
+	float             m_fSensitiveThreshold;    /**< 去除斑点 */
+	bool              m_bMultiStream;    //zhu  /**< 多流输出 */
 
 	float             m_fRemoveBlank;           /**< 去除空白页 */
 	float             m_fRemovePunch;           /**< 去除穿孔 */
