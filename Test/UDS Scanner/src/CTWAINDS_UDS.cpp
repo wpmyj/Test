@@ -643,6 +643,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//zhu 重张检测
 	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT]))
+		|| !pbCap->Add(FALSE)
 		|| !pbCap->Add(TRUE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTIFEEDDETECT !"),MB_CAPTION,MB_OK);
@@ -654,6 +655,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//多流输出
 	m_IndependantCapMap[UDSCAP_MULTISTREAM] = new CTWAINContainerBool(UDSCAP_MULTISTREAM, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTISTREAM]))
+		|| !pbCap->Add(TRUE) 
 		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTISTREAM !"),MB_CAPTION,MB_OK);
@@ -661,7 +663,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
-
 
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
@@ -816,6 +817,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
+
   m_IndependantCapMap[CAP_FEEDERLOADED] = new CTWAINContainerBool(CAP_FEEDERLOADED, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_FEEDERLOADED]))
    || !pbCap->Add(TRUE)
@@ -928,7 +930,18 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 
-  FLOAT_RANGE fRange;
+	//m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerBool(ICAP_AUTODISCARDBLANKPAGES, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+	//	|| !pbCap->Add(TRUE)
+	//	|| !pbCap->Add(FALSE, true) )
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
+	//	//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
+	//	setConditionCode(TWCC_LOWMEMORY);
+	//	return TWRC_FAILURE;
+	//}
+	// 去除空白页等
+	FLOAT_RANGE fRange;
 	fRange.fCurrentValue = 0.0f;
 	fRange.fMaxValue = 10.0f;
 	fRange.fMinValue = -10.0f;
@@ -943,8 +956,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL] = new CTWAINContainerFix32Range(UDSCAP_PUNCHHOLEREMOVEL,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL]))
+	m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL] = new CTWAINContainerBool(UDSCAP_PUNCHHOLEREMOVEL, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_PUNCHHOLEREMOVEL !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_PUNCHHOLEREMOVEL" << endl;
@@ -952,8 +967,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_SHARPEN] = new CTWAINContainerFix32Range(UDSCAP_SHARPEN,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SHARPEN]))
+	m_IndependantCapMap[UDSCAP_SHARPEN] = new CTWAINContainerBool(UDSCAP_SHARPEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_SHARPEN]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SHARPEN !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_SHARPEN" << endl;
@@ -961,8 +978,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_MIRROR] = new CTWAINContainerFix32Range(UDSCAP_MIRROR,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_MIRROR]))
+	m_IndependantCapMap[UDSCAP_MIRROR] = new CTWAINContainerBool(UDSCAP_MIRROR, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MIRROR]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MIRROR !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_MIRROR" << endl;
@@ -970,8 +989,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND] = new CTWAINContainerFix32Range(UDSCAP_REMOVEBACKGROUND,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND]))
+	m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND] = new CTWAINContainerBool(UDSCAP_REMOVEBACKGROUND, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_REMOVEBACKGROUND !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_REMOVEBACKGROUND" << endl;
@@ -979,8 +1000,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_DESCREEN] = new CTWAINContainerFix32Range(UDSCAP_DESCREEN,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_DESCREEN]))
+	m_IndependantCapMap[UDSCAP_DESCREEN] = new CTWAINContainerBool(UDSCAP_DESCREEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_DESCREEN]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_DESCREEN !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_DESCREEN" << endl;
@@ -988,8 +1011,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_DENOISE] = new CTWAINContainerFix32Range(UDSCAP_DENOISE,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_DENOISE]))
+	m_IndependantCapMap[UDSCAP_DENOISE] = new CTWAINContainerBool(UDSCAP_DENOISE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_DENOISE]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_DENOISE !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_DENOISE" << endl;
@@ -997,15 +1022,18 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_AUTOCROP] = new CTWAINContainerFix32Range(UDSCAP_AUTOCROP,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_AUTOCROP]))
+	m_IndependantCapMap[UDSCAP_AUTOCROP] = new CTWAINContainerBool(UDSCAP_AUTOCROP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_AUTOCROP]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_DENOISE !"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_AUTOCROP !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_AUTOCROP" << endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
 
+//	FLOAT_RANGE fRange;
   fRange.fCurrentValue = 128.0f; 
   fRange.fMaxValue = 255.0f;
   fRange.fMinValue = 0.0f;
@@ -2014,6 +2042,17 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}//zhu
 
 	//去除空白页等8项
+	//if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
+	//{
+	//	//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
+	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
+	//	bret = false;
+	//}
+	//else
+	//{
+	//	pbCap->GetCurrent(bVal);
+	//	settings.m_fRemoveBlank = bVal;
+	//}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
@@ -2026,84 +2065,89 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fRemoveBlank = fVal;
 	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_PUNCHHOLEREMOVEL))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_PUNCHHOLEREMOVEL))))
 	{
+		//cerr << "Could not get UDSCAP_PUNCHHOLEREMOVEL" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_PUNCHHOLEREMOVEL!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_ROTATION" << endl;
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fRemovePunch = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bRemovePunch = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SHARPEN))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_SHARPEN))))
 	{
+		//cerr << "Could not get UDSCAP_SHARPEN" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SHARPEN!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_ROTATION" << endl;
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fSharpen = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bSharpen = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_MIRROR))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_MIRROR))))
 	{
+		//cerr << "Could not get UDSCAP_MIRROR" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_MIRROR!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fMirror = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bMirror = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_REMOVEBACKGROUND))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_REMOVEBACKGROUND))))
 	{
+		//cerr << "Could not get UDSCAP_REMOVEBACKGROUND" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_REMOVEBACKGROUND!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fRemoveBack = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bRemoveBack = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_DESCREEN))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_DESCREEN))))
 	{
+		//cerr << "Could not get UDSCAP_DESCREEN" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_DESCREEN!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fDescreen = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bDescreen = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_DENOISE))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_DENOISE))))
 	{
+		//cerr << "Could not get UDSCAP_DENOISE" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_DENOISE!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fDenoise = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bDenoise = bVal;
+	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_AUTOCROP))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_AUTOCROP))))
 	{
+		//cerr << "Could not get UDSCAP_AUTOCROP" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_AUTOCROP!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fAutoCrop = fVal;
-	}//zhu
+		pbCap->GetCurrent(bVal);
+		settings.m_bAutoCrop = bVal;
+	}
 
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_BINARIZATION))))

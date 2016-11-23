@@ -114,7 +114,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_nRotation           = 0; //旋转-不旋转zhu
 	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
 	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
-	m_fMirror             = TWMR_DISABLE; //镜像-不选中
+	m_bMirror             = TWMR_DISABLE; //镜像-不选中
 
 	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
 	m_bMultiStream        = false; //多流输出-不选中
@@ -123,12 +123,12 @@ bool CScanner_OpenCV::resetScanner()
 	//其他图像处理
 	//默认不选中
 	m_fRemoveBlank        = TWRP_DISABLE; 
-	m_fRemovePunch        = TWSP_DISABLE;
-	m_fSharpen            = TWGM_DISABLE;
-	m_fRemoveBack         = TWRB_DISABLE;
-	m_fDescreen           = TWDS_DISABLE;
-	m_fDenoise            = TWDN_DISABLE;
-	m_fAutoCrop           = TWAC_DISABLE;
+	m_bRemovePunch        = TWSP_DISABLE;
+	m_bSharpen            = TWGM_DISABLE;
+	m_bRemoveBack         = TWRB_DISABLE;
+	m_bDescreen           = TWDS_DISABLE;
+	m_bDenoise            = TWDN_DISABLE;
+	m_bAutoCrop           = TWAC_DISABLE;
 
 	if (m_mat_image.empty())
 	{
@@ -253,13 +253,17 @@ bool CScanner_OpenCV::preScanPrep()
 	} 
 	
 	//图像镜像处理
-	if(m_fMirror == TWMR_AUTO)
+	if(m_bMirror == TWMR_AUTO)
 	{ 
 		Mat mat_hMirror;
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
 	}
 
+	if(m_bDenoise == TWDN_AUTO) //去除噪声
+	{	
+		MedianSmooth();
+	}
 	//颜色
 	if(m_nPixelType != TWPT_RGB)
 	{
@@ -404,6 +408,19 @@ void CScanner_OpenCV::RotateImage(double angle)
 
 	m_mat_image = rotateImg;
 }
+
+
+void CScanner_OpenCV::MedianSmooth(void) //中值滤波
+{
+	IplImage in = IplImage(m_mat_image); /*Mat -> IplImage*/
+	IplImage *out = cvCreateImage(cvGetSize(&in),IPL_DEPTH_8U,in.nChannels); 
+
+	cvSmooth(&in,out,CV_MEDIAN,3,in.nChannels);  //  中值滤波
+	m_mat_image = out; //IplImage -> Mat
+
+	//::MessageBox(g_hwndDLG,TEXT("中值滤波"),MB_CAPTION,MB_OK);
+}
+
 
 void CScanner_OpenCV::hMirrorTrans(const Mat &src, Mat &dst)
 {

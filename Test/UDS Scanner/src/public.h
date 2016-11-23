@@ -66,36 +66,36 @@ typedef enum DEVICE_NUMBER
 #define TWSI_VERTICAL              2
 
 /* UDSCAP_PUNCHHOLEREMOVEL values (RP_ means REMOVELPUNCHHOLE)去除穿孔。*/
-#define TWRP_DISABLE              -2
-#define TWRP_AUTO                 -1  
+#define TWRP_DISABLE              FALSE 
+#define TWRP_AUTO                 TRUE  
 
 /* UDSCAP_SHARPEN values (SP_ means SHARPEN)图像锐化。*/
-#define TWSP_DISABLE              -2
-#define TWSP_AUTO                 -1 
+#define TWSP_DISABLE              FALSE
+#define TWSP_AUTO                 TRUE 
 
 /* CUSTCAP_GAMMA values (GM_ means GAMMA)Gamma图像校正。*/
-#define TWGM_DISABLE              -2
-#define TWGM_AUTO                 -1 
+#define TWGM_DISABLE              FALSE
+#define TWGM_AUTO                 TRUE 
 
 /* UDSCAP_MIRROR values (MR_ means MIRROR)图像镜像处理。*/
-#define TWMR_DISABLE              -2
-#define TWMR_AUTO                 -1 
+#define TWMR_DISABLE              FALSE
+#define TWMR_AUTO                 TRUE 
 
 /* UDSCAP_REMOVEBACKGROUND values (RB_ means REMOVEBACKGROUND)去除背景。*/
-#define TWRB_DISABLE              -2
-#define TWRB_AUTO                 -1 
+#define TWRB_DISABLE              FALSE
+#define TWRB_AUTO                 TRUE 
 
 /* UDSCAP_DESCREEN values (DS_ means DESCREEN)去网纹。*/
-#define TWDS_DISABLE              -2
-#define TWDS_AUTO                 -1 
+#define TWDS_DISABLE              FALSE
+#define TWDS_AUTO                 TRUE 
 
 /* UDSCAP_DENOISE values (DN_ means DENOISE)去噪声。*/
-#define TWDN_DISABLE              -2
-#define TWDN_AUTO                 -1 
+#define TWDN_DISABLE              FALSE
+#define TWDN_AUTO                 TRUE 
 
 /* UDSCAP_AUTOCROP values (AC_ means AUTOCROP)自动裁切校正。*/
-#define TWAC_DISABLE              -2
-#define TWAC_AUTO                 -1
+#define TWAC_DISABLE              FALSE
+#define TWAC_AUTO                 TRUE
 
 
 /* ICAP_SUPPORTEDSIZES values (SS_ means Supported Sizes) 典型页面大小的固定的帧大小。added by zhu*/

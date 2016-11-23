@@ -191,7 +191,7 @@ bool CScanner_FreeImage::resetScanner()
 	m_nRotation           = 0; //旋转-不旋转zhu
 	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
 	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
-	m_fMirror             = TWMR_DISABLE; //镜像-不选中
+	m_bMirror             = TWMR_DISABLE; //镜像-不选中
 	
 	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
 	m_bMultiStream        = false; //多流输出-不选中
@@ -199,13 +199,13 @@ bool CScanner_FreeImage::resetScanner()
 
 	//其他图像处理
 	//默认不选中
-	m_fRemoveBlank        = TWRP_DISABLE; 
-	m_fRemovePunch        = TWSP_DISABLE;
-	m_fSharpen            = TWGM_DISABLE;
-	m_fRemoveBack         = TWRB_DISABLE;
-	m_fDescreen           = TWDS_DISABLE;
-	m_fDenoise            = TWDN_DISABLE;
-	m_fAutoCrop           = TWAC_DISABLE;
+	m_fRemoveBlank        = TWBP_DISABLE; 
+	m_bRemovePunch        = TWSP_DISABLE;
+	m_bSharpen            = TWGM_DISABLE;
+	m_bRemoveBack         = TWRB_DISABLE;
+	m_bDescreen           = TWDS_DISABLE;
+	m_bDenoise            = TWDN_DISABLE;
+	m_bAutoCrop           = TWAC_DISABLE;
 
   if(0 != m_pDIB)   //如果m_pDIB（保存着位图信息和像素数据的指针）不为 0
   {
@@ -329,11 +329,11 @@ bool CScanner_FreeImage::preScanPrep()
   //pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
   
 	//zhu
-	if (m_nOrientation == TWOR_PORTRAIT) //横向
+	if (m_nOrientation == TWOR_PORTRAIT) //纵向
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
 	} 
-	else if(m_nOrientation == TWOR_LANDSCAPE) //纵向
+	else if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewHeight, unNewWidth, FILTER_BILINEAR);
 	}
@@ -369,8 +369,9 @@ bool CScanner_FreeImage::preScanPrep()
 	//FreeImage_Invert(pDib);//翻转每一个像素值，0变为1，1变为0；
 	
 	//图像镜像处理
-	if(m_fMirror == TWMR_AUTO)
+	if(m_bMirror == TWMR_AUTO)
 	{
+		//::MessageBox(g_hwndDLG,TEXT("镜像"),MB_CAPTION,MB_OK);
 		FreeImage_FlipHorizontal(pDib);
 	}
 	else

@@ -130,14 +130,23 @@ public:
 	bool              m_bMultiStream;    //zhu  /**< ¶àÁ÷Êä³ö */
 
 	float             m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
-	float             m_fRemovePunch;           /**< È¥³ý´©¿× */
-	float             m_fSharpen;               /**< Í¼ÏñÈñ»¯*/
-	//int             m_nGamma;                 /**< Gamma */
-	float             m_fMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */
-	float             m_fRemoveBack;            /**< È¥³ý±³¾° */
-	float             m_fDescreen;              /**< È¥ÍøÎÆ */ //weizhaojian
-	float             m_fDenoise;               /**< È¥ÔëÉù */
-	float             m_fAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
+	//float             m_bRemovePunch;           /**< È¥³ý´©¿× */
+	//float             m_bSharpen;               /**< Í¼ÏñÈñ»¯*/
+	////int             m_nGamma;                 /**< Gamma */
+	//float             m_bMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */
+	//float             m_bRemoveBack;            /**< È¥³ý±³¾° */
+	//float             m_bDescreen;              /**< È¥ÍøÎÆ */ //weizhaojian
+	//float             m_bDenoise;               /**< È¥ÔëÉù */
+	//float             m_bAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
+
+//	int                 m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
+	bool                m_bRemovePunch;           /**< È¥³ý´©¿× */
+	bool                m_bSharpen;               /**< Í¼ÏñÈñ»¯*/
+	bool                m_bMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */
+	bool                m_bRemoveBack;            /**< È¥³ý±³¾° */
+	bool                m_bDescreen;              /**< È¥ÍøÎÆ */ //weizhaojian
+	bool                m_bDenoise;               /**< È¥ÔëÉù */
+	bool                m_bAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
 
 protected:
 	bool              m_bReadOnly;              /**< current mode */

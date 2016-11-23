@@ -181,6 +181,11 @@ protected:
 	void RotateImage(double angle);
 
 	/**
+	*  @brief  中值滤波
+	*/
+	void MedianSmooth(void);
+
+	/**
 	*  @brief  水平镜像
 	*  @param[in]  src 原图 
 	*  @param[out] dst 目标图像 

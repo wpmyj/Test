@@ -1143,16 +1143,15 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank()
 	int nval;
 	if (m_check_removeblank.GetCheck())
 	{
-		//AfxMessageBox("È¥³ý¿Õ°×Ò³Ñ¡ÖÐ");
 		nval = TWBP_AUTO;
 	} 
 	else
 	{
-		//AfxMessageBox("È¥³ý¿Õ°×Ò³Î´Ñ¡ÖÐ");
 		nval = TWBP_DISABLE;
 	}
+
 	m_pUI->SetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES,(float)nval); 
-	//m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
+//	m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
 	//CString str;
 	//str.Format("¿Õ°×Ò³%d",ms);
 	//AfxMessageBox(str);
@@ -1174,7 +1173,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch()
 		//AfxMessageBox("È¥³ý´©¿×Î´Ñ¡ÖÐ");
 		nval = TWRP_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_PUNCHHOLEREMOVEL,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_PUNCHHOLEREMOVEL,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,nval); 
 
 	/*CString str;
 	str.Format("%d",nval);
@@ -1197,7 +1197,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
 		//AfxMessageBox("Èñ»¯Í¼ÏñÎ´Ñ¡ÖÐ");
 		nval = TWSP_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_SHARPEN,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_SHARPEN,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_SHARPEN,nval); 
 }
 
 
@@ -1214,7 +1215,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Mirror()
 	{
 		nval = TWMR_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_MIRROR,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_MIRROR,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_MIRROR,nval); 
 }
 
 
@@ -1231,7 +1233,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack()
 	{
 		nval = TWRB_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_REMOVEBACKGROUND,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_REMOVEBACKGROUND,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_REMOVEBACKGROUND,nval); 
 }
 
 
@@ -1248,7 +1251,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen()
 	{
 		nval = TWDS_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_DESCREEN,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_DESCREEN,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_DESCREEN,nval); 
 }
 
 
@@ -1265,7 +1269,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise()
 	{
 		nval = TWDN_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_DENOISE,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_DENOISE,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_DENOISE,nval);
 }
 
 
@@ -1282,7 +1287,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	{
 		nval = TWAC_DISABLE;
 	}
-	m_pUI->SetCapValueFloat(UDSCAP_AUTOCROP,(float)nval); 
+	//m_pUI->SetCapValueFloat(UDSCAP_AUTOCROP,(float)nval); 
+	m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
 }
 
 

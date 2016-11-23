@@ -13,6 +13,7 @@
 #include "FreeImage.h"
 #include "twain.h"
 #include "CScanner_Base.h"
+
 //wan
 #include <vector>
 using namespace std;

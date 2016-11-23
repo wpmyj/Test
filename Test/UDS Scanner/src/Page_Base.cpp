@@ -399,10 +399,13 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Source()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_source.GetCurSel();  // 当前combo序号
+	/*CString str;
+	str.Format("%d",nIndex);
+	AfxMessageBox(str);//*/
 	CString strCBText; 
 	m_combo_source.GetLBText( nIndex, strCBText);  // 获取当前选项内容
 	int nval;
-	if (strCBText.Find("平板"))
+	if(strCBText.Find("平板") >= 0)
 	{
 		nval = 0;
 	} 

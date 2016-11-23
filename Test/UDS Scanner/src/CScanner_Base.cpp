@@ -35,16 +35,16 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_nBinarization				= settings.m_nBinarization;
 	m_nSpiltImage					= settings.m_nSpiltImage;
 	m_fSensitiveThreshold = settings.m_fSensitiveThreshold;
-	m_bMultiStream			= settings.m_bMultiStream;
+	m_bMultiStream			  = settings.m_bMultiStream;
 
 	m_fRemoveBlank				= settings.m_fRemoveBlank;
-	m_fRemovePunch				= settings.m_fRemovePunch;
-	m_fSharpen						= settings.m_fSharpen;
-	m_fMirror							= settings.m_fMirror;
-	m_fRemoveBack					= settings.m_fRemoveBack;
-	m_fDescreen						= settings.m_fDescreen;
-	m_fDenoise						= settings.m_fDenoise;
-	m_fAutoCrop						= settings.m_fAutoCrop;
+	m_bRemovePunch				= settings.m_bRemovePunch;
+	m_bSharpen						= settings.m_bSharpen;
+	m_bMirror							= settings.m_bMirror;
+	m_bRemoveBack					= settings.m_bRemoveBack;
+	m_bDescreen						= settings.m_bDescreen;
+	m_bDenoise						= settings.m_bDenoise;
+	m_bAutoCrop						= settings.m_bAutoCrop;
 }
 
 CScanner_Base* CScanner_Base::getSetting() const
