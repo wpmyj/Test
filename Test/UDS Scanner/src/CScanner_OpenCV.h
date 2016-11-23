@@ -92,7 +92,7 @@ public:
   * @param[out] dwReceived the actual number of bytes transfered
   * @return true if successful
   */
-  bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
+  //bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
 
   /**
   * Retrieves the image to scan from disk into memory.
@@ -174,13 +174,27 @@ protected:
 	*/
 	void MatToBYTEs(cv::Mat matIn, BYTE* bytesOut);
 
-
-
 	/**
 	*  @brief  逆时针旋转图像（原尺寸）
-	*  @param[in]  angle x旋转角度 
+	*  @param[in]  angle 旋转角度 
 	*/
 	void RotateImage(double angle);
+
+	/**
+	*  @brief  水平镜像
+	*  @param[in]  src 原图 
+	*  @param[out] dst 目标图像 
+	*/
+	void hMirrorTrans(const Mat &src, Mat &dst);
+
+	/**
+	*  @brief  垂直镜像
+	*  @param[in]  src 原图 
+	*  @param[out] dst 目标图像 
+	*/
+	void vMirrorTrans(const Mat &src, Mat &dst);
+
+
 
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 

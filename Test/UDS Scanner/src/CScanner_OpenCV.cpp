@@ -32,6 +32,7 @@ extern HWND g_hwndDLG;
 extern HINSTANCE   g_hinstance;
 #endif
 
+
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),
 	m_nDestBytesPerRow(0),
@@ -183,12 +184,7 @@ bool CScanner_OpenCV::acquireImage()
 
 bool CScanner_OpenCV::preScanPrep()
 {
-	IplImage img= IplImage(m_mat_image);  // Mat->IplImage
 	
-	// 获取影像的宽高，都以像素为单位 
-	m_nSourceWidth   = img.width;
-	m_nSourceHeight  = img.height;
-	WORD res = 0;
 
 	//// 获取影像的水平分辨率，以每米像素数为单位 
 	//res = FreeImage_GetDotsPerMeterX( m_pDIB );
@@ -201,8 +197,13 @@ bool CScanner_OpenCV::preScanPrep()
 	//cout << "ds: rescaling... to " << unNewWidth << " x " << unNewHeight << endl;
 	////pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
 	
-
 	
+	IplImage img= IplImage(m_mat_image);  // Mat->IplImage
+
+	// 获取影像的宽高，都以像素为单位 
+	m_nSourceWidth   = img.width;
+	m_nSourceHeight  = img.height;
+	WORD res = 0;
 	double dFx = (double)m_fXResolution/100;
 	double dFy = (double)m_fYResolution/100;
 
@@ -211,23 +212,17 @@ bool CScanner_OpenCV::preScanPrep()
 
 
 	cv::Mat matTemp;
-	//cv::Size size(unNewWidth, unNewHeight);
-	//resize(m_mat_image, matTemp, size, 0, 0);
-
 	cv::resize(m_mat_image, matTemp, cv::Size(unNewWidth, unNewHeight), 0, 0);		
-	m_mat_image = matTemp;
-
+	//m_mat_image = matTemp;
+	matTemp.copyTo(m_mat_image);  // 深拷贝
 	m_dRat = (double)unNewWidth/unNewHeight;
+	
+
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
-		//方法1
-	  RotateImage(90);
-
-		//方法2
-		/*Mat matTrans;
-		flip(m_mat_image, matTrans, 0);
-		m_mat_image = matTrans;*/
+		RotateImage(90);
+		//m_mat_image = angelRotate(m_mat_image, 90);
 	}
 
 	// 旋转
@@ -257,42 +252,81 @@ bool CScanner_OpenCV::preScanPrep()
 		break;
 	} 
 	
-	
-	switch(m_nPixelType)
+	//图像镜像处理
+	if(m_fMirror == TWMR_AUTO)
+	{ 
+		Mat mat_hMirror;
+		hMirrorTrans(m_mat_image, mat_hMirror);
+		mat_hMirror.copyTo(m_mat_image);
+	}
+
+	//颜色
+	if(m_nPixelType != TWPT_RGB)
+	{
+		Mat dstImage;
+		// Apply bit depth color transforms
+		switch(m_nPixelType)
+		{
+		case TWPT_BW:
+			{
+		
+			}
+			break;
+
+		case TWPT_GRAY:
+			{
+				
+				dstImage.create(m_mat_image.size(), m_mat_image.type());
+				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
+				dstImage.copyTo(m_mat_image);
+			}	
+			break;
+		}
+	}
+
+	if(m_nWidth <= 0 || m_nHeight <= 0)
+	{
+		m_nWidth  = m_nSourceWidth;
+		m_nHeight = m_nSourceHeight;
+	}
+
+	/*switch(m_nPixelType)
 	{
 	case TWPT_BW:
-		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
-		break;
+	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
+	break;
 
 	case TWPT_GRAY:
-		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
-		break;
+	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
+	break;
 
 	case TWPT_RGB:
-		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
-		break;
-	}
+	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
+	break;
+	}*/
 
 	// setup some convenience vars because they are used during 
 	// every strip request
 	m_nScanLine       = 0;
 
-	return true;
-}
-
-bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
-{
-	////::MessageBox(g_hwndDLG,"getScanStrip","UDS",MB_OK);
-	
-
-
-	IplImage* pImg= new IplImage(m_mat_image);  // Mat->IplImage*
-	BYTE* pTempBuffer = (BYTE*)pImg->imageData;   // IplImage*->BYTE*
-
-	memcpy(pTransferBuffer, pTempBuffer, pImg->imageSize);
 
 	return true;
 }
+
+
+//bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
+//{
+//	////::MessageBox(g_hwndDLG,"getScanStrip","UDS",MB_OK);
+//	
+//
+//
+//	IplImage* pImg= new IplImage(m_mat_image);  // Mat->IplImage*
+//	BYTE* pTempBuffer = (BYTE*)pImg->imageData;   // IplImage*->BYTE*
+//
+//	memcpy(pTransferBuffer, pTempBuffer, pImg->imageSize);
+//
+//	return true;
+//}
 
 short CScanner_OpenCV::getDocumentCount() const
 {
@@ -340,30 +374,7 @@ bool CScanner_OpenCV::getDeviceOnline() const
 
 void CScanner_OpenCV::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
-	/* 方法一 */
-	//IplImage* pImg= new IplImage(m_mat_image);  // Mat->IplImage*
-	//BYTE* pTempBuffer = (BYTE*)pImg->imageData;   // IplImage*->BYTE*
-	//memcpy(buffer, pTempBuffer, pImg->imageSize);
-
-	/* 方法二 */
-	//IplImage pImg= IplImage(m_mat_image);  // Mat->IplImage
-	//BYTE* pTempBuffer = (BYTE*)(pImg.imageData);   // IplImage*->BYTE*
-	//memcpy(buffer, pTempBuffer, pImg.imageSize);
-
-	/* 方法三 */
-	//int size = m_mat_image.total() * m_mat_image.elemSize();
-	//std::memcpy(buffer,m_mat_image.data,size * sizeof(BYTE));
 	MatToBYTEs(m_mat_image, buffer);
-
-
-	//dwReceived = size * sizeof(BYTE);
-
-	//char buf[200];
-	//ltoa(dwReceived, buf, 10);
-	//::MessageBox(g_hwndDLG,TEXT(buf),MB_CAPTION,MB_OK);
-	//buffer += pImg->imageSize;
-
-	//dwReceived = pImg->imageSize;
 }
 
 void CScanner_OpenCV::MatToBYTEs(cv::Mat matIn, BYTE* bytesOut)
@@ -393,3 +404,55 @@ void CScanner_OpenCV::RotateImage(double angle)
 
 	m_mat_image = rotateImg;
 }
+
+void CScanner_OpenCV::hMirrorTrans(const Mat &src, Mat &dst)
+{
+	CV_Assert(src.depth() == CV_8U);
+	dst.create(src.rows, src.cols, src.type());
+
+	int rows = src.rows;
+	int cols = src.cols;
+
+	switch (src.channels())
+	{
+	case 1:
+		const uchar *origal;
+		uchar *p;
+		for (int i = 0; i < rows; i++){
+			origal = src.ptr<uchar>(i);
+			p = dst.ptr<uchar>(i);
+			for (int j = 0; j < cols; j++){
+				p[j] = origal[cols - 1 - j];
+			}
+		}
+		break;
+	case 3:
+		const Vec3b *origal3;
+		Vec3b *p3;
+		for (int i = 0; i < rows; i++) {
+			origal3 = src.ptr<Vec3b>(i);
+			p3 = dst.ptr<Vec3b>(i);
+			for(int j = 0; j < cols; j++){
+				p3[j] = origal3[cols - 1 - j];
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+}
+
+void CScanner_OpenCV::vMirrorTrans(const Mat &src, Mat &dst)
+{
+	CV_Assert(src.depth() == CV_8U);
+	dst.create(src.rows, src.cols, src.type());
+
+	int rows = src.rows;
+
+	for (int i = 0; i < rows; i++)
+		src.row(rows - i - 1).copyTo(dst.row(i));
+}
+
+
+
