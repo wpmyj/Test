@@ -92,4 +92,4 @@ date 16.11.23
 2.修改文件public.h,添加枚举DEVICE_OPENCV；
 3.修改MAX(a,b)、MIN(a,b)，强制转化a、b为同一类型；
 4.修改项目属性，包含OpenCV相关头文件与库文件；
-
+5.修改CScanner_OpenCV图片旋转时角度为负值；
