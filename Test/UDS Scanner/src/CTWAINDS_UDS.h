@@ -13,6 +13,7 @@
 #include "CScanner_G6400.h"  // 一定要放在最前面
 #include "CTWAINDS_Base.h"
 #include "CScanner_FreeImage.h"
+#include "CScanner_OpenCV.h"
 
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{A4FAF845-1383-4036-AEDC-17C3968188B4}"

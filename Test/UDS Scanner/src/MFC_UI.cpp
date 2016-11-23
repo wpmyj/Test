@@ -91,6 +91,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 
 			switch (g_nDeviceNumber)
 			{
+			case DEVICE_OPENCV:
 			case DEVICE_FREEIMAGE:
 				{
 					m_pSheet->DoModal();;

@@ -42,11 +42,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.ds</TargetExt>
+    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.ds</TargetExt>
     <GenerateManifest>true</GenerateManifest>
+    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -151,6 +155,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClCompile Include="src\CommonDS.cpp" />
     <ClCompile Include="src\CommonFunc.cpp" />
     <ClCompile Include="src\CScanner_FreeImage.cpp" />
+    <ClCompile Include="src\CScanner_OpenCV.cpp" />
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
     <ClCompile Include="src\CTWAINDS_UDS.cpp" />
     <ClCompile Include="src\Dlg_Profile.cpp" />
@@ -191,6 +196,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClInclude Include="src\CommonDS.h" />
     <ClInclude Include="src\CommonFunc.h" />
     <ClInclude Include="src\CScanner_FreeImage.h" />
+    <ClInclude Include="src\CScanner_OpenCV.h" />
     <ClInclude Include="src\CTWAINDS_Base.h" />
     <ClInclude Include="src\CTWAINDS_UDS.h" />
     <ClInclude Include="src\Dlg_Profile.h" />

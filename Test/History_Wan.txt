@@ -85,5 +85,11 @@ date 16.11.16
 1.修改函数CScanner_G6400::GetImageData()；
 2.修改传输图片数据相关内容；
 
-
+date 16.11.23
+------------------------------------------------------------
+@author wan
+1.新建类CScanner_OpenCV；
+2.修改文件public.h,添加枚举DEVICE_OPENCV；
+3.修改MAX(a,b)、MIN(a,b)，强制转化a、b为同一类型；
+4.修改项目属性，包含OpenCV相关头文件与库文件；
 

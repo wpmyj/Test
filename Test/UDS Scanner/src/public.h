@@ -25,7 +25,8 @@
 typedef enum DEVICE_NUMBER
 {
 	DEVICE_FREEIMAGE	= 1,  /**< ÐéÄâÉ¨ÃèÒÇ */
-	DEVICE_G6400      = 2   /**< É¨ÃèÒÇG6400 */
+	DEVICE_G6400      = 2,   /**< É¨ÃèÒÇG6400 */
+	DEVICE_OPENCV     = 3,
 };
 
 

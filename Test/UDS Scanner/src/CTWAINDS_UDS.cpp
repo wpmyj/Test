@@ -123,7 +123,13 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 			m_pScanner = new CScanner_G6400;
 			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
 		}
+		break	;
+	case DEVICE_OPENCV:
+		{
+			m_pScanner = new CScanner_OpenCV;
+		}
 		break;
+
 	default:
 		{
 			::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
@@ -1460,8 +1466,8 @@ TW_INT16 CTWAINDS_UDS::getMemoryXfer(pTW_SETUPMEMXFER _pData)
 
   // chose 64k because this is a typical sweet spot for most real world scanners
   // (max transfer size for SCSI read of typical SCSI devices)
-  _pData->MaxBufSize = MAX(64*1024, bytes);//bytes;
-  _pData->Preferred  = MAX(64*1024, bytes);//bytes;
+  _pData->MaxBufSize = MAX((unsigned long)64*1024, bytes);//bytes;
+  _pData->Preferred  = MAX((unsigned long)64*1024, bytes);//bytes;
 
   // Update the min based on current settings.
   if(m_CurrentState == dsState_XferReady)
@@ -1604,7 +1610,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 			{				
 				do
 				{
-					dwRead = MIN(64000, nImageSize) / nDestBytesPerRow * nDestBytesPerRow;
+					dwRead = MIN((unsigned long)64000, nImageSize) / nDestBytesPerRow * nDestBytesPerRow;
 					dwReceived =0;
 
 					if( !m_pScanner->getScanStrip(pImageData, dwRead, dwReceived) ||
@@ -1624,6 +1630,11 @@ TW_INT16 CTWAINDS_UDS::transfer()
 			{				
 				m_pScanner->GetImageData(pImageData,dwReceived);
 				pImageData += dwReceived;
+			}
+			break;
+		case DEVICE_OPENCV:
+			{
+				m_pScanner->GetImageData(pImageData,dwReceived);
 			}
 			break;
 		default:
