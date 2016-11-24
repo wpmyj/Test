@@ -65,6 +65,11 @@
 using namespace std;
 
 /**
+Base¡¢Advanced±£´æ²ÎÊıÈİÆ÷
+*/
+typedef map<int, float> MAP_CAP;
+
+/**
 * Base TWAIN Container
 */
 typedef map<int, CTWAINContainer*> TWAINCapabilitiesMap;

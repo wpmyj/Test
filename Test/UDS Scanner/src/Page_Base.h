@@ -41,7 +41,7 @@ private:
 
 	void InitComboPixType(void); //初始化图像类型编辑框
 
-	//void SetControl(void);  ///<设置参数
+	void SetControl(void);  ///<设置参数
 
 	///** 
 	//* @brief 浏览并选择单个图片文件
@@ -78,8 +78,7 @@ private:
 	CButton m_check_multifeeddetect; ///<"重张检测"
 	CButton m_btn_chooseimage; ///<"选择图片按钮"
 
-	//typedef map<int, int> MAP_CAP;
-	//MAP_CAP m_basemap;  ///<用于保存参数改变后的值
+	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 
 	//vector<string> m_vector_string_imagepath;  /**< 图片路劲 */
 
@@ -115,4 +114,8 @@ private:
 	afx_msg void OnBase_Btn_Saveprofile();
 public:
 	afx_msg void OnBnClickedButton1();
+
+public:
+	/** 父类指针*/
+	CPropertyPage * m_pPage;
 };
