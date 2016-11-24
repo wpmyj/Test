@@ -270,4 +270,6 @@ date 16.11.23
 date 16.11.24
 ------------------------------------------------------------
 @author zhu
-1、修改SetCap的位置，最终确定为仍是点击扫描或者保存后才设置，增加SetControl()函数，以及使用map存储Cap值与选中索引值。
+1、修改Base类与Advanced类中的SetCap的位置，最终确定为仍是点击扫描或者保存后才设置，增加SetControl()函数，以及使用map存储Cap值与选中索引值。
+2、增加基类CPage_Custom,该类中只有一个虚函数SetControl();Base类与Advanced类均双继承于CPage_Custom类与CPropertyPage类
+3、在Base类中增加父类的指针CPage_Custom * m_pAdPage，在CSheet_Scanner类的构造函数中增加m_p_page_base->m_pAdPage = m_p_page_advanced传值;在响应OnOK时，不仅只调用本类的SetControl，还要调用m_pAdPage->SetControl();测试后能够同时响应基本界面与高级界面修改的功能。

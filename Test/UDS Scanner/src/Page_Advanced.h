@@ -1,11 +1,13 @@
 #pragma once
 #include "MFC_UI.h"
 #include "afxwin.h"
+#include "Page_Custom.h"
+
 class MFC_UI;
 
 // CPage_Advanced 对话框
 
-class CPage_Advanced : public CPropertyPage
+class CPage_Advanced : public CPropertyPage, public CPage_Custom
 {
 	DECLARE_DYNAMIC(CPage_Advanced)
 
@@ -97,7 +99,6 @@ private:
 
 private:
 	virtual BOOL OnInitDialog();
-	//virtual void OnOK();
 
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Standardsizes();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Orientation();
@@ -136,9 +137,5 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_RemoveDenoise();
 	afx_msg void OnAdvanced_Btn_Check_RemoveDescreen();
 	afx_msg void OnAdvanced_Btn_Check_AutoCrop();
-	
-public:
-		/** 父类指针*/
-		CPropertyPage * m_pPage;
-	
+
 };

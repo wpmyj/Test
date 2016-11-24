@@ -31,8 +31,7 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 
 	AddPage(&m_page_about);
 
-	m_p_page_base->m_pPage = m_p_page_advanced;
-	m_p_page_advanced->m_pPage = m_p_page_base;
+	m_p_page_base->m_pAdPage = m_p_page_advanced;
 	
 }
 
@@ -58,8 +57,7 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 
 	AddPage(&m_page_about);
 	
-	m_p_page_base->m_pPage = m_p_page_advanced;
-	m_p_page_advanced->m_pPage = m_p_page_base;
+	m_p_page_base->m_pAdPage = m_p_page_advanced;
 }
 
 CSheet_Scanner::~CSheet_Scanner()

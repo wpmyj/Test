@@ -96,10 +96,10 @@ void CPage_Base::OnOK()
 	else  
 	{
 		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
-	//	m_pUI->Save(); //扫描之前也要做保存的操作
-		UpdateControls();
-		SetControl(); //点击确定后才设置
+		SetControl(); //点击确定后才设置	
+		m_pAdPage->SetControl();
 		m_pUI->Scan();
+	//m_pUI->Save(); //扫描后也要做保存的操作：先扫描，再保存；若先保存会直接退出
 	}
 
 	CPropertyPage::OnOK();
@@ -162,7 +162,7 @@ void CPage_Base::SetControl(void)
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second);  // 设置Y分辨率
 				break;
-			}			
+			}		
 		case CAP_DUPLEXENABLED:
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置单双面
@@ -478,6 +478,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Source()
 	m_basemap.insert(map<int, float> :: value_type(CAP_FEEDERENABLED, (float)nval));
 	//m_pUI->SetCapValueInt(CAP_FEEDERENABLED,nval);  // 设置对应参数
 	//UpdateControls();
+	m_combo_source.SetCurSel(nIndex);
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -543,6 +544,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Resolution()
 	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION,nval); 
 	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION,nval);
 	//UpdateControls();
+	m_combo_resolution.SetCurSel(nIndex);
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -571,6 +573,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 	m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, (float)nval));
 	//m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,nval?1:0);
 	//UpdateControls();
+	m_combo_scanside.SetCurSel(nIndex);
 }
 
 

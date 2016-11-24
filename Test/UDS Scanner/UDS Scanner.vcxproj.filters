@@ -123,6 +123,9 @@
     <ClCompile Include="src\CScanner_OpenCV.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Page_Custom.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -237,6 +240,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\CScanner_OpenCV.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Custom.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

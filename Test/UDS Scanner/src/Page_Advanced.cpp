@@ -31,7 +31,7 @@
 
 IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
 
-	CPage_Advanced::CPage_Advanced(MFC_UI *pUI)
+CPage_Advanced::CPage_Advanced(MFC_UI *pUI)
 	: m_pUI(pUI), CPropertyPage(CPage_Advanced::IDD)
 {
 
@@ -112,65 +112,128 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCROP, &CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop)
 END_MESSAGE_MAP()
 
-//void CPage_Advanced::OnOK()
-//{
-//	// TODO: 在此添加专用代码和/或调用基类
-//	//SetControl();
-//
-//	if(m_pUI->m_bSetup)  // EnableDSOnly
-//	{
-//		m_pUI->Save();
-//	}
-//	else  
-//	{
-//		m_pUI->Scan();
-//	}
-//
-//	CPropertyPage::OnOK();
-//}
 
-//void CPage_Advanced::SetControl(void)
-//{
-//	MAP_CAP::iterator iter;
-//
-//	for(iter = m_advancedmap.begin(); iter != m_advancedmap.end(); iter++)
-//	{
-//		switch(iter->first)
-//		{
-//		case ICAP_ORIENTATION:
-//			{
-//				//AfxMessageBox("纸张方向");
-//				m_pUI->SetCapValueInt(iter->first,iter->second);
-//				break;
-//			}	
-//		case ICAP_SUPPORTEDSIZES:
-//			{
-//				//AfxMessageBox("纸张大小");
-//				m_pUI->SetCapValueInt(iter->first,iter->second);
-//				break;
-//			}
-//		case ICAP_UNITS:
-//			{
-//				//AfxMessageBox("纸张单位");
-//				m_pUI->SetCapValueInt(iter->first,iter->second);
-//				break;
-//			}
-//		case ICAP_XRESOLUTION:
-//			{
-//				//AfxMessageBox("分辨率");
-//				m_pUI->SetCapValueInt(iter->first,iter->second);
-//				break;
-//			}
-//		case ICAP_ROTATION:
-//			{
-//				//AfxMessageBox("图像旋转");
-//				m_pUI->SetCapValueInt(iter->first,iter->second);
-//				break;
-//			}
-//			//未完
-//		}
-//	}
-//}
+void CPage_Advanced::SetControl(void)
+{
+	MAP_CAP::iterator iter;
+
+	for(iter = m_advancedmap.begin(); iter != m_advancedmap.end(); iter++)
+	{
+		switch(iter->first)
+		{
+		case ICAP_ORIENTATION: //纸张方向
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}	
+		case ICAP_SUPPORTEDSIZES:  //纸张大小
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_UNITS:  //单位
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_XRESOLUTION:  //X分辨率
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_YRESOLUTION:  //Y分辨率
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_ROTATION:  //旋转
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_AUTOCROP: //自动裁切
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_DENOISE: //去噪声
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_DESCREEN: //去网纹
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_REMOVEBACKGROUND: //去背景
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_SHARPEN: //图像锐化
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_MIRROR: //镜像处理
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_GAMMA: //Gamma校正
+			{
+				m_pUI->SetCapValueFloat(iter->first,iter->second);  
+				break;
+			}
+		case UDSCAP_SPLITIMAGE: //图像分割
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_BINARIZATION: //二值化
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case UDSCAP_SENSITIVETHRESHOLD: //去除斑点
+			{
+				m_pUI->SetCapValueFloat(iter->first,iter->second);
+				break;
+			}
+		case UDSCAP_MULTISTREAM: //多流输出
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				break;
+			}
+		case ICAP_BRIGHTNESS: //亮度
+			{
+				m_pUI->SetCapValueFloat(iter->first,iter->second);
+				break;
+			}
+		case ICAP_CONTRAST: //对比度
+			{
+				m_pUI->SetCapValueFloat(iter->first,iter->second);
+				break;
+			}
+		default:
+			{
+				break;
+			}	
+			//未完
+		}
+	}
+}
 
 void CPage_Advanced::UpdateControls(void)
 {
@@ -272,7 +335,7 @@ void CPage_Advanced::UpdateControls(void)
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
 
-	if(TWSS_NONE == lstCapValues->at(nCapIndex))  ///<　纸张大小：自定义。
+	if(TWSS_NONE == lstCapValues->at(nCapIndex))  //纸张大小：自定义。
 	{
 		m_edit_custom_width.EnableWindow(TRUE);
 		m_edit_custom_height.EnableWindow(TRUE);
@@ -470,6 +533,10 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
 
+		//m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,nval); 
+		//UpdateControls();
+		m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_MULTISTREAM, 1.0));
+
 		SetColorGrayImage();
 		SetBWImage();
 	} 
@@ -491,6 +558,8 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(FALSE); //去除斑点Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS)->EnableWindow(FALSE); //亮度Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(FALSE); //对比度Edit
+
+		m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_MULTISTREAM, 0.0));
 	}
 }
 
@@ -545,7 +614,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	//int nval = _ttoi(strCBText);  // CString 转 int
 	if (strCBText.Find("自定义") >= 0)
 	{
-	nval = TWSS_NONE;
+		nval = TWSS_NONE;
 	}
 	else if (strCBText.Find("US Letter") >= 0)
 	{
@@ -627,9 +696,11 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	{
 		return;
 	}
-	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES,nval); 
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_SUPPORTEDSIZES, nval));
-	UpdateControls(); 
+	//m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES,nval); 
+	m_advancedmap.insert(map<int, double> :: value_type(ICAP_SUPPORTEDSIZES, (double)nval));
+	//UpdateControls(); 
+	m_combo_standardsizes.SetCurSel(nIndex);
+
 }
 
 
@@ -649,9 +720,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Orientation()
 	{
 		nval = TWOR_LANDSCAPE;
 	}
-	m_pUI->SetCapValueInt(ICAP_ORIENTATION,nval); 
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_ORIENTATION, nval));
-	UpdateControls(); 
+	//m_pUI->SetCapValueInt(ICAP_ORIENTATION,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_ORIENTATION, (float)nval));
+	//UpdateControls(); 
+	m_combo_orientation.SetCurSel(nIndex);
 }
 
 
@@ -691,9 +763,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Uints()
 	{
 		return;
 	}
-	m_pUI->SetCapValueInt(ICAP_UNITS,nval); 
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_UNITS, nval));
-	UpdateControls(); 
+	//m_pUI->SetCapValueInt(ICAP_UNITS,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_UNITS, (float)nval));
+	//UpdateControls(); 
+	m_combo_uints.SetCurSel(nIndex);
 }
 
 
@@ -743,11 +816,12 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Resolution()
 	//CString str;
 	//str.Format("%d",nval);
 	//AfxMessageBox(str);
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_XRESOLUTION, nval));
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_YRESOLUTION, nval)); 
-	m_pUI->SetCapValueInt(ICAP_XRESOLUTION,nval); 
-	m_pUI->SetCapValueInt(ICAP_YRESOLUTION,nval);
-	UpdateControls();
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_XRESOLUTION, (float)nval));
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_YRESOLUTION, (float)nval)); 
+	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION,nval); 
+	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION,nval);
+	//UpdateControls();
+	m_combo_resolution.SetCurSel(nIndex);
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 	return;
@@ -779,9 +853,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Rotate()
 	}
 	else
 	{}
-	//m_advancedmap.insert(map<int, int> :: value_type(ICAP_ROTATION, nval));
-	m_pUI->SetCapValueInt(ICAP_ROTATION,nval);
-	UpdateControls();
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_ROTATION, (float)nval));
+	//m_pUI->SetCapValueInt(ICAP_ROTATION,nval);
+	//UpdateControls();
+	m_combo_rotate.SetCurSel(nIndex);
 }
 
 
@@ -826,10 +901,11 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Binarization()
 	}
 	else
 	{}
-	m_pUI->SetCapValueInt(UDSCAP_BINARIZATION,nval); 
-
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_BINARIZATION, (float)nval));
+	//m_pUI->SetCapValueInt(UDSCAP_BINARIZATION,nval); 
 	SetBinarization();
-	UpdateControls();
+	//UpdateControls();
+	m_combo_binarization.SetCurSel(nIndex);
 }
 
 
@@ -854,8 +930,10 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage()
 	}
 	else
 	{}
-	m_pUI->SetCapValueInt(UDSCAP_SPLITIMAGE,nval); 
-	UpdateControls();
+	//m_pUI->SetCapValueInt(UDSCAP_SPLITIMAGE,nval); 
+	//UpdateControls();
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SPLITIMAGE, (float)nval));
+	m_combo_splitimage.SetCurSel(nIndex);
 }
 
 
@@ -891,12 +969,14 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT 
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_gamma.GetPos();  // 获取滑块当前位置
-	m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
+	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)sldValue));
 
 	str.Format("%d", sldValue);
 	m_edit_gamma.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
+
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 	*pResult = 0;
@@ -910,12 +990,13 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNM
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_sensitive_threshold.GetPos();  // 获取滑块当前位置
-	m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)sldValue);  
+	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)sldValue);  
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD, (float)sldValue));
 
 	str.Format("%d", sldValue);
 	m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 	*pResult = 0;
@@ -929,13 +1010,13 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Brightness(NMHDR *pNMHDR, LRE
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_brightness.GetPos();  // 获取滑块当前位置
-	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, sldValue));
-	m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)sldValue);  // 设置亮度为当前滚动条值
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, (float)sldValue));
+	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)sldValue);  // 设置亮度为当前滚动条值
 
 	str.Format("%d", sldValue);
 	m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 	*pResult = 0;
@@ -949,13 +1030,13 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Contrast(NMHDR *pNMHDR, LRESU
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_contrast.GetPos();  // 获取滑块当前位置
-	//m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, sldValue));
-	m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)sldValue);  // 设置对比度为当前滚动条值
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)sldValue));
+	//m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)sldValue);  // 设置对比度为当前滚动条值
 
 	str.Format("%d", sldValue);
 	m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 	*pResult = 0;
@@ -975,12 +1056,12 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Contrast()
 	m_edit_contrast.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_contrast.SetPos(nval);
-//	m_basemap.insert(map<int, int> :: value_type(ICAP_CONTRAST, nval));
-	m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)nval);  // 设置对比度为当前滚动条值
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)nval));	
+	//m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)nval);  // 设置对比度为当前滚动条值
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
 }
@@ -1000,12 +1081,12 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold()
 	m_edit_sensitive_threshold.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_sensitive_threshold.SetPos(nval);
-
-	m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)nval);  
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD, (float)nval));	
+	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)nval);  
 
 	m_edit_sensitive_threshold.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -1025,12 +1106,12 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma()
 	m_edit_gamma.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_gamma.SetPos(nval);
-	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, nval));
-	m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval);  // 设置对比度为当前滚动条值
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)nval));
+	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval);  // 设置对比度为当前滚动条值
 
 	m_edit_gamma.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -1050,12 +1131,12 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Brightness()
 	m_edit_brightness.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_brightness.SetPos(nval);
-	//m_basemap.insert(map<int, int> :: value_type(ICAP_BRIGHTNESS, nval));
-	m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)nval);  // 设置对比度为当前滚动条值
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, (float)nval));
+	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)nval);  // 设置对比度为当前滚动条值
 
 	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
-	UpdateControls();
+	//UpdateControls();
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -1150,8 +1231,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank()
 		nval = TWBP_DISABLE;
 	}
 
-	m_pUI->SetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES,(float)nval); 
-//	m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(ICAP_AUTODISCARDBLANKPAGES, (float)nval));
+	//m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
 	//CString str;
 	//str.Format("空白页%d",ms);
 	//AfxMessageBox(str);
@@ -1173,8 +1254,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch()
 		//AfxMessageBox("去除穿孔未选中");
 		nval = TWRP_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_PUNCHHOLEREMOVEL,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,nval); 
+	//m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_PUNCHHOLEREMOVEL, (float)nval));
 
 	/*CString str;
 	str.Format("%d",nval);
@@ -1196,9 +1277,9 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
 	{
 		//AfxMessageBox("锐化图像未选中");
 		nval = TWSP_DISABLE;
-	}
-	//m_pUI->SetCapValueFloat(UDSCAP_SHARPEN,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_SHARPEN,nval); 
+	} 
+	//m_pUI->SetCapValueInt(UDSCAP_SHARPEN,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SHARPEN, (float)nval));
 }
 
 
@@ -1215,8 +1296,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Mirror()
 	{
 		nval = TWMR_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_MIRROR,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_MIRROR,nval); 
+	//m_pUI->SetCapValueInt(UDSCAP_MIRROR,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_MIRROR, (float)nval));
 }
 
 
@@ -1233,8 +1314,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack()
 	{
 		nval = TWRB_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_REMOVEBACKGROUND,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_REMOVEBACKGROUND,nval); 
+	//m_pUI->SetCapValueInt(UDSCAP_REMOVEBACKGROUND,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_REMOVEBACKGROUND, (float)nval));
 }
 
 
@@ -1251,8 +1332,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen()
 	{
 		nval = TWDS_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_DESCREEN,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_DESCREEN,nval); 
+	//m_pUI->SetCapValueInt(UDSCAP_DESCREEN,nval); 
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_DESCREEN, (float)nval));
 }
 
 
@@ -1269,8 +1350,8 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise()
 	{
 		nval = TWDN_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_DENOISE,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_DENOISE,nval);
+	//m_pUI->SetCapValueInt(UDSCAP_DENOISE,nval);
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_DENOISE, (float)nval));
 }
 
 
@@ -1287,10 +1368,7 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	{
 		nval = TWAC_DISABLE;
 	}
-	//m_pUI->SetCapValueFloat(UDSCAP_AUTOCROP,(float)nval); 
-	m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
+	//m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
+	m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_AUTOCROP, (float)nval));
 }
-
-
-
 

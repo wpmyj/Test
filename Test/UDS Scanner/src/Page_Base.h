@@ -2,11 +2,12 @@
 #include "MFC_UI.h"
 #include "afxwin.h"
 #include "Dlg_Profile.h"
+#include "Page_Custom.h"
 
 class MFC_UI;
 // CPage_Base 对话框
 
-class CPage_Base : public CPropertyPage
+class CPage_Base : public CPropertyPage, public CPage_Custom
 {
 	DECLARE_DYNAMIC(CPage_Base)
 
@@ -117,5 +118,5 @@ public:
 
 public:
 	/** 父类指针*/
-	CPropertyPage * m_pPage;
+	CPage_Custom * m_pAdPage;
 };
