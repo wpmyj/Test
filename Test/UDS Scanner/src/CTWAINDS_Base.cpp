@@ -318,11 +318,11 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
 		const BoolVector listBools = pBoolCapSC->GetSupported();
 
 		twrc = TWRC_SUCCESS;
-		const int nSize = (int)(listBools.size());
-		int x;
-		for(x = 0; x < nSize; ++x)
+		const int nSizeB = (int)(listBools.size());
+		int xB;
+		for(xB = 0; xB < nSizeB; ++xB)
 		{
-			int Cap = listBools[x];
+			int Cap = listBools[xB];
 			if(NULL != (pCap = findCapability(Cap)))
 			{
 				if(pCap->isOperationAllowed(MSG_RESET))
