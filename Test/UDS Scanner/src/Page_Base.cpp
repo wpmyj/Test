@@ -89,6 +89,10 @@ END_MESSAGE_MAP()
 void CPage_Base::OnOK()
 {
 	// TODO: 在此添加专用代码和/或调用基类
+	SetCapValue(); //点击确定后才设置	
+	m_pAdPage->SetCapValue();
+	m_pUI->TW_SaveProfileToFile("当前模板");
+
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();
@@ -96,8 +100,7 @@ void CPage_Base::OnOK()
 	else  
 	{
 		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
-		SetCapValue(); //点击确定后才设置	
-		m_pAdPage->SetCapValue();
+	
 		m_pUI->Scan();
 	//m_pUI->Save(); //扫描后也要做保存的操作：先扫描，再保存；若先保存会直接退出
 	}
@@ -129,50 +132,24 @@ void CPage_Base::SetCapValue(void)
 		switch(iter->first)
 		{
 		case ICAP_CONTRAST:
-			{
-				m_pUI->SetCapValueFloat(iter->first,iter->second);  // 设置对比度为当前滚动条值
-				break;
-			}		
 		case ICAP_BRIGHTNESS:
-			{
-				m_pUI->SetCapValueFloat(iter->first,iter->second);  // 设置亮度为当前滚动条值
-				break;
-			}	
 		case ICAP_THRESHOLD:
 			{
 				m_pUI->SetCapValueFloat(iter->first,iter->second);  // 设置阈值为当前滚动条值
 				break;
-			}	
+			}
+
 		case CAP_FEEDERENABLED:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置扫描模式
-				break;
-			}		
 		case ICAP_PIXELTYPE:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second);  // 设置像素类型
-				break;
-			}	
 		case ICAP_XRESOLUTION:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second);  // 设置X分辨率
-				break;
-			}		
 		case ICAP_YRESOLUTION:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second);  // 设置Y分辨率
-				break;
-			}		
 		case CAP_DUPLEXENABLED:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置单双面
-				break;
-			}			
 		case UDSCAP_MULTIFEEDDETECT:
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
 				break;
 			}	
+
 		default:
 			{
 				break;
@@ -265,7 +242,10 @@ void CPage_Base::UpdateControls(void)
 	//int nval = _ttoi(str);
 	//m_slider_contrast.SetPos(nval);
 
+	InitComboPixType();
+
 	UpdateData(FALSE);
+
 }
 
 
@@ -274,7 +254,7 @@ BOOL CPage_Base::OnInitDialog()
 	CPropertyPage::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	UpdateControls();
+	
 	InitSliderCtrl();
 	InitComboProfile();
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
@@ -282,6 +262,7 @@ BOOL CPage_Base::OnInitDialog()
 	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
+	UpdateControls();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -791,7 +772,7 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 	if(m_pUI->TW_SaveProfileToFile(strProfile))
 	{		
 		m_combo_profile.AddString(strName);
-		m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
+		//m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
 	}
 	
 	UpdateData(FALSE);
@@ -813,7 +794,7 @@ void CPage_Base::OnBase_Btn_Deleteprofile()
 		m_combo_profile.DeleteString(nIndex);
 	}
 	int nCount = m_combo_profile.GetCount();
-	m_combo_profile.SetCurSel(nCount-1);  // 切换到最后一个
+	m_combo_profile.SetCurSel(0);  // 切换到默认模板
 	LoadProfile();
 }
 
@@ -821,7 +802,7 @@ void CPage_Base::InitComboProfile()
 {
 	m_combo_profile.ResetContent();
 	m_combo_profile.InsertString(0,"默认模板");
-//m_combo_profile.SetCurSel(0); //设置为默认模板
+  m_combo_profile.SetCurSel(0); //设置为默认模板
 
 	NewBaseProfile();
 	
@@ -838,8 +819,9 @@ void CPage_Base::InitComboProfile()
 
 		if(strTemp.Find("当前模板") >=0 ) {
 			m_combo_profile.SetCurSel(unIndex);
+			LoadProfile();
 		}
-
+		
 		unIndex ++;
 	}
 	
@@ -849,15 +831,15 @@ void CPage_Base::InitComboProfile()
 //新建模板 
 void CPage_Base::NewBaseProfile()
 {
+	string strProfileName;
+
 	//新建“当前模板”，与默认模板具有相同的设置
-	CString strName = "当前模板";
-	string strProfile = strName.GetBuffer();  // CString->string
-	//strName.ReleaseBuffer();
-	m_pUI->TW_SaveProfileToFile(strProfile);
+	//string strProfileName = "当前模板";
+	//m_pUI->TW_SaveProfileToFile(strProfileName);
 
 	
 	//新建“彩色,单面,200dpi”模板
-	string strProfileName = "彩色,单面,200dpi";
+	strProfileName = "彩色,单面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 2, 0)) {
 		return;
 	}

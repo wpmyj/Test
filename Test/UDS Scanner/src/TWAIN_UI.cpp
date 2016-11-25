@@ -641,7 +641,7 @@ bool CTWAIN_UI::TW_SaveProfileToFile(string strFileName)
   FILE *pFile  = NULL;
   bool  bError = false;
   //opens file
-  FOPEN(pFile, strFileName.c_str(), "wb");
+  FOPEN(pFile, strFileName.c_str(), "wb"); // 只写打开或新建一个二进制文件；只允许写数据
   if(pFile)
   {
     bError = true;

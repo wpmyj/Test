@@ -102,6 +102,7 @@ date 16.11.25
 1.修改CTWAINDS_Base::dat_capability()，用于支持重置CTWAINContainerBool型Caps;
 2.修改TWAINContainer.h文件，添加BoolVector;
 3.修改CPage_Base::InitComboProfile(),用于选择当前模板;
-
+4.解决m_baseMap变量类型冲突，在数字后添加f,则数字为float型变量;
+5.实现当前模板功能，用于保存用户上次选择的参数；
 
 
