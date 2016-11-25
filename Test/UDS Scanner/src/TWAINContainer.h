@@ -71,6 +71,10 @@ typedef vector<float> FloatVector;
 */
 typedef vector<int> IntVector; 
 
+/**
+* BOOL Vector
+*/
+typedef vector<BOOL> BoolVector; 
 
 /**
 * All possible TWQC_xxxxx messages

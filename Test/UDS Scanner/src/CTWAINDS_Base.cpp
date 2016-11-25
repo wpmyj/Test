@@ -307,6 +307,34 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
         }
       }
     }
+
+		// ÷ÿ÷√CTWAINContainerBool–ÕC
+		CTWAINContainerBool   *pBoolCapSC   = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_SUPPORTEDCAPS));
+		if(!pBoolCapSC)
+		{
+			setConditionCode(TWCC_BADCAP);
+			return TWRC_FAILURE;
+		}
+		const BoolVector listBools = pBoolCapSC->GetSupported();
+
+		twrc = TWRC_SUCCESS;
+		const int nSize = (int)(listBools.size());
+		int x;
+		for(x = 0; x < nSize; ++x)
+		{
+			int Cap = listBools[x];
+			if(NULL != (pCap = findCapability(Cap)))
+			{
+				if(pCap->isOperationAllowed(MSG_RESET))
+				{
+					if(!pCap->Reset())
+					{
+						setConditionCode(TWCC_CAPUNSUPPORTED);
+						twrc = TWRC_FAILURE;
+					}
+				}
+			}
+		}
   }
   else
   {

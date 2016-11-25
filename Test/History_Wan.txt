@@ -94,3 +94,14 @@ date 16.11.23
 4.修改项目属性，包含OpenCV相关头文件与库文件；
 5.修改CScanner_OpenCV图片旋转时角度为负值；
 6.CScanner_OpenCV中添加：水平镜像与垂直镜像、彩色转灰度；
+
+
+date 16.11.25
+------------------------------------------------------------
+@author wan
+1.修改CTWAINDS_Base::dat_capability()，用于支持重置CTWAINContainerBool型Caps;
+2.修改TWAINContainer.h文件，添加BoolVector;
+
+
+
+
