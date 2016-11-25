@@ -932,3 +932,12 @@ void CPage_Base::OnBnClickedButton1()
 	// TODO: 在此添加控件通知处理程序代码
 	OnOK();  // 直接调用OnOK
 }
+
+bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, int duplexenabled, int resolution /*= 200*/)
+{
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,duplexenabled);
+	m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution);
+	m_pUI->SetCapValueInt(ICAP_YRESOLUTION,resolution);
+	m_pUI->TW_SaveProfileToFile(profilename);
+}

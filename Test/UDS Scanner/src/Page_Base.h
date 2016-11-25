@@ -58,6 +58,17 @@ private:
 	*/
 	vector<string> MyBrowseForMultiImages();
 
+	/**
+	*  @brief  新建指定参数模板
+	*  @param[in]  profilename 模板名
+	*  @param[in]  pixeltype 图像类型 
+	*  @param[in]  duplexenabled 单/双面 
+	*  @param[in]  resolution 分辨率  
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool CreateNewProfile(std::string profilename, int pixeltype, int duplexenabled, int resolution = 200);
+
 private:
 	CComboBox m_combo_source;   ///< 扫描方式:  ADF/Flatbed
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
