@@ -201,7 +201,6 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_source.SetCurSel(nCapIndex);
 
-
   // 图像类型 
 	m_combo_colormode.ResetContent();
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
@@ -255,6 +254,16 @@ void CPage_Base::UpdateControls(void)
 		}
 		m_combo_scanside.SetCurSel(nCapIndex);  // 显示默认值
 	}
+
+	//// 对比度 m_slider_contrast
+	//nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
+	//lstCapValues = m_pUI->GetValidCap(CAP_DUPLEXENABLED);
+
+	//m_slider_contrast.SetPos(nCapIndex);
+
+	//m_edit_contrast.GetWindowText(str);
+	//int nval = _ttoi(str);
+	//m_slider_contrast.SetPos(nval);
 
 	UpdateData(FALSE);
 }
@@ -774,7 +783,6 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 	//保存修改的CapValue
 	SetCapValue();
 	//m_pAdPage->SetCapValue(); //设置高级界面
-
 
 	CString strName = strExistName;
 	string strProfile = strName.GetBuffer();  // CString->string
