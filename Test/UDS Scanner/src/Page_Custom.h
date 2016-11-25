@@ -10,7 +10,8 @@ public:
 	~CPage_Custom(void);
 
 public:
-	virtual void SetControl(void){};
+	virtual void SetCapValue(void){};
+	virtual void UpdateControls(void){};
 };
 
 #endif // __CPAGE_CUSTOM_H__

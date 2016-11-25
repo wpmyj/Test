@@ -520,8 +520,8 @@ void CTWAIN_UI::TW_GetAllProfiles(lstString& strFileNames)
 
   WIN32_FIND_DATA FindFileData;
   HANDLE          hFind   = NULL;
-  char           szFileName[MAX_PATH];
-  char           *pDot;
+  char            szFileName[MAX_PATH];
+  char            *pDot;
   
   hFind = FindFirstFile("*"FILEEXTENTION, &FindFileData);
   while(hFind != INVALID_HANDLE_VALUE)

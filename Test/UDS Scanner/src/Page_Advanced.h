@@ -91,7 +91,7 @@ private:
 private:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-	void SetControl(void); ///<设置参数
+	void SetCapValue(void); ///<设置参数
 	void SetMultistream(void); ///<设置多流输出配套参数
 	void SetColorGrayImage(void); ///<设置彩色和灰度，亮度、对比度可用
 	void SetBWImage(void); ///<设置黑白图片时二值化可用

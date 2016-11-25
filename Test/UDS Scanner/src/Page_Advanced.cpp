@@ -113,7 +113,7 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 END_MESSAGE_MAP()
 
 
-void CPage_Advanced::SetControl(void)
+void CPage_Advanced::SetCapValue(void)
 {
 	MAP_CAP::iterator iter;
 

@@ -50,7 +50,6 @@ BOOL CDlg_Profile::OnInitDialog()
 }
 
 
-
 void CDlg_Profile::OnOK()
 {
 	// TODO: 在此添加专用代码和/或调用基类

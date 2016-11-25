@@ -96,8 +96,8 @@ void CPage_Base::OnOK()
 	else  
 	{
 		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
-		SetControl(); //点击确定后才设置	
-		m_pAdPage->SetControl();
+		SetCapValue(); //点击确定后才设置	
+		m_pAdPage->SetCapValue();
 		m_pUI->Scan();
 	//m_pUI->Save(); //扫描后也要做保存的操作：先扫描，再保存；若先保存会直接退出
 	}
@@ -121,7 +121,7 @@ void CPage_Base::OnCancel()
 //	return CPropertyPage::OnApply();
 //}
 
-void CPage_Base::SetControl(void)
+void CPage_Base::SetCapValue(void)
 {
 	MAP_CAP::iterator iter; 
 	for(iter = m_basemap.begin(); iter != m_basemap.end(); iter++)
@@ -517,11 +517,11 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_colormode.GetCurSel();
 	// 直接根据当前序号nIndex设置图像类型
-	m_basemap.insert(map<int, float> :: value_type(ICAP_PIXELTYPE, (float)nIndex));  
+	m_basemap.insert(map<int, float> :: value_type(ICAP_PIXELTYPE, (float)nIndex)); 
 	//m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex);  
 	m_combo_colormode.SetCurSel(nIndex);
 	//UpdateControls();
-	InitComboPixType(); //zhu
+	InitComboPixType(); //zhu 判断亮度等是否可用
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/
@@ -771,6 +771,11 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 		strCombo.ReleaseBuffer();      
 	}
 
+	//保存修改的CapValue
+	SetCapValue();
+	//m_pAdPage->SetCapValue(); //设置高级界面
+
+
 	CString strName = strExistName;
 	string strProfile = strName.GetBuffer();  // CString->string
 	strName.ReleaseBuffer();
@@ -780,7 +785,7 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 		m_combo_profile.AddString(strName);
 		m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
 	}
-
+	
 	UpdateData(FALSE);
 }
 
@@ -808,18 +813,79 @@ void CPage_Base::InitComboProfile()
 {
 	m_combo_profile.ResetContent();
 	m_combo_profile.InsertString(0,"默认模板");
-	m_combo_profile.SetCurSel(0);
+//m_combo_profile.SetCurSel(0); //设置为默认模板
 
+	NewBaseProfile();
+	
 	// 遍历已存在的模版
 	lstString strFileNames;
 	m_pUI->TW_GetAllProfiles(strFileNames);
+
 	lstString::iterator iter = strFileNames.begin();
 	for(;iter!=strFileNames.end(); iter++)
 	{
 		CString strTemp(iter->c_str());
 		m_combo_profile.AddString(strTemp);
 	}
+
+	m_combo_profile.SetCurSel(1); //设置为“当前模板”
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//新建模板 
+void CPage_Base::NewBaseProfile()
+{
+	//新建“当前模板”，与默认模板具有相同的设置
+	CString strName = "当前模板";
+	string strProfile = strName.GetBuffer();  // CString->string
+	//strName.ReleaseBuffer();
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“黑白,单面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,0);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
+	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION,200);  // 设置X分辨率
+	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION,200);  // 设置X分辨率
+	strName = "黑白,单面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“黑白,双面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,0);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1);
+	strName = "黑白,双面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“灰度,单面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,1);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
+	strName = "灰度,单面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“灰度,双面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,1);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1); 
+	strName = "灰度,双面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“彩色,单面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,2);  
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
+	strName = "彩色,单面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+
+	//新建“彩色,双面,200dpi”模板
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,2); 
+	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1); 
+	strName = "彩色,双面,200dpi";
+	strProfile = strName.GetBuffer();  // CString->string
+	m_pUI->TW_SaveProfileToFile(strProfile);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void CPage_Base::LoadProfile()
@@ -834,9 +900,11 @@ void CPage_Base::LoadProfile()
 	{	
 		CString strProfile; 
 		m_combo_profile.GetLBText( nIndex, strProfile);
+	//	AfxMessageBox(strProfile);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());
 	}
 	UpdateControls();
+	//m_pAdPage->UpdateControl(); //高级设置界面参数也更新
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -851,8 +919,11 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Profile()
 void CPage_Base::OnBase_Btn_Saveprofile()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//SetControl();
-	m_pUI->Save();
+	//SetCapValue();
+	//m_pUI->Save();
+	int nIndex = m_combo_profile.GetCurSel();
+	string strProfile;
+	m_pUI->TW_SaveProfileToFile(strProfile);
 }
 
 // 测试用

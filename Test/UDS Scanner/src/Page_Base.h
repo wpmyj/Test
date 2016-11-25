@@ -39,10 +39,11 @@ private:
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void InitComboProfile();  ///< 初始化模版Combo
 	void LoadProfile();  ///< 加载模版
+	void NewBaseProfile(); //新建常用模板
 
 	void InitComboPixType(void); //初始化图像类型编辑框
 
-	void SetControl(void);  ///<设置参数
+	void SetCapValue(void);  ///<设置参数
 
 	///** 
 	//* @brief 浏览并选择单个图片文件
