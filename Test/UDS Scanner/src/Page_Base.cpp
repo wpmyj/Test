@@ -358,7 +358,7 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	
 	if(0 == sldValue)
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0));
+		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  //虚拟默认128.G6400默认230
 	}
 	else
@@ -445,7 +445,7 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 	//m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, nval));
 	if(0 == nval)
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0));
+		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  // 设置阈值为当前滚动条值
 	}
 	else
@@ -591,12 +591,12 @@ void CPage_Base::OnClicked_Check_Multifeeddetect()
 	// TODO: 在此添加控件通知处理程序代码
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
-		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 1.0));
+		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 1.0f));
 	//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
 	} 
 	else
 	{
-		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 0.0));
+		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 0.0f));
 		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);	
 	}
 }
@@ -829,14 +829,20 @@ void CPage_Base::InitComboProfile()
 	lstString strFileNames;
 	m_pUI->TW_GetAllProfiles(strFileNames);
 
+	unsigned int unIndex = 1;
 	lstString::iterator iter = strFileNames.begin();
 	for(;iter!=strFileNames.end(); iter++)
 	{
-		CString strTemp(iter->c_str());
-		m_combo_profile.AddString(strTemp);
-	}
+		CString strTemp(iter->c_str());		
+		m_combo_profile.InsertString(unIndex, strTemp);
 
-	m_combo_profile.SetCurSel(1); //设置为“当前模板”
+		if(strTemp.Find("当前模板") >=0 ) {
+			m_combo_profile.SetCurSel(unIndex);
+		}
+
+		unIndex ++;
+	}
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -849,49 +855,57 @@ void CPage_Base::NewBaseProfile()
 	//strName.ReleaseBuffer();
 	m_pUI->TW_SaveProfileToFile(strProfile);
 
-	//新建“黑白,单面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,0);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
-	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION,200);  // 设置X分辨率
-	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION,200);  // 设置X分辨率
-	strName = "黑白,单面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
-
-	//新建“黑白,双面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,0);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1);
-	strName = "黑白,双面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
-
-	//新建“灰度,单面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,1);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
-	strName = "灰度,单面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
-
-	//新建“灰度,双面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,1);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1); 
-	strName = "灰度,双面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
-
+	
 	//新建“彩色,单面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,2);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,0); 
-	strName = "彩色,单面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
+	string strProfileName = "彩色,单面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 2, 0)) {
+		return;
+	}
 
 	//新建“彩色,双面,200dpi”模板
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,2); 
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,1); 
-	strName = "彩色,双面,200dpi";
-	strProfile = strName.GetBuffer();  // CString->string
-	m_pUI->TW_SaveProfileToFile(strProfile);
+	strProfileName = "彩色,双面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 2, 1)) {
+		return;
+	}
+
+	//新建“黑白,单面,200dpi”模板
+	strProfileName = "黑白,单面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 0, 0)) {
+		return;
+	}
+
+	//新建“黑白,双面,200dpi”模板
+	strProfileName = "黑白,双面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 0, 1)) {
+		return;
+	}
+
+	//新建“灰度,单面,200dpi”模板
+	strProfileName = "灰度,单面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 1, 0)) {
+		return;
+	}
+
+	//新建“灰度,双面,200dpi”模板
+	strProfileName = "灰度,双面,200dpi";
+	if(false == CreateNewProfile(strProfileName, 1, 1)) {
+		return;
+	}
+
+	//新建“彩色,单面,300dpi”模板
+	strProfileName = "彩色,单面,300dpi";
+	if(false == CreateNewProfile(strProfileName, 2, 0, 300)) {
+		return;
+	}
+
+	//新建“彩色,双面,300dpi”模板
+	strProfileName = "彩色,双面,300dpi";
+	if(false == CreateNewProfile(strProfileName, 2, 1, 300)) {
+		return;
+	}
+
+	
+	
 }
 
 
@@ -941,11 +955,28 @@ void CPage_Base::OnBnClickedButton1()
 	OnOK();  // 直接调用OnOK
 }
 
-bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, int duplexenabled, int resolution /*= 200*/)
+bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 
+	int duplexenabled, int resolution /*= 200*/)
 {
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype);  
-	m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,duplexenabled);
-	m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution);
-	m_pUI->SetCapValueInt(ICAP_YRESOLUTION,resolution);
-	m_pUI->TW_SaveProfileToFile(profilename);
+	if(false == m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype)) {
+		return false;
+	}
+	
+	if(false == m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,duplexenabled)) {
+		return false;
+	}
+
+	if(false == m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution)) {
+		return false;
+	}
+
+	if(false == m_pUI->SetCapValueInt(ICAP_YRESOLUTION,resolution)) {
+		return false;
+	}
+
+	if(false == m_pUI->TW_SaveProfileToFile(profilename)) {
+		return false;
+	}
+
+	return true;
 }

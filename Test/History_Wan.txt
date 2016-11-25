@@ -101,7 +101,7 @@ date 16.11.25
 @author wan
 1.修改CTWAINDS_Base::dat_capability()，用于支持重置CTWAINContainerBool型Caps;
 2.修改TWAINContainer.h文件，添加BoolVector;
-
+3.修改CPage_Base::InitComboProfile(),用于选择当前模板;
 
 
 
