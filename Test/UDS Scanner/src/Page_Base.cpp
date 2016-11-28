@@ -164,7 +164,9 @@ void CPage_Base::UpdateControls(void)
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
-	
+	int nCapValue;
+	CString strText;
+
 	// 扫描方式	
 	m_combo_source.ResetContent();
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
@@ -234,19 +236,22 @@ void CPage_Base::UpdateControls(void)
 	}
 
 	// 对比度 
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
-	m_slider_contrast.SetPos(nCapIndex);
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST));
+	m_slider_contrast.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_contrast.SetWindowText(strText);
 
 	// 亮度 
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_BRIGHTNESS);
-	m_slider_brightness.SetPos(nCapIndex);
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS));
+	m_slider_brightness.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_brightness.SetWindowText(strText);
 
 	// 阈值 
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_THRESHOLD);
-	/*CString str;
-	str.Format("%d",nCapIndex);
-	AfxMessageBox(str);*/
-	m_slider_threshold.SetPos(nCapIndex);
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
+	m_slider_threshold.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_threshold.SetWindowText(strText);
 
 	InitComboPixType();
 
@@ -261,7 +266,7 @@ BOOL CPage_Base::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	m_basemap.clear(); //清除map的所有值
-
+	UpdateControls();
 	InitSliderCtrl();
 	InitComboProfile();
 	//InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
@@ -269,23 +274,27 @@ BOOL CPage_Base::OnInitDialog()
 	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
-	UpdateControls();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
 void CPage_Base::InitSliderCtrl()
 {
-	m_slider_contrast.SetRange(SLIDER_MIN,SLIDER_MAX);
-	m_slider_contrast.SetTicFreq(1);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
+	float fMin,fMax,fStep;
+	m_pUI->GetCapRangeFloat(ICAP_CONTRAST, fMin, fMax, fStep);
+	m_slider_contrast.SetRange((int)fMin, (int)fMax);
+	m_slider_contrast.SetTicFreq((int)fStep);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
 	//m_slider_contrast.SetPos(0);
 
-	m_slider_brightness.SetRange(SLIDER_MIN,SLIDER_MAX);
-	m_slider_brightness.SetTicFreq(1);
+	m_pUI->GetCapRangeFloat(ICAP_BRIGHTNESS, fMin, fMax, fStep);
+	m_slider_brightness.SetRange((int)fMin, (int)fMax);
+	m_slider_brightness.SetTicFreq((int)fStep);
 	//m_slider_brightness.SetPos(0);//设置为中间
 
-	m_slider_threshold.SetRange(SLIDER_MIN_THRESHOLD,SLIDER_MAX_THRESHOLD);
-	m_slider_threshold.SetTicFreq(1);
+	m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+	m_slider_threshold.SetRange((int)fMin, (int)fMax);
+	m_slider_threshold.SetTicFreq((int)fStep);
 	//m_slider_threshold.SetPos(128); //设置位置为默认值128
 
 	UpdateData(FALSE);  // 更新控件

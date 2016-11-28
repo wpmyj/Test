@@ -110,5 +110,5 @@ date 16.11.28
 @author wan
 1.修改函数MFC_UI::DisplayTWAINGUI();
 2.新建类CDlg_Camera,并增加设备编号DEVICE_CAMERA;
-
+3.修改CPage_Base::UpdateControls()与CPage_Base::InitSliderCtrl();
 

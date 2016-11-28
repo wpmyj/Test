@@ -1075,8 +1075,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
 
   fRange.fCurrentValue = 0.0f;
-  fRange.fMaxValue = 1000.0f;
-  fRange.fMinValue = -1000.0f;
+  fRange.fMaxValue = 100.0f;
+  fRange.fMinValue = -100.0f;
   fRange.fStepSize = 1.0f;
   m_IndependantCapMap[ICAP_CONTRAST] = new CTWAINContainerFix32Range(ICAP_CONTRAST,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_CONTRAST]))
