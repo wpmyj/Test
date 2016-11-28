@@ -286,3 +286,6 @@ date 16.11.25
 @author zhu
 1、修改map的插入方式，从用insert函数插入value_type数据方式改为用数组方式插入数据；能够修改亮度等值，成功扫描(问题在于用insert时，key与value(键值与数据)的插入上涉及到集合的唯一性，即当map中有这个关键字时，insert操作是插入不了数据的，但是用数组方式不同，它是以覆盖以前关键字对应的值得方式插入的)
 2、优化了CPage_Advanced类中SetCapValue函数
+3、修改基本与高级界面的UpdateControls()与InitSliderCtrl();
+4、增加底色保留Cap---UDSCAP_SENSITIVETHRESHOLD_COLORRETENT，以及去除斑点Cap---UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,删除CAP---UDSCAP_SENSITIVETHRESHOLD；
+5、遗留一个问题：高级设置界面的参数不返回默认模板

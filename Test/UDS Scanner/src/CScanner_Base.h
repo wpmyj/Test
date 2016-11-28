@@ -126,7 +126,8 @@ public:
 	int               m_nBinarization; //zhu    /**< 二值化 */
 	int               m_nSpiltImage; //zhu      /**< 分割图像 */
 
-	float             m_fSensitiveThreshold;    /**< 去除斑点 */
+	float             m_fSensitiveThreshold_removespots;    /**< 去除斑点 */
+	float             m_fSensitiveThreshold_colorretent;    /**< 底色保留 */
 	bool              m_bMultiStream;    //zhu  /**< 多流输出 */
 
 	float             m_fRemoveBlank;           /**< 去除空白页 */

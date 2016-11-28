@@ -37,7 +37,8 @@ typedef enum DEVICE_NUMBER
 /** 添加的功能及其值 */   
 #define UDSCAP_BINARIZATION             CAP_CUSTOMBASE+3  /**< 二值化 */
 #define UDSCAP_SPLITIMAGE               CAP_CUSTOMBASE+4  /**< 图像分割 */
-#define UDSCAP_SENSITIVETHRESHOLD       CAP_CUSTOMBASE+5  /**< 去除斑点 */
+#define UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS       CAP_CUSTOMBASE+5  /**< 去除斑点 共用一个slider，但CAP分为两部分*/
+#define UDSCAP_SENSITIVETHRESHOLD_COLORRETENT       CAP_CUSTOMBASE+8  /**< 底色保留 */
 
 #define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
 #define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+7  /**< 图像锐化 */

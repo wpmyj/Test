@@ -34,7 +34,8 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_nUnits              = settings.m_nUnits;
 	m_nBinarization				= settings.m_nBinarization;
 	m_nSpiltImage					= settings.m_nSpiltImage;
-	m_fSensitiveThreshold = settings.m_fSensitiveThreshold;
+	m_fSensitiveThreshold_removespots = settings.m_fSensitiveThreshold_removespots;
+	m_fSensitiveThreshold_colorretent = settings.m_fSensitiveThreshold_colorretent;
 	m_bMultiStream			  = settings.m_bMultiStream;
 
 	m_fRemoveBlank				= settings.m_fRemoveBlank;

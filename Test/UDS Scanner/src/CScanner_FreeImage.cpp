@@ -195,7 +195,8 @@ bool CScanner_FreeImage::resetScanner()
 	
 	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
 	m_bMultiStream        = false; //多流输出-不选中
-	m_fSensitiveThreshold = 0.0; //去除斑点-0.0
+	m_fSensitiveThreshold_removespots = 0.0; //去除斑点-0.0
+	m_fSensitiveThreshold_colorretent = 128.0; //底色保留-128.0
 
 	//其他图像处理
 	//默认不选中

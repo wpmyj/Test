@@ -6,27 +6,6 @@
 #include "Page_Advanced.h"
 #include "afxdialogex.h"
 
-
-/** 滑动条最小值 */
-#define SLIDER_MIN -100  
-/** 滑动条最大值 */
-#define SLIDER_MAX  100 
-
-/** 去除斑点最小值 */
-#define SLIDER_MIN_SENSITIVITY 1 
-/** 去除斑点最大值 */
-#define SLIDER_MAX_SENSITIVITY 30 
-
-/** 底色保留最小值 */
-#define SLIDER_MIN_THRESHOLD 1 
-/** 底色保留最大值 */
-#define SLIDER_MAX_THRESHOLD 255 
-
-/** Gamma校正最小值 */
-#define SLIDER_MIN_GAMMA 10 
-/** Gamma校正最大值 */
-#define SLIDER_MAX_GAMMA 255 
-
 // CPage_Advanced 对话框
 
 IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
@@ -144,7 +123,7 @@ void CPage_Advanced::SetCapValue(void)
 			}
 
 		case ICAP_GAMMA: //Gamma校正
-		case UDSCAP_SENSITIVETHRESHOLD: //去除斑点
+		case UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS: //去除斑点
 		case ICAP_BRIGHTNESS: //亮度
 		case ICAP_CONTRAST: //对比度
 			{
@@ -166,6 +145,8 @@ void CPage_Advanced::UpdateControls(void)
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
+	int nCapValue;
+	CString strText;
 
   //纸张设置-纸张方向
 	m_combo_orientation.ResetContent();  // 清空内容
@@ -418,20 +399,42 @@ void CPage_Advanced::UpdateControls(void)
 	m_combo_splitimage.SetCurSel(nCapIndex);
 
 	//多流输出-对比度
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
-	m_slider_contrast.SetPos(nCapIndex);
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
+	m_slider_contrast.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_contrast.SetWindowText(strText);
 
 	//多流输出-亮度
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_BRIGHTNESS);
-	m_slider_brightness.SetPos(nCapIndex);
-
-	//多流输出-去除斑点
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SENSITIVETHRESHOLD);
-	m_slider_sensitive_threshold.SetPos(nCapIndex);
-
-	//Gamma校正
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_GAMMA);
-	m_slider_gamma.SetPos(nCapIndex);
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS)); 
+	m_slider_brightness.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_brightness.SetWindowText(strText);
+	
+	CString str;
+	GetDlgItem(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD)->GetWindowText(str);
+	if(str.Find("去除斑点") >= 0)
+	{
+		//多流输出-去除斑点 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)); 
+		m_slider_sensitive_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		m_edit_sensitive_threshold.SetWindowText(strText);
+	}
+	else if(str.Find("底色保留") >= 0)
+	{
+		//多流输出-底色保留
+		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)); 
+		m_slider_sensitive_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		m_edit_sensitive_threshold.SetWindowText(strText);
+	}
+	else{}
+	
+	//Gamma校正 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型
+	m_slider_gamma.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	m_edit_gamma.SetWindowText(strText);
 }
 
 
@@ -441,14 +444,15 @@ void CPage_Advanced::UpdateControls(void)
 BOOL CPage_Advanced::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
-
+	
 	// TODO:  在此添加额外的初始化
-	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前
-	UpdateControls();
+	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
 
 	//多流输出下的选项默认不使用
 	m_check_multistream.SetCheck(FALSE);
 	SetMultistream();
+
+	UpdateControls();
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -510,7 +514,9 @@ void CPage_Advanced::SetMultistream(void)
 
 void CPage_Advanced::SetBinarization(void)
 {
-	int nCapIndex;
+	int nCapValue;
+	float fMin,fMax,fStep;
+	
 	if (m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
 	{
 		GetDlgItem(IDC_ADVANCED_SLIDER_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); 
@@ -521,21 +527,22 @@ void CPage_Advanced::SetBinarization(void)
 		if (strCBText.Find("动态阈值") >= 0)
 		{
 			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("去除斑点"));
-			m_slider_sensitive_threshold.SetRange(SLIDER_MIN_SENSITIVITY,SLIDER_MAX_SENSITIVITY);
-			m_slider_sensitive_threshold.SetTicFreq(1);
-			//m_slider_sensitive_threshold.SetPos(20);//设置为默认值20
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SENSITIVETHRESHOLD);
-			m_slider_contrast.SetPos(nCapIndex); //改为从容器读取默认值
+			m_pUI->GetCapRangeFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, fMin, fMax, fStep);
+			m_slider_sensitive_threshold.SetRange((int)fMin, (int)fMax);
+			m_slider_sensitive_threshold.SetTicFreq((int)fStep); 
+
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS));
+			m_slider_sensitive_threshold.SetPos(nCapValue);
 		} 
 		else if(strCBText.Find("固定阈值") >= 0)
 		{
 			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("底色保留"));
+			m_pUI->GetCapRangeFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT, fMin, fMax, fStep);
+			m_slider_sensitive_threshold.SetRange((int)fMin, (int)fMax);
+			m_slider_sensitive_threshold.SetTicFreq((int)fStep); 
 
-			m_slider_sensitive_threshold.SetRange(SLIDER_MIN_THRESHOLD,SLIDER_MAX_THRESHOLD);
-			m_slider_sensitive_threshold.SetTicFreq(1);
-			m_slider_sensitive_threshold.SetPos(128);//设置为默认值128
-			//nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SENSITIVETHRESHOLD);
-			//m_slider_contrast.SetPos(nCapIndex); //改为从容器读取默认值
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT));
+			m_slider_sensitive_threshold.SetPos(nCapValue);
 		}
 		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
 		{
@@ -910,17 +917,18 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Multistream()
 
 void CPage_Advanced::InitSliderCtrl()
 {
-	m_slider_contrast.SetRange(SLIDER_MIN,SLIDER_MAX);
-	m_slider_contrast.SetTicFreq(1);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
-//	m_slider_contrast.SetPos(0); //UpdateControl时已经设置为从容器读取的值
+	float fMin,fMax,fStep;
+	m_pUI->GetCapRangeFloat(ICAP_CONTRAST, fMin, fMax, fStep);
+	m_slider_contrast.SetRange((int)fMin, (int)fMax);
+	m_slider_contrast.SetTicFreq((int)fStep);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
 
-	m_slider_brightness.SetRange(SLIDER_MIN,SLIDER_MAX);
-	m_slider_brightness.SetTicFreq(1);
-//	m_slider_brightness.SetPos(0);//设置为中间
+	m_pUI->GetCapRangeFloat(ICAP_BRIGHTNESS, fMin, fMax, fStep);
+	m_slider_brightness.SetRange((int)fMin, (int)fMax);
+	m_slider_brightness.SetTicFreq((int)fStep);
 
-	m_slider_gamma.SetRange(SLIDER_MIN_GAMMA,SLIDER_MAX_GAMMA);
-	m_slider_gamma.SetTicFreq(1);
-//	m_slider_gamma.SetPos(100);  //默认设置位置为100，不为10
+	m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+	m_slider_gamma.SetRange((int)fMin, (int)fMax);
+	m_slider_gamma.SetTicFreq((int)fStep); //默认设置位置为100，不为10
 
 	UpdateData(FALSE);  // 更新控件
 }
@@ -955,9 +963,9 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNM
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_sensitive_threshold.GetPos();  // 获取滑块当前位置
-	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)sldValue);  
-	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD, (float)sldValue));
-	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD] = (float)sldValue;
+	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,(float)sldValue);  
+	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, (float)sldValue));
+	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)sldValue;
 
 	str.Format("%d", sldValue);
 	m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
@@ -1050,9 +1058,9 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold()
 	m_edit_sensitive_threshold.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_sensitive_threshold.SetPos(nval);
-	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD, (float)nval));	
-	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD,(float)nval);  
-	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD] = (float)nval;
+	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, (float)nval));	
+	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,(float)nval);  
+	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)nval;
 
 	m_edit_sensitive_threshold.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件

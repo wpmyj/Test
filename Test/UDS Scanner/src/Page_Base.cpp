@@ -9,18 +9,6 @@
 
 #include "CTWAINDS_UDS.h"
 
-/** 滑动条最小值 */
-#define SLIDER_MIN -100  
-/** 滑动条最大值 */
-#define SLIDER_MAX  100 
-
-/** 阈值滑动条最小值 */
-#define SLIDER_MIN_THRESHOLD 0
-/** 阈值滑动条最大值 */
-#define SLIDER_MAX_THRESHOLD 255
-
-#define UNUSED_VAR(x) (void)x;
-
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
 
@@ -41,7 +29,6 @@ CPage_Base::~CPage_Base()
 		m_pDlg = NULL;
 	}
 	*/
-	m_basemap.clear();
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
@@ -100,10 +87,7 @@ void CPage_Base::OnOK()
 	}
 	else  
 	{
-		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
-	
 		m_pUI->Scan();
-	//m_pUI->Save(); //扫描后也要做保存的操作：先扫描，再保存；若先保存会直接退出
 	}
 
 	CPropertyPage::OnOK();
@@ -236,7 +220,7 @@ void CPage_Base::UpdateControls(void)
 	}
 
 	// 对比度 
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST));
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	m_edit_contrast.SetWindowText(strText);
@@ -253,7 +237,7 @@ void CPage_Base::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	m_edit_threshold.SetWindowText(strText);
 
-	InitComboPixType();
+	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
 	UpdateData(FALSE);
 
@@ -264,16 +248,13 @@ BOOL CPage_Base::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
-	// TODO:  在此添加额外的初始化
-	m_basemap.clear(); //清除map的所有值
-	UpdateControls();
+	// TODO:  在此添加额外的初始化	
 	InitSliderCtrl();
+	UpdateControls();
 	InitComboProfile();
-	//InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
 	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
-
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -285,17 +266,14 @@ void CPage_Base::InitSliderCtrl()
 	m_pUI->GetCapRangeFloat(ICAP_CONTRAST, fMin, fMax, fStep);
 	m_slider_contrast.SetRange((int)fMin, (int)fMax);
 	m_slider_contrast.SetTicFreq((int)fStep);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
-	//m_slider_contrast.SetPos(0);
 
 	m_pUI->GetCapRangeFloat(ICAP_BRIGHTNESS, fMin, fMax, fStep);
 	m_slider_brightness.SetRange((int)fMin, (int)fMax);
 	m_slider_brightness.SetTicFreq((int)fStep);
-	//m_slider_brightness.SetPos(0);//设置为中间
 
 	m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
 	m_slider_threshold.SetRange((int)fMin, (int)fMax);
 	m_slider_threshold.SetTicFreq((int)fStep);
-	//m_slider_threshold.SetPos(128); //设置位置为默认值128
 
 	UpdateData(FALSE);  // 更新控件
 }
@@ -488,8 +466,9 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Source()
 	{
 		nval = 1; 
 	}
-	m_basemap.insert(map<int, float> :: value_type(CAP_FEEDERENABLED, (float)nval));
+	//m_basemap.insert(map<int, float> :: value_type(CAP_FEEDERENABLED, (float)nval));
 	//m_pUI->SetCapValueInt(CAP_FEEDERENABLED,nval);  // 设置对应参数
+	m_basemap[CAP_FEEDERENABLED] = (float)nval;
 	//UpdateControls();
 	m_combo_source.SetCurSel(nIndex);
 
@@ -530,8 +509,10 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_colormode.GetCurSel();
 	// 直接根据当前序号nIndex设置图像类型
-	m_basemap.insert(map<int, float> :: value_type(ICAP_PIXELTYPE, (float)nIndex)); 
-	//m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex);  
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_PIXELTYPE, (float)nIndex)); 
+	//m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex); 
+	m_basemap[ICAP_PIXELTYPE] = (float)nIndex;
+
 	m_combo_colormode.SetCurSel(nIndex);
 	//UpdateControls();
 	InitComboPixType(); //zhu 判断亮度等是否可用
@@ -552,10 +533,12 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Resolution()
 	//CString str;
 	//str.Format("%d",nval);
 	//AfxMessageBox(str);
-	m_basemap.insert(map<int, float> :: value_type(ICAP_XRESOLUTION, (float)nval));
-	m_basemap.insert(map<int, float> :: value_type(ICAP_YRESOLUTION, (float)nval)); 
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_XRESOLUTION, (float)nval));
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_YRESOLUTION, (float)nval)); 
 	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION,nval); 
 	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION,nval);
+	m_basemap[ICAP_XRESOLUTION] = (float)nval;
+	m_basemap[ICAP_YRESOLUTION] = (float)nval;
 	//UpdateControls();
 	m_combo_resolution.SetCurSel(nIndex);
 
@@ -583,8 +566,9 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 		nval = 1;
 	}
 
-	m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, (float)nval));
+	//m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, (float)nval));
 	//m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,nval?1:0);
+	m_basemap[CAP_DUPLEXENABLED] = (float)nval;
 	//UpdateControls();
 	m_combo_scanside.SetCurSel(nIndex);
 }
@@ -595,13 +579,15 @@ void CPage_Base::OnClicked_Check_Multifeeddetect()
 	// TODO: 在此添加控件通知处理程序代码
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
-		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 1.0f));
-	//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
+		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 1.0f));
+		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
+		m_basemap[UDSCAP_MULTIFEEDDETECT] = 1.0f;
 	} 
 	else
 	{
-		m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, 0.0f));
-		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);	
+		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 0.0f));
+		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);
+		m_basemap[UDSCAP_MULTIFEEDDETECT] = 0.0f;
 	}
 }
 

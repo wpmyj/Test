@@ -371,7 +371,8 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  分割图像
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM,0,TWON_ONEVALUE); //多流输出
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD,0,TWON_ONEVALUE); //去除斑点
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0,TWON_ONEVALUE); //去除斑点
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //底色保留
 
 	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  去除空白页
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  去除穿孔
@@ -422,7 +423,8 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SPLITIMAGE,0); //zhu
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM,0); //zhu 多流输出
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD,0); //zhu 去除斑点
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0); //zhu 去除斑点
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu 底色保留
 
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0);
@@ -477,7 +479,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_PLANARCHUNKY)
    || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //纸张大小
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
-	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD)  //去除斑点
+	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
+	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留
    || !pnCap->Add(ICAP_ORIENTATION) //方向
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
@@ -1045,34 +1048,34 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     //cerr << "Could not create ICAP_THRESHOLD" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
-  }
-	//m_IndependantCapMap[ICAP_THRESHOLD] = new CTWAINContainerFix32(ICAP_THRESHOLD,TWON_ONEVALUE, TWQC_ALL);
-	//if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_THRESHOLD]))
-	//	|| !pfixCap->Add(128, true)) //zhu
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_THRESHOLD !"),MB_CAPTION,MB_OK);
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
+	}
 
-	//去除斑点
-	m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD]))
+	//底色保留
+	fRange.fCurrentValue = 128.0f; 
+	fRange.fMaxValue = 255.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT]))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD !"),MB_CAPTION,MB_OK);
-		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD_COLORRETENT !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD_COLORRETENT" << endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
-	//m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD] = new CTWAINContainerFix32(UDSCAP_SENSITIVETHRESHOLD,TWON_ONEVALUE, TWQC_ALL);
-	//if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD]))
-	//	|| !pfixCap->Add(0, true)) //zhu
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD !"),MB_CAPTION,MB_OK);
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-
+	//去除斑点
+	fRange.fCurrentValue = 10.0f; 
+	fRange.fMaxValue = 30.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
   fRange.fCurrentValue = 0.0f;
   fRange.fMaxValue = 100.0f;
@@ -1086,14 +1089,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-	//m_IndependantCapMap[ICAP_CONTRAST] = new CTWAINContainerFix32(ICAP_CONTRAST,TWON_ONEVALUE, TWQC_ALL);
-	//if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_CONTRAST]))
-	//	|| !pfixCap->Add(10, true)) //zhu
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_CONTRAST !"),MB_CAPTION,MB_OK);
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
 
   m_IndependantCapMap[ICAP_BRIGHTNESS] = new CTWAINContainerFix32Range(ICAP_BRIGHTNESS,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_BRIGHTNESS]))
@@ -1103,14 +1098,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-	//m_IndependantCapMap[ICAP_BRIGHTNESS] = new CTWAINContainerFix32(ICAP_BRIGHTNESS,TWON_ONEVALUE, TWQC_ALL);
-	//if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_BRIGHTNESS]))
-	//	|| !pfixCap->Add(0, true)) //zhu
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_BRIGHTNESS !"),MB_CAPTION,MB_OK);
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
 
 
   // expressed internally as pixels per inch
@@ -2007,16 +1994,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
     settings.m_fThreshold = fVal;
   }
-	/*if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_THRESHOLD))))
-	{
-	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_THRESHOLD!"),MB_CAPTION,MB_OK);
-	bret = false;
-	}
-	else
-	{
-	pfCap->GetCurrent(fVal);
-	settings.m_fThreshold = fVal;
-	}*/
 
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_CONTRAST))))
   {
@@ -2029,16 +2006,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     pfRCap->GetCurrent(fVal);
     settings.m_fContrast = fVal;
   }
-	/*if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_CONTRAST))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_CONTRAST!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pfCap->GetCurrent(fVal);
-		settings.m_fContrast = fVal;
-	}*/
 
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_BRIGHTNESS))))
   {
@@ -2054,39 +2021,32 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		::MessageBox(hwndDLG,buf,MB_CAPTION,MB_OK);*/
     settings.m_fBrightness = fVal;
 	}
-	/*if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_BRIGHTNESS))))
-	{
-	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_BRIGHTNESS!"),MB_CAPTION,MB_OK);
-	bret = false;
-	}
-	else
-	{
-	pfCap->GetCurrent(fVal);
-	settings.m_fBrightness = fVal;
-	}*/
 
 	//去除斑点
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD))))
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS))))
   {
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD!"),MB_CAPTION,MB_OK);
-    //cerr << "Could not get UDSCAP_SENSITIVETHRESHOLD" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS!"),MB_CAPTION,MB_OK);
+    //cerr << "Could not get UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS" << endl;
     bret = false;
   }
   else
   {
     pfRCap->GetCurrent(fVal);
-    settings.m_fSensitiveThreshold = fVal;
+    settings.m_fSensitiveThreshold_removespots = fVal;
   }
-	/*if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_SENSITIVETHRESHOLD))))
+
+	//底色保留
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT))))
 	{
-	::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD!"),MB_CAPTION,MB_OK);
-	bret = false;
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_COLORRETENT!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get UDSCAP_SENSITIVETHRESHOLD_COLORRETENT" << endl;
+		bret = false;
 	}
 	else
 	{
-	pfCap->GetCurrent(fVal);
-	settings.m_fSensitiveThreshold = fVal;
-	}*/
+		pfRCap->GetCurrent(fVal);
+		settings.m_fSensitiveThreshold_colorretent = fVal;
+	}
 
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
