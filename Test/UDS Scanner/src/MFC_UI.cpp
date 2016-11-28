@@ -83,44 +83,53 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	
 	if(Data.ShowUI)
 	{
-
-		m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
-	  //g_hwndSheet = m_pSheet->m_hWnd;
-		if (m_pSheet)
+		switch (g_nDeviceNumber)
 		{
-
-			switch (g_nDeviceNumber)
+		case DEVICE_OPENCV:
+		case DEVICE_FREEIMAGE:
 			{
-			case DEVICE_OPENCV:
-			case DEVICE_FREEIMAGE:
+				m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
+				if (m_pSheet)
 				{
-					m_pSheet->DoModal();;
-				}
-				break;
-			case DEVICE_G6400:
+					m_pSheet->DoModal();
+				} 
+				else 
 				{
-					m_pSheet->Create(pMainWnd);
-			    m_pSheet->ShowWindow(SW_SHOW);
-			    g_hwndSheet = m_pSheet->GetSafeHwnd();
-				}
-				break;
-			default:
-				{
-					::MessageBox(g_hwndDLG,"不支持的设备！",MB_CAPTION,MB_OK);
+					return TWRC_FAILURE;
 				}
 				break;
 			}
-
-			//m_pSheet->DoModal();
-			/*m_pSheet->Create(pMainWnd);
-			m_pSheet->ShowWindow(SW_SHOW);
-			g_hwndSheet = m_pSheet->GetSafeHwnd();*/
-
-		} 
-		else
-		{
-			return TWRC_FAILURE;
+			
+		case DEVICE_G6400:
+			{
+				m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
+				if (m_pSheet) 
+				{
+					m_pSheet->Create(pMainWnd);
+					m_pSheet->ShowWindow(SW_SHOW);
+					g_hwndSheet = m_pSheet->GetSafeHwnd();
+				} 
+				else 
+				{
+					return TWRC_FAILURE;
+				}
+				break;
+			}
+			
+		default:
+			{
+				::MessageBox(g_hwndDLG,"不支持的设备！",MB_CAPTION,MB_OK);
+				return TWRC_FAILURE;
+				break;
+			}
 		}
+
+
+		//} 
+		/*else
+		{
+		return TWRC_FAILURE;
+		}*/
 	
 	}
 	return TWRC_SUCCESS;
