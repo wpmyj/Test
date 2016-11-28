@@ -49,8 +49,8 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.ds</TargetExt>
     <GenerateManifest>true</GenerateManifest>
-    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -112,7 +112,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)$(TargetName).ds</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -171,6 +171,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClCompile Include="src\Page_ImageProcess.cpp" />
     <ClCompile Include="src\Page_Muiltstream.cpp" />
     <ClCompile Include="src\Page_Paper.cpp" />
+    <ClCompile Include="src\SGCallBack.cpp" />
     <ClCompile Include="src\Sheet_Scanner.cpp" />
     <ClCompile Include="src\TWAINContainer.cpp" />
     <ClCompile Include="src\TWAINContainerBool.cpp" />
@@ -180,6 +181,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClCompile Include="src\TWAINContainerInt.cpp" />
     <ClCompile Include="src\TWAINContainerString.cpp" />
     <ClCompile Include="src\TWAIN_UI.cpp" />
+    <ClCompile Include="src\UDSCapture.cpp" />
     <ClCompile Include="src\Win32.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -216,6 +218,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClInclude Include="src\public.h" />
     <ClInclude Include="src\CScanner_Base.h" />
     <ClInclude Include="src\CScanner_G6400.h" />
+    <ClInclude Include="src\SGCallBack.h" />
     <ClInclude Include="src\Sheet_Scanner.h" />
     <ClInclude Include="src\TWAINContainer.h" />
     <ClInclude Include="src\TWAINContainerBool.h" />
@@ -225,6 +228,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClInclude Include="src\TWAINContainerInt.h" />
     <ClInclude Include="src\TWAINContainerString.h" />
     <ClInclude Include="src\TWAIN_UI.h" />
+    <ClInclude Include="src\UDSCapture.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UDS Scanner.h" />

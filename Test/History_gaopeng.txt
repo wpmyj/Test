@@ -58,3 +58,17 @@ date 16.11.09
 @author gao
 
 1.把common.cpp中的cstringtowchar(CString strIn)函数又重新实现了一遍。
+
+
+date 16.11.28
+-----------------------------------------------------------
+@author gao
+
+1.加入了四个文件UDSCapture.cpp，UDSCapture.h ,SGCallBack.cpp , SGCallBack.h.
+
+
+
+
+
+
+
