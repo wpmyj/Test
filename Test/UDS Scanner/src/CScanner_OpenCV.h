@@ -199,7 +199,22 @@ protected:
 	*/
 	void vMirrorTrans(const Mat &src, Mat &dst);
 
+	/**
+	*  @brief  对比度与亮度调节
+	*  @param[out]  pdstImage 目标图 
+	*  @param[in] psrcImage 原图 
+	*  @param[in] nBrightValue 亮度值
+	*  @param[in] nContraValue 对比度值
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBrightValue,int nContraValue);
 
+	/**
+	*  @brief  设置阈值
+	*  @param[in]  value  阈值
+	*/
+	void SetThreshold(int value);
 
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 

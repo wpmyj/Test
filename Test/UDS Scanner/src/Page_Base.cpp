@@ -101,9 +101,7 @@ void CPage_Base::OnOK()
 	else  
 	{
 		//::MessageBox(g_hwndDLG,"OnOK",MB_CAPTION,MB_OK);
-	
 		m_pUI->Scan();
-	//m_pUI->Save(); //扫描后也要做保存的操作：先扫描，再保存；若先保存会直接退出
 	}
 
 	CPropertyPage::OnOK();

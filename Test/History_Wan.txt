@@ -111,4 +111,9 @@ date 16.11.28
 1.修改函数MFC_UI::DisplayTWAINGUI();
 2.新建类CDlg_Camera,并增加设备编号DEVICE_CAMERA;
 3.修改CPage_Base::UpdateControls()与CPage_Base::InitSliderCtrl();
-
+4.解决CScanner_OpenCV中选择黑白图像程序出错的问题，原因是OpenCV
+将灰度图像转为黑白图像时，只是将三个通道设为相同的值，每像素位数
+(BitsPerPixel)仍为8，而程序中设置的是1，所以在分配的内存小于实际
+数据的大小，导致memcpy失败;解决方法就是将程序中的BitsPerPixel改为8;
+5.CScanner_OpenCV中添加SetThreshold()与ContrastAndBright()两个函数,
+分别用于阈值设置与亮度或对比度调整;

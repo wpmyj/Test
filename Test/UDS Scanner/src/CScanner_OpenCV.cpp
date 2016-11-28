@@ -228,28 +228,26 @@ bool CScanner_OpenCV::preScanPrep()
 	// 旋转
 	switch(m_nRotation)
 	{
-	case TWOR_ROT0:
-		{
+	case TWOR_ROT0: {
 			RotateImage(0);
-		}
-		break;
-	case TWOR_ROT90:
-		{
+			break;
+		}	
+	case TWOR_ROT90: {
 			RotateImage(-90);
-    }
-		break;
-	case TWOR_ROT180:
-		{
+			break;
+    }		
+	case TWOR_ROT180: {
 			RotateImage(-180);
-		}
-		break;
-	case TWOR_ROT270:
-		{
+			break;
+		}		
+	case TWOR_ROT270: {
 			RotateImage(-270);
+			break;
+		}		
+	default: {
+		break;
 		}
-		break;
-	default:
-		break;
+
 	} 
 	
 	//图像镜像处理
@@ -264,6 +262,15 @@ bool CScanner_OpenCV::preScanPrep()
 	{	
 		MedianSmooth();
 	}
+
+	//// 对比度和亮度
+	//if (m_nPixelType != TWPT_BW)
+	//{
+	//	Mat matTemp;
+	//	ContrastAndBright(&m_mat_image, &matTemp, (int)m_fBrightness, (int)m_fContrast);
+	//	matTemp.copyTo(m_mat_image);
+	//}
+
 	//颜色
 	if(m_nPixelType != TWPT_RGB)
 	{
@@ -271,20 +278,21 @@ bool CScanner_OpenCV::preScanPrep()
 		// Apply bit depth color transforms
 		switch(m_nPixelType)
 		{
-		case TWPT_BW:
-			{
-		
-			}
-			break;
-
-		case TWPT_GRAY:
-			{
-				
+		// 黑白为：先将彩色转为灰度,再设置阈值,但是得到的图像大小与灰度相同,
+		// BitsPerPixel = 8,黑白应为1.
+		case TWPT_BW: {
 				dstImage.create(m_mat_image.size(), m_mat_image.type());
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
+				SetThreshold((int)m_fThreshold);  
+				break;
+			}		
+		case TWPT_GRAY: {			
+				dstImage.create(m_mat_image.size(), m_mat_image.type());
+				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
+				dstImage.copyTo(m_mat_image);	
+				break;
 			}	
-			break;
 		}
 	}
 
@@ -384,6 +392,9 @@ void CScanner_OpenCV::GetImageData(BYTE *buffer, DWORD &dwReceived)
 void CScanner_OpenCV::MatToBYTEs(cv::Mat matIn, BYTE* bytesOut)
 {
 	int size = matIn.total() * matIn.elemSize();
+	/*char buf[10];
+  itoa(size, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"size",MB_OK);*/
 	std::memcpy(bytesOut, matIn.data, size * sizeof(BYTE));
 }
 
@@ -471,5 +482,68 @@ void CScanner_OpenCV::vMirrorTrans(const Mat &src, Mat &dst)
 		src.row(rows - i - 1).copyTo(dst.row(i));
 }
 
+
+bool CScanner_OpenCV::ContrastAndBright(Mat *pdstImage,Mat *psrcImage,
+	int nBrightValue,int nContraValue)
+{
+
+	*pdstImage = Mat::zeros(psrcImage->size(), psrcImage->type());   //将g_srcImage的大小和格式赋给g_dstImage
+
+	//三个for循环，执行运算 g_dstImage(i,j) =a*g_srcImage(i,j) + b  
+	for(int y = 0; y < psrcImage->rows; y++ )  
+	{  
+		for(int x = 0; x < psrcImage->cols; x++ )  
+		{  
+			for(int c = 0; c < 3; c++ )  
+			{  
+				/*
+				saturate_cast为了安全转换，运算结果可能超出像素取值范围（溢出），还可能是非整数（如果是浮点数的话），
+				用saturate_cast对结果进行转换，以确保它为有效值。		
+				*/
+				pdstImage->at<Vec3b>(y,x)[c]= saturate_cast<uchar>( (nContraValue*0.01)*(psrcImage->at<Vec3b>(y,x)[c] ) + nBrightValue);  
+			}  
+		}  
+	}  
+
+	return true;
+}
+
+void CScanner_OpenCV::SetThreshold(int value)
+{
+  	
+	IplImage* pImage= new IplImage(m_mat_image);  // Mat->IplImage*
+	char* pImageData = pImage->imageData;
+	int width = pImage->width;
+	int height = pImage->height;
+	int nChannels = pImage->nChannels;
+	int widthStep = pImage->widthStep;
+
+	char *RImageData,*GImageData,*BImageData ;
+
+	for(int i=0; i < height; i++)
+	{
+		for(int j =0 ; j < width; j++)
+		{
+			RImageData = pImageData + i*widthStep + j*nChannels + 2 ;//获得R通道数据
+			GImageData = pImageData + i*widthStep + j*nChannels + 1 ;//获得G通道数据
+			BImageData = pImageData + i*widthStep + j*nChannels + 0 ;//获得B通道数据
+
+			//对R通道的数据进行判断
+			if((uchar)*RImageData > value)
+			{
+				*RImageData = (uchar)255 ;
+				*GImageData = (uchar)255 ;
+				*BImageData = (uchar)255 ;
+			}
+			else
+			{
+				*RImageData = 0 ;
+				*GImageData = 0 ;
+				*BImageData = 0 ;
+			}
+		}
+	}
+
+}
 
 

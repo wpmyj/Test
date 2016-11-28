@@ -1272,9 +1272,15 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   {
     case TWPT_BW:
       _pImageInfo->PixelType = TWPT_BW;
-      _pImageInfo->BitsPerPixel = 1;
+      //_pImageInfo->BitsPerPixel = 1;
       _pImageInfo->SamplesPerPixel = 1;
       _pImageInfo->BitsPerSample[0] = 1;
+			if (DEVICE_OPENCV == g_nDeviceNumber) {
+				_pImageInfo->BitsPerPixel = 8;
+			}
+			else {
+				_pImageInfo->BitsPerPixel = 1;
+			}
     break;
 
     case TWPT_GRAY:
@@ -1454,7 +1460,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   {
     // A user interface is not supported as of right now because we are
     // in text mode.
-		//::MessageBox(hwndDLG,"DisplayTWAINGUI","UDS Scanner",MB_OK);
+	  //::MessageBox(g_hwndDLG,"DisplayTWAINGUI","UDS Scanner",MB_OK);
     m_CurrentState = dsState_Open;
     setConditionCode(TWCC_OPERATIONERROR);
     return TWRC_FAILURE;
@@ -1490,7 +1496,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
+{ //::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1626,7 +1632,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
-{//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
+{ //::MessageBox(g_hwndDLG," CTWAINDS_UDS::transfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1645,7 +1651,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
   {
     DWORD nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
     DWORD nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
-
+		/*	char buf[10];
+		ltoa(m_ImageInfo.BitsPerPixel, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"BitsPerPixel",MB_OK);*/
     //If we had a previous image then get rid of it.
     if(m_hImageData)
     {
@@ -2651,7 +2659,7 @@ TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType
 }
 
 bool CTWAINDS_UDS::StartScanning()
-{//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
+{  //::MessageBox(g_hwndDLG,"CTWAINDS_UDS::StartScanning",MB_CAPTION,MB_OK);
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {
