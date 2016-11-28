@@ -41,6 +41,7 @@ CPage_Base::~CPage_Base()
 		m_pDlg = NULL;
 	}
 	*/
+	m_basemap.clear();
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
@@ -259,7 +260,8 @@ BOOL CPage_Base::OnInitDialog()
 	CPropertyPage::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	
+	m_basemap.clear(); //清除map的所有值
+
 	InitSliderCtrl();
 	InitComboProfile();
 	//InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
@@ -299,8 +301,9 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_contrast.GetPos();  // 获取滑块当前位置
-	m_basemap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)sldValue));
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)sldValue)); //以这种形式插入，键值一旦存在，就会插入失败
 	//m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)sldValue);  // 设置对比度为当前滚动条值
+	m_basemap[ICAP_CONTRAST] = float(sldValue);
 
 	str.Format("%d", sldValue);
 	m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
@@ -320,7 +323,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pR
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_brightness.GetPos();  // 获取滑块当前位置
-	m_basemap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, (float)sldValue));
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, float(sldValue)));
+	m_basemap[ICAP_BRIGHTNESS] = float(sldValue);
 	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)sldValue);  // 设置亮度为当前滚动条值
 
 	str.Format("%d", sldValue);
@@ -344,13 +348,15 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	
 	if(0 == sldValue)
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
+		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  //虚拟默认128.G6400默认230
+		m_basemap[ICAP_THRESHOLD] = 128.0f;
 	}
 	else
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)sldValue));
-	//	m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 
+		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)sldValue));
+		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 
+		m_basemap[ICAP_THRESHOLD] = (float)sldValue;
 	}
 
 	str.Format("%d", sldValue);
@@ -380,8 +386,9 @@ void CPage_Base::OnEnChangeBase_Edit_Contrast()
 	m_edit_contrast.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_contrast.SetPos(nval);
-	m_basemap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)nval));
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_CONTRAST, (float)nval));
 	//m_pUI->SetCapValueFloat(ICAP_CONTRAST,(float)nval);  // 设置对比度为当前滚动条值
+	m_basemap[ICAP_CONTRAST] = (float)nval;
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	//UpdateControls();
@@ -405,9 +412,9 @@ void CPage_Base::OnEnChangeBase_Edit_Brightness()
 	m_edit_brightness.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_brightness.SetPos(nval);
-	m_basemap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, (float)nval));
+	//m_basemap.insert(map<int, float> :: value_type(ICAP_BRIGHTNESS, (float)nval));
 	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)nval);  // 设置对比度为当前滚动条值
-
+	m_basemap[ICAP_BRIGHTNESS] = (float)nval;
 	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	//UpdateControls();
 	UpdateData(FALSE);  // 更新控件
@@ -431,13 +438,15 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 	//m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, nval));
 	if(0 == nval)
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
+		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  // 设置阈值为当前滚动条值
+		m_basemap[ICAP_THRESHOLD] = 128.0f;
 	}
 	else
 	{
-		m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)nval));
+		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)nval));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)nval);  // 设置阈值为当前滚动条值
+		m_basemap[ICAP_THRESHOLD] = (float)nval;
 	}
 
 	m_edit_threshold.SetSel(str.GetLength(), str.GetLength(), TRUE); //设置编辑框控件范围
