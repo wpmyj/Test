@@ -279,3 +279,4 @@ date 16.11.25
 @author zhu
 1、增加void NewBaseProfile();用于保存模板；
 2、增加void SetCapValue(void);函数用于保存六个常用的模板
+3、修改界面显示的值得读取方式，从默认给值改为从容器读值；

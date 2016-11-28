@@ -490,6 +490,22 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_splitimage.SetCurSel(nCapIndex);
+
+	//多流输出-对比度
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
+	m_slider_contrast.SetPos(nCapIndex);
+
+	//多流输出-亮度
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_BRIGHTNESS);
+	m_slider_brightness.SetPos(nCapIndex);
+
+	//多流输出-去除斑点
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SENSITIVETHRESHOLD);
+	m_slider_sensitive_threshold.SetPos(nCapIndex);
+
+	//Gamma校正
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_GAMMA);
+	m_slider_gamma.SetPos(nCapIndex);
 }
 
 
@@ -501,8 +517,8 @@ BOOL CPage_Advanced::OnInitDialog()
 	CPropertyPage::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
+	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前
 	UpdateControls();
-	InitSliderCtrl(); //初始化滑块
 
 	//多流输出下的选项默认不使用
 	m_check_multistream.SetCheck(FALSE);
@@ -948,15 +964,15 @@ void CPage_Advanced::InitSliderCtrl()
 {
 	m_slider_contrast.SetRange(SLIDER_MIN,SLIDER_MAX);
 	m_slider_contrast.SetTicFreq(1);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
-	m_slider_contrast.SetPos(0);
+//	m_slider_contrast.SetPos(0); //UpdateControl时已经设置为从容器读取的值
 
 	m_slider_brightness.SetRange(SLIDER_MIN,SLIDER_MAX);
 	m_slider_brightness.SetTicFreq(1);
-	m_slider_brightness.SetPos(0);//设置为中间
+//	m_slider_brightness.SetPos(0);//设置为中间
 
 	m_slider_gamma.SetRange(SLIDER_MIN_GAMMA,SLIDER_MAX_GAMMA);
 	m_slider_gamma.SetTicFreq(1);
-	m_slider_gamma.SetPos(100);  //默认设置位置为100，不为10
+//	m_slider_gamma.SetPos(100);  //默认设置位置为100，不为10
 
 	UpdateData(FALSE);  // 更新控件
 }

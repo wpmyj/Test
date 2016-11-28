@@ -232,15 +232,20 @@ void CPage_Base::UpdateControls(void)
 		m_combo_scanside.SetCurSel(nCapIndex);  // 显示默认值
 	}
 
-	//// 对比度 m_slider_contrast
-	//nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
-	//lstCapValues = m_pUI->GetValidCap(CAP_DUPLEXENABLED);
+	// 对比度 
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_CONTRAST);
+	m_slider_contrast.SetPos(nCapIndex);
 
-	//m_slider_contrast.SetPos(nCapIndex);
+	// 亮度 
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_BRIGHTNESS);
+	m_slider_brightness.SetPos(nCapIndex);
 
-	//m_edit_contrast.GetWindowText(str);
-	//int nval = _ttoi(str);
-	//m_slider_contrast.SetPos(nval);
+	// 阈值 
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_THRESHOLD);
+	/*CString str;
+	str.Format("%d",nCapIndex);
+	AfxMessageBox(str);*/
+	m_slider_threshold.SetPos(nCapIndex);
 
 	InitComboPixType();
 
@@ -257,7 +262,7 @@ BOOL CPage_Base::OnInitDialog()
 	
 	InitSliderCtrl();
 	InitComboProfile();
-	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
+	//InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
 	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
@@ -271,15 +276,15 @@ void CPage_Base::InitSliderCtrl()
 {
 	m_slider_contrast.SetRange(SLIDER_MIN,SLIDER_MAX);
 	m_slider_contrast.SetTicFreq(1);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
-	m_slider_contrast.SetPos(0);
+	//m_slider_contrast.SetPos(0);
 
 	m_slider_brightness.SetRange(SLIDER_MIN,SLIDER_MAX);
 	m_slider_brightness.SetTicFreq(1);
-	m_slider_brightness.SetPos(0);//设置为中间
+	//m_slider_brightness.SetPos(0);//设置为中间
 
 	m_slider_threshold.SetRange(SLIDER_MIN_THRESHOLD,SLIDER_MAX_THRESHOLD);
 	m_slider_threshold.SetTicFreq(1);
-	m_slider_threshold.SetPos(128); //设置位置为默认值128
+	//m_slider_threshold.SetPos(128); //设置位置为默认值128
 
 	UpdateData(FALSE);  // 更新控件
 }
