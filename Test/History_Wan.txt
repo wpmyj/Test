@@ -117,3 +117,6 @@ date 16.11.28
 数据的大小，导致memcpy失败;解决方法就是将程序中的BitsPerPixel改为8;
 5.CScanner_OpenCV中添加SetThreshold()与ContrastAndBright()两个函数,
 分别用于阈值设置与亮度或对比度调整;
+6.修改CScanner_OpenCV::ContrastAndBright();
+7.修改CTWAINDS_Base::dat_capability()用来重置CTWAINContainerFix32型CAP;
+

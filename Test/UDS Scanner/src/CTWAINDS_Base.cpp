@@ -308,7 +308,7 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
       }
     }
 
-		// 重置CTWAINContainerBool型C
+		// 重置CTWAINContainerBool型Caps
 		CTWAINContainerBool   *pBoolCapSC   = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_SUPPORTEDCAPS));
 		if(!pBoolCapSC)
 		{
@@ -319,10 +319,9 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
 
 		twrc = TWRC_SUCCESS;
 		const int nSizeB = (int)(listBools.size());
-		int xB;
-		for(xB = 0; xB < nSizeB; ++xB)
+		for(x = 0; x < nSizeB; ++x)
 		{
-			int Cap = listBools[xB];
+			int Cap = listBools[x];
 			if(NULL != (pCap = findCapability(Cap)))
 			{
 				if(pCap->isOperationAllowed(MSG_RESET))
@@ -335,6 +334,34 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
 				}
 			}
 		}
+
+		// 重置CTWAINContainerFix32型Caps
+		CTWAINContainerFix32   *pFix32CapSC   = dynamic_cast<CTWAINContainerFix32*>(findCapability(CAP_SUPPORTEDCAPS));
+		if(!pFix32CapSC)
+		{
+			setConditionCode(TWCC_BADCAP);
+			return TWRC_FAILURE;
+		}
+		const FloatVector listFix32s = pFix32CapSC->GetSupported();
+
+		twrc = TWRC_SUCCESS;
+		const int nSizeF = (int)(listFix32s.size());
+		for(x = 0; x < nSizeF; ++x)
+		{
+			int Cap = (int)listFix32s[x];
+			if(NULL != (pCap = findCapability(Cap)))
+			{
+				if(pCap->isOperationAllowed(MSG_RESET))
+				{
+					if(!pCap->Reset())
+					{
+						setConditionCode(TWCC_CAPUNSUPPORTED);
+						twrc = TWRC_FAILURE;
+					}
+				}
+			}
+		}
+
   }
   else
   {

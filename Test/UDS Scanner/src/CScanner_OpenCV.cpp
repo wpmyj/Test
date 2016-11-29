@@ -264,13 +264,13 @@ bool CScanner_OpenCV::preScanPrep()
 		MedianSmooth();
 	}
 
-	//// 对比度和亮度
-	//if (m_nPixelType != TWPT_BW)
-	//{
-	//	Mat matTemp;
-	//	ContrastAndBright(&m_mat_image, &matTemp, (int)m_fBrightness, (int)m_fContrast);
-	//	matTemp.copyTo(m_mat_image);
-	//}
+	// 对比度和亮度
+	if (m_nPixelType != TWPT_BW)
+	{
+		Mat matTemp;
+		ContrastAndBright(&matTemp, &m_mat_image, (int)m_fBrightness , (int)m_fContrast);
+		matTemp.copyTo(m_mat_image);
+	}
 
 	//颜色
 	if(m_nPixelType != TWPT_RGB)
@@ -285,7 +285,7 @@ bool CScanner_OpenCV::preScanPrep()
 				dstImage.create(m_mat_image.size(), m_mat_image.type());
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
-				SetThreshold((int)m_fThreshold);  
+				SetThreshold((int)m_fThreshold);  // 设置阈值
 				break;
 			}		
 		case TWPT_GRAY: {			
@@ -487,7 +487,7 @@ void CScanner_OpenCV::vMirrorTrans(const Mat &src, Mat &dst)
 bool CScanner_OpenCV::ContrastAndBright(Mat *pdstImage,Mat *psrcImage,
 	int nBrightValue,int nContraValue)
 {
-
+	nContraValue += 100; // 界面与OpenCV统一
 	*pdstImage = Mat::zeros(psrcImage->size(), psrcImage->type());   //将g_srcImage的大小和格式赋给g_dstImage
 
 	//三个for循环，执行运算 g_dstImage(i,j) =a*g_srcImage(i,j) + b  
