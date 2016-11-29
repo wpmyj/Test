@@ -120,3 +120,9 @@ date 16.11.28
 6.修改CScanner_OpenCV::ContrastAndBright();
 7.修改CTWAINDS_Base::dat_capability()用来重置CTWAINContainerFix32型CAP;
 
+date 16.11.29
+------------------------------------------------------------
+@author wan
+1.完善类CDlg_Camera，添加大部分控件，并实现其响应函数；
+2.修改MFC_UI::DisplayTWAINGUI()，若设备编号=DEVICE_CAMERA,
+则始终显示视频界面；

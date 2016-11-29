@@ -1,4 +1,7 @@
 #pragma once
+#include "afxwin.h"
+#include "afxcmn.h"
+#include "UDSCapture.h"
 
 /**
 * @file   CDlg_Camera.h
@@ -24,4 +27,47 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
 	DECLARE_MESSAGE_MAP()
+public:
+	CComboBox m_cbCameraList;
+	CComboBox m_cbDocList;
+	CComboBox m_cbSizeList;
+	CComboBox m_cbImageType;
+
+	CButton m_bPhoto;
+	CButton m_bStop;
+	CButton m_bDelete;
+	CButton m_bHelp;
+
+	CStatic m_sPreviewWnd;
+	CStatic m_sPhotoNo;
+
+	CButton m_cAutoClip;
+	CButton m_cAutoEnhance;
+	CButton m_cAutoRotate;
+
+	CSliderCtrl m_slExposure;
+	CSliderCtrl m_slBrightness;
+
+public:
+	CUDSCapture m_Capture;
+	bool m_bIsHelp;
+	void MapDocSize();
+	virtual BOOL OnInitDialog();
+	void StartCamera();
+	afx_msg void OnButton_Photo();
+	afx_msg void OnButton_Stop();
+	afx_msg void OnButton_Camimage();
+	afx_msg void OnButton_Delete();
+	afx_msg void OnCbnSelchangeCombo_Cameralist();
+	afx_msg void OnCbnSelchangeCombo_Imagesize();
+	afx_msg void OnCbnSelchangeCombo_Imagetype();
+	afx_msg void OnCbnSelchangeCombo_Docsize();
+	afx_msg void OnCheck_Autophoto();
+	afx_msg void OnCheck_Autoenhance();
+	afx_msg void OnCheck_Autorotate();
+	afx_msg void OnButton_Adjust();
+	afx_msg void OnButton_Help();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnButton_Camvideo();
 };

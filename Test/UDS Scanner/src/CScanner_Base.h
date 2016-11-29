@@ -26,7 +26,7 @@ public:
   * Sets the scanners caps back to defaults.
   * @return true if successfully reset.
   */
-	virtual bool resetScanner() {return false;}
+	virtual bool resetScanner() {return true;}
 
   /**
   * Get a scan line and put it into the _ImageXfer, fill values in _ImageXfer.

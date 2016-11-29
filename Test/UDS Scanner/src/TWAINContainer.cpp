@@ -159,7 +159,7 @@ bool CTWAINContainer::isOperationAllowed(const TW_UINT16 _unMsg)
     case MSG_SET:	
       if(m_nMSG_QUERYSUPPORT & TWQC_SET)
       {
-				::MessageBox(g_hwndDLG,"MSG_SET","UDS",MB_OK);
+				//::MessageBox(g_hwndDLG,"MSG_SET","UDS",MB_OK);
         bret = true;
       }      
     break;

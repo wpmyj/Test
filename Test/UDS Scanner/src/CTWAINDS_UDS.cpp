@@ -116,29 +116,33 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	case DEVICE_FREEIMAGE:
 		{
 			m_pScanner = new CScanner_FreeImage;
-		}
-		break;
+			break;
+		}		
 	case DEVICE_G6400:
 		{
 			m_pScanner = new CScanner_G6400;
+			break;
 			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
 		}
-		break	;
 	case DEVICE_OPENCV:
 		{
 			m_pScanner = new CScanner_OpenCV;
+			break;
+		}		
+	case DEVICE_CAMERA:
+		{
+			m_pScanner = new CScanner_Base;
+			//::MessageBox(g_hwndDLG,TEXT("未实现!"),MB_CAPTION,MB_OK);
+			break;
 		}
-		break;
-
 	default:
 		{
 			::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
-		}
-		break;
-	}//wan
-  return;
-	
-	
+			break;
+		}		
+	}
+
+	return;
 }
 
 bool CTWAINDS_UDS::StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx, TW_UINT16 unContType)

@@ -7,7 +7,7 @@
 
 #include "TWAIN_UI.h"
 //#include "Dlg_UI.h"
-
+#include "CDlg_Camera.h"
 class CSheet_Scanner;
 
 /**
@@ -49,7 +49,7 @@ public:
 
 	//CDlg_UI *m_pDlg;  
   CSheet_Scanner *m_pSheet;  ///< ÊôÐÔÒ³¶Ô»°¿ò
-
+	CDlg_Camera*    m_pDlgCamera; 
 };
 
 #endif // __MFC_UI_H__

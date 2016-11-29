@@ -2,6 +2,7 @@
 //#include "UDS Scanner.h"
 #include "Sheet_Scanner.h"  // 必须放cpp文件中，因为重复包含
 #include "public.h"
+
 /**
 * @file   MFC_UI.cpp
 * @brief This is a brief description.
@@ -58,6 +59,12 @@ MFC_UI::~MFC_UI(void)
 		//AfxMessageBox("MFC 析构");
 	}
 
+	if (m_pDlgCamera)
+	{
+		delete m_pDlgCamera;
+		m_pDlgCamera = NULL;
+	}
+
 }
 
 TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndicators)
@@ -81,49 +88,67 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	HWND hMainWnd =  (HWND)Data.hParent;
 	CWnd *pMainWnd = CWnd::FromHandle(hMainWnd);
 	
-	if(Data.ShowUI)
+	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		switch (g_nDeviceNumber)
+		m_pDlgCamera = new CDlg_Camera;
+		if (m_pDlgCamera)
 		{
-		case DEVICE_OPENCV:
-		case DEVICE_FREEIMAGE:
-			{
-				m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
-				if (m_pSheet)
-				{
-					m_pSheet->DoModal();
-				} 
-				else 
-				{
-					return TWRC_FAILURE;
-				}
-				break;
-			}
-			
-		case DEVICE_G6400:
-			{
-				m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
-				if (m_pSheet) 
-				{
-					m_pSheet->Create(pMainWnd);
-					m_pSheet->ShowWindow(SW_SHOW);
-					g_hwndSheet = m_pSheet->GetSafeHwnd();
-				} 
-				else 
-				{
-					return TWRC_FAILURE;
-				}
-				break;
-			}
-			
-		default:
-			{
-				::MessageBox(g_hwndDLG,"不支持的设备！",MB_CAPTION,MB_OK);
-				return TWRC_FAILURE;
-				break;
-			}
+			//::MessageBox(g_hwndDLG,TEXT("before Create!"),MB_CAPTION,MB_OK);
+			m_pDlgCamera->Create(CDlg_Camera::IDD,pMainWnd);
+			m_pDlgCamera->ShowWindow(SW_SHOW);
+		} 
+		else
+		{
+			return TWRC_FAILURE;
 		}
+	}
+	else
+	{
+		if(Data.ShowUI)
+		{
+			switch (g_nDeviceNumber)
+			{
+			case DEVICE_OPENCV:
+			case DEVICE_FREEIMAGE:
+				{
+					m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
+					if (m_pSheet)
+					{
+						m_pSheet->DoModal();
+					} 
+					else 
+					{
+						return TWRC_FAILURE;
+					}
+					break;
+				}			
+			case DEVICE_G6400:
+				{
+					m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
+					if (m_pSheet) 
+					{
+						m_pSheet->Create(pMainWnd);
+						m_pSheet->ShowWindow(SW_SHOW);
+						g_hwndSheet = m_pSheet->GetSafeHwnd();
+					} 
+					else 
+					{
+						return TWRC_FAILURE;
+					}
+					break;
+				}
+			default:
+				{
+					::MessageBox(g_hwndDLG,TEXT("不支持的设备！"),MB_CAPTION,MB_OK);
+					return TWRC_FAILURE;
+					break;
+				}
+			}
 
+	}
+
+
+	
 
 		//} 
 		/*else
@@ -140,17 +165,10 @@ void MFC_UI::DestroyTWAINGUI()
 {
 	CTWAIN_UI::DestroyTWAINGUI();
 
-	/*if(m_pDlg)
-	{
-		delete m_pDlg;
-		m_pDlg = NULL;
-	}*/
-
 	if (m_pSheet)
 	{
 		delete m_pSheet;
 		m_pSheet = NULL;	
-		//AfxMessageBox("MFC::DestroyTWAINGUI");
 	}
 	
 }

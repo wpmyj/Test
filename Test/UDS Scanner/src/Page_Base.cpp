@@ -131,9 +131,9 @@ void CPage_Base::SetCapValue(void)
 		case CAP_DUPLEXENABLED:
 		case UDSCAP_MULTIFEEDDETECT:
 			{
-				CString str;
+			/*	CString str;
 				str.Format("%d", (int)iter->second);
-				AfxMessageBox(str);
+				AfxMessageBox(str);*/
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
 				break;
 			}	
@@ -242,8 +242,8 @@ void CPage_Base::UpdateControls(void)
 
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
-	strText.Format("%d",nCapValue);
-	AfxMessageBox(strText);
+	/*strText.Format("%d",nCapValue);
+	AfxMessageBox(strText);*/
 	m_check_multifeeddetect.SetCheck(nCapValue);
 
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
