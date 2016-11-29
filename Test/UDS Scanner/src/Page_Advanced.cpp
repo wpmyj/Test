@@ -120,14 +120,36 @@ void CPage_Advanced::SetCapValue(void)
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
 				break;
-			}
+			}	
+		
 
 		case ICAP_GAMMA: //Gamma校正
-		case UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS: //去除斑点
-		case ICAP_BRIGHTNESS: //亮度
-		case ICAP_CONTRAST: //对比度
 			{
 				m_pUI->SetCapValueFloat(iter->first,iter->second);
+				break;
+			}
+		case UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS: //去除斑点
+			{
+				if(m_slider_sensitive_threshold.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}	
+				break;
+			}
+		case ICAP_BRIGHTNESS: //亮度
+			{
+				if(m_slider_brightness.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}
+				break;
+			}
+		case ICAP_CONTRAST: //对比度
+			{
+				if(m_slider_contrast.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}
 				break;
 			}
 
@@ -435,6 +457,44 @@ void CPage_Advanced::UpdateControls(void)
 	m_slider_gamma.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	m_edit_gamma.SetWindowText(strText);
+
+	//去除空白页 -1自动;-2不可用
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES));
+	if(-1 == nCapValue)
+	{
+		m_check_removeblank.SetCheck(TRUE);
+	}
+	else
+	{
+		m_check_removeblank.SetCheck(FALSE);
+	}
+
+	//去除穿孔等
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PUNCHHOLEREMOVEL));
+	m_check_removepunch.SetCheck(nCapValue);
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_SHARPEN));
+	m_check_sharpen.SetCheck(nCapValue);
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MIRROR));
+	m_check_mirror.SetCheck(nCapValue);
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBACKGROUND));
+	m_check_removeback.SetCheck(nCapValue);
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DESCREEN));
+	m_check_removedescreen.SetCheck(nCapValue);
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DENOISE));
+	m_check_removedenoise.SetCheck(nCapValue); 
+
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_AUTOCROP));
+	m_check_autocrop.SetCheck(nCapValue);
+
+	//多流输出：默认不使用
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	m_check_multistream.SetCheck(nCapValue);
+	
 }
 
 
@@ -444,15 +504,14 @@ void CPage_Advanced::UpdateControls(void)
 BOOL CPage_Advanced::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
-	
+
 	// TODO:  在此添加额外的初始化
+	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());
+
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
-
-	//多流输出下的选项默认不使用
-	m_check_multistream.SetCheck(FALSE);
-	SetMultistream();
-
 	UpdateControls();
+
+	SetMultistream();
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -1359,4 +1418,3 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_AUTOCROP, (float)nval));
 	m_advancedmap[UDSCAP_AUTOCROP] = (float)nval;
 }
-

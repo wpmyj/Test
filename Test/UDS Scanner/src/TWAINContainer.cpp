@@ -38,6 +38,7 @@
 
 
 #include "CommonDS.h"
+extern HWND g_hwndDLG;
 
 CTWAINContainer::CTWAINContainer(const TW_UINT16 _unCapID, 
                                  const TW_UINT16 _unItemType, 
@@ -155,9 +156,10 @@ bool CTWAINContainer::isOperationAllowed(const TW_UINT16 _unMsg)
       }
     break;
 
-    case MSG_SET:
+    case MSG_SET:	
       if(m_nMSG_QUERYSUPPORT & TWQC_SET)
       {
+				::MessageBox(g_hwndDLG,"MSG_SET","UDS",MB_OK);
         bret = true;
       }      
     break;

@@ -86,6 +86,8 @@ public:
   bool SetCapValueFloat(const TW_UINT16 _unCap, float fVal);
   bool SetCapValueInt(const TW_UINT16 _unCap, int nVal);
 
+	bool GetCapValueBool(const TW_UINT16 _unCap); //zhu
+
   /**
   * Initialize combobox with profile names
   * @param[in] pcbxProfiles a pointer to CComboBox. 

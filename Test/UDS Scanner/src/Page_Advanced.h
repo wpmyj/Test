@@ -137,5 +137,4 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_RemoveDenoise();
 	afx_msg void OnAdvanced_Btn_Check_RemoveDescreen();
 	afx_msg void OnAdvanced_Btn_Check_AutoCrop();
-
 };

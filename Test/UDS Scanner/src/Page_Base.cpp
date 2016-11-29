@@ -131,6 +131,9 @@ void CPage_Base::SetCapValue(void)
 		case CAP_DUPLEXENABLED:
 		case UDSCAP_MULTIFEEDDETECT:
 			{
+				CString str;
+				str.Format("%d", (int)iter->second);
+				AfxMessageBox(str);
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
 				break;
 			}	
@@ -207,7 +210,7 @@ void CPage_Base::UpdateControls(void)
 	// 单面/双面扫
 	// @see CTWAINDS_FreeIMage.cpp Line 675
 	m_combo_scanside.ResetContent();  // 清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED); //1
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED); 
 	lstCapValues = m_pUI->GetValidCap(CAP_DUPLEXENABLED);
 	if(lstCapValues && lstCapValues->size()>0)
 	{
@@ -237,6 +240,12 @@ void CPage_Base::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	m_edit_threshold.SetWindowText(strText);
 
+	//重张检测：默认使用
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
+	strText.Format("%d",nCapValue);
+	AfxMessageBox(strText);
+	m_check_multifeeddetect.SetCheck(nCapValue);
+
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
 	UpdateData(FALSE);
@@ -251,9 +260,9 @@ BOOL CPage_Base::OnInitDialog()
 	// TODO:  在此添加额外的初始化	
 	InitSliderCtrl();
 	UpdateControls();
+
 	InitComboProfile();
 
-	m_check_multifeeddetect.SetCheck(TRUE); //默认设置选中重张检测
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -579,12 +588,14 @@ void CPage_Base::OnClicked_Check_Multifeeddetect()
 	// TODO: 在此添加控件通知处理程序代码
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
+		AfxMessageBox("点中");
 		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 1.0f));
 		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
 		m_basemap[UDSCAP_MULTIFEEDDETECT] = 1.0f;
 	} 
 	else
 	{
+		AfxMessageBox("未点中");
 		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 0.0f));
 		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);
 		m_basemap[UDSCAP_MULTIFEEDDETECT] = 0.0f;

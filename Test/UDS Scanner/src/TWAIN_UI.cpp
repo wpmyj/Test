@@ -318,6 +318,30 @@ float CTWAIN_UI::GetCapValueFloat(const TW_UINT16 _unCap)
   return 0;
 }
 
+//zhu
+bool CTWAIN_UI::GetCapValueBool(const TW_UINT16 _unCap)
+{
+	CTWAINContainer  *pfCap = m_pDS->findCapability(_unCap);
+	if(pfCap==NULL)
+	{
+		assert(0);
+		return 0;//@TODO
+	}
+
+	bool bVal;
+	if(typeid(*pfCap) == typeid(CTWAINContainerBool))
+	{
+		CTWAINContainerBool *pfBoolCap = (CTWAINContainerBool*)pfCap;
+		if(pfBoolCap->GetCurrent(bVal))
+		{
+			return bVal;
+		}
+	}
+	
+	assert(0);
+	return 0;
+}
+
 bool CTWAIN_UI::SetCurrentFrame(float fTop, float fLeft, float fBottom, float fRight)
 {
 

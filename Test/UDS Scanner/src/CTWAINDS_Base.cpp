@@ -362,23 +362,23 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
 			}
 		}
 
+		// check for invalid args
+		if(0 == _pCap)
+		{
+			setConditionCode(TWCC_BADVALUE);
+			return TWRC_FAILURE;
+		}
+
   }
   else
   {
-    // check for invalid args
-    if(0 == _pCap)
-    {
-      setConditionCode(TWCC_BADVALUE);
-      return TWRC_FAILURE;
-    }
-
     // first find the capability
     CTWAINContainer* pCap = findCapability(_pCap->Cap);
 
     // Now handle the cap if one was found
     if(0 != pCap)
     {
-			//::MessageBox(g_hwndDLG,TEXT("0 != pCap"),MB_CAPTION,MB_OK);
+			//::MessageBox(g_hwndDLG,"GetGustomDSData",MB_CAPTION,MB_OK);
       twrc = handleCap(_MSG, pCap, _pCap);
       // when some capabilities are successfully changed with Set or Reset 
       // it requires changing others
@@ -892,6 +892,7 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
     // first check if the operation is allowed on this container
     if(!_pContainer->isOperationAllowed(_MSG))
     {
+			//::MessageBox(g_hwndDLG,"isOperationAllowed(","UDS",MB_OK);
       setConditionCode(TWCC_CAPBADOPERATION);
       return TWRC_FAILURE;
     }

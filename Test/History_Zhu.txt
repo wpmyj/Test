@@ -281,7 +281,7 @@ date 16.11.25
 2、增加void SetCapValue(void);函数用于保存六个常用的模板
 3、修改界面显示的值得读取方式，从默认给值改为从容器读值；
 
-date 16.11.25
+date 16.11.28
 ------------------------------------------------------------
 @author zhu
 1、修改map的插入方式，从用insert函数插入value_type数据方式改为用数组方式插入数据；能够修改亮度等值，成功扫描(问题在于用insert时，key与value(键值与数据)的插入上涉及到集合的唯一性，即当map中有这个关键字时，insert操作是插入不了数据的，但是用数组方式不同，它是以覆盖以前关键字对应的值得方式插入的)
@@ -289,3 +289,11 @@ date 16.11.25
 3、修改基本与高级界面的UpdateControls()与InitSliderCtrl();
 4、增加底色保留Cap---UDSCAP_SENSITIVETHRESHOLD_COLORRETENT，以及去除斑点Cap---UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,删除CAP---UDSCAP_SENSITIVETHRESHOLD；
 5、遗留一个问题：高级设置界面的参数不返回默认模板
+
+date 16.11.29
+------------------------------------------------------------
+@author zhu
+1、解决“修改基本界面的亮度、对比参数，然后从高级扫描，参数设置无效”的问题：因为在基本的OnOK中先设置了亮度，然后再设置了高级界面的SetCapValue，此时这两个参数没有同步，高级仍是上一个模板的值，就又给重新设置回去了；修改办法是在高级的SetCapValue的亮度、对比度加上了判断语句，当且仅当滑动条可用时才SetCapValueFloat；
+2、增加CTWAIN_UI::GetCapValueBool()
+3、修改几个checkBox的读取方式，从默认代码设置改为从容器读取
+4、遗留一个问题：checkbox当前模板的状态未保存
