@@ -32,7 +32,7 @@ void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_STOP, m_bStop);
 	DDX_Control(pDX, IDC_BUTTON_DELETE, m_bDelete);
 	DDX_Control(pDX, IDC_BUTTON_HELP, m_bHelp);
-	DDX_Control(pDX, IDC_STATIC_PREVIEWWND, m_sPreviewWnd);
+	DDX_Control(pDX, IDC_STATIC_UI, m_sPreviewWnd);
 	DDX_Control(pDX, IDC_STATIC_PHOTONO, m_sPhotoNo);
 	DDX_Control(pDX, IDC_CHECK_AUTOPHOTO, m_cAutoClip);
 	DDX_Control(pDX, IDC_CHECK_AUTOENHANCE, m_cAutoEnhance);
@@ -427,7 +427,7 @@ void CDlg_Camera::OnButton_Help()
 		strHelp += errMsg;
 		}*/
 		strHelp += "\n                                     点击【返回】按钮结束帮助";
-		::MessageBox(this->m_hWnd,TEXT("SetWindowText!"),MB_CAPTION,MB_OK);
+		//::MessageBox(this->m_hWnd,TEXT("SetWindowText!"),MB_CAPTION,MB_OK);
 		m_sPreviewWnd.SetWindowText(strHelp);
 	}
 }

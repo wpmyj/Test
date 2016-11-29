@@ -126,3 +126,4 @@ date 16.11.29
 1.完善类CDlg_Camera，添加大部分控件，并实现其响应函数；
 2.修改MFC_UI::DisplayTWAINGUI()，若设备编号=DEVICE_CAMERA,
 则始终显示视频界面；
+3.将视频预览控价有、由picture改为static用以显示文本;

@@ -54,6 +54,8 @@ public:
 	void MapDocSize();
 	virtual BOOL OnInitDialog();
 	void StartCamera();
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
 	afx_msg void OnButton_Camimage();
@@ -67,7 +69,6 @@ public:
 	afx_msg void OnCheck_Autorotate();
 	afx_msg void OnButton_Adjust();
 	afx_msg void OnButton_Help();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnButton_Camvideo();
 };
