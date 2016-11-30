@@ -131,7 +131,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 		}		
 	case DEVICE_CAMERA:
 		{
-			m_pScanner = new CScanner_Base;
+			m_pScanner = new CCamera_DirectX;
 			//::MessageBox(g_hwndDLG,TEXT("Î´ÊµÏÖ!"),MB_CAPTION,MB_OK);
 			break;
 		}
@@ -1269,11 +1269,11 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
       _pImageInfo->BitsPerSample[0] = 1;
 			if (DEVICE_OPENCV == g_nDeviceNumber)
 			{
-				pImageInfo->BitsPerPixel = 8;
+				_pImageInfo->BitsPerPixel = 8;
 			} 
 			else
 			{
-				pImageInfo->BitsPerPixel = 1;
+				_pImageInfo->BitsPerPixel = 1;
 			}
     break;
 
@@ -1490,7 +1490,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
+{::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1645,7 +1645,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
   {
     DWORD nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
     DWORD nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
-
+		/*char buf[10];
+		itoa(nImageSize, buf, 10);
+		::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);*/
     //If we had a previous image then get rid of it.
     if(m_hImageData)
     {
@@ -1692,6 +1694,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 				pImageData += dwReceived;
 			}
 			break;
+		case DEVICE_CAMERA:
 		case DEVICE_OPENCV:
 			{
 				m_pScanner->GetImageData(pImageData,dwReceived);
@@ -2624,7 +2627,7 @@ TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType
 }
 
 bool CTWAINDS_UDS::StartScanning()
-{//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
+{::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {

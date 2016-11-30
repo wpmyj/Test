@@ -6,10 +6,9 @@
 #define __MFC_UI_H__
 
 #include "TWAIN_UI.h"
-//#include "Dlg_UI.h"
-#include "CDlg_Camera.h"
+//#include "CDlg_Camera.h"
 class CSheet_Scanner;
-
+class CDlg_Camera;
 /**
 * @file   MFC_UI.h
 * @brief This is a brief description.
@@ -48,8 +47,8 @@ public:
 public:
 
 	//CDlg_UI *m_pDlg;  
-  CSheet_Scanner *m_pSheet;  ///< 属性页对话框
-	CDlg_Camera*    m_pDlgCamera; 
+  CSheet_Scanner* m_pSheet;  ///< 属性页对话框
+	CDlg_Camera*    m_pDlgCamera; ///< 摄像头对话框
 };
 
 #endif // __MFC_UI_H__

@@ -14,6 +14,7 @@
 #include "CTWAINDS_Base.h"
 #include "CScanner_FreeImage.h"
 #include "CScanner_OpenCV.h"
+#include "Camera_DirectX.h"
 
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{A4FAF845-1383-4036-AEDC-17C3968188B4}"

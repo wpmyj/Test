@@ -14,12 +14,27 @@
 
 /** INI节常量 */
 #define INI_APP_DEVICE TEXT("Device")
+#define INI_APP_CAMERASETTING TEXT("Camera Setting")
 
 /** INI键(Key)常量 */
 #define INI_KEY_DEVICENUMBER TEXT("DeviceNumber")
+#define INI_KEY_CAMERA TEXT("Camera")
+#define INI_KEY_CAMFRAMESIZE TEXT("CamFrameSize")
+#define INI_KEY_CAMEXPOSURE TEXT("CamExposure")
+#define INI_KEY_CAMBRIGHTNESS TEXT("CamBrightness")
+#define INI_KEY_CAMIMAGETYPE TEXT("CamImageType")
+#define INI_KEY_CAMDOCSIZE TEXT("CamDocSize")
+#define INI_KEY_CAMDOCWIDTH TEXT("CamDocWidth")
+#define INI_KEY_CAMDOCHEIGHT TEXT("CamDocHeight")
+#define INI_KEY_CAMAUTOCLIP TEXT("CamAutoClip")
+#define INI_KEY_CAMAUTOENHANCE TEXT("CamAutoEnhance")
+#define INI_KEY_CAMORIENTATION TEXT("CamOrientation")
+#define INI_KEY_CAMAUTOROTATE TEXT("CamAutoRotate")
 
 /** 消息框标题或驱动名称 */    
 #define MB_CAPTION TEXT("UDS General TWAIN Scanner")
+
+
 
 /** 设备编号 */
 typedef enum DEVICE_NUMBER
@@ -29,6 +44,24 @@ typedef enum DEVICE_NUMBER
 	DEVICE_OPENCV     = 3,   /**< 基于OpenCV的虚拟扫描仪 */
 	DEVICE_CAMERA     = 4,   /**< 摄像头 */
 };
+
+
+///** INI文件中的Camera配置 */
+//struct INI_CAMERA
+//{
+//	CString Camera;
+//	CString CamFrameSize;
+//	long CamExposure;
+//	long CamBrightness;
+//	long CamImageType;
+//	long CamDocSize;
+//	long CamDocWidth;
+//	long CamDocHeight;
+//	long CamOrientation;
+//	bool CamAutoClip ;
+//	bool CamAutoEnhance;
+//	bool CamAutoRotate;
+//};
 
 
 #define UDSCAP_LONGDOCUMENT             CAP_CUSTOMBASE+1

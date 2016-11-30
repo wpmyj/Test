@@ -210,6 +210,7 @@ STDMETHODIMP CSGCallBack::BufferCB( double dblSampleTime, BYTE * pBuffer, long l
 	else  // 保存图像，再启动预览
 	{
 		SaveImage(pBuffer, lBufferSize);
+		//::MessageBox(NULL,TEXT("After SaveImage()!"),NULL,MB_OK);
 		m_pCapture->m_pEvent->SetNotifyWindow((OAHWND)(m_pCapture->m_hDlgWnd), WM_IMAGESAVED, 0);
 	}
 
@@ -603,8 +604,8 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 
 	// 播放音效
 	//AfxMessageBox("SaveImage");
-	sndPlaySound("SmartScan1.WAV", SND_ASYNC);
-	/*
+	//sndPlaySound("SmartScan1.WAV", SND_ASYNC);
+	
 	long nAllBytes = (m_nWidth*3  + 3) / 4 * 4;  // DIB;
 	BYTE *pDIB=NULL, *pNewBuffer=NULL;
 	long nDIBSize, nNewWidth, nNewHeight, nNewBytes;
@@ -1007,7 +1008,10 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 //		sndPlaySound("SmartScan2.WAV", SND_ASYNC);
 
 
-
+	//m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
+	//delete []pDIB;
+	
+	/*
 	// 处理并保存文档
 	CxImage *pImage = new CxImage();
 	pImage->CreateFromHANDLE( (HANDLE)pDIB );
@@ -1104,15 +1108,15 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	}
 	delete pImage;
 	CFile hf(fileName, CFile::modeRead);  hf.Close();  // Flush file
-
+	*/
 	// 添加到临时文件列表
 //	theApp.m_tempFileList.Add(fileName);  // Add image to file list
 //	theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
 //	theApp.m_nTempFileCount += 1;  // 临时文件名编号
 	  m_nTempFileCount += 1;
 //	m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
-	m_pCapture->m_nPhotoNo++;
-		*/
+		m_pCapture->m_nPhotoNo++;
+		
 	return TRUE;
 
 }

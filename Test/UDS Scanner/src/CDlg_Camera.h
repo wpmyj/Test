@@ -2,7 +2,7 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "UDSCapture.h"
-
+#include "MFC_UI.h"
 /**
 * @file   CDlg_Camera.h
 * @brief 摄像头界面.
@@ -12,12 +12,29 @@
 */ 
 // CDlg_Camera 对话框
 
+/** INI文件中的Camera配置 */
+struct INI_CAMERA
+{
+	CString Camera;
+	CString CamFrameSize;
+	long CamExposure;
+	long CamBrightness;
+	long CamImageType;
+	long CamDocSize;
+	long CamDocWidth;
+	long CamDocHeight;
+	long CamOrientation;
+	bool CamAutoClip ;
+	bool CamAutoEnhance;
+	bool CamAutoRotate;
+};
+
 class CDlg_Camera : public CDialogEx
 {
 	DECLARE_DYNAMIC(CDlg_Camera)
 
 public:
-	CDlg_Camera(CWnd* pParent = NULL);   // 标准构造函数
+	CDlg_Camera(MFC_UI *pUI,CWnd* pParent = NULL);   // 重载构造函数
 	virtual ~CDlg_Camera();
 
 // 对话框数据
@@ -48,12 +65,28 @@ public:
 	CSliderCtrl m_slExposure;
 	CSliderCtrl m_slBrightness;
 
-public:
+	INI_CAMERA m_ini; ///< 保存配置文件信息
+
+private:
+	MFC_UI *m_pUI;
+
+	
+protected:
 	CUDSCapture m_Capture;
 	bool m_bIsHelp;
 	void MapDocSize();
 	virtual BOOL OnInitDialog();
 	void StartCamera();
+
+	/**
+	*  @brief  设置Cap的值
+	*/
+	void SetCapValue(void);
+
+	/**
+	*  @brief  从INI文件中读取相机配置
+	*/
+	void ReadCameraSettingFromINI();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
@@ -71,4 +104,6 @@ public:
 	afx_msg void OnButton_Help();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnButton_Camvideo();
+public:
+	afx_msg void OnOk();
 };

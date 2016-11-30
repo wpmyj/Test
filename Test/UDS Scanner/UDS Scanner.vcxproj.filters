@@ -135,6 +135,9 @@
     <ClCompile Include="src\SGCallBack.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Camera_DirectX.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -261,6 +264,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\SGCallBack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera_DirectX.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

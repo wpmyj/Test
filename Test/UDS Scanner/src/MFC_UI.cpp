@@ -2,7 +2,7 @@
 //#include "UDS Scanner.h"
 #include "Sheet_Scanner.h"  // 必须放cpp文件中，因为重复包含
 #include "public.h"
-
+#include "CDlg_Camera.h"
 /**
 * @file   MFC_UI.cpp
 * @brief This is a brief description.
@@ -90,7 +90,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	
 	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		m_pDlgCamera = new CDlg_Camera;
+		m_pDlgCamera = new CDlg_Camera(this);
 		if (m_pDlgCamera)
 		{
 			//::MessageBox(g_hwndDLG,TEXT("before Create!"),MB_CAPTION,MB_OK);

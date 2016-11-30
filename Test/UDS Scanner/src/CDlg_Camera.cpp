@@ -7,12 +7,13 @@
 #include "afxdialogex.h"
 #include "public.h"
 
+extern void GetIniFilePath(char* szINIPath);
 // CDlg_Camera 对话框
 
 IMPLEMENT_DYNAMIC(CDlg_Camera, CDialogEx)
 
-CDlg_Camera::CDlg_Camera(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDlg_Camera::IDD, pParent)
+CDlg_Camera::CDlg_Camera(MFC_UI* pUI, CWnd* pParent /*=NULL*/)
+	:m_pUI(pUI), CDialogEx(CDlg_Camera::IDD, pParent)
 {
 
 }
@@ -58,6 +59,7 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_HELP, &CDlg_Camera::OnButton_Help)
 	ON_WM_HSCROLL()
 	ON_BN_CLICKED(IDC_BUTTON_CAMVIDEO, &CDlg_Camera::OnButton_Camvideo)
+	ON_BN_CLICKED(IDOK, &CDlg_Camera::OnOk)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -85,8 +87,8 @@ void CDlg_Camera::MapDocSize()
 		m_Capture.m_Auto.docHeight = 25;
 		break;
 	default:  // 自定义
-		//m_Capture.m_Auto.docWidth = m_pMainWnd->m_ini.CamDocWidth;  // 自定义手动拍摄宽度
-		//m_Capture.m_Auto.docHeight = m_pMainWnd->m_ini.CamDocHeight;  // 自定义手动拍摄高度
+		m_Capture.m_Auto.docWidth = m_ini.CamDocWidth;  // 自定义手动拍摄宽度
+		m_Capture.m_Auto.docHeight = m_ini.CamDocHeight;  // 自定义手动拍摄高度
 		break;
 	}
 }
@@ -100,6 +102,8 @@ BOOL CDlg_Camera::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
+	ReadCameraSettingFromINI();
+	//MessageBox("after ReadCameraSettingFromINI");
 
 	// Mysher Camera License
 	//theApp.CheckMysherLicense(theApp.m_OCXPath);  // 麦哲速拍仪信息存放在theApp中
@@ -114,16 +118,18 @@ BOOL CDlg_Camera::OnInitDialog()
 	//}
 
 	// 初始化界面选项: 图像类型、智能拍摄、自动旋转、文档增强
-	m_cbImageType.AddString("彩色");  // Set m_cbImageType
-	m_cbImageType.AddString("灰度");
+	m_cbImageType.InsertString(0, "彩色");  // Set m_cbImageType
+	m_cbImageType.InsertString(1, "灰度");
 	//m_cbImageType.AddString("自动");
-	//if (m_pMainWnd->m_ini.CamImageType == 1)  // 灰度
-	//	m_Capture.m_Auto.imageType = 1;
-	//else //if (m_pMainWnd->m_ini.CamImageType == 2)  // 彩色
-	//	m_Capture.m_Auto.imageType = 0;
+	if (m_ini.CamImageType == 1) { // 灰度
+		m_Capture.m_Auto.imageType = 1;
+	}
+	else {//if (m_pMainWnd->m_ini.CamImageType == 2)  // 彩色
+		m_Capture.m_Auto.imageType = 0;
+	}
 	m_cbImageType.SetCurSel(m_Capture.m_Auto.imageType);
 
-	//m_Capture.m_Auto.autoClip = m_pMainWnd->m_ini.CamAutoClip;
+	m_Capture.m_Auto.autoClip = m_ini.CamAutoClip;
 	if (m_Capture.m_Auto.autoClip == true)  // Set m_cAutoClip: 智能裁剪-旋转拍摄
 	{
 		m_cAutoClip.SetCheck(BST_CHECKED);
@@ -134,33 +140,33 @@ BOOL CDlg_Camera::OnInitDialog()
 		m_cAutoClip.SetCheck(BST_UNCHECKED);
 		m_cbDocList.EnableWindow(TRUE);
 	}
-	//m_Capture.m_Auto.autoRotate = m_pMainWnd->m_ini.CamAutoRotate;
+	m_Capture.m_Auto.autoRotate = m_ini.CamAutoRotate;
 	if (m_Capture.m_Auto.autoRotate == true)  // Set m_cAutoRotate: 自动文档旋转
 		m_cAutoRotate.SetCheck(BST_CHECKED);
 	else
 		m_cAutoRotate.SetCheck(BST_UNCHECKED);
-	//m_Capture.m_Auto.autoEnhance = m_pMainWnd->m_ini.CamAutoEnhance;
+	m_Capture.m_Auto.autoEnhance = m_ini.CamAutoEnhance;
 	if (m_Capture.m_Auto.autoEnhance == true)  // Set m_cAutoEnhance: 自动文档增强
 		m_cAutoEnhance.SetCheck(BST_CHECKED);
 	else
 		m_cAutoEnhance.SetCheck(BST_UNCHECKED);
-	m_cbDocList.AddString("A3 420×297mm");  // Set m_cbDocList
-	m_cbDocList.AddString("A4 297×210mm");
-	m_cbDocList.AddString("B5 257×182mm");
-	m_cbDocList.AddString("A5 210×148cm");
-	m_cbDocList.AddString("身份证 95×60mm");
-	m_cbDocList.AddString("自定义");
-	//m_Capture.m_Auto.docSize = m_pMainWnd->m_ini.CamDocSize;
+	m_cbDocList.InsertString(0, "A3 420×297mm");  // Set m_cbDocList
+	m_cbDocList.InsertString(1, "A4 297×210mm");
+	m_cbDocList.InsertString(2, "B5 257×182mm");
+	m_cbDocList.InsertString(3, "A5 210×148cm");
+	m_cbDocList.InsertString(4, "身份证 95×60mm");
+	m_cbDocList.InsertString(5, "自定义");
+	m_Capture.m_Auto.docSize = m_ini.CamDocSize;
 	m_cbDocList.SetCurSel(m_Capture.m_Auto.docSize);
 	MapDocSize();
 
 	// 初始化参数：摄像机、像素、预览方向
-	//m_Capture.m_Auto.strCamrea = m_pMainWnd->m_ini.Camera1;  // 默认摄像机
-	//m_Capture.m_Auto.strSize = m_pMainWnd->m_ini.CamFrameSize;  // 默认像素
-	//m_Capture.m_Auto.imageOrientation = m_pMainWnd->m_ini.CamOrientation;  // 默认预览方向
-	//m_Capture.m_Auto.fastPreview = m_pMainWnd->m_ini.CamFastPreview;
-	//// 初始化参数：条码类型、条码格式、图像文件路径、压缩比
-	//m_Capture.m_strBarcodeType = m_pMainWnd->m_ini.BarcodeType;
+	m_Capture.m_Auto.strCamrea = m_ini.Camera;  // 默认摄像机
+	m_Capture.m_Auto.strSize = m_ini.CamFrameSize;  // 默认像素
+	m_Capture.m_Auto.imageOrientation = m_ini.CamOrientation;  // 默认预览方向
+	//m_Capture.m_Auto.fastPreview = m_ini.CamFastPreview;
+	// 初始化参数：条码类型、条码格式、图像文件路径、压缩比
+	//m_Capture.m_strBarcodeType = m_ini.BarcodeType;
 	//m_Capture.m_strBarcodeFormat = m_pMainWnd->m_ini.BarcodeFormat;
 	//m_Capture.m_nBarcodeLength = m_pMainWnd->m_ini.BarcodeLength;
 	//m_Capture.m_bMultiBarcode = m_pMainWnd->m_ini.MultiBarcode;
@@ -171,8 +177,8 @@ BOOL CDlg_Camera::OnInitDialog()
 	//else
 	//	m_Capture.m_nQuality = m_pMainWnd->m_ini.Quality;  // Set m_nQuality
 
-	//m_Capture.m_nExposure = m_pMainWnd->m_ini.CamExposure;  // Set m_nExposure
-	//m_Capture.m_nBrightness = m_pMainWnd->m_ini.CamBrightness;  // Set m_nBrightness
+	m_Capture.m_nExposure = m_ini.CamExposure;  // Set m_nExposure
+	m_Capture.m_nBrightness =m_ini.CamBrightness;  // Set m_nBrightness
 
 	m_Capture.m_hDlgWnd = this->GetSafeHwnd();
 	m_Capture.m_hPreviewWnd = m_sPreviewWnd.GetSafeHwnd();
@@ -478,4 +484,79 @@ void CDlg_Camera::OnButton_Camvideo()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_Capture.ConfigCameraPin(this->m_hWnd);
+}
+
+void CDlg_Camera::SetCapValue(void)
+{
+
+}
+
+
+void CDlg_Camera::OnOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_pUI->m_bSetup)  // EnableDSOnly
+	{
+		m_pUI->Save();
+	}
+	else  
+	{
+		m_pUI->Scan();
+	}
+
+	CDialogEx::OnOK();
+}
+
+void CDlg_Camera::ReadCameraSettingFromINI()
+{
+	char szINIPath[MAX_PATH];  // INI文件路径
+
+	GetIniFilePath(szINIPath);
+
+	INI_CAMERA tempCamera;
+
+	tempCamera.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,0,szINIPath);
+	tempCamera.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,0,szINIPath);
+	tempCamera.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,0,szINIPath);
+	tempCamera.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,0,szINIPath);
+	tempCamera.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCWIDTH,0,szINIPath);
+	tempCamera.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCHEIGHT,0,szINIPath);
+	tempCamera.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,0,szINIPath);
+
+	int nTemp;
+	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,0,szINIPath);
+	if ( 1 == nTemp) {
+		tempCamera.CamAutoClip = true;
+	} 
+	else {
+		tempCamera.CamAutoClip = false;
+	}
+
+	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOENHANCE,0,szINIPath);
+	if ( 1 == nTemp) {
+		tempCamera.CamAutoEnhance = true;
+	} 
+	else {
+		tempCamera.CamAutoEnhance = false;
+	}
+
+	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOROTATE,0,szINIPath);
+	if ( 1 == nTemp) {
+		tempCamera.CamAutoRotate = true;
+	} 
+	else {
+		tempCamera.CamAutoRotate = false;
+	}
+
+  CString strTemp;
+	int nMaxLength = 512;
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERA,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	tempCamera.Camera = strTemp;
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMFRAMESIZE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	tempCamera.CamFrameSize = strTemp;
+	
+	strTemp.ReleaseBuffer(nMaxLength);
+	m_ini = tempCamera;
 }

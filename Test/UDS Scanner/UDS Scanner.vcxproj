@@ -152,6 +152,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\CTiffWriter.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp" />
+    <ClCompile Include="src\Camera_DirectX.cpp" />
     <ClCompile Include="src\CDlg_Camera.cpp" />
     <ClCompile Include="src\CommonDS.cpp" />
     <ClCompile Include="src\CommonFunc.cpp" />
@@ -197,6 +198,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
     <ClInclude Include="..\..\..\testfiles\pub\external\include\AVSDK.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\Camera_DirectX.h" />
     <ClInclude Include="src\CDlg_Camera.h" />
     <ClInclude Include="src\CommonDS.h" />
     <ClInclude Include="src\CommonFunc.h" />

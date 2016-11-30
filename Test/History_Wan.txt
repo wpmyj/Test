@@ -134,3 +134,6 @@ date 16.11.30
 @author wan
 1.修改CTWAINDS_UDS::getImageInfo(),用于判断设备序号=DEVICE_OPENCV时，
 将BitsPerPixel改为8，否则分派的内存空间不足;
+2.新建类CCamera_DirectX（基类为CScanner_Base）用于支持摄像头相关操作;
+3.实现从配置文件中读取摄像头设置;
+
