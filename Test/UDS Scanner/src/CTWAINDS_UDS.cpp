@@ -143,6 +143,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	}
 
 	return;
+	
 }
 
 bool CTWAINDS_UDS::StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx, TW_UINT16 unContType)
@@ -648,7 +649,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   }
 
 	//zhu 重张检测
-	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT]))
 		|| !pbCap->Add(FALSE)
 		|| !pbCap->Add(TRUE, true) )
@@ -660,7 +661,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	}
 
 	//多流输出
-	m_IndependantCapMap[UDSCAP_MULTISTREAM] = new CTWAINContainerBool(UDSCAP_MULTISTREAM, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_MULTISTREAM] = new CTWAINContainerBool(UDSCAP_MULTISTREAM, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTISTREAM]))
 		|| !pbCap->Add(TRUE) 
 		|| !pbCap->Add(FALSE, true) )
@@ -963,7 +964,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL] = new CTWAINContainerBool(UDSCAP_PUNCHHOLEREMOVEL, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL] = new CTWAINContainerBool(UDSCAP_PUNCHHOLEREMOVEL, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_PUNCHHOLEREMOVEL]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -974,7 +975,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_SHARPEN] = new CTWAINContainerBool(UDSCAP_SHARPEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_SHARPEN] = new CTWAINContainerBool(UDSCAP_SHARPEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_SHARPEN]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -985,7 +986,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_MIRROR] = new CTWAINContainerBool(UDSCAP_MIRROR, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_MIRROR] = new CTWAINContainerBool(UDSCAP_MIRROR, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MIRROR]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -996,7 +997,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND] = new CTWAINContainerBool(UDSCAP_REMOVEBACKGROUND, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND] = new CTWAINContainerBool(UDSCAP_REMOVEBACKGROUND, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_REMOVEBACKGROUND]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -1007,7 +1008,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_DESCREEN] = new CTWAINContainerBool(UDSCAP_DESCREEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_DESCREEN] = new CTWAINContainerBool(UDSCAP_DESCREEN, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_DESCREEN]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -1018,7 +1019,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_DENOISE] = new CTWAINContainerBool(UDSCAP_DENOISE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_DENOISE] = new CTWAINContainerBool(UDSCAP_DENOISE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_DENOISE]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )
@@ -1029,7 +1030,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	m_IndependantCapMap[UDSCAP_AUTOCROP] = new CTWAINContainerBool(UDSCAP_AUTOCROP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
+	m_IndependantCapMap[UDSCAP_AUTOCROP] = new CTWAINContainerBool(UDSCAP_AUTOCROP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_AUTOCROP]))
 		|| !pbCap->Add(TRUE)
 		|| !pbCap->Add(FALSE, true) )

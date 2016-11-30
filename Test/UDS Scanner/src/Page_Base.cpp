@@ -131,9 +131,6 @@ void CPage_Base::SetCapValue(void)
 		case CAP_DUPLEXENABLED:
 		case UDSCAP_MULTIFEEDDETECT:
 			{
-			/*	CString str;
-				str.Format("%d", (int)iter->second);
-				AfxMessageBox(str);*/
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
 				break;
 			}	
@@ -242,8 +239,6 @@ void CPage_Base::UpdateControls(void)
 
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
-	/*strText.Format("%d",nCapValue);
-	AfxMessageBox(strText);*/
 	m_check_multifeeddetect.SetCheck(nCapValue);
 
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
@@ -588,17 +583,15 @@ void CPage_Base::OnClicked_Check_Multifeeddetect()
 	// TODO: 在此添加控件通知处理程序代码
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
-		AfxMessageBox("点中");
 		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 1.0f));
 		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,true);	
-		m_basemap[UDSCAP_MULTIFEEDDETECT] = 1.0f;
+		m_basemap[UDSCAP_MULTIFEEDDETECT] = TRUE;
 	} 
 	else
 	{
-		AfxMessageBox("未点中");
 		//m_basemap.insert(map<int, float> :: value_type(UDSCAP_MULTIFEEDDETECT, 0.0f));
 		//m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,false);
-		m_basemap[UDSCAP_MULTIFEEDDETECT] = 0.0f;
+		m_basemap[UDSCAP_MULTIFEEDDETECT] = FALSE;
 	}
 }
 

@@ -297,3 +297,4 @@ date 16.11.29
 2、增加CTWAIN_UI::GetCapValueBool()
 3、修改几个checkBox的读取方式，从默认代码设置改为从容器读取
 4、遗留一个问题：checkbox当前模板的状态未保存
+5、解决checkbox当前模板状态未保存的问题，解决方法是在_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,fRange, TWQC_GETS);最后一个参数改为TWQC_ALL

@@ -892,9 +892,8 @@ TW_INT16 CTWAINDS_Base::handleCap(TW_UINT16 _MSG, TWAINContainerType* _pContaine
     // first check if the operation is allowed on this container
     if(!_pContainer->isOperationAllowed(_MSG))
     {
-			//::MessageBox(g_hwndDLG,"isOperationAllowed(","UDS",MB_OK);
       setConditionCode(TWCC_CAPBADOPERATION);
-      return TWRC_FAILURE;
+			return TWRC_FAILURE; //zhu×¢ÊÍ
     }
 
     switch(_pContainer->GetItemType())
