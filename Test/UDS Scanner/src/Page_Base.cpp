@@ -898,8 +898,6 @@ void CPage_Base::NewBaseProfile()
 	if(false == CreateNewProfile(strProfileName, 2, 1, 300)) {
 		return;
 	}
-
-	
 	
 }
 
@@ -920,8 +918,8 @@ void CPage_Base::LoadProfile()
 	//	AfxMessageBox(strProfile);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());
 	}
+	
 	UpdateControls();
-	//m_pAdPage->UpdateControl(); //高级设置界面参数也更新
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -930,14 +928,13 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Profile()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	LoadProfile();
+	m_pAdPage->UpdateControls();//高级设置界面参数也更新	
 }
 
 
 void CPage_Base::OnBase_Btn_Saveprofile()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//SetCapValue();
-	//m_pUI->Save();
 	int nIndex = m_combo_profile.GetCurSel();
 	string strProfile;
 	m_pUI->TW_SaveProfileToFile(strProfile);

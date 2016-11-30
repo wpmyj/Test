@@ -298,3 +298,8 @@ date 16.11.29
 3、修改几个checkBox的读取方式，从默认代码设置改为从容器读取
 4、遗留一个问题：checkbox当前模板的状态未保存
 5、解决checkbox当前模板状态未保存的问题，解决方法是在_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,fRange, TWQC_GETS);最后一个参数改为TWQC_ALL
+
+date 16.11.30
+------------------------------------------------------------
+@author zhu
+1、解决高级checkbox选中，但在基本界面选择默认模板后，checkBox状态不重置的问题：解决办法是在CPage_Base::OnCbnSelchangeBase_Combo_Profile()中增加m_pAdPage->UpdateControls();
