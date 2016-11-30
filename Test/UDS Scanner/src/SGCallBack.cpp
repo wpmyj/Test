@@ -19,6 +19,8 @@
 #pragma comment(lib,"CxImage_lib/libpsd.lib ")
 */
 
+#pragma comment(lib, "Winmm.lib")
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -600,8 +602,8 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 {
 
 	// ≤•∑≈“Ù–ß
-	AfxMessageBox("SaveImage");
-	//sndPlaySound("SmartScan1.WAV", SND_ASYNC);
+	//AfxMessageBox("SaveImage");
+	sndPlaySound("SmartScan1.WAV", SND_ASYNC);
 	/*
 	long nAllBytes = (m_nWidth*3  + 3) / 4 * 4;  // DIB;
 	BYTE *pDIB=NULL, *pNewBuffer=NULL;

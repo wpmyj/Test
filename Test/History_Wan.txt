@@ -127,3 +127,10 @@ date 16.11.29
 2.修改MFC_UI::DisplayTWAINGUI()，若设备编号=DEVICE_CAMERA,
 则始终显示视频界面；
 3.将视频预览控价有、由picture改为static用以显示文本;
+
+
+date 16.11.30
+------------------------------------------------------------
+@author wan
+1.修改CTWAINDS_UDS::getImageInfo(),用于判断设备序号=DEVICE_OPENCV时，
+将BitsPerPixel改为8，否则分派的内存空间不足;
