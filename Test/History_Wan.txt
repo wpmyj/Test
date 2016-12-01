@@ -137,3 +137,8 @@ date 16.11.30
 2.新建类CCamera_DirectX（基类为CScanner_Base）用于支持摄像头相关操作;
 3.实现从配置文件中读取摄像头设置;
 
+date 16.12.01
+------------------------------------------------------------
+@author wan
+1.更改DS名称为UDS General TWAIN DS;
+2.更改存放模板文件的目录为C:\ProgramData\UDS\UDS General TWAIN DS

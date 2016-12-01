@@ -42,10 +42,10 @@
 /** 模板文件扩展名 */  
 #define FILEEXTENTION ".DSP"  
 #ifdef TWNDS_OS_LINUX
-  #define PROFILELOCATION ".TWAIN Working Group/Sample2/"
+  #define PROFILELOCATION ".UDS/UDS General TWAIN DS/"
 #elif defined(TWNDS_OS_WIN)
 /** 模板文件存放位置 */
-  #define PROFILELOCATION "TWAIN Working Group/Sample2/"  
+  #define PROFILELOCATION "UDS/UDS General TWAIN DS/"  
 #else
 
 #endif

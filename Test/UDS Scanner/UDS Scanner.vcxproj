@@ -128,18 +128,18 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
     </ResourceCompile>
     <PreBuildEvent>
       <Command>if NOT EXIST "$(ProjectDir)\..\..\..\testfiles\pub\bin" mkdir "$(ProjectDir)\..\..\..\testfiles\pub\bin"
-if NOT EXIST "c:\windows\twain_32\UDS Scanner" mkdir "c:\windows\twain_32\UDS Scanner"
+if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_32\UDS General TWAIN DS"
 </Command>
       <Message>如果pub文件夹不存在创建</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS Scanner"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS Scanner"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS Scanner"</Command>
+      <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>复制驱动到 windows\twain_32\UDS Scanner 文件夹</Message>
+      <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

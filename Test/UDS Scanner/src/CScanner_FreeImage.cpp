@@ -117,9 +117,9 @@ CScanner_FreeImage::CScanner_FreeImage() :
 
   SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath), PATH_MAX, "%s%cTWAIN_logo.png", szTWAIN_DS_DIR, PATH_SEPERATOR);
 	//char IniPath[PATH_MAX];
-	strncpy_s(m_szIniPath,szTWAIN_DS_DIR,PATH_MAX);
-	strncat_s(m_szIniPath,"\\SetUp.ini",PATH_MAX);
-	//::MessageBox(g_hwndDLG,IniPath,"UDS",MB_OK);
+	//strncpy_s(m_szIniPath,szTWAIN_DS_DIR,PATH_MAX);
+	//strncat_s(m_szIniPath,"\\SetUp.ini",PATH_MAX);
+	//::MessageBox(g_hwndDLG,m_szSourceImagePath,"UDS",MB_OK);
 	
 
 	//char InitialImagePath[PATH_MAX];

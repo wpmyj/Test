@@ -513,50 +513,53 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 
 	GetIniFilePath(szINIPath);
 
-	INI_CAMERA tempCamera;
+	INI_CAMERA tempINI;
 
-	tempCamera.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,0,szINIPath);
-	tempCamera.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,0,szINIPath);
-	tempCamera.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,0,szINIPath);
-	tempCamera.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,0,szINIPath);
-	tempCamera.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCWIDTH,0,szINIPath);
-	tempCamera.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCHEIGHT,0,szINIPath);
-	tempCamera.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,0,szINIPath);
+	//long
+	tempINI.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,0,szINIPath);
+	tempINI.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,0,szINIPath);
+	tempINI.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,0,szINIPath);
+	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,0,szINIPath);
+	tempINI.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCWIDTH,0,szINIPath);
+	tempINI.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCHEIGHT,0,szINIPath);
+	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,0,szINIPath);
 
-	int nTemp;
-	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,0,szINIPath);
-	if ( 1 == nTemp) {
-		tempCamera.CamAutoClip = true;
-	} 
-	else {
-		tempCamera.CamAutoClip = false;
-	}
-
-	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOENHANCE,0,szINIPath);
-	if ( 1 == nTemp) {
-		tempCamera.CamAutoEnhance = true;
-	} 
-	else {
-		tempCamera.CamAutoEnhance = false;
-	}
-
-	nTemp = GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOROTATE,0,szINIPath);
-	if ( 1 == nTemp) {
-		tempCamera.CamAutoRotate = true;
-	} 
-	else {
-		tempCamera.CamAutoRotate = false;
-	}
 
   CString strTemp;
 	int nMaxLength = 512;
 
+	//CString
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERA,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	tempCamera.Camera = strTemp;
+	tempINI.Camera = strTemp;
 
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMFRAMESIZE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	tempCamera.CamFrameSize = strTemp;
-	
+	tempINI.CamFrameSize = strTemp;
+
+	//bool
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y"))) {
+		tempINI.CamAutoClip = true;
+	} 
+	else {
+		tempINI.CamAutoClip = false;
+	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOENHANCE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y"))) {
+		tempINI.CamAutoEnhance = true;
+	} 
+	else {
+		tempINI.CamAutoEnhance = false;
+	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOROTATE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y"))) {
+		tempINI.CamAutoRotate = true;
+	} 
+	else {
+		tempINI.CamAutoRotate = false;
+	}
+
 	strTemp.ReleaseBuffer(nMaxLength);
-	m_ini = tempCamera;
+	m_ini = tempINI;
 }

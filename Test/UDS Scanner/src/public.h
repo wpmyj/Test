@@ -10,7 +10,7 @@
 #define __PUBLIC_H__
 
 /** INI配置文件名常量 */
-#define INI_FILENAME TEXT("UDS_Scanner.ini")
+#define INI_FILENAME TEXT("UDS General TWAIN DS.INI")
 
 /** INI节常量 */
 #define INI_APP_DEVICE TEXT("Device")
@@ -32,9 +32,13 @@
 #define INI_KEY_CAMAUTOROTATE TEXT("CamAutoRotate")
 
 /** 消息框标题或驱动名称 */    
-#define MB_CAPTION TEXT("UDS General TWAIN Scanner")
+#define MB_CAPTION TEXT("UDS General TWAIN DS")
 
+/** 软件主版本号 */
+#define VERSION_MAJORNUMBER 2
 
+/** 软件副版本号 */
+#define VERSION_MINORNUMBER 3
 
 /** 设备编号 */
 typedef enum DEVICE_NUMBER

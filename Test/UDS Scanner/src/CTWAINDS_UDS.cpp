@@ -44,20 +44,20 @@ TW_IDENTITY g_myIdentity_Chinese =
 {
 	0,                       // TW_UINT32  Id;               Unique number.  In Windows, application hWnd
 	{                        // TW_VERSION Version;          Identifies the piece of code
-		1,                     // TW_UINT16  MajorNum;         Major revision number of the software
-			0,                   // TW_UINT16  MinorNum;         Incremental revision number of the software
-			TWLG_CHINESE_PRC,    // TW_UINT16  Language;         e.g. TWLG_SWISSFRENCH
-			TWCY_CHINA,          // TW_UINT16  Country;          e.g. TWCY_SWITZERLAND
-			"3.2.0"       // TW_STR32   Info;             e.g. "1.0b3 Beta release"
+		VERSION_MAJORNUMBER,   // TW_UINT16  MajorNum;         Major revision number of the software
+		VERSION_MINORNUMBER,   // TW_UINT16  MinorNum;         Incremental revision number of the software
+		TWLG_CHINESE_PRC,      // TW_UINT16  Language;         e.g. TWLG_SWISSFRENCH
+		TWCY_CHINA,            // TW_UINT16  Country;          e.g. TWCY_SWITZERLAND
+		"3.2.0"                // TW_STR32   Info;             e.g. "1.0b3 Beta release"
 #ifdef _DEBUG
-			" debug"
+		" debug"
 #else
-			" release"
+		" release"
 #endif
 #ifdef TWH_32BIT
-			" 32bit"
+		" 32bit"
 #else
-			" 64bit"
+		" 64bit"
 #endif
 	},
 	3,                                  // TW_UINT16  ProtocolMajor;    Application and DS must set to TWON_PROTOCOLMAJOR
@@ -1490,7 +1490,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -2627,7 +2627,7 @@ TW_INT16 CTWAINDS_UDS::validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType
 }
 
 bool CTWAINDS_UDS::StartScanning()
-{::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {
