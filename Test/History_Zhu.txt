@@ -311,3 +311,8 @@ date 16.12.1
 2、修改旋转的参数类型为float型，容器类型为CTWAINContainerFix32型（针对测试报告问题12，返回值均为0修改），测试通过
 3、解决测试文档模板问题1：弹出“遇到不适当的参数”问题，主问题是在Base界面做更新高级界面参数时（m_pAdPage->UpdateControls()）出错，来回测试最终发现问题在于几处m_edit_brightness.SetWindowText(strText)，调试发现是因为m_edit_brightness.SetWindowText为NULL。修改该句为SetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, strText)成功。原因是此时高级界面还没有创建，而SetWindowText是当前窗口的句柄，在基本界面并没有edit控件，所以该m_edit_brightness为NULL，若先不改变模板，进入高级界面，再回到基本界面改变模板就不会弹出错误对话框。
 4、解决测试文档模板问题6：增加CPage_Base::SetDelete(void)函数，删除按钮是否可用，当是给定模板时，不可用，即不能删除；修改给定模板名字，改为以UDS--开头，并以此判断哪些是给定的模板。
+
+date 16.12.2
+------------------------------------------------------------
+@author zhu
+1、解决测试文档模板问题2：取消后选择的给定模版依然生效的问题。原因在于初始化对话框时生成了几个新的模板；然后再LoadProfile中的m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());里面会设置SetGustomDSData；测试发现原FreeImage的驱动也存在这个问题，因此在点击了取消按钮后，添加一些判断与操作：如果模板中存在“当前模板”，点击取消后就回到当前模板的值（注意：此时改变后的模板还未生效、点击OK才会生效）；如果不存在“当前模板”，点击取消后就回到默认模板。

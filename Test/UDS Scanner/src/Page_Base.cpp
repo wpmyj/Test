@@ -96,7 +96,32 @@ void CPage_Base::OnOK()
 void CPage_Base::OnCancel()
 {
 	// TODO: 在此添加专用代码和/或调用基类
+	bool status = false;
+	unsigned int unIndex = 1;
+	lstString strFileNames;
+	m_pUI->TW_GetAllProfiles(strFileNames);
+
+	lstString::iterator iter = strFileNames.begin();
+	for(;iter!=strFileNames.end(); iter++)
+	{
+		CString strTemp(iter->c_str());		
+
+		if(strTemp.Find("当前模板") >=0 ) 
+		{
+			m_combo_profile.SetCurSel(unIndex);
+			LoadProfile();
+			status = true;	
+		}
+		unIndex ++;
+	}
+
+	if(!status) //没找见当前模板
+	{
+		m_pUI->ResetAllCaps();
+	}
+
 	m_pUI->Cancel();
+
 	__super::OnCancel();
 	//CPropertyPage::OnCancel();
 }
@@ -111,7 +136,6 @@ void CPage_Base::OnCancel()
 
 void CPage_Base::SetCapValue(void)
 {
-	//AfxMessageBox("SetCapV");
 	MAP_CAP::iterator iter; 
 	for(iter = m_basemap.begin(); iter != m_basemap.end(); iter++)
 	{
@@ -823,10 +847,9 @@ void CPage_Base::InitComboProfile()
 	m_combo_profile.ResetContent();
 	m_combo_profile.InsertString(0,"默认模板");
   m_combo_profile.SetCurSel(0); //设置为默认模板
-
-	NewBaseProfile();
 	
-	// 遍历已存在的模版
+	NewBaseProfile();
+
 	lstString strFileNames;
 	m_pUI->TW_GetAllProfiles(strFileNames);
 
@@ -841,10 +864,9 @@ void CPage_Base::InitComboProfile()
 			m_combo_profile.SetCurSel(unIndex);
 			LoadProfile();
 		}
-		
+
 		unIndex ++;
 	}
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -905,7 +927,6 @@ void CPage_Base::NewBaseProfile()
 	if(false == CreateNewProfile(strProfileName, 2, 1, 300)) {
 		return;
 	}
-	
 }
 
 
@@ -944,7 +965,6 @@ void CPage_Base::SetDelete(void)
 	int nIndex = m_combo_profile.GetCurSel();
 	CString strCBText; 
 	m_combo_profile.GetLBText( nIndex, strCBText);
-	m_combo_profile.GetLBText( nIndex, strCBText);
 	if (strCBText.Find("UDS") >= 0)
 	{
 		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(FALSE);
@@ -962,7 +982,7 @@ void CPage_Base::OnBase_Btn_Saveprofile()
 bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 
 	int duplexenabled, int resolution /*= 200*/)
 {
-	if(false == m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype)) {
+	if(false == m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype)) { 
 		return false;
 	}
 	
@@ -970,7 +990,7 @@ bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype,
 		return false;
 	}
 
-	if(false == m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution)) {
+	if(false == m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution)) { 
 		return false;
 	}
 
