@@ -188,7 +188,7 @@ bool CScanner_FreeImage::resetScanner()
 	m_nWidth              = 0;
 	m_nHeight             = 0;
 
-	m_nRotation           = 0; //旋转-不旋转zhu
+	m_fRotation           = 0.0; //旋转-不旋转zhu
 	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
 	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
 	m_bMirror             = TWMR_DISABLE; //镜像-不选中
@@ -342,11 +342,11 @@ bool CScanner_FreeImage::preScanPrep()
 
 	//zhu FreeImage_RotateClassic
 	/*char buf[1024];
-	itoa((int)m_nRotation,buf,10);
+	itoa((int)m_fRotation,buf,10);
 	::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);*/
 
 	FIBITMAP *rotatedimg = 0;
-	switch(m_nRotation)
+	switch((int)m_fRotation)
 	{
 	case TWOR_ROT0:
 		rotatedimg = FreeImage_RotateClassic(pDib, 0);

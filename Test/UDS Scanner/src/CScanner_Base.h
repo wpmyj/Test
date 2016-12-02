@@ -122,7 +122,7 @@ public:
 	int               m_nStandardsizes; //zhu   /**< 纸张大小 */
 	int               m_nUnits;     //zhu       /**< 单位*/
 
-	int               m_nRotation; //zhu        /**< 旋转 */	
+	float             m_fRotation; //zhu        /**< 旋转 */	
 	int               m_nBinarization; //zhu    /**< 二值化 */
 	int               m_nSpiltImage; //zhu      /**< 分割图像 */
 

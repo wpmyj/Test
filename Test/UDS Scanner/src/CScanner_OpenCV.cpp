@@ -111,7 +111,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_nWidth              = 0;
 	m_nHeight             = 0;
 
-	m_nRotation           = 0; //旋转-不旋转zhu
+	m_fRotation           = 0.0; //旋转-不旋转zhu
 	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
 	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
 	m_bMirror             = TWMR_DISABLE; //镜像-不选中
@@ -227,7 +227,7 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 
 	// 旋转
-	switch(m_nRotation)
+	switch((int)m_fRotation)
 	{
 	case TWOR_ROT0: {
 			RotateImage(0);
@@ -257,11 +257,6 @@ bool CScanner_OpenCV::preScanPrep()
 		Mat mat_hMirror;
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
-	}
-
-	if(m_bDenoise == TWDN_AUTO) //去除噪声
-	{	
-		MedianSmooth();
 	}
 
 	// 对比度和亮度
@@ -296,6 +291,34 @@ bool CScanner_OpenCV::preScanPrep()
 			}	
 		}
 	}
+
+	//if(m_bDenoise == TWDN_AUTO) //去除噪声
+	//{	
+	//	MedianSmooth(m_mat_image);
+	//}
+
+	//Gamma校正
+	if(m_fGamma!=100.0) //zhu
+	{
+		Mat matGamma;
+		matGamma = GammaCorrection(m_mat_image,m_fGamma/100);//取值范围为10~255，此处需要除以100，缩小取值
+		//m_mat_image = matGamma;
+		matGamma.copyTo(m_mat_image);
+	}
+	
+	//图像分割
+	if(m_nSpiltImage == TWSI_NONE)
+	{
+	}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
+	{
+		SpiltImage(m_mat_image, unNewWidth,unNewHeight/2);
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
+	{
+		SpiltImage(m_mat_image, unNewWidth/2,unNewHeight);
+	}
+
 
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
@@ -422,17 +445,71 @@ void CScanner_OpenCV::RotateImage(double angle)
 }
 
 
-void CScanner_OpenCV::MedianSmooth(void) //中值滤波
+void CScanner_OpenCV::MedianSmooth(const Mat &src) //中值滤波
 {
-	IplImage in = IplImage(m_mat_image); /*Mat -> IplImage*/
+	IplImage in = IplImage(src); /*Mat -> IplImage*/
 	IplImage *out = cvCreateImage(cvGetSize(&in),IPL_DEPTH_8U,in.nChannels); 
 
 	cvSmooth(&in,out,CV_MEDIAN,3,in.nChannels);  //  中值滤波
 	m_mat_image = out; //IplImage -> Mat
-
-	//::MessageBox(g_hwndDLG,TEXT("中值滤波"),MB_CAPTION,MB_OK);
 }
 
+Mat& CScanner_OpenCV::GammaCorrection(Mat& src, float fGamma)
+{
+	CV_Assert(src.data);  
+	// accept only char type matrices  
+  CV_Assert(src.depth() != sizeof(uchar));  
+  
+  // build look up table  
+  unsigned char lut[256];  
+  for( int i = 0; i < 256; i++ )  
+  {  
+		lut[i] = saturate_cast<uchar>(pow((float)(i/255.0), fGamma) * 255.0f);  
+  }  
+   
+  const int channels = src.channels();  
+  switch(channels)  
+  {  
+	case 1: 
+		{  
+			MatIterator_<uchar> it, end;  
+      for( it = src.begin<uchar>(), end = src.end<uchar>(); it != end; it++ )  
+      //*it = pow((float)(((*it))/255.0), fGamma) * 255.0;  
+				*it = lut[(*it)];  
+			break; 
+		}  
+	case 3:  
+		{  
+			MatIterator_<Vec3b> it, end;
+			for( it = src.begin<Vec3b>(), end = src.end<Vec3b>(); it != end; it++ )  
+      {  
+				//(*it)[0] = pow((float)(((*it)[0])/255.0), fGamma) * 255.0;  
+        //(*it)[1] = pow((float)(((*it)[1])/255.0), fGamma) * 255.0;  
+        //(*it)[2] = pow((float)(((*it)[2])/255.0), fGamma) * 255.0;  
+        (*it)[0] = lut[((*it)[0])];  
+        (*it)[1] = lut[((*it)[1])];  
+        (*it)[2] = lut[((*it)[2])];  
+			}  
+			break;
+		}
+	}  
+	return src; 
+}
+
+void CScanner_OpenCV::SpiltImage(Mat &src, int width, int height)
+{
+	IplImage* Iplsrc= new IplImage(src); 
+	IplImage* Ipldst;
+	cvSetImageROI(Iplsrc,cvRect(0,0,width,height));  
+	Ipldst = cvCreateImage(cvSize(width,height),  IPL_DEPTH_8U,  Iplsrc->nChannels);  
+	cvCopy(Iplsrc,Ipldst,0);  
+	cvResetImageROI(Iplsrc);  
+
+	m_mat_image = Ipldst;
+
+	cvReleaseImage(&Iplsrc);  
+	cvReleaseImage(&Ipldst);  
+}
 
 void CScanner_OpenCV::hMirrorTrans(const Mat &src, Mat &dst)
 {

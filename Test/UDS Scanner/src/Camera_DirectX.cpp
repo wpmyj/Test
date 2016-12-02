@@ -47,7 +47,7 @@ bool CCamera_DirectX::resetScanner()
 	m_nWidth              = 0;
 	m_nHeight             = 0;
 
-	m_nRotation           = 0; //旋转-不旋转zhu
+	m_fRotation           = 0.0; //旋转-不旋转zhu
 	m_nSpiltImage         = TWSI_NONE; //zhu 分割-不分割
 	m_fGamma              = 100.0; //zhu Gamma校正-默认为100
 	m_bMirror             = TWMR_DISABLE; //镜像-不选中

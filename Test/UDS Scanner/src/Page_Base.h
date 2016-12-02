@@ -23,9 +23,10 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
-public:
+private:
 	virtual void OnOK();
 	virtual void OnCancel();
+	//virtual BOOL OnApply();
 
 private:
 	/**
@@ -44,8 +45,9 @@ private:
 	void InitComboPixType(void); //初始化图像类型编辑框
 
 	void SetCapValue(void);  ///<设置参数
+	void SetDelete(void); ///<设置删除按钮是否可用
 
-	///** 
+	/** 
 	//* @brief 浏览并选择单个图片文件
 	//* @param[out] strFilePath 图片绝对路径
 	//* @return 成功返回true
@@ -99,7 +101,6 @@ private:
 	//CDlg_Profile *m_pDlg;
 
 	virtual BOOL OnInitDialog();
-	//virtual BOOL OnApply();
 	
 	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
@@ -126,10 +127,8 @@ private:
 	afx_msg void OnBase_Btn_SaveAsprofile();
 	/** 保存当前模板*/
 	afx_msg void OnBase_Btn_Saveprofile();
-public:
-	afx_msg void OnBnClickedButton1();
 
 public:
 	/** 父类指针*/
-	CPage_Custom * m_pAdPage;
+	CPage_Custom* m_pAdPage;
 };

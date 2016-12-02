@@ -303,3 +303,11 @@ date 16.11.30
 ------------------------------------------------------------
 @author zhu
 1、解决高级checkbox选中，但在基本界面选择默认模板后，checkBox状态不重置的问题：解决办法是在CPage_Base::OnCbnSelchangeBase_Combo_Profile()中增加m_pAdPage->UpdateControls();
+
+date 16.12.1
+------------------------------------------------------------
+@author zhu
+1、增加CPage_Advanced::SetStandardsizes函数，用来判断纸张大小，选择自定义时，宽高是否可用（针对测试报告问题9做的修复，之前只在UpdateControl中增加判断语句，下拉框改变事件未增加）
+2、修改旋转的参数类型为float型，容器类型为CTWAINContainerFix32型（针对测试报告问题12，返回值均为0修改），测试通过
+3、解决测试文档模板问题1：弹出“遇到不适当的参数”问题，主问题是在Base界面做更新高级界面参数时（m_pAdPage->UpdateControls()）出错，来回测试最终发现问题在于几处m_edit_brightness.SetWindowText(strText)，调试发现是因为m_edit_brightness.SetWindowText为NULL。修改该句为SetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, strText)成功。原因是此时高级界面还没有创建，而SetWindowText是当前窗口的句柄，在基本界面并没有edit控件，所以该m_edit_brightness为NULL，若先不改变模板，进入高级界面，再回到基本界面改变模板就不会弹出错误对话框。
+4、解决测试文档模板问题6：增加CPage_Base::SetDelete(void)函数，删除按钮是否可用，当是给定模板时，不可用，即不能删除；修改给定模板名字，改为以UDS--开头，并以此判断哪些是给定的模板。

@@ -28,7 +28,7 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_fThreshold					= settings.m_fThreshold;
 	m_bMultifeedDetection = settings.m_bMultifeedDetection;
 
-	m_nRotation						= settings.m_nRotation; //zhu
+	m_fRotation						= settings.m_fRotation; //zhu
 	m_nOrientation				= settings.m_nOrientation; //zhu
 	m_nStandardsizes      = settings.m_nStandardsizes;
 	m_nUnits              = settings.m_nUnits;

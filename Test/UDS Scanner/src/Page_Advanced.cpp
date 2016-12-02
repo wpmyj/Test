@@ -263,18 +263,7 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
-
-	if(TWSS_NONE == lstCapValues->at(nCapIndex))  //纸张大小：自定义。
-	{
-		m_edit_custom_width.EnableWindow(TRUE);
-		m_edit_custom_height.EnableWindow(TRUE);
-	} 
-	else
-	{
-		m_edit_custom_width.EnableWindow(FALSE);
-		m_edit_custom_height.EnableWindow(FALSE);
-		//GetDlgItem(IDC_ADVANCED_STATIC_ORIENTATION)->EnableWindow(TRUE);
-	}
+	SetStandardsizes();
 
 	// 自定义宽与高
 	TW_FRAME frame;
@@ -282,11 +271,11 @@ void CPage_Advanced::UpdateControls(void)
 
 	frame = m_pUI->GetCurrentFrame();
 	strTemp.Format("%0.2f",FIX32ToFloat(frame.Right));
-	m_edit_custom_width.SetWindowText(strTemp);
+	SetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMWIDTH, strTemp);
 
 	frame = m_pUI->GetCurrentFrame();
 	strTemp.Format("%0.2f",FIX32ToFloat(frame.Bottom));
-	m_edit_custom_height.SetWindowText(strTemp);
+	SetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMHEIGHT, strTemp);
 
 	//纸张设置-单位
 	m_combo_uints.ResetContent();  // 清空内容
@@ -370,14 +359,13 @@ void CPage_Advanced::UpdateControls(void)
 	}
 	m_combo_resolution.SetCurSel(nCapIndex);
 
-
 	//图像设置-图像旋转
 	m_combo_rotate.ResetContent(); //清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_ROTATION);
-	lstCapValues = m_pUI->GetValidCap(ICAP_ROTATION);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
+	lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_ROTATION);
+	for(unsigned int i=0; i<lstCapValuesFlt->size();i++)
 	{
-		switch(lstCapValues->at(i))
+		switch((int)lstCapValuesFlt->at(i))
 		{
 		case TWOR_ROT0:
 			m_combo_rotate.InsertString(i,"不旋转图像");
@@ -424,23 +412,24 @@ void CPage_Advanced::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_contrast.SetWindowText(strText);
+	SetDlgItemText(IDC_ADVANCED_EDIT_CONTRAST, strText);
 
 	//多流输出-亮度
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS)); 
 	m_slider_brightness.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_brightness.SetWindowText(strText);
+	//m_edit_brightness.SetWindowText(strText);
+	SetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, strText);
 	
 	CString str;
-	GetDlgItem(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD)->GetWindowText(str);
+	GetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD,str);
 	if(str.Find("去除斑点") >= 0)
 	{
 		//多流输出-去除斑点 
 		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)); 
 		m_slider_sensitive_threshold.SetPos(nCapValue);
 		strText.Format("%d",nCapValue);
-		m_edit_sensitive_threshold.SetWindowText(strText);
+		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
 	}
 	else if(str.Find("底色保留") >= 0)
 	{
@@ -448,15 +437,15 @@ void CPage_Advanced::UpdateControls(void)
 		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)); 
 		m_slider_sensitive_threshold.SetPos(nCapValue);
 		strText.Format("%d",nCapValue);
-		m_edit_sensitive_threshold.SetWindowText(strText);
+		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
 	}
-	else{}
+	else{}//必须保留
 	
 	//Gamma校正 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型
 	m_slider_gamma.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_gamma.SetWindowText(strText);
+	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, strText);
 
 	//去除空白页 -1自动;-2不可用
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES));
@@ -468,7 +457,7 @@ void CPage_Advanced::UpdateControls(void)
 	{
 		m_check_removeblank.SetCheck(FALSE);
 	}
-
+	
 	//去除穿孔等
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PUNCHHOLEREMOVEL));
 	m_check_removepunch.SetCheck(nCapValue);
@@ -494,7 +483,6 @@ void CPage_Advanced::UpdateControls(void)
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	m_check_multistream.SetCheck(nCapValue);
-	
 }
 
 
@@ -619,6 +607,24 @@ void CPage_Advanced::SetBinarization(void)
 }
 
 
+void CPage_Advanced::SetStandardsizes(void)
+{
+	int nIndex = m_combo_standardsizes.GetCurSel();
+	CString strCBText; 
+	m_combo_standardsizes.GetLBText( nIndex, strCBText);
+	if (strCBText.Find("自定义") >= 0)
+	{
+		m_edit_custom_width.EnableWindow(TRUE);
+		m_edit_custom_height.EnableWindow(TRUE);
+	} 
+	else
+	{
+		m_edit_custom_width.EnableWindow(FALSE);
+		m_edit_custom_height.EnableWindow(FALSE);
+	}
+}
+
+
 void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -630,6 +636,9 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	if (strCBText.Find("自定义") >= 0)
 	{
 		nval = TWSS_NONE;
+		//GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMHEIGHT)->EnableWindow(TRUE);
+		m_edit_custom_width.EnableWindow(TRUE);
+		GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMWIDTH)->EnableWindow(TRUE);
 	}
 	else if (strCBText.Find("US Letter") >= 0)
 	{
@@ -717,7 +726,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 
 	//UpdateControls(); 
 	m_combo_standardsizes.SetCurSel(nIndex);
-
+	SetStandardsizes();
 }
 
 
@@ -1005,7 +1014,7 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT 
 	m_advancedmap[ICAP_GAMMA] = (float)sldValue;
 
 	str.Format("%d", sldValue);
-	m_edit_gamma.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, str);// 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
 
@@ -1027,7 +1036,9 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNM
 	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)sldValue;
 
 	str.Format("%d", sldValue);
-	m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	//m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, str);
+	// 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
 	/*// 设置应用按钮为可用状态
@@ -1048,7 +1059,8 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Brightness(NMHDR *pNMHDR, LRE
 	m_advancedmap[ICAP_BRIGHTNESS] = (float)sldValue;
 
 	str.Format("%d", sldValue);
-	m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	//m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, str);
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
 	/*// 设置应用按钮为可用状态
@@ -1069,7 +1081,8 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Contrast(NMHDR *pNMHDR, LRESU
 	m_advancedmap[ICAP_CONTRAST] = (float)sldValue;
 
 	str.Format("%d", sldValue);
-	m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	//m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_ADVANCED_EDIT_CONTRAST, str);
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
 	/*// 设置应用按钮为可用状态

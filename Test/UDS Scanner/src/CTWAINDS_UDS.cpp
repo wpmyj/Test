@@ -703,19 +703,19 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 
-	//zhu
-	m_IndependantCapMap[ICAP_ROTATION] = new CTWAINContainerInt(ICAP_ROTATION, TWTY_UINT16, TWON_ENUMERATION);
-	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ROTATION]))
-		|| !pnCap->Add(TWOR_ROT0, true)  
-		|| !pnCap->Add(TWOR_ROT90)
-		|| !pnCap->Add(TWOR_ROT180)
-		|| !pnCap->Add(TWOR_ROT270))  
+	//zhuÐý×ª
+	m_IndependantCapMap[ICAP_ROTATION] = new CTWAINContainerFix32(ICAP_ROTATION,TWON_ENUMERATION, TWQC_ALL);
+	if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_ROTATION]))
+		|| !pfixCap->Add(TWOR_ROT0, true)
+		|| !pfixCap->Add(TWOR_ROT90)
+		|| !pfixCap->Add(TWOR_ROT180)
+		|| !pfixCap->Add(TWOR_ROT270)) //zhu
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ROTATION !"),MB_CAPTION,MB_OK);
-		//cerr<<"Could not create ICAP_ROTATION"<<endl;
+		//cerr << "Could not create ICAP_ROTATION" << endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
-	} //zhu
+	}
 		
 	//zhu ·Ö¸î
 	m_IndependantCapMap[UDSCAP_SPLITIMAGE] = new CTWAINContainerInt(UDSCAP_SPLITIMAGE, TWTY_UINT16, TWON_ENUMERATION);
@@ -2065,7 +2065,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}
 
 	//zhu
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_ROTATION))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ROTATION!"),MB_CAPTION,MB_OK);
 		//cerr << "Could not get ICAP_ROTATION" << endl;
@@ -2073,9 +2073,21 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}
 	else
 	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nRotation = nVal;
+		pfCap->GetCurrent(fVal);
+		settings.m_fRotation = fVal;
 	}//zhu
+	//zhu
+	//if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ROTATION!"),MB_CAPTION,MB_OK);
+	//	//cerr << "Could not get ICAP_ROTATION" << endl;
+	//	bret = false;
+	//}
+	//else
+	//{
+	//	pnCap->GetCurrent(nVal);
+	//	settings.m_fRotation = nVal;
+	//}//zhu
 
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_SPLITIMAGE))))

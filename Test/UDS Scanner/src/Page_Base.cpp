@@ -67,7 +67,7 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT, &CPage_Base::OnClicked_Check_Multifeeddetect)
 	ON_BN_CLICKED(IDC_BASE_BTN_SAVEASPROFILE, &CPage_Base::OnBase_Btn_SaveAsprofile)
 	ON_BN_CLICKED(IDC_BASE_BTN_SAVEPROFILE, &CPage_Base::OnBase_Btn_Saveprofile)
-	ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnBnClickedButton1)
+//	ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -93,12 +93,12 @@ void CPage_Base::OnOK()
 	CPropertyPage::OnOK();
 }
 
-
 void CPage_Base::OnCancel()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->Cancel();
-	CPropertyPage::OnCancel();
+	__super::OnCancel();
+	//CPropertyPage::OnCancel();
 }
 
 //BOOL CPage_Base::OnApply()  //点击“确定”与“应用”按钮都调用
@@ -111,6 +111,7 @@ void CPage_Base::OnCancel()
 
 void CPage_Base::SetCapValue(void)
 {
+	//AfxMessageBox("SetCapV");
 	MAP_CAP::iterator iter; 
 	for(iter = m_basemap.begin(); iter != m_basemap.end(); iter++)
 	{
@@ -223,19 +224,22 @@ void CPage_Base::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_contrast.SetWindowText(strText);
+	//m_edit_contrast.SetWindowText(strText);
+	SetDlgItemText(IDC_BASE_EDIT_CONTRAST,strText);
 
 	// 亮度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS));
 	m_slider_brightness.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_brightness.SetWindowText(strText);
+	//m_edit_brightness.SetWindowText(strText);
+	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,strText);
 
 	// 阈值 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 	m_slider_threshold.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	m_edit_threshold.SetWindowText(strText);
+	//m_edit_threshold.SetWindowText(strText);
+	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
 
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
@@ -297,7 +301,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 	m_basemap[ICAP_CONTRAST] = float(sldValue);
 
 	str.Format("%d", sldValue);
-	m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	//m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, str);
 	//UpdateControls();
 	UpdateData(FALSE);  // 更新控件
 
@@ -319,7 +324,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pR
 	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)sldValue);  // 设置亮度为当前滚动条值
 
 	str.Format("%d", sldValue);
-	m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	//m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,str);
 	//UpdateControls();
 	UpdateData(FALSE);  // 更新控件
 
@@ -351,7 +357,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	}
 
 	str.Format("%d", sldValue);
-	m_edit_threshold.SetWindowText(str); //在编辑框同步显示滚动条值
+	//m_edit_threshold.SetWindowText(str); //在编辑框同步显示滚动条值
+	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, str);
 	//UpdateControls();
 	UpdateData(FALSE); //更新控件。
 
@@ -852,49 +859,49 @@ void CPage_Base::NewBaseProfile()
 
 	
 	//新建“彩色,单面,200dpi”模板
-	strProfileName = "彩色,单面,200dpi";
+	strProfileName = "UDS--彩色,单面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 2, 0)) {
 		return;
 	}
 
 	//新建“彩色,双面,200dpi”模板
-	strProfileName = "彩色,双面,200dpi";
+	strProfileName = "UDS--彩色,双面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 2, 1)) {
 		return;
 	}
 
 	//新建“黑白,单面,200dpi”模板
-	strProfileName = "黑白,单面,200dpi";
+	strProfileName = "UDS--黑白,单面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 0, 0)) {
 		return;
 	}
 
 	//新建“黑白,双面,200dpi”模板
-	strProfileName = "黑白,双面,200dpi";
+	strProfileName = "UDS--黑白,双面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 0, 1)) {
 		return;
 	}
 
 	//新建“灰度,单面,200dpi”模板
-	strProfileName = "灰度,单面,200dpi";
+	strProfileName = "UDS--灰度,单面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 1, 0)) {
 		return;
 	}
 
 	//新建“灰度,双面,200dpi”模板
-	strProfileName = "灰度,双面,200dpi";
+	strProfileName = "UDS--灰度,双面,200dpi";
 	if(false == CreateNewProfile(strProfileName, 1, 1)) {
 		return;
 	}
 
 	//新建“彩色,单面,300dpi”模板
-	strProfileName = "彩色,单面,300dpi";
+	strProfileName = "UDS--彩色,单面,300dpi";
 	if(false == CreateNewProfile(strProfileName, 2, 0, 300)) {
 		return;
 	}
 
 	//新建“彩色,双面,300dpi”模板
-	strProfileName = "彩色,双面,300dpi";
+	strProfileName = "UDS--彩色,双面,300dpi";
 	if(false == CreateNewProfile(strProfileName, 2, 1, 300)) {
 		return;
 	}
@@ -915,11 +922,11 @@ void CPage_Base::LoadProfile()
 	{	
 		CString strProfile; 
 		m_combo_profile.GetLBText( nIndex, strProfile);
-	//	AfxMessageBox(strProfile);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());
 	}
 	
 	UpdateControls();
+	m_pAdPage->UpdateControls();//高级设置界面参数也更新(有分辨率共同存在)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -927,10 +934,22 @@ void CPage_Base::LoadProfile()
 void CPage_Base::OnCbnSelchangeBase_Combo_Profile()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	LoadProfile();
-	m_pAdPage->UpdateControls();//高级设置界面参数也更新	
+	LoadProfile();	
+	SetDelete();
 }
 
+
+void CPage_Base::SetDelete(void)
+{
+	int nIndex = m_combo_profile.GetCurSel();
+	CString strCBText; 
+	m_combo_profile.GetLBText( nIndex, strCBText);
+	m_combo_profile.GetLBText( nIndex, strCBText);
+	if (strCBText.Find("UDS") >= 0)
+	{
+		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(FALSE);
+	} 
+}
 
 void CPage_Base::OnBase_Btn_Saveprofile()
 {
@@ -938,13 +957,6 @@ void CPage_Base::OnBase_Btn_Saveprofile()
 	int nIndex = m_combo_profile.GetCurSel();
 	string strProfile;
 	m_pUI->TW_SaveProfileToFile(strProfile);
-}
-
-// 测试用
-void CPage_Base::OnBnClickedButton1()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	OnOK();  // 直接调用OnOK
 }
 
 bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 
@@ -972,3 +984,4 @@ bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype,
 
 	return true;
 }
+
