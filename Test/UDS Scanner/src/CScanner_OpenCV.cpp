@@ -185,8 +185,6 @@ bool CScanner_OpenCV::acquireImage()
 
 bool CScanner_OpenCV::preScanPrep()
 {
-	
-
 	//// 获取影像的水平分辨率，以每米像素数为单位 
 	//res = FreeImage_GetDotsPerMeterX( m_pDIB );
 	//WORD unNewWidth  = WORD(m_nSourceWidth /(WORD)((float)res/39.37 + 0.5)* m_fXResolution);
@@ -208,17 +206,18 @@ bool CScanner_OpenCV::preScanPrep()
 	double dFx = (double)m_fXResolution/100;
 	double dFy = (double)m_fYResolution/100;
 
-	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx);
-	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy);
+	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx); //1700
+	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy); //2200
 
+	/*char buf[10];
+	itoa(unNewHeight, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"unNewHeight",MB_OK);*/
 
 	cv::Mat matTemp;
 	cv::resize(m_mat_image, matTemp, cv::Size(unNewWidth, unNewHeight), 0, 0);		
 	//m_mat_image = matTemp;
 	matTemp.copyTo(m_mat_image);  // 深拷贝
 	m_dRat = (double)unNewWidth/unNewHeight;
-	
-
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
@@ -292,41 +291,66 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 	}
 
-	//if(m_bDenoise == TWDN_AUTO) //去除噪声
-	//{	
-	//	MedianSmooth(m_mat_image);
-	//}
+	if(m_bDenoise == TWDN_AUTO) //去除噪声
+	{	
+		MedianSmooth(m_mat_image);
+	}
 
 	//Gamma校正
 	if(m_fGamma!=100.0) //zhu
 	{
-		Mat matGamma;
+		/*Mat& matGamma = m_mat_image; //matGamma相当于m_mat_image的别名(绰号)，对matGamma的任何操作就是对m_mat_image的操作。
 		matGamma = GammaCorrection(m_mat_image,m_fGamma/100);//取值范围为10~255，此处需要除以100，缩小取值
-		//m_mat_image = matGamma;
-		matGamma.copyTo(m_mat_image);
+		m_mat_image = matGamma;*/
+		
+		Mat matGamma;//Mat& matGamma = m_mat_image;
+		GammaCorrection(m_mat_image, matGamma, m_fGamma/100);
+		/*namedWindow("5图", CV_WINDOW_AUTOSIZE); 
+		imshow("5图",matGamma);*/
+		m_mat_image = matGamma;
 	}
-	
+
 	//图像分割
 	if(m_nSpiltImage == TWSI_NONE)
 	{
 	}
 	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
 	{
-		SpiltImage(m_mat_image, unNewWidth,unNewHeight/2);
+		//SpiltImage(m_mat_image, unNewWidth, unNewHeight/2); //(1700,2200/2)---(1700,1100)
+		//imwrite( "C://Users//Administrator//Desktop//水平.tif", m_mat_image);
+		SpiltImage(m_mat_image,2,1);
 	}
 	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
 	{
-		SpiltImage(m_mat_image, unNewWidth/2,unNewHeight);
+		//SpiltImage(m_mat_image, unNewWidth/2, unNewHeight); //(1700/2, 2200)---(850,2200)
+		//imwrite( "C://Users//Administrator//Desktop//垂直.jpg", m_mat_image);
+		SpiltImage(m_mat_image,1,2);
 	}
 
-
+	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
+	m_nWidth  = m_nSourceWidth = imgTemp.width;
+	m_nHeight = m_nSourceHeight = imgTemp.height;
+	/*
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
-		m_nWidth  = m_nSourceWidth;
-		m_nHeight = m_nSourceHeight;
+		m_nWidth  = m_nSourceWidth = imgTemp.width;
+		m_nHeight = m_nSourceHeight = imgTemp.height;
 	}
+	else
+	{
+		m_nWidth = m_nSourceWidth = imgTemp.width;
+		m_nHeight = m_nSourceHeight = imgTemp.height;
+		/*
+		char buf[10];
+		itoa(m_nWidth, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"m_nWidth",MB_OK);
+		char buff[10];
+		itoa(m_nHeight, buff, 10);
+		::MessageBox(g_hwndDLG,TEXT(buff),"m_nHeight",MB_OK);
+	}*/
 
-	/*switch(m_nPixelType)
+	/*
+	switch(m_nPixelType)
 	{
 	case TWPT_BW:
 	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
@@ -454,34 +478,44 @@ void CScanner_OpenCV::MedianSmooth(const Mat &src) //中值滤波
 	m_mat_image = out; //IplImage -> Mat
 }
 
-Mat& CScanner_OpenCV::GammaCorrection(Mat& src, float fGamma)
+void CScanner_OpenCV::GammaCorrection(const Mat& src, Mat& dst, float fGamma)
 {
 	CV_Assert(src.data);  
 	// accept only char type matrices  
   CV_Assert(src.depth() != sizeof(uchar));  
   
-  // build look up table  
+  // build look up table 创建Gamma查找表 
+	//为 0～255 之间的每个整数执行一次预补偿操作 ,将其对应的预补偿值存入一个预先建立的
+	//gamma 校正查找表(LUT:Look Up Table) ,就可以使用该表对任何像素值在 0～255 之 间的图像进行 gamma 校正
   unsigned char lut[256];  
   for( int i = 0; i < 256; i++ )  
   {  
-		lut[i] = saturate_cast<uchar>(pow((float)(i/255.0), fGamma) * 255.0f);  
-  }  
-   
-  const int channels = src.channels();  
+		//先归一化，i/255,然后进行预补偿(i/255)^fGamma,最后进行反归一化(i/255)^fGamma*255
+		lut[i] = saturate_cast<uchar>(pow((float)(i/255.0), fGamma) * 255.0f);  //pow(x,y)计算x的y次幂
+  } 
+
+	dst = src.clone();
+	//对图像的每个像素进行查找表矫正
+  const int channels = dst.channels(); 
   switch(channels)  
   {  
 	case 1: 
 		{  
+			//::MessageBox(g_hwndDLG,TEXT("1通道"),MB_CAPTION,MB_OK);
 			MatIterator_<uchar> it, end;  
-      for( it = src.begin<uchar>(), end = src.end<uchar>(); it != end; it++ )  
-      //*it = pow((float)(((*it))/255.0), fGamma) * 255.0;  
-				*it = lut[(*it)];  
-			break; 
+			//运用迭代器访问矩阵元素
+			for( it = dst.begin<uchar>(), end = dst.end<uchar>(); it != end; it++ )  
+			{
+				//*it = pow((float)(((*it))/255.0), fGamma) * 255.0f;  
+				*it = lut[(*it)];   
+			}
+			break;
 		}  
 	case 3:  
-		{  
+		{ 
+		//::MessageBox(g_hwndDLG,TEXT("3通道"),MB_CAPTION,MB_OK);
 			MatIterator_<Vec3b> it, end;
-			for( it = src.begin<Vec3b>(), end = src.end<Vec3b>(); it != end; it++ )  
+			for( it = dst.begin<Vec3b>(), end = dst.end<Vec3b>(); it != end; it++ )  
       {  
 				//(*it)[0] = pow((float)(((*it)[0])/255.0), fGamma) * 255.0;  
         //(*it)[1] = pow((float)(((*it)[1])/255.0), fGamma) * 255.0;  
@@ -492,28 +526,168 @@ Mat& CScanner_OpenCV::GammaCorrection(Mat& src, float fGamma)
 			}  
 			break;
 		}
-	}  
-	return src; 
+	default:
+		{
+			::MessageBox(g_hwndDLG,TEXT("Gamma校正其他"),MB_CAPTION,MB_OK);
+			break;
+		}	
+	} 
 }
 
-void CScanner_OpenCV::SpiltImage(Mat &src, int width, int height)
+void CScanner_OpenCV::SpiltImage(const Mat& src_img,int m,int n)
 {
-	IplImage* Iplsrc= new IplImage(src); 
-	IplImage* Ipldst;
-	cvSetImageROI(Iplsrc,cvRect(0,0,width,height));  
-	Ipldst = cvCreateImage(cvSize(width,height),  IPL_DEPTH_8U,  Iplsrc->nChannels);  
-	cvCopy(Iplsrc,Ipldst,0);  
-	cvResetImageROI(Iplsrc);  
+	int ceil_width  = src_img.cols/n; //列  
+	int ceil_height = src_img.rows/m;   //行/m
 
-	m_mat_image = Ipldst;
+	IplImage Iplsrc = IplImage(src_img);
+	IplImage *Ipldst;
+	Mat matTemp;
 
-	cvReleaseImage(&Iplsrc);  
-	cvReleaseImage(&Ipldst);  
+	if(m_nDocCount == 1) //总张数暂时取2
+	{
+		if(m_nSpiltImage == TWSI_HORIZONTAL)
+		{
+			cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}
+		else //垂直
+		{
+			cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}
+		
+	}
+	else if(m_nDocCount == 0)
+	{
+		if(m_nSpiltImage == TWSI_HORIZONTAL)
+		{
+			cvSetImageROI(&Iplsrc,cvRect(0, ceil_height, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}
+		else //垂直
+		{
+			cvSetImageROI(&Iplsrc,cvRect(ceil_width, 0, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}	
+	}
+	else
+	{
+		char buf[10];
+		itoa(m_nDocCount, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"m_nDocCount",MB_OK);
+	}
+
+	//namedWindow("5图", CV_WINDOW_AUTOSIZE); 
+	//imshow("5图",matTemp);
+	/*
+	IplImage Iplsrc = IplImage(src_img);
+	IplImage *Ipldst;
+	Mat matTemp;
+	for(int i = 0; i<m; i++) 
+	{
+		for(int j = 0; j<n; j++)
+		{  
+			cvSetImageROI(&Iplsrc,cvRect(i+j*ceil_width, j+i*ceil_height, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+
+			::MessageBox(g_hwndDLG,TEXT("end for循环"),MB_CAPTION,MB_OK);
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+			cvReleaseImage(&Ipldst); 
+
+			m_ceil_img.push_back(matTemp);  
+			//imshow("roi_img",roi_img);  
+			waitKey(0);  	
+		}   
+	}*/
+	/*
+	vector<Mat>::iterator iter;
+	Mat roi_img;
+	if(m_nDocCount == 2) //暂时取2
+	{
+		::MessageBox(g_hwndDLG,TEXT("2"),"width",MB_OK);
+		roi_img = m_ceil_img[0];
+	}
+	else if(m_nDocCount == 1)
+	{
+		::MessageBox(g_hwndDLG,TEXT("1"),"width",MB_OK);
+		roi_img = m_ceil_img[1];
+	}
+	else
+	{
+		::MessageBox(g_hwndDLG,TEXT("其他值"),"width",MB_OK);
+		roi_img = m_mat_image;		
+	}
+	roi_img.copyTo(m_mat_image); */
 }
+
+/*
+void CScanner_OpenCV::SpiltImage(const Mat& src, int width, int height)
+{
+	/*char buf[10];
+	itoa(width, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"width",MB_OK);
+
+	char buff[10];
+	itoa(height, buff, 10);
+	::MessageBox(g_hwndDLG,TEXT(buff),"height",MB_OK);/
+
+	IplImage Iplsrc = IplImage(src);
+	IplImage *Ipldst;
+
+	cvSetImageROI(&Iplsrc,cvRect(0,0,width,height)); 
+	Ipldst = cvCreateImage(cvSize(width,height),  IPL_DEPTH_8U,  Iplsrc.nChannels);  
+	cvCopy(&Iplsrc,Ipldst,0);  
+	cvResetImageROI(&Iplsrc); 
+
+	Mat matTemp = Ipldst;
+	matTemp.copyTo(m_mat_image);
+	//m_mat_image = matTemp;
+
+	//namedWindow("5图", CV_WINDOW_AUTOSIZE); 
+	//imshow("5图",m_mat_image);
+
+	cvReleaseImage(&Ipldst);  	
+}*/
 
 void CScanner_OpenCV::hMirrorTrans(const Mat &src, Mat &dst)
 {
-	CV_Assert(src.depth() == CV_8U);
+	CV_Assert(src.depth() == CV_8U); //若括号中的表达式值为false，则返回一个错误信息
 	dst.create(src.rows, src.cols, src.type());
 
 	int rows = src.rows;

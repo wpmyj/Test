@@ -88,7 +88,7 @@ private:
 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
 
-	public:
+public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void SetCapValue(void); ///<设置参数
@@ -97,6 +97,7 @@ private:
 	void SetBWImage(void); ///<设置黑白图片时二值化可用
 	void SetBinarization(void); ///<设置二值化分别选择不同值时，该显示“去除斑点”还是“底色保留”
 	void SetStandardsizes(void); ///<设置纸张大小选择“自定义”时，宽、高的连动
+	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
 
 private:
 	virtual BOOL OnInitDialog();

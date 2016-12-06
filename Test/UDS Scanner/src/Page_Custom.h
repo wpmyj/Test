@@ -12,6 +12,7 @@ public:
 public:
 	virtual void SetCapValue(void){};
 	virtual void UpdateControls(void){};
+	virtual void InitAdvancedmap(void){};
 };
 
 #endif // __CPAGE_CUSTOM_H__

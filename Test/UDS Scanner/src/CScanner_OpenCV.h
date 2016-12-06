@@ -189,9 +189,9 @@ protected:
 	*  @brief  Gamma校正
 	*  @param[in]  src 输入图像
 	*  @param[in]  fGamma Gamma系数
-	*  @param[out]  输出图像
+	*  @param[out] dst 输出图像
 	*/
-	Mat& GammaCorrection(Mat& src, float fGamma);
+	void GammaCorrection(const Mat& src, Mat& dst, float fGamma);
 
 	/**
 	*  @brief  图像分割-裁切
@@ -199,7 +199,8 @@ protected:
 	*  @param[in]  width 分割后的图像的宽
 	*  @param[in]  height 分割后的图像的高
 	*/
-	void SpiltImage(Mat &src, int width, int height);
+	//void SpiltImage(const Mat& src, int width, int height);
+	void SpiltImage(const Mat& src_img,int m,int n);
 
 	/**
 	*  @brief  水平镜像
@@ -248,6 +249,7 @@ protected:
 	cv::Mat           m_mat_image;              /**< 存储图像数据的Mat */
 
 	double            m_dRat;                   /**< 宽/高 */
+	Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
 };
 
 #endif// __CSCANNER_OPENCV_H__

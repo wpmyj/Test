@@ -114,14 +114,21 @@ void CPage_Advanced::SetCapValue(void)
 		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
 		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
 		case UDSCAP_MIRROR: //镜像处理
-		case UDSCAP_SPLITIMAGE: //图像分割
 		case UDSCAP_BINARIZATION: //二值化
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
 			}	
-		
+		case UDSCAP_SPLITIMAGE: //图像分割
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
+				if((int)(iter->second) != TWSI_NONE)
+				{
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
+				}
+				break;
+			}
 
 		case ICAP_GAMMA: //Gamma校正
 			{
@@ -394,13 +401,13 @@ void CPage_Advanced::UpdateControls(void)
 		switch(lstCapValues->at(i))
 		{
 		case TWSI_NONE:
-			m_combo_splitimage.InsertString(i,"不分割图像");
+			m_combo_splitimage.InsertString(i,"不拆分"); //不分割图像
 			break;
 		case TWSI_HORIZONTAL:
-			m_combo_splitimage.InsertString(i,"水平分割图像"); 
+			m_combo_splitimage.InsertString(i,"上下");  //水平分割图像
 			break;
 		case TWSI_VERTICAL:
-			m_combo_splitimage.InsertString(i,"垂直分割图像");
+			m_combo_splitimage.InsertString(i,"左右"); //垂直分割图像
 			break;
 		default:
 			continue;
@@ -488,19 +495,27 @@ void CPage_Advanced::UpdateControls(void)
 
 // CPage_Advanced 消息处理程序
 
+void CPage_Advanced::InitAdvancedmap(void)
+{
+	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());//清空
+
+	int nCapIndex;
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_ORIENTATION);
+	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex; //初始化时只为map插入“分割Cap”的值，特例
+}
 
 BOOL CPage_Advanced::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());
+	InitAdvancedmap(); //初始化Map
 
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
 	UpdateControls();
 
 	SetMultistream();
-	
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -953,15 +968,15 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage()
 	CString strCBText; 
 	m_combo_splitimage.GetLBText( nIndex, strCBText);
 	int nval;
-	if (strCBText.Find("不分割图像") >= 0)
+	if (strCBText.Find("不拆分") >= 0) //不分割图像
 	{
 		nval = TWSI_NONE;
 	}
-	else if(strCBText.Find("水平分割图像") >= 0)
+	else if(strCBText.Find("上下") >= 0) //水平分割图像
 	{
 		nval = TWSI_HORIZONTAL; 
 	}
-	else if(strCBText.Find("垂直分割图像") >= 0)
+	else if(strCBText.Find("左右") >= 0) //垂直分割图像
 	{
 		nval = TWSI_VERTICAL; 
 	}

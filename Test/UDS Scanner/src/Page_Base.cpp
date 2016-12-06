@@ -286,6 +286,8 @@ BOOL CPage_Base::OnInitDialog()
 
 	InitComboProfile();
 
+	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
+
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -807,7 +809,6 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 
 	//保存修改的CapValue
 	SetCapValue();
-	//m_pAdPage->SetCapValue(); //设置高级界面
 
 	CString strName = strExistName;
 	string strProfile = strName.GetBuffer();  // CString->string
@@ -864,7 +865,6 @@ void CPage_Base::InitComboProfile()
 			m_combo_profile.SetCurSel(unIndex);
 			LoadProfile();
 		}
-
 		unIndex ++;
 	}
 }
@@ -874,11 +874,6 @@ void CPage_Base::InitComboProfile()
 void CPage_Base::NewBaseProfile()
 {
 	string strProfileName;
-
-	//新建“当前模板”，与默认模板具有相同的设置
-	//string strProfileName = "当前模板";
-	//m_pUI->TW_SaveProfileToFile(strProfileName);
-
 	
 	//新建“彩色,单面,200dpi”模板
 	strProfileName = "UDS--彩色,单面,200dpi";
@@ -943,7 +938,7 @@ void CPage_Base::LoadProfile()
 	{	
 		CString strProfile; 
 		m_combo_profile.GetLBText( nIndex, strProfile);
-		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());
+		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()); //会m_pDS->SetGustomDSData
 	}
 	
 	UpdateControls();

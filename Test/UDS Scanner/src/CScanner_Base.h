@@ -140,7 +140,7 @@ public:
 	//float             m_bDenoise;               /**< È¥ÔëÉù */
 	//float             m_bAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
 
-//	int                 m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
+//int                 m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
 	bool                m_bRemovePunch;           /**< È¥³ý´©¿× */
 	bool                m_bSharpen;               /**< Í¼ÏñÈñ»¯*/
 	bool                m_bMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */

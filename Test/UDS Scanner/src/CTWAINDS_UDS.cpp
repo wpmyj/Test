@@ -1256,8 +1256,15 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 
   _pImageInfo->XResolution = FloatToFIX32(settings.m_fXResolution);
   _pImageInfo->YResolution = FloatToFIX32(settings.m_fYResolution);
-  _pImageInfo->ImageWidth  = settings.m_nWidth;
-  _pImageInfo->ImageLength = settings.m_nHeight;
+  _pImageInfo->ImageWidth  = settings.m_nWidth; //1700
+  _pImageInfo->ImageLength = settings.m_nHeight; //2200
+	/*
+	char buf[10];
+	itoa(settings.m_nWidth, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
+	char buff[10];
+	itoa(settings.m_nHeight, buff, 10);
+	::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);*/
   
   // Our sample scanner only does one combination for each PixelType.
   switch(settings.m_nPixelType)
@@ -1296,23 +1303,6 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 
 	_pImageInfo->Planar = FALSE;
 	_pImageInfo->Compression = TWCP_NONE;
-
-	//zhu
-	/*switch(settings.m_nRotation)
-	{
-	case TWOR_ROT0:
-	_pImageInfo->Rotation = 0;
-	break;
-	case TWOR_ROT90:
-	_pImageInfo->Rotation = 90;
-	break;
-	case TWOR_ROT180:
-	_pImageInfo->Rotation = 180;
-	break;
-	case TWOR_ROT270:
-	_pImageInfo->Rotation = 270;
-	break;
-	}*/
 
   return twrc;
 }
