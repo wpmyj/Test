@@ -500,7 +500,7 @@ void CPage_Advanced::InitAdvancedmap(void)
 	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());//清空
 
 	int nCapIndex;
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_ORIENTATION);
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SPLITIMAGE);
 	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex; //初始化时只为map插入“分割Cap”的值，特例
 }
 
