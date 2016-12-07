@@ -27,6 +27,10 @@ CCamera_DirectX::~CCamera_DirectX(void)
 		m_pImageBuffer = NULL;
 	}
 	
+	if (false == m_mat_image.empty())
+	{
+		m_mat_image.release();
+	}
 }
 
 bool CCamera_DirectX::resetScanner()
@@ -34,7 +38,7 @@ bool CCamera_DirectX::resetScanner()
 	// Unlock the scanner 
 	Unlock();
 
-	
+		m_nDocCount           = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
 	//Base界面
 	m_nPixelType          = TWPT_RGB; //图形类型-彩色 zhu
 	m_fXResolution        = 200.0;
@@ -73,6 +77,11 @@ bool CCamera_DirectX::resetScanner()
 	m_bDenoise            = TWDN_DISABLE;
 	m_bAutoCrop           = TWAC_DISABLE;
 
+	if (false == m_mat_image.empty())
+	{
+		m_mat_image.release();
+	}
+
 	return true;
 }
 
@@ -102,9 +111,9 @@ bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
 		return false;
 	}
 	m_pImageBuffer = new BYTE[dwSize];
-	char buf[10];
-  itoa(dwSize, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"SetImageData::dwsize",MB_OK);
+	/*char buf[10];
+	itoa(dwSize, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"SetImageData::dwsize",MB_OK);*/
 	m_dwSize = dwSize;
 	memcpy(m_pImageBuffer, buffer, dwSize * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG, TEXT(buf),"After memcpy()",MB_OK);
@@ -143,4 +152,10 @@ bool CCamera_DirectX::acquireImage()
 {
 	m_nDocCount--;
 	return true;
+}
+
+void CCamera_DirectX::setSetting(CScanner_Base settings)
+{
+	CScanner_Base::setSetting(settings);  // 调用父类的方法
+	m_nDocCount = m_nMaxDocCount;
 }

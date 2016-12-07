@@ -1,6 +1,19 @@
 #ifndef __CCAMERA_DIRECTX_H__
 #define __CCAMERA_DIRECTX_H__
 #include "CScanner_base.h"
+#include "opencv.hpp"
+
+/**
+* The FreeImage scanner define for PaperSource is ADF
+*/
+#define SFI_PAPERSOURCE_ADF 0
+/**
+* The FreeImage scanner define for PaperSource is Flatbed
+*/
+#define SFI_PAPERSOURCE_FB  1
+
+using namespace cv;
+
 class CCamera_DirectX : public CScanner_Base
 {
 public:
@@ -27,6 +40,27 @@ public:
   */
   bool acquireImage();
 
+	/**
+  *  @brief  获取ADF中纸张个数
+	*  @return 纸张数
+	*/
+	short GetMaxPagesInADF(void){return m_nMaxDocCount;}
+
+	/**
+	*  @brief  设置ADF中最大待扫纸张数
+	*  @param[in]  nVal 设置的数目 
+	*/
+  void SetMaxPagesInADF(short nVal){
+		::MessageBox(NULL,TEXT("SetMaxPagesInADF!"),NULL,MB_OK);
+		m_nMaxDocCount = nVal;};
+
+	void AdjustSetting();
+
+	/**
+  * set the current settings
+  * @param[in] settings the new settings for the scanner
+  */
+  void setSetting(CScanner_Base settings);
 
 protected:
 	/**
@@ -67,6 +101,7 @@ protected:
 	char              m_szIniPath[PATH_MAX];    /**< INI配置文件路径 */   
 	BYTE*             m_pImageBuffer;           /**< 图片数据指针 */
 	DWORD             m_dwSize;                 /**< 图片数据大小 */
+	Mat               m_mat_image;              /**< 存储图像数据的Mat */
 };
 
 #endif  __CCAMERA_DIRECTX_H__

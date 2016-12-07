@@ -20,7 +20,7 @@ CDlg_Camera::CDlg_Camera(MFC_UI* pUI, CWnd* pParent /*=NULL*/)
 
 CDlg_Camera::~CDlg_Camera()
 {
-	::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
+	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
 }
 
@@ -64,7 +64,6 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CDlg_Camera::OnOk)
 	ON_MESSAGE(WM_IMAGEREADY, OnImageReady)
 	ON_MESSAGE(WM_IMAGESAVED, OnImageSaved)
-	//ON_WM_DESTROY()
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OCancel)
 END_MESSAGE_MAP()
@@ -109,6 +108,7 @@ BOOL CDlg_Camera::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
+	CenterWindow();
 	ReadCameraSettingFromINI();
 	//MessageBox("after ReadCameraSettingFromINI");
 
@@ -302,26 +302,26 @@ void CDlg_Camera::OnButton_Adjust()
 void CDlg_Camera::OnButton_Delete()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//if (m_Capture.m_nPhotoNo > 0)
-	//{
-	//	m_Capture.m_nPhotoNo -= 1;  m_Capture.m_strBarcode.Empty();
-	//	CString str;
-	//	str.Format("已拍摄 %d 张", m_Capture.m_nPhotoNo);
-	//	m_sPhotoNo.SetWindowText(str);
-	//	// 删除文件
-	//	str = theApp.m_tempFileList.GetAt( theApp.m_tempFileList.GetSize()-1 );
-	//	::DeleteFile(str);
-	//	str.Replace("~Un", "~UnTh");
-	//	::DeleteFile(str);
-	//	// 删除theApp中保存的相关数据
-	//	theApp.m_tempFileList.RemoveAt( theApp.m_tempFileList.GetSize()-1 );
-	//	theApp.m_tempBarcodeList.RemoveAt( theApp.m_tempBarcodeList.GetSize()-1 );
-	//	theApp.m_nTempFileCount--;
-	//}
-	//if (m_Capture.m_nPhotoNo > 0)
-	//	m_bDelete.EnableWindow(TRUE);
-	//else
-	//	m_bDelete.EnableWindow(FALSE);
+	if (m_Capture.m_nPhotoNo > 0)
+	{
+		m_Capture.m_nPhotoNo -= 1;  m_Capture.m_strBarcode.Empty();
+		CString str;
+		str.Format("已拍摄 %d 张", m_Capture.m_nPhotoNo);
+		m_sPhotoNo.SetWindowText(str);
+		// 删除文件
+		//str = theApp.m_tempFileList.GetAt( theApp.m_tempFileList.GetSize()-1 );
+		//::DeleteFile(str);
+		//str.Replace("~Un", "~UnTh");
+		//::DeleteFile(str);
+		// 删除theApp中保存的相关数据
+		//theApp.m_tempFileList.RemoveAt( theApp.m_tempFileList.GetSize()-1 );
+		//theApp.m_tempBarcodeList.RemoveAt( theApp.m_tempBarcodeList.GetSize()-1 );
+		//theApp.m_nTempFileCount--;
+	}
+	if (m_Capture.m_nPhotoNo > 0)
+		m_bDelete.EnableWindow(TRUE);
+	else
+		m_bDelete.EnableWindow(FALSE);
 }
 
 
@@ -499,13 +499,14 @@ void CDlg_Camera::OnButton_Camvideo()
 
 void CDlg_Camera::SetCapValue(void)
 {
-
+	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF,m_Capture.m_nPhotoNo);  // 设置待传图片数量
 }
 
 
 void CDlg_Camera::OnOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	SetCapValue();
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();
@@ -608,32 +609,18 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 }
 
 
-
-//void CDlg_Camera::OnDestroy()
-//{
-//	CDialogEx::OnDestroy();
-//
-//	// TODO: 在此处添加消息处理程序代码
-//	::MessageBox(NULL,TEXT("OnDestroy()!"),MB_CAPTION,MB_OK);
-//	m_Capture.StopCamera();
-//	m_Capture.ReleaseAll();
-//}
-
-
 void CDlg_Camera::OnClose()
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	::MessageBox(NULL,TEXT("OnClose()!"),MB_CAPTION,MB_OK);
-	m_Capture.StopCamera();
-	m_Capture.ReleaseAll();
+	//::MessageBox(NULL,TEXT("OnClose()!"),MB_CAPTION,MB_OK);
+	m_pUI->Cancel();
 	CDialogEx::OnClose();
-	DestroyWindow();
 }
 
 
 void CDlg_Camera::OCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	OnClose();
+	m_pUI->Cancel();
 	CDialogEx::OnCancel();
 }

@@ -114,9 +114,7 @@ protected:
 	afx_msg void OnButton_Help();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnButton_Camvideo();
-public:
 	afx_msg void OnOk();
-	//afx_msg void OnDestroy();
 	afx_msg void OnClose();
 	afx_msg void OCancel();
 };
