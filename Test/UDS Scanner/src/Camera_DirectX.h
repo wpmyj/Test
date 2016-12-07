@@ -25,7 +25,8 @@ public:
   * Retrieves the image to scan from disk into memory.
   * @return true if image was loaded into memory successfully.
   */
-  bool acquireImage() {return true;}
+  bool acquireImage();
+
 
 protected:
 	/**
@@ -36,6 +37,16 @@ protected:
 	*/
 	void GetImageData(BYTE *buffer, DWORD &dwReceived);
 
+	/**
+  * Return the number of documents sitting in the feeder.
+  * This number can be set with enviroment varible kGETENV_XFERCOUNT "CAP_XFERCOUNT"
+  * this is so we can tell when the feeder is empty
+  * - If CAP_XFERCOUNT is not set will return 1.
+  * - if < 0 will return random number.
+  * @return default number of documents.
+  */
+  short getDocumentCount() const;
+
 public:
 	/**
 	*  @brief  设置图片数据
@@ -45,6 +56,8 @@ public:
 	*  @retval false 表示失败
 	*/
 	bool SetImageData(BYTE *buffer, DWORD dwSize);
+
+
 
 protected:
 	short             m_nDocCount;              /**< number of documents waiting to transfer */

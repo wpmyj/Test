@@ -1,5 +1,11 @@
 #include "Camera_DirectX.h"
 #include "public.h"
+#include <time.h>
+/**
+* Environment vars to get the Xfer Count.  Create this enviroment Varable on your system to simulate the 
+* number of pages sitting in the scanner waiting to be scanned.
+*/
+#define kGETENV_XFERCOUNT "CAP_XFERCOUNT"
 
 extern HWND g_hwndDLG;
 
@@ -72,12 +78,20 @@ bool CCamera_DirectX::resetScanner()
 
 bool CCamera_DirectX::isFeederLoaded()
 {
-	return true;
+	//::MessageBox(g_hwndDLG,TEXT("isFeederLoaded()"),MB_CAPTION,MB_OK);
+	bool rtn = true;
+	if(m_nDocCount<=0)
+	{
+		rtn = false;
+		m_nDocCount = m_nMaxDocCount;// Reloaded the scanner with paper
+	}
+	return rtn;
 }
 
 void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
 	memcpy(buffer, m_pImageBuffer, m_dwSize * sizeof(BYTE));
+	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
 }
 
 bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
@@ -90,9 +104,43 @@ bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
 	m_pImageBuffer = new BYTE[dwSize];
 	char buf[10];
   itoa(dwSize, buf, 10);
-	//::MessageBox(g_hwndDLG, TEXT(buf),"dwsize",MB_OK);
+	::MessageBox(g_hwndDLG, TEXT(buf),"SetImageData::dwsize",MB_OK);
 	m_dwSize = dwSize;
 	memcpy(m_pImageBuffer, buffer, dwSize * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG, TEXT(buf),"After memcpy()",MB_OK);
+	return true;
+}
+
+short CCamera_DirectX::getDocumentCount() const
+{
+	// Simulate the number of pages sitting in the scanner.
+	int nCount = 1;
+
+	// Read this value from the environment. This will allow the simulation
+	// of a sheet feeder.      从外界环境读取此值，这可以模拟送纸器
+	// If the value is <= 0, then a random number of pages will be scanned, else
+	// the exact number will be used.     如果 nCount <= 0，则返回一个随机扫描页数，否则返回一个精确的页数
+	char szCount[10];
+	memset(szCount, 0, sizeof(szCount));
+
+	if( 0 != SGETENV(szCount, sizeof(szCount), kGETENV_XFERCOUNT) )   // 从外界环境读取此值，以模拟送纸器
+	{
+		// something found, convert it to an int
+		nCount = atoi(szCount);                    // 字符串转换成整型数
+
+		if(nCount <= 0)
+		{
+			srand(int(time(0)));
+			nCount = rand();
+			nCount = nCount%15;// upto 15 pages
+		}
+	}
+
+	return nCount;
+}
+
+bool CCamera_DirectX::acquireImage()
+{
+	m_nDocCount--;
 	return true;
 }

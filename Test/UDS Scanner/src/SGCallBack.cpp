@@ -2,7 +2,7 @@
 #include "stdafx.h"
 //#include "udsprework.h"
 #include "SGCallBack.h"
-
+#include "public.h"
 //#include "ximage.h"  // CXImage
 
 //#pragma comment(lib,"../CxImage_lib/cximage.lib")
@@ -27,6 +27,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern  HINSTANCE g_hinstance;
+extern void GetFilePath( char* szFileName, char* szFilePath);
 //extern CUdsPreWorkApp NEAR theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CUDSCapture
@@ -604,7 +606,9 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 
 	// 播放音效
 	//AfxMessageBox("SaveImage");
-	//sndPlaySound("SmartScan1.WAV", SND_ASYNC);
+	TCHAR szFilePath[MAX_PATH];
+	GetFilePath(FILENAME_WAV_CAMERA1, szFilePath);
+	sndPlaySound(szFilePath, SND_ASYNC);
 	
 	long nAllBytes = (m_nWidth*3  + 3) / 4 * 4;  // DIB;
 	BYTE *pDIB=NULL, *pNewBuffer=NULL;
@@ -1007,8 +1011,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 //	if (strBarcode != "***")  // 播放音效
 //		sndPlaySound("SmartScan2.WAV", SND_ASYNC);
 
-
-	//m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
+	m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
 	//delete []pDIB;
 	
 	/*

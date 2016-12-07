@@ -9,8 +9,11 @@
 #ifndef __PUBLIC_H__
 #define __PUBLIC_H__
 
-/** INI配置文件名常量 */
-#define INI_FILENAME TEXT("UDS General TWAIN DS.INI")
+/** 文件名常量 */
+#define FILENAME_INI TEXT("UDS General TWAIN DS.INI")
+#define FILENAME_WAV_CAMERA1 TEXT("Camera1.WAV")
+#define FILENAME_WAV_CAMERA2 TEXT("Camera2.WAV")
+
 
 /** INI节常量 */
 #define INI_APP_DEVICE TEXT("Device")

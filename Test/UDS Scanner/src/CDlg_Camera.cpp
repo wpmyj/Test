@@ -7,7 +7,7 @@
 #include "afxdialogex.h"
 #include "public.h"
 
-extern void GetIniFilePath(char* szINIPath);
+extern void GetFilePath( char* szFileName, char* szFilePath);
 // CDlg_Camera 对话框
 
 IMPLEMENT_DYNAMIC(CDlg_Camera, CDialogEx)
@@ -20,6 +20,8 @@ CDlg_Camera::CDlg_Camera(MFC_UI* pUI, CWnd* pParent /*=NULL*/)
 
 CDlg_Camera::~CDlg_Camera()
 {
+	::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
+	//m_Capture.StopCamera();
 }
 
 void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
@@ -60,6 +62,11 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_WM_HSCROLL()
 	ON_BN_CLICKED(IDC_BUTTON_CAMVIDEO, &CDlg_Camera::OnButton_Camvideo)
 	ON_BN_CLICKED(IDOK, &CDlg_Camera::OnOk)
+	ON_MESSAGE(WM_IMAGEREADY, OnImageReady)
+	ON_MESSAGE(WM_IMAGESAVED, OnImageSaved)
+	//ON_WM_DESTROY()
+	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OCancel)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -201,6 +208,10 @@ BOOL CDlg_Camera::OnInitDialog()
 		MessageBox(TEXT("未连接摄像机!"), TEXT(MB_CAPTION));
 		EndDialog(IDCANCEL);
 	}
+
+	CString msg;
+	msg.Format("已拍摄 %d张", m_Capture.m_nPhotoNo);
+	m_sPhotoNo.SetWindowText(msg);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -503,7 +514,8 @@ void CDlg_Camera::OnOk()
 	{
 		m_pUI->Scan();
 	}
-
+	//::MessageBox(NULL,TEXT("OnOK!"),MB_CAPTION,MB_OK);
+	//OnClose();
 	CDialogEx::OnOK();
 }
 
@@ -511,7 +523,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 {
 	char szINIPath[MAX_PATH];  // INI文件路径
 
-	GetIniFilePath(szINIPath);
+	GetFilePath(FILENAME_INI,szINIPath);
 
 	INI_CAMERA tempINI;
 
@@ -537,7 +549,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 
 	//bool
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	if (strTemp.Find(TEXT("Y"))) {
+	if (strTemp.Find(TEXT("Y")) >= 0) {
 		tempINI.CamAutoClip = true;
 	} 
 	else {
@@ -545,7 +557,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	}
 
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOENHANCE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	if (strTemp.Find(TEXT("Y"))) {
+	if (strTemp.Find(TEXT("Y")) >= 0) {
 		tempINI.CamAutoEnhance = true;
 	} 
 	else {
@@ -553,7 +565,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	}
 
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOROTATE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	if (strTemp.Find(TEXT("Y"))) {
+	if (strTemp.Find(TEXT("Y")) >= 0) {
 		tempINI.CamAutoRotate = true;
 	} 
 	else {
@@ -562,4 +574,66 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 
 	strTemp.ReleaseBuffer(nMaxLength);
 	m_ini = tempINI;
+}
+
+LRESULT CDlg_Camera::OnImageReady(WPARAM wParam, LPARAM lParam)
+{
+	m_Capture.m_bIsPreview = false;  // 转入保存状态
+	if (m_Capture.m_Auto.fastPreview == true)
+		StartCamera();
+
+	return TRUE;
+}
+
+LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
+{
+	m_Capture.m_bIsPreview = true;  // 转入预览状态
+	if (m_Capture.m_Auto.fastPreview == true)
+		StartCamera();
+
+	CString msg;
+	if (m_Capture.m_strBarcode == "***")
+		msg.Format("第 %d张", m_Capture.m_nPhotoNo);
+	else
+		msg.Format("第 %d张[%s]", m_Capture.m_nPhotoNo, m_Capture.m_strBarcode);
+	m_sPhotoNo.SetWindowText(msg);
+	if (m_Capture.m_nPhotoNo > 0)  // Set m_bDelete
+		m_bDelete.EnableWindow(TRUE);
+	else
+		m_bDelete.EnableWindow(FALSE);
+	if (m_Capture.m_Auto.autoClip == false)  // 手动拍摄
+		m_bPhoto.EnableWindow(TRUE);  // Set m_bPhoto
+
+	return TRUE;
+}
+
+
+
+//void CDlg_Camera::OnDestroy()
+//{
+//	CDialogEx::OnDestroy();
+//
+//	// TODO: 在此处添加消息处理程序代码
+//	::MessageBox(NULL,TEXT("OnDestroy()!"),MB_CAPTION,MB_OK);
+//	m_Capture.StopCamera();
+//	m_Capture.ReleaseAll();
+//}
+
+
+void CDlg_Camera::OnClose()
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	::MessageBox(NULL,TEXT("OnClose()!"),MB_CAPTION,MB_OK);
+	m_Capture.StopCamera();
+	m_Capture.ReleaseAll();
+	CDialogEx::OnClose();
+	DestroyWindow();
+}
+
+
+void CDlg_Camera::OCancel()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	OnClose();
+	CDialogEx::OnCancel();
 }

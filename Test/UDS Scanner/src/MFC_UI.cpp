@@ -61,6 +61,8 @@ MFC_UI::~MFC_UI(void)
 
 	if (m_pDlgCamera)
 	{
+		::MessageBox(g_hwndDLG,TEXT(":~MFC_UI()!"),MB_CAPTION,MB_OK);
+		m_pDlgCamera->DestroyWindow();
 		delete m_pDlgCamera;
 		m_pDlgCamera = NULL;
 	}
@@ -145,10 +147,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 				}
 			}
 
-	}
-
-
-	
+	}	
 
 		//} 
 		/*else
@@ -171,6 +170,12 @@ void MFC_UI::DestroyTWAINGUI()
 		m_pSheet = NULL;	
 	}
 	
+	if (m_pDlgCamera)
+	{
+		m_pDlgCamera->DestroyWindow();
+		delete m_pDlgCamera;
+		m_pDlgCamera = NULL;
+	}
 }
 
 

@@ -81,10 +81,11 @@ static HMODULE GetCurrentModule()
 
 // Globals
 /**
-*  @brief  获取Ini文件绝对路径.
-*  @param[out] szINIPath 当前Ini文件绝对路径.  
+*  @brief  获取指定文件的绝对路径.
+*  @param[in] szFileName 文件名
+*  @param[out] szFilePath 文件绝对路径.  
 */
-void GetIniFilePath(char* szINIPath)
+void GetFilePath( char* szFileName, char* szFilePath)
 {
 	char szCurrentModuleDIR[PATH_MAX];  // 当前DS的路径
 	char szTempPath[MAX_PATH];  // 临时存储的路径
@@ -109,7 +110,7 @@ void GetIniFilePath(char* szINIPath)
 	strncpy_s(szTempPath, szCurrentModuleDIR, MAX_PATH);
 #else
 	// In non-windows, kTWAIN_DS_DIR is set on the compiler command line
-	strncpy(szTempPath, kTWAIN_DS_DIR, MAX_PATH);
+	strncpy(szTempPath, szCurrentModuleDIR, MAX_PATH);
 #endif
 
 #if (TWNDS_CMP_VERSION >= 1400)
@@ -117,17 +118,17 @@ void GetIniFilePath(char* szINIPath)
 	{
 		strcat_s(szTempPath, MAX_PATH, "\\");
 	}		
-	strcat_s (szTempPath, MAX_PATH, INI_FILENAME);
+	strcat_s (szTempPath, MAX_PATH, szFileName);
 
 #else
 	if (szTempPath[len-1] != '\\')
 	{
 		strcat(szTempPath, "\\");
 	}		
-	strcat(szTempPath, INI_FILENAME);
+	strcat(szTempPath, szFileName);
 #endif
 
-	strncpy_s(szINIPath, MAX_PATH, szTempPath, MAX_PATH);
+	strncpy_s(szFilePath, MAX_PATH, szTempPath, MAX_PATH);
 }
 
 // Globals
@@ -141,7 +142,7 @@ int GetDeviceNumberFromINI()
 {
 	char szIniFilePath[MAX_PATH];  // INI文件路径
 
-	GetIniFilePath(szIniFilePath);
+	GetFilePath(FILENAME_INI,szIniFilePath);
 	
 	int nDeviceNumber = 0;
 	// 获取设备编号,获取失败为FreeImage(1)

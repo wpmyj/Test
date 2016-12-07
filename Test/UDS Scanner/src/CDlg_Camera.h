@@ -88,6 +88,16 @@ protected:
 	*/
 	void ReadCameraSettingFromINI();
 
+	/**
+	*  @brief  图片准备好消息响应函数
+	*/
+	LRESULT OnImageReady(WPARAM wParam, LPARAM lParam);
+
+	/**
+	*  @brief  图片保存消息响应函数
+	*/
+	LRESULT OnImageSaved(WPARAM wParam, LPARAM lParam);
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
@@ -106,4 +116,7 @@ protected:
 	afx_msg void OnButton_Camvideo();
 public:
 	afx_msg void OnOk();
+	//afx_msg void OnDestroy();
+	afx_msg void OnClose();
+	afx_msg void OCancel();
 };

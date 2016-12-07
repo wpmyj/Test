@@ -58,6 +58,8 @@ CUDSCapture::CUDSCapture()
 
 CUDSCapture::~CUDSCapture()
 {
+	StopCamera();
+	ReleaseAll(); 
 }
 
 
