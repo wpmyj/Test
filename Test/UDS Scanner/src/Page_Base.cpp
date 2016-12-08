@@ -79,7 +79,7 @@ void CPage_Base::OnOK()
 	// TODO: 在此添加专用代码和/或调用基类
 	SetCapValue(); //点击确定后才设置	
 	m_pAdPage->SetCapValue();
-	m_pUI->TW_SaveProfileToFile("当前模板");
+	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
@@ -106,7 +106,7 @@ void CPage_Base::OnCancel()
 	{
 		CString strTemp(iter->c_str());		
 
-		if(strTemp.Find("当前模板") >=0 ) 
+		if(strTemp.Find("上次使用模板") >=0 ) 
 		{
 			m_combo_profile.SetCurSel(unIndex);
 			LoadProfile();
@@ -115,7 +115,7 @@ void CPage_Base::OnCancel()
 		unIndex ++;
 	}
 
-	if(!status) //没找见当前模板
+	if(!status) //没找见上次使用模板
 	{
 		m_pUI->ResetAllCaps();
 	}
@@ -328,7 +328,7 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 
 	str.Format("%d", sldValue);
 	//m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
-	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, str);
+	SetDlgItemText(IDC_BASE_EDIT_CONTRAST, str);
 	//UpdateControls();
 	UpdateData(FALSE);  // 更新控件
 
@@ -850,7 +850,12 @@ void CPage_Base::InitComboProfile()
   m_combo_profile.SetCurSel(0); //设置为默认模板
 	
 	NewBaseProfile();
+	SetLastProfile();
+}
 
+//遍历模板，设置模板中存在“上次使用模板”的情况
+void CPage_Base::SetLastProfile(void)
+{
 	lstString strFileNames;
 	m_pUI->TW_GetAllProfiles(strFileNames);
 
@@ -861,14 +866,13 @@ void CPage_Base::InitComboProfile()
 		CString strTemp(iter->c_str());		
 		m_combo_profile.InsertString(unIndex, strTemp);
 
-		if(strTemp.Find("当前模板") >=0 ) {
+		if(strTemp.Find("上次使用") >=0 ) {
 			m_combo_profile.SetCurSel(unIndex);
 			LoadProfile();
 		}
 		unIndex ++;
 	}
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 //新建模板 
 void CPage_Base::NewBaseProfile()
@@ -969,9 +973,42 @@ void CPage_Base::SetDelete(void)
 void CPage_Base::OnBase_Btn_Saveprofile()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	SetCapValue();
+	m_pAdPage->SetCapValue();
+
 	int nIndex = m_combo_profile.GetCurSel();
-	string strProfile;
-	m_pUI->TW_SaveProfileToFile(strProfile);
+	CString strCBText; 
+	m_combo_profile.GetLBText( nIndex, strCBText);
+
+	if (strCBText.Find("默认模板") >= 0 || strCBText.Find("UDS") >= 0)//为默认模板或给定模板时，保存为上次使用模板
+	{
+		m_pUI->TW_SaveProfileToFile("上次使用模板"); 	
+		//SetLastProfile(); //SetLastProfile会再遍历一次，插入所有
+		
+		lstString strFileNames;
+		m_pUI->TW_GetAllProfiles(strFileNames);
+
+		unsigned int unIndex = 1;
+		lstString::iterator iter = strFileNames.begin();
+		for(;iter!=strFileNames.end(); iter++)
+		{
+			CString strTemp(iter->c_str());		
+
+			if(strTemp.Find("上次使用") >=0 ) {
+				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板
+				m_combo_profile.SetCurSel(unIndex);
+				LoadProfile();
+			}
+			unIndex ++;
+		}
+	}
+	else //其他用户新建的模板
+	{
+		string strProfile;
+		strProfile = strCBText;
+		m_pUI->TW_SaveProfileToFile(strProfile); 
+		LoadProfile();
+	}
 }
 
 bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 

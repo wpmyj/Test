@@ -40,9 +40,9 @@ private:
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void InitComboProfile();  ///< 初始化模版Combo
 	void LoadProfile();  ///< 加载模版
-	void NewBaseProfile(); //新建常用模板
-
-	void InitComboPixType(void); //初始化图像类型编辑框
+	void NewBaseProfile(); ///<新建常用模板
+	void SetLastProfile(); ///<遍历模板，设置模板中存在“上次使用模板”的情况
+	void InitComboPixType(void); ///<初始化图像类型编辑框
 
 	void SetCapValue(void);  ///<设置参数
 	void SetDelete(void); ///<设置删除按钮是否可用

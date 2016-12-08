@@ -327,6 +327,17 @@ bool CScanner_OpenCV::preScanPrep()
 		SpiltImage(m_mat_image,1,2);
 	}
 
+	if(m_bSharpen == TWSP_AUTO) //锐化图像
+	{	
+		Mat matSharpen;
+		int index = FindDepth(m_mat_image);
+		Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT ); //必须是与输入图像的深度相同
+		matSharpen.copyTo(m_mat_image);
+		//m_mat_image = matSharpen;
+	}
+
+	m_mat_image = HoughTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
+
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
 	m_nHeight = m_nSourceHeight = imgTemp.height;
@@ -373,6 +384,79 @@ bool CScanner_OpenCV::preScanPrep()
 	return true;
 }
 
+Mat CScanner_OpenCV::HoughTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
+{
+	Mat midImage,dstImage;//临时变量和目标图的定义  
+
+	//【2】进行边缘检测和转化为灰度图  
+	Canny(src_img, midImage, threshold1, threshold2, 3);//进行一次canny边缘检测 ，阈值1、2（50--200）可调 
+	cvtColor(midImage,dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图  
+
+	//【3】进行霍夫线变换  
+	vector<Vec2f> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合  
+	HoughLines(midImage, lines, 1, CV_PI/180, threshold, 0, 0 );  //150为阈值，可调 canny边缘检测 ，阈值1、2（50--200）可调
+
+	//【4】依次在图中绘制出每条线段  
+	for( size_t i = 0; i < lines.size(); i++ )  
+	{  
+		float rho = lines[i][0], theta = lines[i][1];  
+		Point pt1, pt2;  
+		double a = cos(theta), b = sin(theta);  
+		double x0 = a*rho, y0 = b*rho;  
+		pt1.x = cvRound(x0 + 1000*(-b));  
+		pt1.y = cvRound(y0 + 1000*(a));  
+		pt2.x = cvRound(x0 - 1000*(-b));  
+		pt2.y = cvRound(y0 - 1000*(a));  
+		line( dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);   //Scalar(55,100,195)该值来确定线条颜色
+	}  
+
+	//【5】显示原始图    
+	imwrite( "C://Users//Administrator//Desktop//原始图.jpg", src_img);
+
+	//【6】边缘检测后的图   
+	imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
+
+	//【7】显示效果图    
+	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", dstImage);
+	return dstImage;
+}
+
+int CScanner_OpenCV::FindDepth(const Mat& src_img)
+{
+	int Index,Outdex;
+	Index = src_img.depth(); //图像深度
+	switch(Index)
+	{
+		case 0:
+			Outdex = CV_8U;
+			break;
+		case 1:
+			Outdex = CV_8S;
+			break;
+		case 2:
+			Outdex = CV_16U;
+			break;
+		case 3:
+			Outdex = CV_16S;
+			break;
+		case 4:
+			Outdex = CV_32S;
+			break;
+		case 5:
+			Outdex = CV_32F;
+			break;
+		case 6:
+			Outdex = CV_64F;
+			break;
+		case 7:
+			Outdex = CV_USRTYPE1;
+			break;
+		default:
+			Outdex = CV_8U;
+			break;
+	}
+	return Outdex;
+}
 
 //bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
 //{
@@ -606,7 +690,7 @@ void CScanner_OpenCV::SpiltImage(const Mat& src_img,int m,int n)
 	{
 		char buf[10];
 		itoa(m_nDocCount, buf, 10);
-		::MessageBox(g_hwndDLG,TEXT(buf),"m_nDocCount",MB_OK);
+		::MessageBox(g_hwndDLG,TEXT(buf),"SpiltImage--m_nDocCount",MB_OK);
 	}
 
 	//namedWindow("5图", CV_WINDOW_AUTOSIZE); 

@@ -926,17 +926,34 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-
+	/*
   m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32(ICAP_GAMMA,TWON_ONEVALUE, TWQC_ALL);
   if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_GAMMA]))
    // || !pfixCap->Add(1, true))
-	 || !pfixCap->Add(100, true)) //zhu
+	 //|| !pfixCap->Add(100, true)) //zhu
+	 || !pfixCap->Add(1, true)) //zhu默认改为1，即直线校正
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_GAMMA !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_GAMMA" << endl;
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
-  }
+  }*/
+	
+	FLOAT_RANGE fRange;
+	//Gamma校正范围
+	fRange.fCurrentValue = 100.0f; 
+	fRange.fMaxValue = 400.0f;
+	fRange.fMinValue = 1.0f;
+	fRange.fStepSize = 10.0f;
+	//Gamma校正
+	m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32Range(ICAP_GAMMA,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_GAMMA]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_GAMMA !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create ICAP_GAMMA" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
 	//m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerBool(ICAP_AUTODISCARDBLANKPAGES, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
@@ -949,7 +966,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//	return TWRC_FAILURE;
 	//}
 	// 去除空白页等
-	FLOAT_RANGE fRange;
+	//FLOAT_RANGE fRange;
 	fRange.fCurrentValue = -2.0f; //默认不选中，赋值-2，不是0
 	fRange.fMaxValue = 10.0f;
 	fRange.fMinValue = -10.0f;
@@ -1997,7 +2014,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   else
   {
     pfRCap->GetCurrent(fVal);
-
     settings.m_fThreshold = fVal;
   }
 
@@ -2226,7 +2242,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nOrientation = nVal;
 	}//zhu
 
-
+	/*
   if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_GAMMA))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_GAMMA!"),MB_CAPTION,MB_OK);
@@ -2237,7 +2253,18 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   {
     pfCap->GetCurrent(fVal);
     settings.m_fGamma = fVal;
-  }
+  }*/
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_GAMMA))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_GAMMA!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_GAMMA" << endl;
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fGamma = fVal;
+	}
 
   if(bret)
   {

@@ -333,3 +333,12 @@ date 16.12.6
 4、增加Page_Custom类（界面的父类）函数virtual void InitAdvancedmap(void){};该操作是为了解决以下Bug:工作3只能保证进入高级设置界面后，点击扫描后才能使扫描张数为2生效，若用户第一次从高级界面扫描，第二次直接从基本界面扫描，扫描张数的设置就无效（等于是不会显示两张图，只会显示分割后的第二张图）；最后在CPage_Base::OnInitDialog()中利用父类指针手动调用一次（m_pAdPage->InitAdvancedmap()）；问题解决
 5、修改并重写图像分割函数为void SpiltImage(const Mat& src_img,int m,int n);为以后分割为多张图（即把一张图分为m*n块）做准备。结合工作3，最终能够成功显示分割后的两张图（上下、左右）；
 6、借鉴G系列扫描仪驱动界面的参数，修改“图像分割”名为“图像拆分”，以及Combo下拉选项改为“不拆分、上下、左右”
+
+date 16.12.7
+------------------------------------------------------------
+@author zhu
+1、实现基本界面“保存当前模板功能”（功能介绍：首先SetCapValue，然后如果是针对默认模板或者是给定模板修改、保存，就先保存模板为“上次使用模板”，最后遍历，Combo显示上次使用模板；若是针对用户新建的模板修改，直接保存模板）
+2、增加函数void CPage_Base::SetLastProfile(void)，用来封装遍历模板，设置模板中存在“上次使用模板”时的操作
+3、增加int CScanner_OpenCV::FindDepth(const Mat& src_img)函数，用来判断输入图像的深度，为图像锐化(Lapalacian的第三个参数服务）,实现锐化的操作
+4、首先修改Gamma校正在容器中的存储方式从CTWAINContainerFix32改为CTWAINContainerFix32Range，在容器中Gamma值范围为[1-400]，步长为10；在界面显示中，滑动条的范围之内以及Pos点只能为整数，不能是小数，所以容器中以放大100倍的数据存放，实际edit中显示的是更正规的Gamma值（范围为0.01--4.00）
+5、进一步封装霍夫变换的函数，Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);double类型的threshold1, threshold2是Canny算子所需的滞后性阈值，int型的threshold是OpenCV的HoughLines函数所需的阈值。虽然能够实现霍夫变换，但是这三个阈值的取值方法还需进一步考虑。

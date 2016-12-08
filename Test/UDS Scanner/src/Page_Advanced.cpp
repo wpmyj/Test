@@ -451,7 +451,8 @@ void CPage_Advanced::UpdateControls(void)
 	//Gamma校正 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型
 	m_slider_gamma.SetPos(nCapValue);
-	strText.Format("%d",nCapValue);
+	float valueTemp = ((float)nCapValue)/100;
+	strText.Format("%.2f", valueTemp);
 	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, strText);
 
 	//去除空白页 -1自动;-2不可用
@@ -1009,9 +1010,9 @@ void CPage_Advanced::InitSliderCtrl()
 	m_slider_brightness.SetRange((int)fMin, (int)fMax);
 	m_slider_brightness.SetTicFreq((int)fStep);
 
-	m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+	m_pUI->GetCapRangeFloat(ICAP_GAMMA, fMin, fMax, fStep);
 	m_slider_gamma.SetRange((int)fMin, (int)fMax);
-	m_slider_gamma.SetTicFreq((int)fStep); //默认设置位置为100，不为10
+	m_slider_gamma.SetTicFreq((int)fStep); //步长
 
 	UpdateData(FALSE);  // 更新控件
 }
@@ -1024,11 +1025,13 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT 
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_gamma.GetPos();  // 获取滑块当前位置
+	str.Format("%d",sldValue);
 	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)sldValue));
 	m_advancedmap[ICAP_GAMMA] = (float)sldValue;
 
-	str.Format("%d", sldValue);
+	float valueTemp = ((float)sldValue)/100;
+	str.Format("%.2f", valueTemp); //小数点后只要2位
 	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, str);// 在编辑框同步显示滚动条值
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
@@ -1169,11 +1172,14 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma()
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	m_edit_gamma.GetWindowText(str);
-	int nval = _ttoi(str);
+
+	//int nval = _ttoi(str);
+	float fval = _ttof(str);
+	int nval = (int)(100*fval);
 	m_slider_gamma.SetPos(nval);
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)nval));
 	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval);  // 设置对比度为当前滚动条值
-	m_advancedmap[ICAP_GAMMA] = (float)nval;
+	m_advancedmap[ICAP_GAMMA] = float(nval); //map存的是放大100倍的值
 
 	m_edit_gamma.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件

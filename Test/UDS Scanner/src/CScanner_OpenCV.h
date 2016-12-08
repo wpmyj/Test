@@ -203,6 +203,23 @@ protected:
 	void SpiltImage(const Mat& src_img,int m,int n);
 
 	/**
+	*  @brief  判断输入图像深度
+	*  @param[in]  src 输入图像
+	*  @param[out]  输出图像深度
+	*/
+	int FindDepth(const Mat& src_img);
+
+	/**
+	*  @brief  霍夫变换
+	*  @param[in]  src 输入图像
+	*  @param[in]  threshold1 Canny的滞后性阈值1
+	*  @param[in]  threshold2 Canny的滞后性阈值2
+	*  @param[in]  threshold1 HoughLines的阈值
+	*  @param[out]  输出变换后图像
+	*/
+	Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);
+
+	/**
 	*  @brief  水平镜像
 	*  @param[in]  src 原图 
 	*  @param[out] dst 目标图像 
