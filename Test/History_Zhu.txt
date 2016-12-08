@@ -341,4 +341,11 @@ date 16.12.7
 2、增加函数void CPage_Base::SetLastProfile(void)，用来封装遍历模板，设置模板中存在“上次使用模板”时的操作
 3、增加int CScanner_OpenCV::FindDepth(const Mat& src_img)函数，用来判断输入图像的深度，为图像锐化(Lapalacian的第三个参数服务）,实现锐化的操作
 4、首先修改Gamma校正在容器中的存储方式从CTWAINContainerFix32改为CTWAINContainerFix32Range，在容器中Gamma值范围为[1-400]，步长为10；在界面显示中，滑动条的范围之内以及Pos点只能为整数，不能是小数，所以容器中以放大100倍的数据存放，实际edit中显示的是更正规的Gamma值（范围为0.01--4.00）
-5、进一步封装霍夫变换的函数，Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);double类型的threshold1, threshold2是Canny算子所需的滞后性阈值，int型的threshold是OpenCV的HoughLines函数所需的阈值。虽然能够实现霍夫变换，但是这三个阈值的取值方法还需进一步考虑。
+5、进一步封装霍夫线变换的函数，Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);double类型的threshold1, threshold2是Canny算子所需的滞后性阈值，int型的threshold是OpenCV的HoughLines函数所需的阈值。虽然能够实现霍夫变换，但是这三个阈值的取值方法还需进一步考虑。
+
+date 16.12.8
+------------------------------------------------------------
+@author zhu
+1、修改图像处理区域的排版
+2、发现滑动条存在设定值与第二次读取值不一致的情况，调试解决，问题在于CTWAINDS_UDS中的Initialize()时步长给了10，所以对应的值从1开始只有1,11,21等值，反应到edit中就是只有0.01,0,21等值；所以修改步长为1，问题解决，只是由于步长太短，偶尔会由于操作问题，存在0.01的误差
+3、增加霍夫圆变化函数Mat HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2);threshold1为表示传递给canny边缘检测算子的高阈值，而低阈值为高阈值的一半，threshold2为表示在检测阶段圆心的累加器阈值

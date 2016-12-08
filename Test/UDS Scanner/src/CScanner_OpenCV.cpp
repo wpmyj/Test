@@ -354,7 +354,8 @@ bool CScanner_OpenCV::preScanPrep()
 		//m_mat_image = matSharpen;
 	}
 
-	//m_mat_image = HoughTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
+	//m_mat_image = HoughLinesTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
+	//m_mat_image = HoughCirclesTransfer(m_mat_image,200,100); // canny边缘检测阈值200；霍夫圆变换累加器阈值100
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
@@ -402,7 +403,8 @@ bool CScanner_OpenCV::preScanPrep()
 	return true;
 }
 
-Mat CScanner_OpenCV::HoughTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
+//霍夫线变换
+Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
 {
 	Mat midImage,dstImage;//临时变量和目标图的定义  
 
@@ -427,16 +429,46 @@ Mat CScanner_OpenCV::HoughTransfer(const Mat& src_img,double threshold1, double 
 		pt2.y = cvRound(y0 - 1000*(a));  
 		line( dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);   //Scalar(55,100,195)该值来确定线条颜色
 	}  
-
+	/*
 	//【5】显示原始图    
 	imwrite( "C://Users//Administrator//Desktop//原始图.jpg", src_img);
-
 	//【6】边缘检测后的图   
 	imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
-
 	//【7】显示效果图    
 	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", dstImage);
+	*/
 	return dstImage;
+}
+
+//霍夫圆变换
+Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2)
+{
+	Mat midImage;//临时变量和目标图的定义
+	//【3】转为灰度图，进行图像平滑  
+	cvtColor(src_img,midImage, CV_BGR2GRAY);//转化边缘检测后的图为灰度图  
+	GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 );  
+
+	//【4】进行霍夫圆变换  
+	vector<Vec3f> circles;  
+	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,1.5, 10, threshold1, threshold2, 0, 0 );  //200,100
+
+	//【5】依次在图中绘制出圆  
+	for( size_t i = 0; i < circles.size(); i++ )  
+	{  
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));  
+		int radius = cvRound(circles[i][2]);  
+		//绘制圆心  
+		circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 );  
+		//绘制圆轮廓  
+		circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 );  
+	}  
+	/*
+	//【6】边缘检测后的图   
+	imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
+	//【7】显示效果图    
+	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", src_img);*/
+
+	return src_img;
 }
 
 int CScanner_OpenCV::FindDepth(const Mat& src_img)

@@ -944,7 +944,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	fRange.fCurrentValue = 100.0f; 
 	fRange.fMaxValue = 400.0f;
 	fRange.fMinValue = 1.0f;
-	fRange.fStepSize = 10.0f;
+	fRange.fStepSize = 1.0f;
 	//GammaÐ£Õý
 	m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32Range(ICAP_GAMMA,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_GAMMA]))

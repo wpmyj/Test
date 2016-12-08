@@ -210,14 +210,23 @@ protected:
 	int FindDepth(const Mat& src_img);
 
 	/**
-	*  @brief  霍夫变换
+	*  @brief  霍夫线变换
 	*  @param[in]  src 输入图像
 	*  @param[in]  threshold1 Canny的滞后性阈值1
 	*  @param[in]  threshold2 Canny的滞后性阈值2
-	*  @param[in]  threshold1 HoughLines的阈值
+	*  @param[in]  threshold HoughLines的阈值
 	*  @param[out]  输出变换后图像
 	*/
-	Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);
+	Mat HoughLinesTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);
+
+	/**
+	*  @brief  霍夫圆变换
+	*  @param[in]  src 输入图像
+	*  @param[in]  threshold1 第三个参数method设置的检测方法的对应的参数,表示传递给canny边缘检测算子的高阈值，而低阈值为高阈值的一半
+	*  @param[in]  threshold2 表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形了
+	*  @param[out]  输出变换后图像
+	*/
+	Mat HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2);
 
 	/**
 	*  @brief  水平镜像

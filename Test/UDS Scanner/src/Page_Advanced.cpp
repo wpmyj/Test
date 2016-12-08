@@ -1181,6 +1181,11 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma()
 	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)nval);  // 设置对比度为当前滚动条值
 	m_advancedmap[ICAP_GAMMA] = float(nval); //map存的是放大100倍的值
 
+	/*
+	CString strTemp;
+	strTemp.Format("%.2f",(float)nval);
+	::MessageBox(NULL,TEXT(strTemp),"edit",MB_OK);*/
+
 	m_edit_gamma.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
 	//UpdateControls();
