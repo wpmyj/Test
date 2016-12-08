@@ -178,9 +178,15 @@ BOOL CDlg_Camera::OnInitDialog()
 	//m_Capture.m_nBarcodeLength = m_pMainWnd->m_ini.BarcodeLength;
 	//m_Capture.m_bMultiBarcode = m_pMainWnd->m_ini.MultiBarcode;
 	//m_Capture.m_bBarcodeRotate = m_pMainWnd->m_ini.BarcodeRotate;
-	//m_Capture.m_strImagePath = m_pMainWnd->m_strTempPath;  // Set m_strImagePath
-	//if (m_pMainWnd->m_ini.SaveHighQuality == true)
-	//	m_Capture.m_nQuality = 80;  // Set Hight Quality
+	
+	//if (FALSE == PathIsDirectory(m_ini.CamTempPath))
+	//{
+		CreateDir(m_ini.CamTempPath);
+		m_Capture.m_strImagePath = m_ini.CamTempPath;
+	//}
+	
+
+	//if (m_pMainWnd->m_ini.SaveHighQu.m_nQuality = 80;  // Set Hight Quality
 	//else
 	//	m_Capture.m_nQuality = m_pMainWnd->m_ini.Quality;  // Set m_nQuality
 
@@ -548,6 +554,9 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMFRAMESIZE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
 	tempINI.CamFrameSize = strTemp;
 
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMTEMPPATH,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	tempINI.CamTempPath = strTemp;
+
 	//bool
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
 	if (strTemp.Find(TEXT("Y")) >= 0) {
@@ -613,6 +622,12 @@ void CDlg_Camera::OnClose()
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	//::MessageBox(NULL,TEXT("OnClose()!"),MB_CAPTION,MB_OK);
+	CString str;
+	str.Format("确定退出吗？");
+	if (AfxMessageBox(str, MB_YESNO) == IDNO) // 选择"否",则不退出
+	{
+		return ;
+	}
 	m_pUI->Cancel();
 	CDialogEx::OnClose();
 }
@@ -624,3 +639,17 @@ void CDlg_Camera::OCancel()
 	m_pUI->Cancel();
 	CDialogEx::OnCancel();
 }
+
+
+bool CDlg_Camera::CreateDir(CString strFloderPath)
+{
+	
+	if (!CreateDirectory(strFloderPath, NULL))
+	{	
+		return false;
+	}
+
+	return true;	
+	
+}
+

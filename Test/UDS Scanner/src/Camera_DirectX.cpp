@@ -8,11 +8,13 @@
 #define kGETENV_XFERCOUNT "CAP_XFERCOUNT"
 
 extern HWND g_hwndDLG;
+extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
 
 CCamera_DirectX::CCamera_DirectX(void) :
 	m_nDocCount(0),
 	m_nSourceWidth(0),
-	m_nSourceHeight(0)
+	m_nSourceHeight(0),
+	m_nImageNumber(0)
 {
 	// set default caps
 	resetScanner();
@@ -77,6 +79,7 @@ bool CCamera_DirectX::resetScanner()
 	m_bDenoise            = TWDN_DISABLE;
 	m_bAutoCrop           = TWAC_DISABLE;
 
+	m_nImageNumber = 0;
 	if (false == m_mat_image.empty())
 	{
 		m_mat_image.release();
@@ -99,8 +102,12 @@ bool CCamera_DirectX::isFeederLoaded()
 
 void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
-	memcpy(buffer, m_pImageBuffer, m_dwSize * sizeof(BYTE));
+	//memcpy(buffer, m_pImageBuffer, m_dwSize * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
+
+
+	int size = m_mat_image.total() * m_mat_image.elemSize();
+	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
 }
 
 bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
@@ -150,7 +157,29 @@ short CCamera_DirectX::getDocumentCount() const
 
 bool CCamera_DirectX::acquireImage()
 {
+	//static int nCount = 0;
+	//string filename = g_vecFilePath[nCount];
+	string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
+	//nCount++;
+	m_nImageNumber++;
+
+	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
+	m_mat_image = cv::imread(filename);
+	if(true == m_mat_image.empty())
+	{
+		::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
+		//cout << "ds: Failed - could not acquire image" << endl;
+		return false ;
+	}
 	m_nDocCount--;
+
+	// do whatever tranforms to the scanned image that was requested by the app
+	// before the image is sent to the app.
+	if(false == preScanPrep())
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -158,4 +187,14 @@ void CCamera_DirectX::setSetting(CScanner_Base settings)
 {
 	CScanner_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
+}
+
+bool CCamera_DirectX::preScanPrep()
+{
+	m_nWidth = g_vecCust_ImageInfo[m_nImageNumber].imageWidth;
+	m_nHeight = g_vecCust_ImageInfo[m_nImageNumber].imageHeight;
+	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].XResolution;
+	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].YResolution;
+
+	return true;
 }

@@ -49,8 +49,9 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.ds</TargetExt>
     <GenerateManifest>true</GenerateManifest>
-    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\CxImage600\include;E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\CxImage600\lib;E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
+    <TargetName>UDS General TWAIN DS</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,7 +111,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(TargetName).ds</OutputFile>
+      <OutputFile>$(OutDir)UDS General TWAIN DS.ds</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>

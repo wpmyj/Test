@@ -17,6 +17,7 @@ struct INI_CAMERA
 {
 	CString Camera;
 	CString CamFrameSize;
+	CString CamTempPath;
 	long CamExposure;
 	long CamBrightness;
 	long CamImageType;
@@ -97,6 +98,15 @@ protected:
 	*  @brief  图片保存消息响应函数
 	*/
 	LRESULT OnImageSaved(WPARAM wParam, LPARAM lParam);
+
+	/**
+	*  @brief  在指定路径下创建文件夹
+	*  @param[in]  strFloderPath 路径 
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool CreateDir(CString strFloderPath);
+
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();

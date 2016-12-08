@@ -50,9 +50,7 @@ public:
 	*  @brief  设置ADF中最大待扫纸张数
 	*  @param[in]  nVal 设置的数目 
 	*/
-  void SetMaxPagesInADF(short nVal){
-		::MessageBox(NULL,TEXT("SetMaxPagesInADF!"),NULL,MB_OK);
-		m_nMaxDocCount = nVal;};
+  void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;};
 
 	void AdjustSetting();
 
@@ -81,6 +79,12 @@ protected:
   */
   short getDocumentCount() const;
 
+	/**
+  * Transform the image according to the caps set by the application.
+  * @return true if successful
+  */
+  bool preScanPrep();
+
 public:
 	/**
 	*  @brief  设置图片数据
@@ -102,6 +106,7 @@ protected:
 	BYTE*             m_pImageBuffer;           /**< 图片数据指针 */
 	DWORD             m_dwSize;                 /**< 图片数据大小 */
 	Mat               m_mat_image;              /**< 存储图像数据的Mat */
+	int               m_nImageNumber;            /**< 图片编号 */
 };
 
 #endif  __CCAMERA_DIRECTX_H__

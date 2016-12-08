@@ -3,21 +3,18 @@
 //#include "udsprework.h"
 #include "SGCallBack.h"
 #include "public.h"
-//#include "ximage.h"  // CXImage
+#include "ximage.h"  // CXImage
+#include <vector>
 
-//#pragma comment(lib,"../CxImage_lib/cximage.lib")
-/*#pragma comment(lib,"CxImage_lib/Jpeg.lib")
-#pragma comment(lib,"CxImage_lib/png.lib ")
-#pragma comment(lib,"CxImage_lib/zlib.lib ")
-#pragma comment(lib,"CxImage_lib/Tiff.lib ")
-#pragma comment(lib,"CxImage_lib/jasper.lib ")
-
-#pragma comment(lib,"CxImage_lib/libdcr.lib ")
-#pragma comment(lib,"CxImage_lib/mng.lib ")
-#pragma comment(lib,"CxImage_lib/consoled.lib ")
-#pragma comment(lib,"CxImage_lib/jbig.lib ")
-#pragma comment(lib,"CxImage_lib/libpsd.lib ")
-*/
+#pragma comment(lib,"cximage.lib")
+#pragma comment(lib,"jasper.lib")
+#pragma comment(lib,"Jpeg.lib")
+#pragma comment(lib,"jbig.lib")
+#pragma comment(lib,"libdcr.lib")
+#pragma comment(lib,"mng.lib")
+#pragma comment(lib,"png.lib")
+#pragma comment(lib,"zlib.lib")
+#pragma comment(lib,"Tiff.lib")
 
 #pragma comment(lib, "Winmm.lib")
 
@@ -29,6 +26,9 @@ static char THIS_FILE[] = __FILE__;
 
 extern  HINSTANCE g_hinstance;
 extern void GetFilePath( char* szFileName, char* szFilePath);
+
+vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
+
 //extern CUdsPreWorkApp NEAR theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CUDSCapture
@@ -1011,10 +1011,10 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 //	if (strBarcode != "***")  // 播放音效
 //		sndPlaySound("SmartScan2.WAV", SND_ASYNC);
 
-	m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
+	//m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
 	//delete []pDIB;
 	
-	/*
+	
 	// 处理并保存文档
 	CxImage *pImage = new CxImage();
 	pImage->CreateFromHANDLE( (HANDLE)pDIB );
@@ -1029,27 +1029,27 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	
 
 
-	// 根据条码自动旋转图像
-	int i = strBarcode.Find(":::", 0);
-	if (i >= 0)  // 自动旋转标记 ":::"
-	{
-		CString strDirection = strBarcode.Left(i);
-		strBarcode = strBarcode.Mid(i+3);
-		if (strDirection == "1")  // Left to Right
-			hasRotate = true;
-		else if (strDirection == "2")  // Top to Bottom
-		{
-			pImage->RotateLeft();  hasRotate = true;
-		}
-		else if (strDirection == "8")  // Bottom to Top
-		{
-			pImage->RotateRight();  hasRotate = true;
-		}
-		else if (strDirection == "4")  // Right to Left
-		{
-			pImage->Rotate180();  hasRotate = true;
-		}
-	}
+	//// 根据条码自动旋转图像
+	//int i = strBarcode.Find(":::", 0);
+	//if (i >= 0)  // 自动旋转标记 ":::"
+	//{
+	//	CString strDirection = strBarcode.Left(i);
+	//	strBarcode = strBarcode.Mid(i+3);
+	//	if (strDirection == "1")  // Left to Right
+	//		hasRotate = true;
+	//	else if (strDirection == "2")  // Top to Bottom
+	//	{
+	//		pImage->RotateLeft();  hasRotate = true;
+	//	}
+	//	else if (strDirection == "8")  // Bottom to Top
+	//	{
+	//		pImage->RotateRight();  hasRotate = true;
+	//	}
+	//	else if (strDirection == "4")  // Right to Left
+	//	{
+	//		pImage->Rotate180();  hasRotate = true;
+	//	}
+	//}
 
 
 
@@ -1091,13 +1091,25 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		fileName.Format("%s~Un%d.tif", m_pCapture->m_strImagePath, m_nTempFileCount);
 		pImage->SetCodecOption(3, CXIMAGE_FORMAT_TIF);  // G4 compression
 		retval = pImage->Save(fileName, CXIMAGE_FORMAT_TIF);
+		
 	}
 	else
 	{
 		fileName.Format("%s~Un%d.jpg", m_pCapture->m_strImagePath, m_nTempFileCount);
-		pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
+		//pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
 		retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
+		
 	}
+
+	CUST_IMAGEINFO temp;
+	temp.imagePath = fileName.GetBuffer();
+	temp.imageWidth = pImage->GetWidth();
+	temp.imageHeight = pImage->GetHeight();
+	temp.XResolution = pImage->GetXDPI();
+	temp.YResolution = pImage->GetYDPI();
+
+	g_vecCust_ImageInfo.push_back(temp);
+
 	if ( retval )  // Save file success: Generate Thumbnail JPG
 	{
 		float h_w = (float)pImage->GetHeight() / (float)pImage->GetWidth();
@@ -1111,13 +1123,14 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	}
 	delete pImage;
 	CFile hf(fileName, CFile::modeRead);  hf.Close();  // Flush file
-	*/
+	
+	
 	// 添加到临时文件列表
-//	theApp.m_tempFileList.Add(fileName);  // Add image to file list
-//	theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
-//	theApp.m_nTempFileCount += 1;  // 临时文件名编号
+	//theApp.m_tempFileList.Add(fileName);  // Add image to file list
+	//theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
+	//theApp.m_nTempFileCount += 1;  // 临时文件名编号
 	  m_nTempFileCount += 1;
-//	m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
+	//m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
 		m_pCapture->m_nPhotoNo++;
 		
 	return TRUE;

@@ -22,6 +22,7 @@
 /** INI键(Key)常量 */
 #define INI_KEY_DEVICENUMBER TEXT("DeviceNumber")
 #define INI_KEY_CAMERA TEXT("Camera")
+#define INI_KEY_CAMTEMPPATH TEXT("CamTempPath")
 #define INI_KEY_CAMFRAMESIZE TEXT("CamFrameSize")
 #define INI_KEY_CAMEXPOSURE TEXT("CamExposure")
 #define INI_KEY_CAMBRIGHTNESS TEXT("CamBrightness")
@@ -52,6 +53,15 @@ typedef enum DEVICE_NUMBER
 	DEVICE_CAMERA     = 4,   /**< 摄像头 */
 };
 
+/** 自定义图片信息,用于保存高拍仪图片 */
+typedef struct _CUST_IMAGEIFO
+{
+	string imagePath;      /**< 图片绝对路径 */
+	int    imageWidth;     /**< 图片宽度，单位:像素数 */
+	int    imageHeight;    /**< 图片高度，单位:像素数 */
+	float  XResolution;    /**< 水平方向分辨率，单位:DPI */
+	float  YResolution;    /**< 垂直方向分辨率，单位:DPI */
+}CUST_IMAGEINFO;
 
 ///** INI文件中的Camera配置 */
 //struct INI_CAMERA
