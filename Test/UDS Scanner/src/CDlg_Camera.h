@@ -68,6 +68,8 @@ public:
 
 	INI_CAMERA m_ini; ///< 保存配置文件信息
 
+	CListCtrl   m_listctrl;   ///< 缩略图对应ListCtrl控件
+	CImageList	m_imagelist;  ///< 缩略图对应ImageList控件
 private:
 	MFC_UI *m_pUI;
 
@@ -116,6 +118,18 @@ protected:
 	*/
 	bool ClearAndDeleteDir(const TCHAR* szPath, bool deleteDir = false);
 
+	/**
+	*  @brief  加载缩略图
+	*/
+	void LoadThumbNail();
+
+	/**
+	*  @brief  通过文件名获取文件类型
+	*  @param[in]  filename 
+	*  @return 文件类型
+	*/
+	int GetTypeFromFileName(const CString filename);
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
@@ -135,4 +149,5 @@ protected:
 	afx_msg void OnOk();
 	afx_msg void OnClose();
 	afx_msg void OnCancel();
+
 };

@@ -7,6 +7,12 @@
 #include "afxdialogex.h"
 #include "public.h"
 
+#include "ximage.h"  // CXImage
+#pragma comment(lib,"cximage.lib")
+
+#define THUMB_WIDTH  100
+#define THUMB_HEIGHT 70
+
 extern void GetFilePath( char* szFileName, char* szFilePath);
 extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
 // CDlg_Camera 对话框
@@ -44,6 +50,7 @@ void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_AUTOROTATE, m_cAutoRotate);
 	DDX_Control(pDX, IDC_SLIDER_EXPOSURE, m_slExposure);
 	DDX_Control(pDX, IDC_SLIDER_BRIGHTNESS, m_slBrightness);
+	DDX_Control(pDX, IDC_LIST_THUNMBNAIL, m_listctrl);
 }
 
 
@@ -281,6 +288,7 @@ void CDlg_Camera::OnButton_Photo()
 			StartCamera();
 		m_bStop.EnableWindow(FALSE);  // Set m_bStop
 	}
+
 }
 
 
@@ -604,6 +612,7 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 	if (m_Capture.m_Auto.autoClip == false)  // 手动拍摄
 		m_bPhoto.EnableWindow(TRUE);  // Set m_bPhoto
 
+	LoadThumbNail();
 	return TRUE;
 }
 
@@ -732,4 +741,195 @@ bool CDlg_Camera::ClearAndDeleteDir(const TCHAR* szPath, bool deleteDir/*= false
 	return true;
 }
 
+void CDlg_Camera::LoadThumbNail()
+{
+	DWORD dwStyle;
+	dwStyle = m_listctrl.GetExtendedStyle();
+	dwStyle = dwStyle|LVS_SHOWSELALWAYS|LVS_ALIGNTOP|LVS_ICON|LVS_AUTOARRANGE;
+	m_listctrl.SetExtendedStyle(dwStyle);
+	m_imagelist.Create(THUMB_WIDTH,THUMB_HEIGHT,ILC_COLOR24,0,1);
+	m_listctrl.SetImageList(&m_imagelist,LVSIL_NORMAL);
 
+	//remove m_imagelist
+	for(int i=0; i<m_imagelist.GetImageCount(); i++) {
+		m_imagelist.Remove(i);
+	}
+
+	//remove all items from list view
+	m_listctrl.DeleteAllItems();
+
+	//set Number of image for m_imagelist
+	m_imagelist.SetImageCount(g_vecCust_ImageInfo.size());
+
+	char path[MAX_PATH];
+	std::vector<CUST_IMAGEINFO>::iterator iter;
+
+	//重绘false防止重绘闪烁
+	m_listctrl.SetRedraw(false);
+	int nIndex=0;
+	for(iter=g_vecCust_ImageInfo.begin();iter!=g_vecCust_ImageInfo.end();iter++,nIndex++)
+	{
+		m_listctrl.InsertItem(nIndex,iter->imagePath.c_str(),nIndex);
+	}
+
+	m_listctrl.SetRedraw(true);
+	m_listctrl.Invalidate();
+
+	//为背景和边框创建画刷
+	HBRUSH hBrushBorder    =::CreateSolidBrush(RGB(220,220,220));
+	HBRUSH hBrushBkground  =::CreateSolidBrush(RGB(255,255,255));
+
+	//边框尺寸
+	RECT rcBorder;
+	rcBorder.left=rcBorder.top  =0;
+	rcBorder.right              =THUMB_WIDTH;
+	rcBorder.bottom             =THUMB_HEIGHT;
+
+	const float fRatio=(float)THUMB_HEIGHT/THUMB_WIDTH; //const是为了防止只读变量在程序运行过程中“遭受”改变
+
+	int XDest,YDest,nDestWidth,nDestHeight;
+	nIndex=0;
+
+	for(iter=g_vecCust_ImageInfo.begin();iter!=g_vecCust_ImageInfo.end();iter++,nIndex++)
+	{ 
+	  _tcscpy_s(path, iter->imagePath.c_str());
+		int nImageType = GetTypeFromFileName(path); 
+
+		if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
+			continue;
+		CxImage image(path,nImageType);//把图像加载到image中
+		if(image.IsValid()==false)
+			continue;
+		//计算矩形rect适应画板
+		const float fImgRatio=(float)image.GetHeight()/image.GetWidth();
+		if(fImgRatio>fRatio)
+		{
+			nDestWidth=THUMB_HEIGHT/fImgRatio;
+			XDest=(THUMB_WIDTH-nDestWidth)/2;
+			YDest=0;
+			nDestHeight=THUMB_HEIGHT;
+		}
+		else
+		{
+			XDest=0;
+			nDestWidth=THUMB_WIDTH;
+			nDestHeight=THUMB_WIDTH*fImgRatio;
+			YDest=(THUMB_HEIGHT-nDestHeight)/2;
+		}
+
+		//创建CClientDC
+		CClientDC cdc(this);//创建一个与this指针关联的对象的设备上下文对象，this代表本类对象的指针
+		HDC hDC=::CreateCompatibleDC(cdc.m_hDC);//创建一个与指定设备兼容的内存设备上下文环境
+		HBITMAP bm=CreateCompatibleBitmap(cdc.m_hDC,THUMB_WIDTH,THUMB_HEIGHT);//创建与指定设备环境相兼容的位图
+		HBITMAP pOldBitmapImage=(HBITMAP)SelectObject(hDC,bm);//选定bm到DC中
+
+		//draw background
+		::FillRect(hDC,&rcBorder,hBrushBkground);
+
+		//draw image
+		image.Stretch(hDC,XDest,YDest,nDestWidth,nDestHeight);
+
+		//draw border
+		::FrameRect(hDC,&rcBorder,hBrushBorder);
+
+		SelectObject(hDC,pOldBitmapImage);
+
+		//attach to bitmap and replace image in CImageList
+		CBitmap bitmap;
+		bitmap.Attach(bm);
+		m_imagelist.Replace(nIndex,&bitmap,NULL);
+
+		//redraw only a current item for removing flicker and fast speed
+		m_listctrl.RedrawItems(nIndex,nIndex);
+
+		//release used DC and Object
+		DeleteDC(hDC);
+		DeleteObject(bm);
+	}
+	DeleteObject(hBrushBorder);
+	DeleteObject(hBrushBkground);
+	m_listctrl.Invalidate();
+
+}
+
+
+int CDlg_Camera::GetTypeFromFileName(const CString filename)
+{
+	CString ext = filename.Right(filename.GetLength()-filename.ReverseFind('.')-1);
+
+	int type = 0;
+	if (ext == "bmp")     type = CXIMAGE_FORMAT_BMP;
+
+#if CXIMAGE_SUPPORT_JPG    
+	else if (ext=="jpg"||ext=="jpeg") type = CXIMAGE_FORMAT_JPG;    //3
+#endif
+
+#if CXIMAGE_SUPPORT_GIF                                       //如果满足#if后面的条件，就编译#if和#endif之间的程序
+	else if (ext == "gif")    type = CXIMAGE_FORMAT_GIF;
+#endif
+
+#if CXIMAGE_SUPPORT_PNG
+	else if (ext == "png")    type = CXIMAGE_FORMAT_PNG;
+#endif
+
+#if CXIMAGE_SUPPORT_MNG
+	else if (ext=="mng"||ext=="jng") type = CXIMAGE_FORMAT_MNG;
+#endif
+
+#if CXIMAGE_SUPPORT_ICO
+	else if (ext == "ico")    type = CXIMAGE_FORMAT_ICO;
+#endif
+
+#if CXIMAGE_SUPPORT_TIF
+	else if (ext=="tiff"||ext=="tif") type = CXIMAGE_FORMAT_TIF;
+#endif
+
+#if CXIMAGE_SUPPORT_TGA
+	else if (ext=="tga")    type = CXIMAGE_FORMAT_TGA;
+#endif
+
+#if CXIMAGE_SUPPORT_PCX
+	else if (ext=="pcx")    type = CXIMAGE_FORMAT_PCX;
+#endif
+
+#if CXIMAGE_SUPPORT_WBMP
+	else if (ext=="wbmp")    type = CXIMAGE_FORMAT_WBMP;
+#endif
+
+#if CXIMAGE_SUPPORT_WMF
+	else if (ext=="wmf"||ext=="emf") type = CXIMAGE_FORMAT_WMF;
+#endif
+
+#if CXIMAGE_SUPPORT_J2K
+	else if (ext=="j2k"||ext=="jp2") type = CXIMAGE_FORMAT_J2K;
+#endif
+
+#if CXIMAGE_SUPPORT_JBG
+	else if (ext=="jbg")    type = CXIMAGE_FORMAT_JBG;
+#endif
+
+#if CXIMAGE_SUPPORT_JP2
+	else if (ext=="jp2"||ext=="j2k") type = CXIMAGE_FORMAT_JP2;
+#endif
+
+#if CXIMAGE_SUPPORT_JPC
+	else if (ext=="jpc"||ext=="j2c") type = CXIMAGE_FORMAT_JPC;
+#endif
+
+#if CXIMAGE_SUPPORT_PGX
+	else if (ext=="pgx")    type = CXIMAGE_FORMAT_PGX;
+#endif
+
+#if CXIMAGE_SUPPORT_RAS
+	else if (ext=="ras")    type = CXIMAGE_FORMAT_RAS;
+#endif
+
+#if CXIMAGE_SUPPORT_PNM
+	else if (ext=="pnm"||ext=="pgm"||ext=="ppm") type = CXIMAGE_FORMAT_PNM;
+#endif
+
+	else type = CXIMAGE_FORMAT_UNKNOWN;
+
+	return type;
+
+}

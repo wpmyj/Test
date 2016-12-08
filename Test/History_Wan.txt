@@ -166,4 +166,6 @@ date 16.12.08
 4.DEVICE_NUMBER = DEVICE_OPENCV，获取图片DPI改用CxImage;
 5.解决DEVICE_NUMBER = DEVICE_CAMERA，照片数为0单击确定后出错的bug;
 6.实现DEVICE_NUMBER = DEVICE_CAMERA，高拍仪界面关闭后，清空临时文件夹;
+7.实现高拍仪界面显示缩略图的功能;
+
 
