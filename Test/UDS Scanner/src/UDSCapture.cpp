@@ -47,12 +47,16 @@ CUDSCapture::CUDSCapture()
 	m_Auto.strCamrea.Empty();                  // Ä¬ÈÏÉãÏñ»ú
 	m_Auto.strSize.Empty();                    // Ä¬ÈÏÍ¼ÏñÖ¡³ß´ç
 
-	m_strMinSize.Empty();  m_strMaxSize.Empty();
+	m_strMinSize.Empty(); 
+	m_strMaxSize.Empty();
 	m_strBarcodeType = "39/128", m_strBarcodeFormat.Empty();
 	m_nBarcodeLength = 0;
-	m_bMultiBarcode = false;  m_bBarcodeRotate = false;
-	m_strImagePath.Empty();  m_strBarcode.Empty();
-	m_nQuality = 40;  m_nPhotoNo = 0;
+	m_bMultiBarcode = false;  
+	m_bBarcodeRotate = false;
+	m_strImagePath.Empty(); 
+	m_strBarcode.Empty();
+	m_nQuality = 40; 
+	m_nPhotoNo = 0;
 
 }
 

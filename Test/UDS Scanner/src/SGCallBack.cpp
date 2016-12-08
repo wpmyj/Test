@@ -1108,12 +1108,10 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	temp.XResolution = pImage->GetXDPI();
 	temp.YResolution = pImage->GetYDPI();
 
-	char buf[10];
-	itoa(	temp.imageWidth, buf, 10);
-	::MessageBox(NULL, TEXT(buf),"temp.imageWidth",MB_OK);
-
-
-	::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
+	//char buf[10];
+	//itoa(	temp.imageWidth, buf, 10);
+	//::MessageBox(NULL, TEXT(buf),"temp.imageWidth",MB_OK);
+	//::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
 
 	g_vecCust_ImageInfo.push_back(temp);
 

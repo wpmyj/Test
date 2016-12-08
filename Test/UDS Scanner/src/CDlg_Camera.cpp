@@ -23,6 +23,7 @@ CDlg_Camera::~CDlg_Camera()
 {
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
+	ClearAndDeleteDir(m_Capture.m_strImagePath);
 }
 
 void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
@@ -66,7 +67,7 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_MESSAGE(WM_IMAGEREADY, OnImageReady)
 	ON_MESSAGE(WM_IMAGESAVED, OnImageSaved)
 	ON_WM_CLOSE()
-	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OCancel)
+	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OnCancel)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -453,7 +454,7 @@ void CDlg_Camera::OnButton_Help()
 		errMsg.Format(" 【软件授权】速拍仪未授权, 序列号【%s】。\n   您可以继续测试全部功能，但拍摄图像含水印。\n\n", theApp.m_strCameraMysherSN);
 		strHelp += errMsg;
 		}*/
-		strHelp += "\n                                     点击【返回】按钮结束帮助";
+		strHelp += "\n\n                                     点击【返回】按钮结束帮助";
 		//::MessageBox(this->m_hWnd,TEXT("SetWindowText!"),MB_CAPTION,MB_OK);
 		m_sPreviewWnd.SetWindowText(strHelp);
 	}
@@ -514,23 +515,6 @@ void CDlg_Camera::SetCapValue(void)
 	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].YResolution);
 }
 
-
-void CDlg_Camera::OnOk()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	SetCapValue();
-	if(m_pUI->m_bSetup)  // EnableDSOnly
-	{
-		m_pUI->Save();
-	}
-	else  
-	{
-		m_pUI->Scan();
-	}
-	//::MessageBox(NULL,TEXT("OnOK!"),MB_CAPTION,MB_OK);
-	//OnClose();
-	CDialogEx::OnOK();
-}
 
 void CDlg_Camera::ReadCameraSettingFromINI()
 {
@@ -623,6 +607,27 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 	return TRUE;
 }
 
+void CDlg_Camera::OnOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (0 == m_Capture.m_nPhotoNo)  // 一张都没拍取消扫描
+	{
+		OnCancel();
+		return;
+	}
+
+	SetCapValue();	
+	if(m_pUI->m_bSetup)  // EnableDSOnly
+	{
+		m_pUI->Save();
+	}
+	else  
+	{
+		m_pUI->Scan();
+	}
+
+	CDialogEx::OnOK();
+}
 
 void CDlg_Camera::OnClose()
 {
@@ -639,20 +644,21 @@ void CDlg_Camera::OnClose()
 }
 
 
-void CDlg_Camera::OCancel()
+void CDlg_Camera::OnCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
 	m_pUI->Cancel();
 	CDialogEx::OnCancel();
 }
 
 
-bool CDlg_Camera::CreateDir(CString strFloderPath)
+bool CDlg_Camera::CreateDir(const CString& strPath)
 {
-	if (!PathFileExists(strFloderPath))
+	if (!PathFileExists(strPath))
 	{
 		//::MessageBox(NULL,TEXT("文件夹不存在!"),MB_CAPTION,MB_OK);
-		if (!CreateDirectory(strFloderPath, NULL))
+		if (!CreateDirectory(strPath, NULL))
 		{	
 			return false;
 		}
@@ -661,4 +667,69 @@ bool CDlg_Camera::CreateDir(CString strFloderPath)
 	
 	return true;		
 }
+
+bool CDlg_Camera::ClearAndDeleteDir(const TCHAR* szPath, bool deleteDir/*= false*/)
+{
+	if ((NULL == szPath))
+	{
+		return false;
+	}
+
+	/*检查输入目录是否是合法目录*/
+	if (!PathIsDirectory(szPath))
+	{
+		return false;
+	}
+
+	/*创建源目录中查找文件的通配符*/
+	CString strWildcard(szPath);
+	if (strWildcard.Right(1) != _T('\\'))
+	{
+		strWildcard += _T("\\");
+	}
+	strWildcard += _T("*.*");
+
+	CFileFind ff;  
+	BOOL bFound;  
+	bFound = ff.FindFile(strWildcard);  
+
+	/*char buf[60];
+	itoa(bFound,buf,10);
+	::MessageBox(NULL,TEXT(buf),MB_CAPTION,MB_OK);*/
+
+
+	while(bFound)  
+	{  
+		bFound = ff.FindNextFile();  
+		CString sFilePath = ff.GetFilePath();  
+		//::MessageBox(NULL,TEXT(sFilePath),MB_CAPTION,MB_OK);
+		if(ff.IsDirectory())  
+		{  
+			if(!ff.IsDots())  
+			{  
+				ClearAndDeleteDir(sFilePath);  
+			}  
+		}  
+		else  
+		{  
+			if(ff.IsReadOnly())  
+			{  
+				SetFileAttributes(sFilePath, FILE_ATTRIBUTE_NORMAL);  
+			}  
+			DeleteFile(sFilePath); 
+			//::MessageBox(NULL,TEXT("DeleteFile!"),MB_CAPTION,MB_OK);
+		}  
+	}  
+	ff.Close(); 
+
+	//上面已经把文件夹下面的文件全部删除了，如果需要把文件夹也删除掉则加上一下代码 
+	if (true == deleteDir)
+	{
+		SetFileAttributes(szPath, FILE_ATTRIBUTE_NORMAL);  //设置文件夹的属性  
+		RemoveDirectory(szPath);  //删除文件夹  
+	}
+	
+	return true;
+}
+
 

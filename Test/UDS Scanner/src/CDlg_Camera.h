@@ -101,12 +101,20 @@ protected:
 
 	/**
 	*  @brief  在指定路径下创建文件夹
-	*  @param[in]  strFloderPath 路径 
+	*  @param[in]  strPath 路径 
 	*  @retval true 表示成功
 	*  @retval false 表示失败  
 	*/
-	bool CreateDir(CString strFloderPath);
+	bool CreateDir(const CString& strPath);
 
+	/**
+	*  @brief  清空并删除文件夹
+	*  @param[in]  szPath 待清空的文件夹路径
+	*  @param[in]  deleteDir 是否删除文件
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool ClearAndDeleteDir(const TCHAR* szPath, bool deleteDir = false);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
@@ -126,5 +134,5 @@ protected:
 	afx_msg void OnButton_Camvideo();
 	afx_msg void OnOk();
 	afx_msg void OnClose();
-	afx_msg void OCancel();
+	afx_msg void OnCancel();
 };

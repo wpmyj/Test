@@ -164,3 +164,6 @@ date 16.12.08
 3.解决DEVICE_NUMBER = DEVICE_CAMERA，只拍一张时，程序出错的问题
 (m_nImageNumber++;位置有误);
 4.DEVICE_NUMBER = DEVICE_OPENCV，获取图片DPI改用CxImage;
+5.解决DEVICE_NUMBER = DEVICE_CAMERA，照片数为0单击确定后出错的bug;
+6.实现DEVICE_NUMBER = DEVICE_CAMERA，高拍仪界面关闭后，清空临时文件夹;
+
