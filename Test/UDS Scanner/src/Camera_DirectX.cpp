@@ -108,25 +108,9 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 
 	int size = m_mat_image.total() * m_mat_image.elemSize();
 	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
-
-	::MessageBox(g_hwndDLG,TEXT("memcpy!"),MB_CAPTION,MB_OK);
-}
-
-bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
-{
-	if (0 == dwSize)
-	{
-		::MessageBox(g_hwndDLG,TEXT("Êý¾ÝÎª¿Õ!"),MB_CAPTION,MB_OK);
-		return false;
-	}
-	m_pImageBuffer = new BYTE[dwSize];
-	/*char buf[10];
-	itoa(dwSize, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"SetImageData::dwsize",MB_OK);*/
-	m_dwSize = dwSize;
-	memcpy(m_pImageBuffer, buffer, dwSize * sizeof(BYTE));
-	//::MessageBox(g_hwndDLG, TEXT(buf),"After memcpy()",MB_OK);
-	return true;
+	//char buf[10];
+	//itoa(size, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"GetImageData::size",MB_OK);
 }
 
 short CCamera_DirectX::getDocumentCount() const
@@ -159,13 +143,9 @@ short CCamera_DirectX::getDocumentCount() const
 
 bool CCamera_DirectX::acquireImage()
 {
-	//static int nCount = 0;
-	//string filename = g_vecFilePath[nCount];
 	string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
-	//nCount++;
-	m_nImageNumber++;
-
-	::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
+	
+	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
 	m_mat_image = cv::imread(filename);
 	if(true == m_mat_image.empty())
 	{
@@ -173,14 +153,16 @@ bool CCamera_DirectX::acquireImage()
 		//cout << "ds: Failed - could not acquire image" << endl;
 		return false ;
 	}
-	m_nDocCount--;
-
+	
 	// do whatever tranforms to the scanned image that was requested by the app
 	// before the image is sent to the app.
 	if(false == preScanPrep())
 	{
 		return false;
 	}
+
+	m_nDocCount--;
+	m_nImageNumber++;
 
 	return true;
 }
@@ -197,6 +179,16 @@ bool CCamera_DirectX::preScanPrep()
 	m_nHeight = g_vecCust_ImageInfo[m_nImageNumber].imageHeight;
 	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].XResolution;
 	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].YResolution;
+
+	/*char buf[60];
+	itoa(m_nWidth, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nWidth",MB_OK);
+
+	itoa(m_nHeight, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nHeight",MB_OK);
+
+	itoa(m_fXResolution, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_fXResolution",MB_OK);*/
 
 	return true;
 }

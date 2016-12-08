@@ -85,18 +85,6 @@ protected:
   */
   bool preScanPrep();
 
-public:
-	/**
-	*  @brief  设置图片数据
-	*  @param[in]  buffer  存有图片数据的buffer
-	*  @param[in] dwSize buffer大小
-	*  @retval true 表示成功
-	*  @retval false 表示失败
-	*/
-	bool SetImageData(BYTE *buffer, DWORD dwSize);
-
-
-
 protected:
 	short             m_nDocCount;              /**< number of documents waiting to transfer */
 	short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */

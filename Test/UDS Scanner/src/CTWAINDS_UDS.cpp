@@ -1275,13 +1275,13 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   _pImageInfo->YResolution = FloatToFIX32(settings.m_fYResolution);
   _pImageInfo->ImageWidth  = settings.m_nWidth; //1700
   _pImageInfo->ImageLength = settings.m_nHeight; //2200
-	/*
-	char buf[10];
-	itoa(settings.m_nWidth, buf, 10);
-	::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
-	char buff[10];
-	itoa(settings.m_nHeight, buff, 10);
-	::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);*/
+
+	//char buf[10];
+	//itoa(settings.m_nWidth, buf, 10);
+	//::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
+	//char buff[10];
+	//itoa(settings.m_nHeight, buff, 10);
+	//::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);
   
   // Our sample scanner only does one combination for each PixelType.
   switch(settings.m_nPixelType)
@@ -1381,7 +1381,7 @@ TW_INT16 CTWAINDS_UDS::closeDS()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 {
-	::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
+	//::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
 	g_hwndDLG = (HWND)_pData->hParent;
   if( dsState_Open != m_CurrentState )
   {
@@ -1502,7 +1502,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1638,7 +1638,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
-{::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1657,9 +1657,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
   {
     DWORD nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
     DWORD nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
-		/*char buf[10];
-		itoa(nImageSize, buf, 10);
-		::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);*/
+		//char buf[10];
+		//itoa(nImageSize, buf, 10);
+		//::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);
     //If we had a previous image then get rid of it.
     if(m_hImageData)
     {
@@ -1710,7 +1710,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		case DEVICE_OPENCV:
 			{
 				m_pScanner->GetImageData(pImageData,dwReceived);
-				::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
+				//::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
 			}
 			break;
 		default:
@@ -1740,7 +1740,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
-{::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( !( dsState_XferReady == m_CurrentState ||

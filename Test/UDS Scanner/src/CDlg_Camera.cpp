@@ -8,6 +8,7 @@
 #include "public.h"
 
 extern void GetFilePath( char* szFileName, char* szFilePath);
+extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
 // CDlg_Camera 对话框
 
 IMPLEMENT_DYNAMIC(CDlg_Camera, CDialogEx)
@@ -509,6 +510,8 @@ void CDlg_Camera::OnButton_Camvideo()
 void CDlg_Camera::SetCapValue(void)
 {
 	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF,m_Capture.m_nPhotoNo);  // 设置待传图片数量
+	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].XResolution);
+	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].YResolution);
 }
 
 

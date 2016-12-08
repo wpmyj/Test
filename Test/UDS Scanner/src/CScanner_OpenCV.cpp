@@ -18,6 +18,17 @@
 //#include "DSMInterface.h"
 #include "public.h"
 
+#include "ximage.h"  // CXImage
+#pragma comment(lib,"cximage.lib")
+//#pragma comment(lib,"jasper.lib")
+//#pragma comment(lib,"Jpeg.lib")
+//#pragma comment(lib,"jbig.lib")
+//#pragma comment(lib,"libdcr.lib")
+//#pragma comment(lib,"mng.lib")
+//#pragma comment(lib,"png.lib")
+//#pragma comment(lib,"zlib.lib")
+//#pragma comment(lib,"Tiff.lib")
+
 extern HWND g_hwndDLG;
 
 //using namespace std;
@@ -73,7 +84,7 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 
 CScanner_OpenCV::~CScanner_OpenCV(void)
 {
-	if (m_mat_image.empty())
+	if (false == m_mat_image.empty())
 	{
 		m_mat_image.release();
 	}
@@ -131,7 +142,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_bDenoise            = TWDN_DISABLE;
 	m_bAutoCrop           = TWAC_DISABLE;
 
-	if (m_mat_image.empty())
+	if (false == m_mat_image.empty())
 	{
 		m_mat_image.release();
 	}
@@ -203,8 +214,15 @@ bool CScanner_OpenCV::preScanPrep()
 	m_nSourceWidth   = img.width;
 	m_nSourceHeight  = img.height;
 	WORD res = 0;
-	double dFx = (double)m_fXResolution/100;
-	double dFy = (double)m_fYResolution/100;
+
+	CxImage *pImage = new CxImage();
+	pImage->Load(m_szSourceImagePath);
+	long lXDPI = pImage->GetXDPI();
+	long lYDPI = pImage->GetYDPI();
+	delete pImage;
+
+	double dFx = (double)m_fXResolution/lXDPI;
+	double dFy = (double)m_fYResolution/lYDPI;
 
 	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx); //1700
 	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy); //2200
@@ -336,7 +354,7 @@ bool CScanner_OpenCV::preScanPrep()
 		//m_mat_image = matSharpen;
 	}
 
-	m_mat_image = HoughTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
+	//m_mat_image = HoughTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
