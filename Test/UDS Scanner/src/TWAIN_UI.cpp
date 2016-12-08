@@ -178,6 +178,7 @@ void CTWAIN_UI::DestroyTWAINGUI()
 {
   m_bScanning=false;
   memset(&m_EnableDSdata,0,sizeof(TW_USERINTERFACE));
+	//::MessageBox(g_hwndDLG,TEXT("DestroyTWAINGUI!"),MB_CAPTION,MB_OK);
 }
 
 void CTWAIN_UI::UpdateProgress(bool bShow, unsigned char ucProgress, 

@@ -1075,7 +1075,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	{
 		CxImage::CXTEXTINFO TxtInfo;
 		pImage->InitTextInfo(&TxtInfo);
-		_tcscpy(TxtInfo.text, _T("SmartCamera Sample"));
+		_tcscpy(TxtInfo.text, _T("UDS Sample"));
 		TxtInfo.lfont.lfHeight = -48;//-96;
 		TxtInfo.lfont.lfItalic = TRUE;
 		TxtInfo.fcolor = RGB(0, 0, 0);
@@ -1107,6 +1107,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	temp.imageHeight = pImage->GetHeight();
 	temp.XResolution = pImage->GetXDPI();
 	temp.YResolution = pImage->GetYDPI();
+	::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
 
 	g_vecCust_ImageInfo.push_back(temp);
 

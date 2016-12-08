@@ -2191,6 +2191,7 @@ TW_INT16 CTWAINDS_Base::transferNativeImage(TW_MEMREF* _pData)
     twrc = getTIFFImage(_pData);
 #else
     twrc = getDIBImage(_pData);
+		//::MessageBox(g_hwndDLG,TEXT("getDIBImage!"),MB_CAPTION,MB_OK);
 #endif
     if( TWRC_SUCCESS == twrc )
     {

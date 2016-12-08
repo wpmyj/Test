@@ -108,6 +108,8 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 
 	int size = m_mat_image.total() * m_mat_image.elemSize();
 	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
+
+	::MessageBox(g_hwndDLG,TEXT("memcpy!"),MB_CAPTION,MB_OK);
 }
 
 bool CCamera_DirectX::SetImageData(BYTE *buffer, DWORD dwSize)
@@ -163,7 +165,7 @@ bool CCamera_DirectX::acquireImage()
 	//nCount++;
 	m_nImageNumber++;
 
-	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
+	::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
 	m_mat_image = cv::imread(filename);
 	if(true == m_mat_image.empty())
 	{

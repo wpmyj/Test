@@ -42,6 +42,7 @@ void DestroyUI(CTWAIN_UI* pUI)
 MFC_UI::MFC_UI(CTWAINDS_UDS *pDS):CTWAIN_UI(pDS)
 {
 	m_pSheet = NULL;
+	m_pDlgCamera = NULL;
 }
 
 
@@ -59,20 +60,24 @@ MFC_UI::~MFC_UI(void)
 		//AfxMessageBox("MFC 析构");
 	}
 
-	if (m_pDlgCamera)
+	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		::MessageBox(g_hwndDLG,TEXT(":~MFC_UI()!"),MB_CAPTION,MB_OK);
-		m_pDlgCamera->DestroyWindow();
-		delete m_pDlgCamera;
-		m_pDlgCamera = NULL;
+		if (m_pDlgCamera)
+		{
+			//::MessageBox(g_hwndDLG,TEXT(":~MFC_UI()!"),MB_CAPTION,MB_OK);
+			m_pDlgCamera->DestroyWindow();
+			delete m_pDlgCamera;
+			m_pDlgCamera = NULL;
+		}
 	}
-
+	
 }
 
 TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndicators)
 {
 	
   TW_INT16 nRes = CTWAIN_UI::DisplayTWAINGUI(Data, bSetup, bIndicators);
+	//::MessageBox(g_hwndDLG,TEXT("MFC_UI::DisplayTWAINGUI!"),MB_CAPTION,MB_OK);
 	if(nRes)
 	{
 		return nRes;
@@ -82,20 +87,22 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 		Data.ShowUI=1;
 	}
 
-	if(Data.ShowUI==0 && !bIndicators)
+	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
 	{
-		return TWRC_SUCCESS;
+		if(Data.ShowUI==0 && !bIndicators)
+		{
+			return TWRC_SUCCESS;
+		}
 	}
 
 	HWND hMainWnd =  (HWND)Data.hParent;
 	CWnd *pMainWnd = CWnd::FromHandle(hMainWnd);
 	
-	if (DEVICE_CAMERA == g_nDeviceNumber)
+	if (DEVICE_CAMERA == g_nDeviceNumber)  // 进入Camera界面
 	{
 		m_pDlgCamera = new CDlg_Camera(this);
 		if (m_pDlgCamera)
 		{
-			//::MessageBox(g_hwndDLG,TEXT("before Create!"),MB_CAPTION,MB_OK);
 			m_pDlgCamera->Create(CDlg_Camera::IDD,pMainWnd);
 			m_pDlgCamera->ShowWindow(SW_SHOW);
 		} 
@@ -104,7 +111,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 			return TWRC_FAILURE;
 		}
 	}
-	else
+	else // 其它界面: FREEIMAGE \ OPENCV \ G6400
 	{
 		if(Data.ShowUI)
 		{
@@ -147,13 +154,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 				}
 			}
 
-	}	
-
-		//} 
-		/*else
-		{
-		return TWRC_FAILURE;
-		}*/
+		}	
 	
 	}
 	return TWRC_SUCCESS;
@@ -163,19 +164,26 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 void MFC_UI::DestroyTWAINGUI()
 {
 	CTWAIN_UI::DestroyTWAINGUI();
-
+	//::MessageBox(g_hwndDLG,TEXT("MFC_UI::DestroyTWAINGUI!"),MB_CAPTION,MB_OK);
 	if (m_pSheet)
 	{
 		delete m_pSheet;
 		m_pSheet = NULL;	
+		//::MessageBox(g_hwndDLG,TEXT("delete m_pSheet!"),MB_CAPTION,MB_OK);
 	}
-	
-	if (m_pDlgCamera)
+	//::MessageBox(g_hwndDLG,TEXT("before m_pDlgCamera!"),MB_CAPTION,MB_OK);
+
+	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		m_pDlgCamera->DestroyWindow();
-		delete m_pDlgCamera;
-		m_pDlgCamera = NULL;
+		if (m_pDlgCamera)
+		{
+			//m_pDlgCamera->DestroyWindow();
+			delete m_pDlgCamera;
+			m_pDlgCamera = NULL;
+		}
 	}
+
+	//::MessageBox(g_hwndDLG,TEXT("end!"),MB_CAPTION,MB_OK);
 }
 
 

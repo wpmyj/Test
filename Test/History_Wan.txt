@@ -154,3 +154,10 @@ date 16.12.07
 6.使用CxImage保存高拍仪拍摄的照片;
 7.定义全局变量g_vecCust_ImageInfo;
 8.实现在指定路径下创建文件夹;
+
+
+date 16.12.07
+------------------------------------------------------------
+@author wan
+1.解决DEVICE_NUMBER = DEVICE_OPENCV时，扫描3张后程序出错的问题;
+2.解决DEVICE_NUMBER = DEVICE_CAMERA时，扫描后不能正常显示界面的问题;

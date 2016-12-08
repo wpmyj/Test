@@ -179,12 +179,15 @@ BOOL CDlg_Camera::OnInitDialog()
 	//m_Capture.m_bMultiBarcode = m_pMainWnd->m_ini.MultiBarcode;
 	//m_Capture.m_bBarcodeRotate = m_pMainWnd->m_ini.BarcodeRotate;
 	
-	//if (FALSE == PathIsDirectory(m_ini.CamTempPath))
-	//{
-		CreateDir(m_ini.CamTempPath);
-		m_Capture.m_strImagePath = m_ini.CamTempPath;
+	//if (!PathIsDirectory(m_ini.CamTempPath)) // 判断输入路径是否合理
+	//{	
+	//	::MessageBox(NULL,TEXT("Path is not dir"),MB_CAPTION,MB_OK);
+	//	
 	//}
-	
+
+	CreateDir(m_ini.CamTempPath);
+	m_Capture.m_strImagePath = m_ini.CamTempPath;
+	//::MessageBox(NULL,TEXT(m_Capture.m_strImagePath),MB_CAPTION,MB_OK);
 
 	//if (m_pMainWnd->m_ini.SaveHighQu.m_nQuality = 80;  // Set Hight Quality
 	//else
@@ -643,13 +646,16 @@ void CDlg_Camera::OCancel()
 
 bool CDlg_Camera::CreateDir(CString strFloderPath)
 {
-	
-	if (!CreateDirectory(strFloderPath, NULL))
-	{	
-		return false;
+	if (!PathFileExists(strFloderPath))
+	{
+		//::MessageBox(NULL,TEXT("文件夹不存在!"),MB_CAPTION,MB_OK);
+		if (!CreateDirectory(strFloderPath, NULL))
+		{	
+			return false;
+		}
+		return true;
 	}
-
-	return true;	
 	
+	return true;		
 }
 

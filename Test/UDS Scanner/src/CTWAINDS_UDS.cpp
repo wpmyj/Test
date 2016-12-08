@@ -1381,7 +1381,7 @@ TW_INT16 CTWAINDS_UDS::closeDS()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 {
-	//::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
+	::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
 	g_hwndDLG = (HWND)_pData->hParent;
   if( dsState_Open != m_CurrentState )
   {
@@ -1410,47 +1410,52 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
 
-	//::MessageBox((HWND)_pData->hParent,"Enable",MB_CAPTION,MB_OK);
+	//::MessageBox(g_hwndDLG,"Enable",MB_CAPTION,MB_OK);
 
-  if(FALSE == _pData->ShowUI)
-  {   
-		//::MessageBox(g_hwndDLG,"ShowUI",MB_CAPTION,MB_OK);
-		//::MessageBox((HWND)_pData->hParent,"NoUI",MB_CAPTION,MB_OK);
-    // Update the scanner with the latest negotiated caps
-    if(!updateScannerFromCaps())
-    {
-			::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
-      //cerr << "ds: There was an error while prepping the image for scanning" << endl;
-      setConditionCode(TWCC_BADVALUE);
-      return TWRC_FAILURE;
-    }
-    // The application will move to state 5 after this triplet which means that
-    // no more capabilities can be set until we are brought back to state 4.
-    m_pScanner->Lock();
-    // Because there is no user interface, there isn't anything to show here.
-    // But, at this point, the application is not allowed to set any more
-    // capabilities.  This means that we can do any initializations we
-    // need in order to prepare for the next few calls and the scan.
-    // get the scanner to load the image so that image info calls can be done
+	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
+	{
+		if(FALSE == _pData->ShowUI)
+		{   
+			//::MessageBox(g_hwndDLG,"FALSE == _pData->ShowUI",MB_CAPTION,MB_OK);
+			//::MessageBox((HWND)_pData->hParent,"NoUI",MB_CAPTION,MB_OK);
+			// Update the scanner with the latest negotiated caps
+			if(!updateScannerFromCaps())
+			{
+				::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
+				//cerr << "ds: There was an error while prepping the image for scanning" << endl;
+				setConditionCode(TWCC_BADVALUE);
+				return TWRC_FAILURE;
+			}
+			// The application will move to state 5 after this triplet which means that
+			// no more capabilities can be set until we are brought back to state 4.
+			m_pScanner->Lock();
+			// Because there is no user interface, there isn't anything to show here.
+			// But, at this point, the application is not allowed to set any more
+			// capabilities.  This means that we can do any initializations we
+			// need in order to prepare for the next few calls and the scan.
+			// get the scanner to load the image so that image info calls can be done
 
-		
-		//::MessageBox(g_hwndDLG," EnableDS: acquireImage! ",MB_CAPTION,MB_OK);
-    if(!m_pScanner->acquireImage())
-    {
-			::MessageBox(g_hwndDLG,TEXT("There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
-      //cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
-      m_CurrentState = dsState_Open;
-      setConditionCode(TWCC_SEQERROR);
-      return TWRC_FAILURE;
-    }
 
-    if(! DoXferReadyEvent())
-    {
-      m_CurrentState = dsState_Open;
-      setConditionCode(TWCC_SEQERROR);
-      return TWRC_FAILURE;
-    }
-  }
+			//::MessageBox(g_hwndDLG," EnableDS: acquireImage! ",MB_CAPTION,MB_OK);
+			if(!m_pScanner->acquireImage())
+			{
+				::MessageBox(g_hwndDLG,TEXT("There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
+				//cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
+				m_CurrentState = dsState_Open;
+				setConditionCode(TWCC_SEQERROR);
+				return TWRC_FAILURE;
+			}
+
+			if(! DoXferReadyEvent())
+			{
+				m_CurrentState = dsState_Open;
+				setConditionCode(TWCC_SEQERROR);
+				return TWRC_FAILURE;
+			}
+		}
+	}
+
+ 
   CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
   bool bIndicators = FALSE;
   if(pbCap)
@@ -1497,7 +1502,7 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
 }
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
-{//::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
+{::MessageBox(g_hwndDLG,"disableDS",MB_CAPTION,MB_OK);
   if( dsState_Enabled != m_CurrentState )
   {
     setConditionCode(TWCC_SEQERROR);
@@ -1633,7 +1638,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
-{//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
+{::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1705,6 +1710,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		case DEVICE_OPENCV:
 			{
 				m_pScanner->GetImageData(pImageData,dwReceived);
+				::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
 			}
 			break;
 		default:
@@ -1734,7 +1740,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
-{//::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
+{::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( !( dsState_XferReady == m_CurrentState ||
