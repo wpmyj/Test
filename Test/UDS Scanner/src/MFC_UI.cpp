@@ -52,13 +52,6 @@ MFC_UI::~MFC_UI(void)
 	{
 		m_pSheet->DestroyWindow();
 	}
-	
-	if (m_pSheet)
-	{
-		delete m_pSheet;
-		m_pSheet = NULL;		
-		//AfxMessageBox("MFC 析构");
-	}
 
 	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
@@ -68,6 +61,14 @@ MFC_UI::~MFC_UI(void)
 			m_pDlgCamera->DestroyWindow();
 			delete m_pDlgCamera;
 			m_pDlgCamera = NULL;
+		}
+	}
+	else
+	{
+		if (m_pSheet)
+		{
+			delete m_pSheet;
+			m_pSheet = NULL;		
 		}
 	}
 	
@@ -165,14 +166,7 @@ void MFC_UI::DestroyTWAINGUI()
 {
 	CTWAIN_UI::DestroyTWAINGUI();
 	//::MessageBox(g_hwndDLG,TEXT("MFC_UI::DestroyTWAINGUI!"),MB_CAPTION,MB_OK);
-	if (m_pSheet)
-	{
-		delete m_pSheet;
-		m_pSheet = NULL;	
-		//::MessageBox(g_hwndDLG,TEXT("delete m_pSheet!"),MB_CAPTION,MB_OK);
-	}
-	//::MessageBox(g_hwndDLG,TEXT("before m_pDlgCamera!"),MB_CAPTION,MB_OK);
-
+	
 	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
 		if (m_pDlgCamera)
@@ -182,7 +176,15 @@ void MFC_UI::DestroyTWAINGUI()
 			m_pDlgCamera = NULL;
 		}
 	}
-
+	else  // 其它设备
+	{
+		if (m_pSheet)
+		{
+			delete m_pSheet;
+			m_pSheet = NULL;	
+			//::MessageBox(g_hwndDLG,TEXT("delete m_pSheet!"),MB_CAPTION,MB_OK);
+		}
+	}
 	//::MessageBox(g_hwndDLG,TEXT("end!"),MB_CAPTION,MB_OK);
 }
 

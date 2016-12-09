@@ -61,6 +61,7 @@ typedef struct _CUST_IMAGEIFO
 	int    imageHeight;    /**< 图片高度，单位:像素数 */
 	float  XResolution;    /**< 水平方向分辨率，单位:DPI */
 	float  YResolution;    /**< 垂直方向分辨率，单位:DPI */
+	//short  imageBPP;       /**< 图片每像素位数 */
 }CUST_IMAGEINFO;
 
 ///** INI文件中的Camera配置 */

@@ -1755,11 +1755,14 @@ TW_INT16 CTWAINDS_Base::saveImageFileAsBMP()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
 {
+	//::MessageBox(g_hwndDLG,TEXT("getDIBImage!"),MB_CAPTION,MB_OK);
   if(0 == m_hImageData || 0 == _pImage )
   {
     setConditionCode(TWCC_BADVALUE);
     return TWRC_FAILURE;
   }
+
+	getImageInfo(&m_ImageInfo); // 需要重新获取一次图片信息
 
   TW_INT16 twrc = TWRC_FAILURE;
   *_pImage = 0;
@@ -1771,18 +1774,27 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
   BYTE           *pDst                = NULL;
 
   PBITMAPINFOHEADER pDIBInfoHeader    = NULL;
-  const WORD      bpp                 = m_ImageInfo.BitsPerPixel;
-  const DWORD     SrcWidth            = m_ImageInfo.ImageWidth;
-  const DWORD     SrcLength           = m_ImageInfo.ImageLength;
-  const DWORD     SrcBytesPerRow      = BYTES_PERLINE(SrcWidth, bpp);
-  const DWORD     DstBytesPerRowAlgn  = BYTES_PERLINE_ALIGN4(SrcWidth, bpp);	//get the number of bytes per line we'll need for this image, and make sure it's DWORD-aligned
-  const WORD      numcolors           = bpp==1?2:bpp==8?256:0;// B&W = 2,  Grey = 256,  Color = 0
-  const WORD      palettesize         = sizeof(RGBQUAD)* numcolors;
-  const DWORD     bitmapSize          = sizeof(BITMAPINFOHEADER) + palettesize + DstBytesPerRowAlgn*SrcLength;	//multiply the bytes-per-row by the number of scanlines, and add that to the size of the bitmap header to find the total size of the bitmap
+  /*const*/ WORD      bpp                 = m_ImageInfo.BitsPerPixel;
+  /*const*/ DWORD     SrcWidth            = m_ImageInfo.ImageWidth;
+  /*const*/ DWORD     SrcLength           = m_ImageInfo.ImageLength;
+  /*const*/ DWORD     SrcBytesPerRow      = BYTES_PERLINE(SrcWidth, bpp);
+  /*const*/ DWORD     DstBytesPerRowAlgn  = BYTES_PERLINE_ALIGN4(SrcWidth, bpp);	//get the number of bytes per line we'll need for this image, and make sure it's DWORD-aligned
+  /*const*/ WORD      numcolors           = bpp==1?2:bpp==8?256:0;// B&W = 2,  Grey = 256,  Color = 0
+  /*const*/ WORD      palettesize         = sizeof(RGBQUAD)* numcolors;
+  /*const*/ DWORD     bitmapSize          = sizeof(BITMAPINFOHEADER) + palettesize + DstBytesPerRowAlgn*SrcLength;	//multiply the bytes-per-row by the number of scanlines, and add that to the size of the bitmap header to find the total size of the bitmap
 
+	//char buf[60];
+	//itoa(bitmapSize, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"bitmapSize大小",MB_OK);
+
+	//itoa(m_ImageInfo.ImageLength, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"getDIBImage::ImageLength",MB_OK);
+
+	//itoa(SrcLength, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"SrcLength大小",MB_OK);
 
   try
-  {
+  {	
     pSourceBuff = (BYTE *)_DSM_LockMemory(m_hImageData);
     if(pSourceBuff == NULL)
     {
@@ -1819,9 +1831,10 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
     pDIBInfoHeader->biClrImportant  = numcolors;	//all the colors are important
 
     _DSM_UnlockMemory(hDIB);	//unlock our DIB memory
-
+		
     // Add Pallette
     pDestBuff =(BYTE*)_DSM_LockMemory(hDIB);	//get a pointer to the destination data
+		//::MessageBox(g_hwndDLG,TEXT("_DSM_LockMemory(hDIB)!"),MB_CAPTION,MB_OK);
     if(pDestBuff==NULL)
     {
       //show that we ran out of memory
@@ -1866,8 +1879,10 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
 
     // flip the image top to bottom
     // for color change from BGR to RGB
+		//::MessageBox(g_hwndDLG,TEXT("WPT_RGB==m_ImageInfo.PixelType && bSwitch!"),MB_CAPTION,MB_OK);
     if(TWPT_RGB==m_ImageInfo.PixelType && bSwitch)
     {
+			//::MessageBox(g_hwndDLG,TEXT("TWPT_RGB==m_ImageInfo.PixelType && bSwitch"),MB_CAPTION,MB_OK);
       for(DWORD length=0; length<SrcLength; length++)
       {
         pSrc = pSourceBuff + ( SrcBytesPerRow*(SrcLength-length-1) );
@@ -1884,13 +1899,23 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
     }
     else // BW or Gray or color that does not need flipped
     {
+			//::MessageBox(g_hwndDLG,TEXT("BW or Gray or color that does not need flipped"),MB_CAPTION,MB_OK);
       pSrc    = pSourceBuff + ( SrcBytesPerRow*(SrcLength-1) );
+
+			//char buf[60];
+			//itoa(sizeof(pSrc), buf, 10);
+			//::MessageBox(g_hwndDLG, TEXT(buf),"pSrc大小",MB_OK);
+
+			//itoa(sizeof(pDst), buf, 10);
+			//::MessageBox(g_hwndDLG, TEXT(buf),"pDst大小",MB_OK);
+
       for(DWORD length=0; length<SrcLength; length++)
       {
         memcpy(pDst, pSrc, SrcBytesPerRow);
         pDst += DstBytesPerRowAlgn;
         pSrc -= SrcBytesPerRow;
       }
+			//::MessageBox(g_hwndDLG,TEXT("memcpy(pDst, pSrc, SrcBytesPerRow);!"),MB_CAPTION,MB_OK);
     }
 
     twrc = TWRC_SUCCESS;
@@ -1904,6 +1929,7 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
     *_pImage = 0;
   }
 
+	//::MessageBox(g_hwndDLG,TEXT("cleanup!"),MB_CAPTION,MB_OK);
   // cleanup
   if(pSourceBuff)
   {
@@ -2181,6 +2207,7 @@ TW_INT16 CTWAINDS_Base::transferNativeImage(TW_MEMREF* _pData)
 
   // Get the image that should be waiting for us.
   twrc = transfer();
+
   if(TWRC_SUCCESS == twrc)
   {
     // Native is basicaly an image file transfered by memory
@@ -2190,6 +2217,7 @@ TW_INT16 CTWAINDS_Base::transferNativeImage(TW_MEMREF* _pData)
 #ifdef TWNDS_OS_LINUX
     twrc = getTIFFImage(_pData);
 #else
+		//::MessageBox(g_hwndDLG,TEXT("Before getDIBImage!"),MB_CAPTION,MB_OK);
     twrc = getDIBImage(_pData);
 		//::MessageBox(g_hwndDLG,TEXT("getDIBImage!"),MB_CAPTION,MB_OK);
 #endif

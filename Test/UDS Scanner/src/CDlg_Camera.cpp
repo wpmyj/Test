@@ -30,6 +30,8 @@ CDlg_Camera::~CDlg_Camera()
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
 	ClearAndDeleteDir(m_Capture.m_strImagePath);
+	//g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
+	//m_Capture.m_nPhotoNo = 0;
 }
 
 void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
@@ -518,9 +520,24 @@ void CDlg_Camera::OnButton_Camvideo()
 
 void CDlg_Camera::SetCapValue(void)
 {
-	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF,m_Capture.m_nPhotoNo);  // 设置待传图片数量
+	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, m_Capture.m_nPhotoNo);  // 设置待传图片数量
 	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].XResolution);
 	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].YResolution);
+
+	int pixeltype;
+	switch(m_Capture.m_Auto.imageType)  
+	{
+	case 1: // 灰度
+		pixeltype = TWPT_GRAY;
+		break;
+	case 0: // 彩色
+		pixeltype = TWPT_RGB;
+		break;
+	default:
+		break;
+	}
+		
+	m_pUI->SetCapValueFloat(ICAP_PIXELTYPE, pixeltype);  // 设置图片类型
 }
 
 
@@ -600,10 +617,10 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 		StartCamera();
 
 	CString msg;
-	if (m_Capture.m_strBarcode == "***")
+	//if (m_Capture.m_strBarcode == "***")
 		msg.Format("第 %d张", m_Capture.m_nPhotoNo);
-	else
-		msg.Format("第 %d张[%s]", m_Capture.m_nPhotoNo, m_Capture.m_strBarcode);
+	//else
+		//msg.Format("第 %d张[%s]", m_Capture.m_nPhotoNo, m_Capture.m_strBarcode);
 	m_sPhotoNo.SetWindowText(msg);
 	if (m_Capture.m_nPhotoNo > 0)  // Set m_bDelete
 		m_bDelete.EnableWindow(TRUE);
@@ -767,9 +784,14 @@ void CDlg_Camera::LoadThumbNail()
 	//重绘false防止重绘闪烁
 	m_listctrl.SetRedraw(false);
 	int nIndex=0;
+
+	TCHAR szItem[10];
+	memset(szItem,0,sizeof(szItem));
 	for(iter=g_vecCust_ImageInfo.begin();iter!=g_vecCust_ImageInfo.end();iter++,nIndex++)
 	{
-		m_listctrl.InsertItem(nIndex,iter->imagePath.c_str(),nIndex);
+		//m_listctrl.InsertItem(nIndex,iter->imagePath.c_str(),nIndex);
+		sprintf_s(szItem,"%d",nIndex+1);
+		m_listctrl.InsertItem(nIndex,szItem,nIndex);
 	}
 
 	m_listctrl.SetRedraw(true);

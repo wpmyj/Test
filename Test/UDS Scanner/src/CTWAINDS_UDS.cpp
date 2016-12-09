@@ -26,7 +26,7 @@
 
 extern HWND g_hwndDLG;
 extern int g_nDeviceNumber;  // Éè±¸±àºÅ
-
+extern DWORD  g_dwImageSize; 
 // I found that compiling using the sunfreeware.com stuff on Solaris 9
 // required this typedef. This is related to the inclusion of signal.h
 #if defined (__SVR4) && defined (__sun)
@@ -1667,8 +1667,17 @@ TW_INT16 CTWAINDS_UDS::transfer()
   //This is for know image size.
   if(m_ImageInfo.ImageWidth>0 && m_ImageInfo.ImageLength>0)
   {
-    DWORD nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
-    DWORD nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
+		DWORD nImageSize = 0;
+		DWORD nDestBytesPerRow = 0;
+		if (DEVICE_CAMERA == g_nDeviceNumber)
+		{
+			nImageSize = g_dwImageSize;
+		} 
+		else
+		{
+			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
+			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
+		}
 		//char buf[10];
 		//itoa(nImageSize, buf, 10);
 		//::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);

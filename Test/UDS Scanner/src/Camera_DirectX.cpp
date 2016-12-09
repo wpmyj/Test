@@ -9,6 +9,7 @@
 
 extern HWND g_hwndDLG;
 extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
+DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
 
 CCamera_DirectX::CCamera_DirectX(void) :
 	m_nDocCount(0),
@@ -106,11 +107,12 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
 
 
-	int size = m_mat_image.total() * m_mat_image.elemSize();
-	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
-	//char buf[10];
+	long size = m_mat_image.total() * m_mat_image.elemSize();
+	//char buf[60];
 	//itoa(size, buf, 10);
 	//::MessageBox(g_hwndDLG, TEXT(buf),"GetImageData::size",MB_OK);
+	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
+	//::MessageBox(g_hwndDLG,TEXT("After memcpy!"),MB_CAPTION,MB_OK);
 }
 
 short CCamera_DirectX::getDocumentCount() const
@@ -180,15 +182,18 @@ bool CCamera_DirectX::preScanPrep()
 	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].XResolution;
 	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].YResolution;
 
-	/*char buf[60];
-	itoa(m_nWidth, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nWidth",MB_OK);
+	DWORD size = m_mat_image.total() * m_mat_image.elemSize();
+  g_dwImageSize = size;
 
-	itoa(m_nHeight, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nHeight",MB_OK);
+	char buf[60];
+	/*itoa(g_dwImageSize, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::g_dwImageSize",MB_OK);*/
 
-	itoa(m_fXResolution, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_fXResolution",MB_OK);*/
+	//itoa(m_nHeight, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nHeight",MB_OK);
+
+	//itoa(m_fXResolution, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_fXResolution",MB_OK);
 
 	return true;
 }

@@ -1027,7 +1027,9 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 
 	bool hasRotate = false;
 	
-
+	//char buf[10];
+	//itoa(	nDIBSize, buf, 10);
+	//::MessageBox(NULL, TEXT(buf),"nDIBSize",MB_OK);
 
 	//// 根据条码自动旋转图像
 	//int i = strBarcode.Find(":::", 0);
@@ -1071,18 +1073,36 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		pImage->SetXDPI(200);  pImage->SetYDPI(200);
 	}
 	
-	if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
+	switch (m_pCapture->m_Auto.imageOrientation)
 	{
-		CxImage::CXTEXTINFO TxtInfo;
-		pImage->InitTextInfo(&TxtInfo);
-		_tcscpy(TxtInfo.text, _T("UDS Sample"));
-		TxtInfo.lfont.lfHeight = -48;//-96;
-		TxtInfo.lfont.lfItalic = TRUE;
-		TxtInfo.fcolor = RGB(0, 0, 0);
-		TxtInfo.opaque = FALSE;  // No background
-		pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
-		pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
+	case 1:  // 顺时针90
+		pImage->Rotate(90);
+		break;
+	case 2:  // 顺时针180
+		pImage->Rotate(180);
+		break;
+	case 3:  // 顺时针270
+		pImage->Rotate(270);
+		break;
+	default:
+		break;
 	}
+	
+
+
+
+	//if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
+	//{
+	//	CxImage::CXTEXTINFO TxtInfo;
+	//	pImage->InitTextInfo(&TxtInfo);
+	//	_tcscpy(TxtInfo.text, _T("UDS Sample"));
+	//	TxtInfo.lfont.lfHeight = -48;//-96;
+	//	TxtInfo.lfont.lfItalic = TRUE;
+	//	TxtInfo.fcolor = RGB(0, 0, 0);
+	//	TxtInfo.opaque = FALSE;  // No background
+	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
+	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
+	//}
 
 	bool retval = false;
 	CString fileName;
@@ -1107,25 +1127,26 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	temp.imageHeight = pImage->GetHeight();
 	temp.XResolution = pImage->GetXDPI();
 	temp.YResolution = pImage->GetYDPI();
+	//temp.imageBPP = pImage->GetBpp();
 
-	//char buf[10];
-	//itoa(	temp.imageWidth, buf, 10);
-	//::MessageBox(NULL, TEXT(buf),"temp.imageWidth",MB_OK);
+	/*char buf[60];
+	itoa(	pImage->GetSize(), buf, 10);
+	::MessageBox(NULL, TEXT(buf),"pImage->GetSize()",MB_OK);*/
 	//::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
 
 	g_vecCust_ImageInfo.push_back(temp);
 
-	if ( retval )  // Save file success: Generate Thumbnail JPG
-	{
-		float h_w = (float)pImage->GetHeight() / (float)pImage->GetWidth();
-		pImage->Resample(150, (int)(150*h_w), 1, NULL);
-		if ( pImage->GetBpp() < 24 )  // 缩略图全转为24位彩色图，并存为JPG文件
-			pImage->IncreaseBpp(24);
-		fileName.Replace("~Un", "~UnTh");
-		pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // compression
-		retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
-		fileName.Replace("~UnTh", "~Un");
-	}
+	//if ( retval )  // Save file success: Generate Thumbnail JPG
+	//{
+	//	float h_w = (float)pImage->GetHeight() / (float)pImage->GetWidth();
+	//	pImage->Resample(150, (int)(150*h_w), 1, NULL);
+	//	if ( pImage->GetBpp() < 24 )  // 缩略图全转为24位彩色图，并存为JPG文件
+	//		pImage->IncreaseBpp(24);
+	//	fileName.Replace("~Un", "~UnTh");
+	//	pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // compression
+	//	retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
+	//	fileName.Replace("~UnTh", "~Un");
+	//}
 	delete pImage;
 	CFile hf(fileName, CFile::modeRead);  hf.Close();  // Flush file
 	
