@@ -201,8 +201,8 @@ bool CScanner_FreeImage::resetScanner()
 	//其他图像处理
 	//默认不选中
 	m_fRemoveBlank        = TWBP_DISABLE; 
-	m_bRemovePunch        = TWSP_DISABLE;
-	m_bSharpen            = TWGM_DISABLE;
+	m_bRemovePunch        = TWRP_DISABLE;
+	m_bSharpen            = TWSP_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
@@ -330,6 +330,7 @@ bool CScanner_FreeImage::preScanPrep()
   //pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
   
 	//zhu
+	
 	if (m_nOrientation == TWOR_PORTRAIT) //纵向
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
@@ -338,7 +339,7 @@ bool CScanner_FreeImage::preScanPrep()
 	{
 		pDib = FreeImage_Rescale( m_pDIB, unNewHeight, unNewWidth, FILTER_BILINEAR);
 	}
-	else{}
+	else{} 
 
 	//zhu FreeImage_RotateClassic
 	/*char buf[1024];
@@ -387,11 +388,13 @@ bool CScanner_FreeImage::preScanPrep()
 	}
 	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
 	{
-		splitimg = FreeImage_Copy(pDib,0,0,unNewWidth,unNewHeight/2);
+		//splitimg = FreeImage_Copy(pDib,0,0,unNewWidth,unNewHeight/2);
+		splitimg = SpiltImage(pDib,2,1);
 	}
 	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
 	{
-		splitimg = FreeImage_Copy(pDib,0,0,unNewWidth/2,unNewHeight);
+		//splitimg = FreeImage_Copy(pDib,0,0,unNewWidth/2,unNewHeight);
+		splitimg = SpiltImage(pDib,1,2);
 	}
 	pDib = splitimg;
 	
@@ -408,7 +411,7 @@ bool CScanner_FreeImage::preScanPrep()
   }
 
   if(m_nWidth <= 0 || m_nHeight <= 0)
-  {
+	{
     m_nWidth  = m_nSourceWidth  = FreeImage_GetWidth(m_pDIB);
     m_nHeight = m_nSourceHeight = FreeImage_GetHeight(m_pDIB);
   }
@@ -417,6 +420,23 @@ bool CScanner_FreeImage::preScanPrep()
     m_nSourceWidth  = FreeImage_GetWidth(m_pDIB);
     m_nSourceHeight = FreeImage_GetHeight(m_pDIB);
   }
+
+	/*
+	if (m_nOrientation == TWOR_PORTRAIT) //纵向
+	{
+		m_nWidth  = m_nSourceWidth  = FreeImage_GetWidth(m_pDIB);
+		m_nHeight = m_nSourceHeight = FreeImage_GetHeight(m_pDIB);
+	} 
+	else if(m_nOrientation == TWOR_LANDSCAPE) //横向
+	{
+		m_nWidth  = m_nSourceWidth  = FreeImage_GetHeight(m_pDIB);
+		m_nHeight = m_nSourceHeight = FreeImage_GetWidth(m_pDIB);
+	}
+	else{}*/
+	
+	/*
+	m_nWidth  = m_nSourceWidth = FreeImage_GetWidth(m_pDIB);
+	m_nHeight = m_nSourceHeight = FreeImage_GetHeight(m_pDIB);*/
 
   FreeImage_SetDotsPerMeterX( m_pDIB, WORD(m_fXResolution*39.37 + 0.5) );
   FreeImage_SetDotsPerMeterY( m_pDIB, WORD(m_fYResolution*39.37 + 0.5) );
@@ -475,6 +495,39 @@ bool CScanner_FreeImage::preScanPrep()
   m_nScanLine       = 0;
 
   return true;
+}
+
+//void CScanner_FreeImage::SpiltImage(const Mat& src_img,int m,int n)
+FIBITMAP* CScanner_FreeImage::SpiltImage(FIBITMAP *dib,int m,int n)
+{
+	int ceil_width = FreeImage_GetWidth(dib)/n; //上下分割：1600，1100
+	int ceil_height = FreeImage_GetHeight(dib)/m; //左右分割：800，2200
+
+	FIBITMAP* dst;
+	if(m_nDocCount == 1) //总张数暂时取2
+	{
+		dst = FreeImage_Copy(dib,0,0,ceil_width,ceil_height);
+	}
+	else if(m_nDocCount == 0)
+	{
+		if(m_nSpiltImage == TWSI_HORIZONTAL)
+		{
+			dst = FreeImage_Copy(dib,0,ceil_height,ceil_width,ceil_height*m);
+		}
+		else //垂直
+		{		
+			dst = FreeImage_Copy(dib,ceil_width,0,ceil_width*n,ceil_height);
+		}	
+	}
+	else
+	{
+		char buf[10];
+		itoa(m_nDocCount, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"SpiltImage--m_nDocCount",MB_OK);
+	}
+	return dst;
+	//FreeImage_Save(FIF_JPEG,dst,"C://Users//Administrator//Desktop//边缘检测后的图.jpeg",0);
+	//::MessageBox(g_hwndDLG,TEXT("垂直"),MB_CAPTION,MB_OK);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -127,11 +127,20 @@ void CPage_Advanced::SetCapValue(void)
 				{
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
 				}
+				else
+				{
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
+				}
 				break;
 			}
 
 		case ICAP_GAMMA: //Gamma校正
 			{
+				/*
+				char buf[10];
+				itoa(iter->second, buf, 10);
+				::MessageBox(NULL,TEXT(buf),"ICAP_GAMMA",MB_OK);*/
+
 				m_pUI->SetCapValueFloat(iter->first,iter->second);
 				break;
 			}
@@ -652,9 +661,6 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	if (strCBText.Find("自定义") >= 0)
 	{
 		nval = TWSS_NONE;
-		//GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMHEIGHT)->EnableWindow(TRUE);
-		m_edit_custom_width.EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMWIDTH)->EnableWindow(TRUE);
 	}
 	else if (strCBText.Find("US Letter") >= 0)
 	{
@@ -757,10 +763,14 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Orientation()
 	if (strCBText.Find("纵向") >= 0)
 	{
 		nval = TWOR_PORTRAIT;
+		//m_combo_rotate.SetCurSel(0);
+		//m_advancedmap[ICAP_ROTATION] = 0.0;
 	}
 	else
 	{
 		nval = TWOR_LANDSCAPE;
+		//m_combo_rotate.SetCurSel(3);
+		//m_advancedmap[ICAP_ROTATION] = 3.0;
 	}
 	//m_pUI->SetCapValueInt(ICAP_ORIENTATION,nval); 
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_ORIENTATION, (float)nval));
@@ -1026,9 +1036,16 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT 
 	CString str;
 	int sldValue = m_slider_gamma.GetPos();  // 获取滑块当前位置
 	str.Format("%d",sldValue);
+
 	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)sldValue));
-	m_advancedmap[ICAP_GAMMA] = (float)sldValue;
+	//m_advancedmap[ICAP_GAMMA] = (float)sldValue;
+	float Value = ((int)sldValue*10)/10.00;
+	m_advancedmap[ICAP_GAMMA] = Value;
+	/*
+	CString stra;
+	stra.Format("%.2f",Value);
+	::MessageBox(NULL,TEXT(stra),"Value",MB_OK);*/
 
 	float valueTemp = ((float)sldValue)/100;
 	str.Format("%.2f", valueTemp); //小数点后只要2位

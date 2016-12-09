@@ -28,6 +28,7 @@ void CDlg_Profile::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CDlg_Profile, CDialog)
+//	ON_BN_CLICKED(IDOK, &CDlg_Profile::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 CString CDlg_Profile::GetProfileName()
@@ -55,6 +56,14 @@ void CDlg_Profile::OnOK()
 	// TODO: 在此添加专用代码和/或调用基类
 	UpdateData(TRUE);  // 接收数据
 	m_edit_profile.GetWindowText(m_strProfileName);  // 获取Edit内容
-	m_bOk = TRUE;  
-	CDialog::OnOK();
+	if(m_strProfileName.IsEmpty())
+	{
+		m_bOk = FALSE; 
+		AfxMessageBox("模板名为空，请重新输入！");
+	}
+	else
+	{
+		m_bOk = TRUE; 
+		CDialog::OnOK();
+	}
 }

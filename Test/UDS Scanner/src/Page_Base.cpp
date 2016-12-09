@@ -66,7 +66,7 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)	
 	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT, &CPage_Base::OnClicked_Check_Multifeeddetect)
 	ON_BN_CLICKED(IDC_BASE_BTN_SAVEASPROFILE, &CPage_Base::OnBase_Btn_SaveAsprofile)
-	ON_BN_CLICKED(IDC_BASE_BTN_SAVEPROFILE, &CPage_Base::OnBase_Btn_Saveprofile)
+//	ON_BN_CLICKED(IDC_BASE_BTN_SAVEPROFILE, &CPage_Base::OnBase_Btn_Saveprofile)
 //	ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
@@ -289,6 +289,7 @@ BOOL CPage_Base::OnInitDialog()
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
+	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时吧启用
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -369,6 +370,7 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	CString str;
 	int sldValue = m_slider_threshold.GetPos(); //获取滑块的当前位置
 	
+	/*
 	if(0 == sldValue)
 	{
 		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
@@ -380,7 +382,9 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)sldValue));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)sldValue);  // 
 		m_basemap[ICAP_THRESHOLD] = (float)sldValue;
-	}
+	}*/
+
+	m_basemap[ICAP_THRESHOLD] = (float)sldValue;
 
 	str.Format("%d", sldValue);
 	//m_edit_threshold.SetWindowText(str); //在编辑框同步显示滚动条值
@@ -802,7 +806,6 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 			{
 				return;  // 取消新建同名模版
 			}
-
 		}
 		strCombo.ReleaseBuffer();      
 	}
@@ -968,48 +971,59 @@ void CPage_Base::SetDelete(void)
 	{
 		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(FALSE);
 	} 
-}
-
-void CPage_Base::OnBase_Btn_Saveprofile()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	SetCapValue();
-	m_pAdPage->SetCapValue();
-
-	int nIndex = m_combo_profile.GetCurSel();
-	CString strCBText; 
-	m_combo_profile.GetLBText( nIndex, strCBText);
-
-	if (strCBText.Find("默认模板") >= 0 || strCBText.Find("UDS") >= 0)//为默认模板或给定模板时，保存为上次使用模板
+	else
 	{
-		m_pUI->TW_SaveProfileToFile("上次使用模板"); 	
-		//SetLastProfile(); //SetLastProfile会再遍历一次，插入所有
-		
-		lstString strFileNames;
-		m_pUI->TW_GetAllProfiles(strFileNames);
-
-		unsigned int unIndex = 1;
-		lstString::iterator iter = strFileNames.begin();
-		for(;iter!=strFileNames.end(); iter++)
-		{
-			CString strTemp(iter->c_str());		
-
-			if(strTemp.Find("上次使用") >=0 ) {
-				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板
-				m_combo_profile.SetCurSel(unIndex);
-				LoadProfile();
-			}
-			unIndex ++;
-		}
-	}
-	else //其他用户新建的模板
-	{
-		string strProfile;
-		strProfile = strCBText;
-		m_pUI->TW_SaveProfileToFile(strProfile); 
-		LoadProfile();
+		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(TRUE);
 	}
 }
+
+//void CPage_Base::OnBase_Btn_Saveprofile()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	SetCapValue();
+//	m_pAdPage->SetCapValue();
+//
+//	int nIndex = m_combo_profile.GetCurSel();
+//	CString strCBText; 
+//	m_combo_profile.GetLBText( nIndex, strCBText);
+//
+//	if (strCBText.Find("默认模板") >= 0 || strCBText.Find("UDS") >= 0)//为默认模板或给定模板时，保存为上次使用模板
+//	{
+//		m_pUI->TW_SaveProfileToFile("上次使用模板"); 	
+//		//SetLastProfile(); //SetLastProfile会再遍历一次，插入所有
+//		
+//		lstString strFileNames;
+//		m_pUI->TW_GetAllProfiles(strFileNames);
+//
+//		unsigned int unIndex = 1;
+//		lstString::iterator iter = strFileNames.begin();
+//		for(;iter!=strFileNames.end(); iter++)
+//		{
+//			CString strTemp(iter->c_str());		
+//
+//			if(strTemp.Find("上次使用") >=0 ) 
+//			{
+//				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板
+//				m_combo_profile.SetCurSel(unIndex);
+//				LoadProfile();
+//				
+//			/*	int nIndexTemp = m_combo_profile.GetCurSel();
+//				CString strCBTextTemp; 
+//				m_combo_profile.GetLBText( nIndexTemp, strCBTextTemp);
+//
+//				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板*/
+//			}
+//			unIndex ++;
+//		}
+//	}
+//	else //其他用户新建的模板
+//	{
+//		string strProfile;
+//		strProfile = strCBText;
+//		m_pUI->TW_SaveProfileToFile(strProfile); 
+//		LoadProfile();
+//	}
+//}
 
 bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 
 	int duplexenabled, int resolution /*= 200*/)

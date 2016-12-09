@@ -349,3 +349,15 @@ date 16.12.8
 1、修改图像处理区域的排版
 2、发现滑动条存在设定值与第二次读取值不一致的情况，调试解决，问题在于CTWAINDS_UDS中的Initialize()时步长给了10，所以对应的值从1开始只有1,11,21等值，反应到edit中就是只有0.01,0,21等值；所以修改步长为1，问题解决，只是由于步长太短，偶尔会由于操作问题，存在0.01的误差
 3、增加霍夫圆变化函数Mat HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2);threshold1为表示传递给canny边缘检测算子的高阈值，而低阈值为高阈值的一半，threshold2为表示在检测阶段圆心的累加器阈值
+4、由于霍夫圆变换中每个参数的改变对结果的影响都很大，所以修改封装后的函数，多加了OpenCV函数自带的参数，但是取值具体为多少，情况不定，算法需要优化。
+
+date 16.12.9
+------------------------------------------------------------
+@author zhu
+1、修复2016-12-08测试报告中Bug2-6（阈值问题），2-17（去噪声），2-19（去空白），3-5（删除按钮不可用），4-2（分辨率）
+2、发现问题：使用OpenCScanner_OpenCV类，先选择拆分，再选择不拆分时，仍会扫描出来两张图。
+解决方法：CPage_Advanced::SetCapValue中Gamma往容器中存值时为if添加else语句
+3、增加FIBITMAP* CScanner_FreeImage::SpiltImage(FIBITMAP *dib,int m,int n)图像拆分函数，内部使用FreeImage的FreeImage_Copy函数，需注意的是FreeImage_Copy函数的后连个参数与OpenCV的cvSetImageROI意义不一样。
+4、修改CScanner_FreeImage类的框架随图像大小改变而改变。
+5、修改新建模板--模板名为NULL的问题，改为为NULL时提示模板名为空，请重新输入名字
+6、商议决定删除“模板另存为”按钮功能。

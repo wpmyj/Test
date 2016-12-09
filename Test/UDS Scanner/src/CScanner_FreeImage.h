@@ -189,7 +189,14 @@ protected:
   */
   bool preScanPrep();
 
-
+	/**
+	*  @brief  图像分割-裁切
+	*  @param[in]  src 输入图像
+	*  @param[in]  width 分割后的图像的宽
+	*  @param[in]  height 分割后的图像的高
+	*  @param[out]  分割后的图像
+	*/
+	FIBITMAP* SpiltImage(FIBITMAP *dib,int m,int n);
 
 protected:
   FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 

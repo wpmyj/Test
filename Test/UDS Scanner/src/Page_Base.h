@@ -126,7 +126,7 @@ private:
 	/** 另存为模板 */
 	afx_msg void OnBase_Btn_SaveAsprofile();
 	/** 保存当前模板*/
-	afx_msg void OnBase_Btn_Saveprofile();
+//	afx_msg void OnBase_Btn_Saveprofile();
 
 public:
 	/** 父类指针*/

@@ -41,4 +41,6 @@ private:
 	virtual BOOL OnInitDialog();
 	
 	virtual void OnOK();
+public:
+//	afx_msg void OnBnClickedOk();
 };

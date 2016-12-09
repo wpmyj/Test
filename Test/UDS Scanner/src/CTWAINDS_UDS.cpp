@@ -967,6 +967,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//}
 	// 去除空白页等
 	//FLOAT_RANGE fRange;
+	/*
 	fRange.fCurrentValue = -2.0f; //默认不选中，赋值-2，不是0
 	fRange.fMaxValue = 10.0f;
 	fRange.fMinValue = -10.0f;
@@ -974,6 +975,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	// 去除空白页等
 	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}*/
+
+	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32(ICAP_AUTODISCARDBLANKPAGES,TWON_ENUMERATION, TWQC_ALL);
+	if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+		|| !pfixCap->Add(TWBP_AUTO)
+		|| !pfixCap->Add(TWBP_DISABLE, true)) //zhu
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
@@ -2126,6 +2138,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	//	pbCap->GetCurrent(bVal);
 	//	settings.m_fRemoveBlank = bVal;
 	//}
+	/*
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
@@ -2136,7 +2149,19 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pfRCap->GetCurrent(fVal);
 		settings.m_fRemoveBlank = fVal;
+	}*/
+
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
+		bret = false;
 	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fRemoveBlank = fVal;
+	}//zhu
 
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_PUNCHHOLEREMOVEL))))
 	{

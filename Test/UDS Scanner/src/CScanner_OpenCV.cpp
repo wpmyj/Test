@@ -134,9 +134,9 @@ bool CScanner_OpenCV::resetScanner()
 
 	//其他图像处理
 	//默认不选中
-	m_fRemoveBlank        = TWRP_DISABLE; 
-	m_bRemovePunch        = TWSP_DISABLE;
-	m_bSharpen            = TWGM_DISABLE;
+	m_fRemoveBlank        = TWBP_DISABLE; 
+	m_bRemovePunch        = TWRP_DISABLE;
+	m_bSharpen            = TWSP_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
@@ -355,8 +355,9 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 
 	//m_mat_image = HoughLinesTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
-	//m_mat_image = HoughCirclesTransfer(m_mat_image,200,100); // canny边缘检测阈值200；霍夫圆变换累加器阈值100
+	//m_mat_image = HoughCirclesTransfer(m_mat_image,1,200,55); // canny边缘检测阈值200,基本不变；霍夫圆变换累加器阈值100
 
+	
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
 	m_nHeight = m_nSourceHeight = imgTemp.height;
@@ -376,7 +377,7 @@ bool CScanner_OpenCV::preScanPrep()
 		::MessageBox(g_hwndDLG,TEXT(buf),"m_nWidth",MB_OK);
 		char buff[10];
 		itoa(m_nHeight, buff, 10);
-		::MessageBox(g_hwndDLG,TEXT(buff),"m_nHeight",MB_OK);
+		::MessageBox(g_hwndDLG,TEXT(buff),"m_nHeight",MB_OK);/
 	}*/
 
 	/*
@@ -441,7 +442,7 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 }
 
 //霍夫圆变换
-Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2)
+Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshold1, double threshold2)
 {
 	Mat midImage;//临时变量和目标图的定义
 	//【3】转为灰度图，进行图像平滑  
@@ -449,8 +450,11 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double threshold1, double
 	GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 );  
 
 	//【4】进行霍夫圆变换  
-	vector<Vec3f> circles;  
-	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,1.5, 10, threshold1, threshold2, 0, 0 );  //200,100
+	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆
+	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
+	minDist = midImage.rows/20;
+	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100
+	
 
 	//【5】依次在图中绘制出圆  
 	for( size_t i = 0; i < circles.size(); i++ )  
@@ -679,33 +683,16 @@ void CScanner_OpenCV::SpiltImage(const Mat& src_img,int m,int n)
 
 	if(m_nDocCount == 1) //总张数暂时取2
 	{
-		if(m_nSpiltImage == TWSI_HORIZONTAL)
-		{
-			cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
-			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+		cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
+		Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
 
-			cvCopy(&Iplsrc,Ipldst,0); 
-			cvResetImageROI(&Iplsrc); 
+		cvCopy(&Iplsrc,Ipldst,0); 
+		cvResetImageROI(&Iplsrc); 
 
-			matTemp = Ipldst; //IplImage->Mat
+		matTemp = Ipldst; //IplImage->Mat
 
-			matTemp.copyTo(m_mat_image);
-			cvReleaseImage(&Ipldst); 
-		}
-		else //垂直
-		{
-			cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
-			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
-
-			cvCopy(&Iplsrc,Ipldst,0); 
-			cvResetImageROI(&Iplsrc); 
-
-			matTemp = Ipldst; //IplImage->Mat
-
-			matTemp.copyTo(m_mat_image);
-			cvReleaseImage(&Ipldst); 
-		}
-		
+		matTemp.copyTo(m_mat_image);
+		cvReleaseImage(&Ipldst);  		
 	}
 	else if(m_nDocCount == 0)
 	{
