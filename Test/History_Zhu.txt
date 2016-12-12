@@ -1,0 +1,369 @@
++===========================================================+
++--------------------UDS Scanner项目历史__Zhu---------------+         
++===========================================================+
+
+date 16.11.01
+------------------------------------------------------------
+@author zhu
+1.设置参数的默认值，扫描类型为自动进纸器、图形类型为彩色、分辨率为200、单面/双面为单面、对比度为0、亮度为0、阈值为230（滑动条上为0）、重张检测默认选中。
+2、CTWAINDS_UDS文件添加所用参数注释
+
+
+date 16.11.03
+------------------------------------------------------------
+@author zhu
+1.隐藏“显示图片”按钮，只供虚拟扫描仪使用
+2.重新排版基本设置界面
+3.修改流程，点击确定按钮时，才保存所选设置
+4.修改CPage_Base::OnOK()，使用map添加各下拉框改变时的状态监测，key值存ICAP等值，value存对应的数值
+
+@author zhu
+1.添加SetControl（），设置修改的参数
+2.添加“保存当前模板”按钮的消息响应函数OnBase_Btn_Saveprofile()；
+
+
+date 16.11.04
+------------------------------------------------------------
+@author zhu
+高级设置界面
+1、修改Combo纸张大小的值
+2、修改CTWAINDS_UDS的Initialize()，添加图像旋转所需功能（|| !pnCap->Add(ICAP_ROTATION)）及其值TWOR_ROT0，TWOR_ROT90，TWOR_ROT180，TWOR_ROT270
+3、添加Combo分辨率、图像旋转的值
+
+4.完善图像旋转功能
+
+5.同样添加SetControl函数，
+6.添加CPage_Advanced::OnOK()
+7.使用map添加“纸张方向、纸张大小、单位”下拉框改变时的状态监测
+
+8.添加高级设置界面分辨率与旋转图像下拉框 改变的消息响应函数OnCbnSelchangeAdvanced_Combo_Resolution与OnCbnSelchangeAdvanced_Combo_Rotate。
+9.使用GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(FALSE);方式设置多流输出下的选项默认不选中
+
+date 16.11.07
+------------------------------------------------------------
+@author zhu
+1.滑动条亮度、对比度以及编辑框均初始为False
+2.添加SetMultistream（）函数根据m_check_multistream.GetCheck()状态设置各参数能否使用
+
+date 16.11.08
+------------------------------------------------------------
+@author zhu
+1.修改基本界面与高级界面的控制流程。由于属性页的确认控制都是由一个OnOK控制的，如果当客户在选择了基本界面的参数后，又直接进入了高级设置，从高级设置界面点击确认按钮时，就只会设置高级设置界面的参数，所以讨论后仍然决定是每一次点击Combo时设置（SetCap）.
+2.添加OnNMCustomdrawAdvanced_Slider_Brightness，OnNMCustomdrawAdvanced_Slider_Contrast，OnEnChangeAdvanced_Edit_Contrast，OnEnChangeAdvanced_Edit_Brightness，（滑动条与编辑框的消息响应函数）
+3.调试高级界面图像旋转功能无效的问题。
+
+date 16.11.09
+------------------------------------------------------------
+@author zhu
+1、增加高级设置的滑动条等控制
+2、去除旋转相关的功能
+
+3.增加旋转的功能，分别在CTWAINDS_UDS类中的StoreCustomDSdata、ReadCustomDSdata、Initialize、updateScannerFromCaps函数中添加相应的代码，把ICAP_ROTATION增加进容器。
+4、在CScanner_FreeImage类中的SUDS_Setting结构体增加变量，并在resetScanner、setSetting函数添加对应的赋值语句
+5、最重要的是要在CScanner_FreeImage类的preScanPrep函数中增加相应的图像处理代码。
+但是该版本旋转90、270时只显示一半，旋转180时左侧图像有丢失。
+
+date 16.11.10
+------------------------------------------------------------
+@author zhu
+1、查找选择黑白时，出图为纯白色的问题，最终发现是因为阈值默认设置为0 ，所以把大于0的部分全部设置为白色了
+2、添加InitComboPixType（）函数，判断选择黑白图时，阈值可用，亮度、对比度不可用；其他相反。
+3、选择黑白图时阈值默认为230，其他按滑动条设置
+4、完成纸张方向（横向、纵向）；此处是逆时针旋转，旋转图像功能是顺时针旋转
+
+date 16.11.11
+------------------------------------------------------------
+@author zhu
+1、补全纸张大小的所有参数选项，增加A3,ISOB4,JISB4,最大扫描，并测试通过
+2、查找其他功能参数在twain中的对应，注释twain.h
+3、调试但未解决一个Bug,长纸模式未加入纸张大小选项中。
+
+date 16.11.14
+------------------------------------------------------------
+@author zhu
+1、解决长纸模式未加入的问题，在CTWAIN_UDS的Initialize中忘记Add(CUSTCAP_LONGDOCUMENT)
+2、为二值化添加下拉框的选项值，添加OnCbnSelchangeAdvanced_Combo_Binarization函数，以及OnCbnSelchangeAdvanced_Combo_SpiltImage函数
+3、添加函数SetBinarization，处理二值化选择动态阈值时，对应去除斑点滑动条的范围，设置默认值为20；选择固定阈值时，对应底色保留滑动条的范围，设置默认值为128；两者互斥。
+
+4、合并与宛的冲突的代码
+
+date 16.11.15
+------------------------------------------------------------
+@author zhu
+1、解决旋转与横向/纵向的冲突，横向时旋转框架
+2、增加高级设置其他几个checkBox（去除空白页、去除穿孔、锐化图像、Gamma图像校正、图像镜像处理、去除背景、去除网纹、去除噪声、自动裁切与校正）的响应以及对应的CAP、选项值
+3、但是功能实现存在Bug，调试当中
+
+date 16.11.16
+------------------------------------------------------------
+@author zhu
+1、SetCapInt返回0，错误，调试到_datCap
+2、SetCapValueInt一直返回为0，证明是CAP的问题，尝试修改为SetCapValueFloat，并把参数类型也改为float型等
+3、改为SetCapValueFloat正确。
+CTWAINDS_UDS::Initialize()中改为：
+	FLOAT_RANGE fRange;
+	fRange.fCurrentValue = 0.0f;
+	fRange.fMaxValue = 10.0f;
+	fRange.fMinValue = -10.0f;
+	fRange.fStepSize = 1.0f;
+	// 去除空白页等
+	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+CTWAINDS_UDS::updateScannerFromCaps()中改为：
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
+		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fRemoveBlank = fVal;
+	}
+4、调试语句
+	if(m_nBinarization == TWBZ_HALFTONE4)
+	{
+	::MessageBox(g_hwndDLG,TEXT("半色调4"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nBinarization == TWBZ_DYNATHRESHOLD)
+	{
+	::MessageBox(g_hwndDLG,TEXT("二值化自动可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_nSpiltImage == TWSI_NONE)
+	{
+	::MessageBox(g_hwndDLG,TEXT("分割图像不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL)
+	{
+	::MessageBox(g_hwndDLG,TEXT("水平分割可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL)
+	{
+	::MessageBox(g_hwndDLG,TEXT("垂直分割可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemoveBlank == TWBP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemoveBlank == TWBP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除空白页可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemovePunch == TWRP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除穿孔不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemovePunch == TWRP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除穿孔可用"),MB_CAPTION,MB_OK);
+	}
+	/*char buf[1024];
+	itoa((int)m_fRemovePunch,buf,10);
+	::MessageBox(g_hwndDLG,buf,"去除穿孔值",MB_OK);*/
+
+	if(m_fSharpen == TWSP_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("图像锐化不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fSharpen == TWSP_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("图像锐化可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fMirror == TWMR_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("镜像不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fMirror == TWMR_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("镜像可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fRemoveBack == TWRB_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除背景不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fRemoveBack == TWRB_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除背景可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fDescreen == TWDS_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除网纹不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fDescreen == TWDS_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除网纹可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fDenoise == TWDN_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除噪声不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fDenoise == TWDN_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("去除噪声可用"),MB_CAPTION,MB_OK);
+	}
+
+	if(m_fAutoCrop == TWAC_DISABLE)
+	{
+		::MessageBox(g_hwndDLG,TEXT("自动裁切不可用"),MB_CAPTION,MB_OK);
+	}
+	else if(m_fAutoCrop == TWAC_AUTO)
+	{
+		::MessageBox(g_hwndDLG,TEXT("自动裁切可用"),MB_CAPTION,MB_OK);
+	}
+
+5、修改CUSTCAP_PUNCHHOLEREMOVEL等参数为UDSCAP_PUNCHHOLEREMOVEL
+
+date 16.11.17
+------------------------------------------------------------
+@author zhu
+1、增加图像分割功能，使用FreeImage_Copy实现；
+2、增加镜像处理功能，FreeImage_FlipHorizontal实现
+3、修改Gamma校正的方式，从checkBox改为滑动条，滑动条范围为10~255，但实际操作范围为0.1~2.55；
+4、但有一个问题就是图像会变为黑白，调试中
+
+date 16.11.18
+------------------------------------------------------------
+@author zhu
+1、解决图像变为黑白的问题；查找到问题在于FreeImage_AdjustGamma时参数m_fGamma为10，导致在FreeImage_AdjustGamma(m_pDIB, m_fGamma/100);后，第二个参数过小，所以导致图像变暗，类似黑白；调整CTWAINDS_UDS.Initialize中，容器pfixCap->Add(1, true)改为pfixCap->Add(100, true)；这样修改后直接从基本界面扫描没有问题，但从高级界面扫描仍然不对，是因为滑动条默认设置为10了，改为100后，正确；从而后面的镜像处理与图像分割功能正常；
+2、新建三个属性页，纸张设置、多流输出、图像处理。
+
+date 16.11.21
+------------------------------------------------------------
+@author zhu
+1、为Page_Paper类增加OnVScroll函数，实现滚动条与编辑框同步数值的功能；
+2、暂时隐藏其他三个属性页
+3、添加纸张大小：自定义，照片64，照片53选项，自定义时宽高可用，其他时候只显示对应的宽高
+4、在CScanner_Base类中增加重张进纸检测的数据成员m_bMultifeedDetection，并在CTWAINDS_UDS的Initialize与updateScannerFromCaps添加相应Add与设置代码
+
+
+date 16.11.22
+------------------------------------------------------------
+@author zhu
+1、列出并测试所有参数对应CAP与对应数据成员
+2、在CTWAINDS_UDS类中的updateScannerFromCaps（）中添加扫描模式、单双面、纸张大小、单位这几个参数的设置；
+3、在CTWAINDS_UDS类中添加把去除斑点与多流输出两个参数添加进容器的操作。
+
+
+date 16.11.23
+------------------------------------------------------------
+@author zhu
+1、在CScanner_OpenCV类中增加MedianSmooth（）中值滤波函数
+2、根据测试结果，修改去除穿孔等七项checkBox对应的变量值类型从float型改为bool型，保持去除空白页仍为float型
+3、解决测试文档中序号3,8,12的问题
+
+
+date 16.11.24
+------------------------------------------------------------
+@author zhu
+1、修改Base类与Advanced类中的SetCap的位置，最终确定为仍是点击扫描或者保存后才设置，增加SetControl()函数，以及使用map存储Cap值与选中索引值。
+2、增加基类CPage_Custom,该类中只有一个虚函数SetControl();Base类与Advanced类均双继承于CPage_Custom类与CPropertyPage类
+3、在Base类中增加父类的指针CPage_Custom * m_pAdPage，在CSheet_Scanner类的构造函数中增加m_p_page_base->m_pAdPage = m_p_page_advanced传值;在响应OnOK时，不仅只调用本类的SetControl，还要调用m_pAdPage->SetControl();测试后能够同时响应基本界面与高级界面修改的功能。
+
+date 16.11.25
+------------------------------------------------------------
+@author zhu
+1、增加void NewBaseProfile();用于保存模板；
+2、增加void SetCapValue(void);函数用于保存六个常用的模板
+3、修改界面显示的值得读取方式，从默认给值改为从容器读值；
+
+date 16.11.28
+------------------------------------------------------------
+@author zhu
+1、修改map的插入方式，从用insert函数插入value_type数据方式改为用数组方式插入数据；能够修改亮度等值，成功扫描(问题在于用insert时，key与value(键值与数据)的插入上涉及到集合的唯一性，即当map中有这个关键字时，insert操作是插入不了数据的，但是用数组方式不同，它是以覆盖以前关键字对应的值得方式插入的)
+2、优化了CPage_Advanced类中SetCapValue函数
+3、修改基本与高级界面的UpdateControls()与InitSliderCtrl();
+4、增加底色保留Cap---UDSCAP_SENSITIVETHRESHOLD_COLORRETENT，以及去除斑点Cap---UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,删除CAP---UDSCAP_SENSITIVETHRESHOLD；
+5、遗留一个问题：高级设置界面的参数不返回默认模板
+
+date 16.11.29
+------------------------------------------------------------
+@author zhu
+1、解决“修改基本界面的亮度、对比参数，然后从高级扫描，参数设置无效”的问题：因为在基本的OnOK中先设置了亮度，然后再设置了高级界面的SetCapValue，此时这两个参数没有同步，高级仍是上一个模板的值，就又给重新设置回去了；修改办法是在高级的SetCapValue的亮度、对比度加上了判断语句，当且仅当滑动条可用时才SetCapValueFloat；
+2、增加CTWAIN_UI::GetCapValueBool()
+3、修改几个checkBox的读取方式，从默认代码设置改为从容器读取
+4、遗留一个问题：checkbox当前模板的状态未保存
+5、解决checkbox当前模板状态未保存的问题，解决方法是在_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,fRange, TWQC_GETS);最后一个参数改为TWQC_ALL
+
+date 16.11.30
+------------------------------------------------------------
+@author zhu
+1、解决高级checkbox选中，但在基本界面选择默认模板后，checkBox状态不重置的问题：解决办法是在CPage_Base::OnCbnSelchangeBase_Combo_Profile()中增加m_pAdPage->UpdateControls();
+
+date 16.12.1
+------------------------------------------------------------
+@author zhu
+1、增加CPage_Advanced::SetStandardsizes函数，用来判断纸张大小，选择自定义时，宽高是否可用（针对测试报告问题9做的修复，之前只在UpdateControl中增加判断语句，下拉框改变事件未增加）
+2、修改旋转的参数类型为float型，容器类型为CTWAINContainerFix32型（针对测试报告问题12，返回值均为0修改），测试通过
+3、解决测试文档模板问题1：弹出“遇到不适当的参数”问题，主问题是在Base界面做更新高级界面参数时（m_pAdPage->UpdateControls()）出错，来回测试最终发现问题在于几处m_edit_brightness.SetWindowText(strText)，调试发现是因为m_edit_brightness.SetWindowText为NULL。修改该句为SetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, strText)成功。原因是此时高级界面还没有创建，而SetWindowText是当前窗口的句柄，在基本界面并没有edit控件，所以该m_edit_brightness为NULL，若先不改变模板，进入高级界面，再回到基本界面改变模板就不会弹出错误对话框。
+4、解决测试文档模板问题6：增加CPage_Base::SetDelete(void)函数，删除按钮是否可用，当是给定模板时，不可用，即不能删除；修改给定模板名字，改为以UDS--开头，并以此判断哪些是给定的模板。
+
+date 16.12.2
+------------------------------------------------------------
+@author zhu
+1、解决测试文档模板问题2：取消后选择的给定模版依然生效的问题。原因在于初始化对话框时生成了几个新的模板；然后再LoadProfile中的m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer());里面会设置SetGustomDSData；测试发现原FreeImage的驱动也存在这个问题，因此在点击了取消按钮后，添加一些判断与操作：如果模板中存在“当前模板”，点击取消后就回到当前模板的值（注意：此时改变后的模板还未生效、点击OK才会生效）；如果不存在“当前模板”，点击取消后就回到默认模板。
+
+
+date 16.12.5
+------------------------------------------------------------
+@author zhu
+1、解决Gamma校正问题：首先是把Gamma校正函数仍然改为void GammaCorrection(const Mat& src, Mat& dst, float fGamma);重新修改了函数内部，最终发现问题在于copyTo,改为等号，问题解决。原函数有返回值，返回值类型错了，应该是引用类型，不能直接是Mat型
+2、解决图像分割--水平分割功能，能够实现水平分割，但垂直分割的图像大小存在问题，验证发现分割后图像正确，问题在于都图片显示时出现问题。
+
+date 16.12.6
+------------------------------------------------------------
+@author zhu
+1、重新浏览了一遍驱动传数据的所有过程（包括AP获取数据的过程）
+2、修改昨天图像分割显示出现的问题，修改方法是在图像处理后，修改框架的值，使之等于最终处理后的图像，最终得到的图像空白处为白色填充，能够正常显示图像
+3、添加void CPage_Advanced::InitAdvancedmap(void)，初始化高级设置界面的Map，初始化时就存入图像分割Cap的值，采取从容器读取的方式，往Map存入当前值；然后SeCapValue时m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2（这么修改是为分割后出两张图片服务，若以后要出分割多张图，还需修改第二个参数2）
+4、增加Page_Custom类（界面的父类）函数virtual void InitAdvancedmap(void){};该操作是为了解决以下Bug:工作3只能保证进入高级设置界面后，点击扫描后才能使扫描张数为2生效，若用户第一次从高级界面扫描，第二次直接从基本界面扫描，扫描张数的设置就无效（等于是不会显示两张图，只会显示分割后的第二张图）；最后在CPage_Base::OnInitDialog()中利用父类指针手动调用一次（m_pAdPage->InitAdvancedmap()）；问题解决
+5、修改并重写图像分割函数为void SpiltImage(const Mat& src_img,int m,int n);为以后分割为多张图（即把一张图分为m*n块）做准备。结合工作3，最终能够成功显示分割后的两张图（上下、左右）；
+6、借鉴G系列扫描仪驱动界面的参数，修改“图像分割”名为“图像拆分”，以及Combo下拉选项改为“不拆分、上下、左右”
+
+date 16.12.7
+------------------------------------------------------------
+@author zhu
+1、实现基本界面“保存当前模板功能”（功能介绍：首先SetCapValue，然后如果是针对默认模板或者是给定模板修改、保存，就先保存模板为“上次使用模板”，最后遍历，Combo显示上次使用模板；若是针对用户新建的模板修改，直接保存模板）
+2、增加函数void CPage_Base::SetLastProfile(void)，用来封装遍历模板，设置模板中存在“上次使用模板”时的操作
+3、增加int CScanner_OpenCV::FindDepth(const Mat& src_img)函数，用来判断输入图像的深度，为图像锐化(Lapalacian的第三个参数服务）,实现锐化的操作
+4、首先修改Gamma校正在容器中的存储方式从CTWAINContainerFix32改为CTWAINContainerFix32Range，在容器中Gamma值范围为[1-400]，步长为10；在界面显示中，滑动条的范围之内以及Pos点只能为整数，不能是小数，所以容器中以放大100倍的数据存放，实际edit中显示的是更正规的Gamma值（范围为0.01--4.00）
+5、进一步封装霍夫线变换的函数，Mat HoughTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);double类型的threshold1, threshold2是Canny算子所需的滞后性阈值，int型的threshold是OpenCV的HoughLines函数所需的阈值。虽然能够实现霍夫变换，但是这三个阈值的取值方法还需进一步考虑。
+
+date 16.12.8
+------------------------------------------------------------
+@author zhu
+1、修改图像处理区域的排版
+2、发现滑动条存在设定值与第二次读取值不一致的情况，调试解决，问题在于CTWAINDS_UDS中的Initialize()时步长给了10，所以对应的值从1开始只有1,11,21等值，反应到edit中就是只有0.01,0,21等值；所以修改步长为1，问题解决，只是由于步长太短，偶尔会由于操作问题，存在0.01的误差
+3、增加霍夫圆变化函数Mat HoughCirclesTransfer(Mat src_img ,double threshold1, double threshold2);threshold1为表示传递给canny边缘检测算子的高阈值，而低阈值为高阈值的一半，threshold2为表示在检测阶段圆心的累加器阈值
+4、由于霍夫圆变换中每个参数的改变对结果的影响都很大，所以修改封装后的函数，多加了OpenCV函数自带的参数，但是取值具体为多少，情况不定，算法需要优化。
+
+date 16.12.9
+------------------------------------------------------------
+@author zhu
+1、修复2016-12-08测试报告中Bug2-6（阈值问题），2-17（去噪声），2-19（去空白），3-5（删除按钮不可用），4-2（分辨率）
+2、发现问题：使用OpenCScanner_OpenCV类，先选择拆分，再选择不拆分时，仍会扫描出来两张图。
+解决方法：CPage_Advanced::SetCapValue中Gamma往容器中存值时为if添加else语句
+3、增加FIBITMAP* CScanner_FreeImage::SpiltImage(FIBITMAP *dib,int m,int n)图像拆分函数，内部使用FreeImage的FreeImage_Copy函数，需注意的是FreeImage_Copy函数的后连个参数与OpenCV的cvSetImageROI意义不一样。
+4、修改CScanner_FreeImage类的框架随图像大小改变而改变。
+5、修改新建模板--模板名为NULL的问题，改为为NULL时提示模板名为空，请重新输入名字
+6、商议决定删除“模板另存为”按钮功能。
+
+date 16.12.10
+------------------------------------------------------------
+@author zhu
+1、在CPage_Custom.h中增加两个成员变量brightness，contrast，在CPage_Advanced 类中增加Base界面的父类指针CPage_Custom* m_pBasePage;共同用于同步基本与高级界面的亮度和对比度
+2、高级界面的单位Combo在“自定义”时设为不可用

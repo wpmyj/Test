@@ -1,0 +1,179 @@
++===========================================================+
++--------------------UDS Scanner项目历史__Wan---------------+         
++===========================================================+
+
+date 16.11.01
+------------------------------------------------------------
+@author wan
+1.UDS Scanner\src中添加: Scanner_G6400.h,Scanner_G6400.cpp,
+  CommonFunc.h,CommonFunc.cpp四个文件
+2.pub\external\bin中添加: AVSDK.dll一个文件
+3.pub\external\include中添加: AVSDK.h一个文件
+
+
+date 16.11.02
+------------------------------------------------------------
+@author wan
+1.更改项目属性
+2.更改History.txt文件格式
+3.更改m_Scanner类型为CScanner_FreeImage
+4.更改CScanner_FreeImage类成员函数与成员变量的访问权限
+
+
+date 16.11.03
+------------------------------------------------------------
+@author wan
+1.修改TWAIN_UI.cpp文件
+
+
+date 16.11.04
+------------------------------------------------------------
+@author wan
+1.GScanner_G6400添加获取DLL路径函数GetDLLPath();
+2.重写GScanner_G6400::ImageTransfer()
+3.修改CTWAINDS_UDS::transfer()
+4.继续编写GScanner_G6400::SUDS_SettingToG6400Setting()
+
+
+date 16.11.07
+------------------------------------------------------------
+@author wan
+1.添加调试信息
+2.更改AVSDK获取句柄方式并注释不需要的调试信息；
+3.isFeederLoaded()直接返回true；
+4.添加调试信息；
+5.将初始化SDK相关接口函数移动到GScanner_G6400构造函数中。
+
+
+date 16.11.08
+------------------------------------------------------------
+@author wan
+1.更改初始化SDK相关接口函数位置，否则无法显示界面；
+2.规范部分注释语句用法
+3.添加g_hwndSheet用于保存属性页对话框句柄；
+4.修改EnableDS()；
+5.base对话框添加button按钮用于测试；
+6.将CScanner_Sheet调用方式由DoModol改为Create,及模态改为非模态；
+
+date 16.11.10
+------------------------------------------------------------
+@author wan
+1.将结构体SUDS_Setting改为类CScanner_Base；
+2.将CScanner_FreeImage与CScanner_G6400都改为继承自CScanner_Base；
+3.更改文件Scanner_G6400.h与Scanner_G6400.cpp文件名为CScanner_G6400.h与CScanner_G6400.cpp
+4.win32.cpp中添加通过INI文件读取设备编号功能；
+5.修改函数ImageTransfer()；
+6.修改函数GetImageData()；
+
+date 16.11.11
+------------------------------------------------------------
+@author wan
+1.CScanner_Base::getSetting()返回值类型改为CScanner_Base*；
+2.移动枚举类型DEVICE_NUMBER定义到public.h文件中；
+3.更改驱动名称为UDS General TWAIN Scanner；
+
+date 16.11.14
+------------------------------------------------------------
+@author wan
+1.将cerr改为MessageBox
+2.新建public.h文件，用于宏、枚举、全局变量等申明；
+
+
+date 16.11.16
+------------------------------------------------------------
+@author wan
+1.修改函数CScanner_G6400::GetImageData()；
+2.修改传输图片数据相关内容；
+
+date 16.11.23
+------------------------------------------------------------
+@author wan
+1.新建类CScanner_OpenCV；
+2.修改文件public.h,添加枚举DEVICE_OPENCV；
+3.修改MAX(a,b)、MIN(a,b)，强制转化a、b为同一类型；
+4.修改项目属性，包含OpenCV相关头文件与库文件；
+5.修改CScanner_OpenCV图片旋转时角度为负值；
+6.CScanner_OpenCV中添加：水平镜像与垂直镜像、彩色转灰度；
+
+
+date 16.11.25
+------------------------------------------------------------
+@author wan
+1.修改CTWAINDS_Base::dat_capability()，用于支持重置CTWAINContainerBool型Caps;
+2.修改TWAINContainer.h文件，添加BoolVector;
+3.修改CPage_Base::InitComboProfile(),用于选择当前模板;
+4.解决m_baseMap变量类型冲突，在数字后添加f,则数字为float型变量;
+5.实现当前模板功能，用于保存用户上次选择的参数；
+
+date 16.11.28
+------------------------------------------------------------
+@author wan
+1.修改函数MFC_UI::DisplayTWAINGUI();
+2.新建类CDlg_Camera,并增加设备编号DEVICE_CAMERA;
+3.修改CPage_Base::UpdateControls()与CPage_Base::InitSliderCtrl();
+4.解决CScanner_OpenCV中选择黑白图像程序出错的问题，原因是OpenCV
+将灰度图像转为黑白图像时，只是将三个通道设为相同的值，每像素位数
+(BitsPerPixel)仍为8，而程序中设置的是1，所以在分配的内存小于实际
+数据的大小，导致memcpy失败;解决方法就是将程序中的BitsPerPixel改为8;
+5.CScanner_OpenCV中添加SetThreshold()与ContrastAndBright()两个函数,
+分别用于阈值设置与亮度或对比度调整;
+6.修改CScanner_OpenCV::ContrastAndBright();
+7.修改CTWAINDS_Base::dat_capability()用来重置CTWAINContainerFix32型CAP;
+
+date 16.11.29
+------------------------------------------------------------
+@author wan
+1.完善类CDlg_Camera，添加大部分控件，并实现其响应函数；
+2.修改MFC_UI::DisplayTWAINGUI()，若设备编号=DEVICE_CAMERA,
+则始终显示视频界面；
+3.将视频预览控价有、由picture改为static用以显示文本;
+
+
+date 16.11.30
+------------------------------------------------------------
+@author wan
+1.修改CTWAINDS_UDS::getImageInfo(),用于判断设备序号=DEVICE_OPENCV时，
+将BitsPerPixel改为8，否则分派的内存空间不足;
+2.新建类CCamera_DirectX（基类为CScanner_Base）用于支持摄像头相关操作;
+3.实现从配置文件中读取摄像头设置;
+
+date 16.12.01
+------------------------------------------------------------
+@author wan
+1.更改DS名称为UDS General TWAIN DS;
+2.更改存放模板文件的目录为C:\ProgramData\UDS\UDS General TWAIN DS
+
+date 16.12.07
+------------------------------------------------------------
+@author wan
+1.实现拍照同时播放声音;
+2.解决高拍仪界面不能正常退出的问题;
+3.实现传递多张图片的功能;
+4.更改.ds文件名为UDS General TWAIN DS.ds
+5.增加高拍仪界面关闭消息判断;
+6.使用CxImage保存高拍仪拍摄的照片;
+7.定义全局变量g_vecCust_ImageInfo;
+8.实现在指定路径下创建文件夹;
+
+
+date 16.12.08
+------------------------------------------------------------
+@author wan
+1.解决DEVICE_NUMBER = DEVICE_OPENCV，扫描3张后程序出错的问题;
+2.解决DEVICE_NUMBER = DEVICE_CAMERA，扫描后不能正常显示界面的问题;
+3.解决DEVICE_NUMBER = DEVICE_CAMERA，只拍一张时，程序出错的问题
+(m_nImageNumber++;位置有误);
+4.DEVICE_NUMBER = DEVICE_OPENCV，获取图片DPI改用CxImage;
+5.解决DEVICE_NUMBER = DEVICE_CAMERA，照片数为0单击确定后出错的bug;
+6.实现DEVICE_NUMBER = DEVICE_CAMERA，高拍仪界面关闭后，清空临时文件夹;
+7.实现高拍仪界面显示缩略图的功能;
+
+date 16.12.09
+------------------------------------------------------------
+@author wan
+1.解决高拍仪，某些APP测试时拍摄多张照片出错的bug;
+(解决方法：定义全局变量用于保存当前传输图片的大小)
+2.解决高拍仪，拍摄不同文档尺寸的多张照片，第二张后不正常的bug;
+(解决方法：CTWAINDS_Base::getDIBImage中再次调用getImageInfo(&m_ImageInfo);)
+3.修改高拍仪界面缩略图显示名称为从1开始的数字;
+
