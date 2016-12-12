@@ -425,13 +425,15 @@ void CPage_Advanced::UpdateControls(void)
 	m_combo_splitimage.SetCurSel(nCapIndex);
 
 	//多流输出-对比度
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
+	//nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
+	nCapValue = m_pBasePage->contrast;
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_ADVANCED_EDIT_CONTRAST, strText);
 
 	//多流输出-亮度
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS)); 
+	//nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS)); 
+	nCapValue = m_pBasePage->brightness;
 	m_slider_brightness.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	//m_edit_brightness.SetWindowText(strText);
@@ -641,11 +643,13 @@ void CPage_Advanced::SetStandardsizes(void)
 	{
 		m_edit_custom_width.EnableWindow(TRUE);
 		m_edit_custom_height.EnableWindow(TRUE);
+		m_combo_uints.EnableWindow(TRUE);
 	} 
 	else
 	{
 		m_edit_custom_width.EnableWindow(FALSE);
 		m_edit_custom_height.EnableWindow(FALSE);
+		m_combo_uints.EnableWindow(FALSE); //单位此时也不可用
 	}
 }
 
@@ -1011,6 +1015,7 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Multistream()
 
 void CPage_Advanced::InitSliderCtrl()
 {
+	
 	float fMin,fMax,fStep;
 	m_pUI->GetCapRangeFloat(ICAP_CONTRAST, fMin, fMax, fStep);
 	m_slider_contrast.SetRange((int)fMin, (int)fMax);

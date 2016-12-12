@@ -139,4 +139,9 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_RemoveDenoise();
 	afx_msg void OnAdvanced_Btn_Check_RemoveDescreen();
 	afx_msg void OnAdvanced_Btn_Check_AutoCrop();
+
+public:
+	/** Base界面的父类指针*/
+	CPage_Custom* m_pBasePage;
+
 };

@@ -331,6 +331,10 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 	//m_edit_contrast.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	SetDlgItemText(IDC_BASE_EDIT_CONTRAST, str);
 	//UpdateControls();
+
+	contrast = sldValue;
+	m_pAdPage->UpdateControls();
+
 	UpdateData(FALSE);  // 更新控件
 
 	/*// 设置应用按钮为可用状态
@@ -354,6 +358,10 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pR
 	//m_edit_brightness.SetWindowText(str);  // 在编辑框同步显示滚动条值
 	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,str);
 	//UpdateControls();
+
+	brightness = sldValue;
+	m_pAdPage->UpdateControls();
+
 	UpdateData(FALSE);  // 更新控件
 
 	/*// 设置应用按钮为可用状态
@@ -420,6 +428,10 @@ void CPage_Base::OnEnChangeBase_Edit_Contrast()
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	//UpdateControls();
+
+	contrast = nval;
+	m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
+
 	UpdateData(FALSE);  // 更新控件
 
 	/*// 设置应用按钮为可用状态
@@ -444,7 +456,11 @@ void CPage_Base::OnEnChangeBase_Edit_Brightness()
 	//m_pUI->SetCapValueFloat(ICAP_BRIGHTNESS,(float)nval);  // 设置对比度为当前滚动条值
 	m_basemap[ICAP_BRIGHTNESS] = (float)nval;
 	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
 	//UpdateControls();
+	brightness = nval;
+	m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
+
 	UpdateData(FALSE);  // 更新控件
 
 	/*// 设置应用按钮为可用状态

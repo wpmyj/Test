@@ -13,6 +13,9 @@ public:
 	virtual void SetCapValue(void){};
 	virtual void UpdateControls(void){};
 	virtual void InitAdvancedmap(void){};
+
+	int brightness; //用于高级界面的参数同步
+	int contrast;
 };
 
 #endif // __CPAGE_CUSTOM_H__

@@ -96,6 +96,9 @@ private:
 
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 
+	//int brightness; //用于高级界面的参数同步
+	//int contrast;
+
 	//vector<string> m_vector_string_imagepath;  /**< 图片路劲 */
 
 	//CDlg_Profile *m_pDlg;
@@ -131,4 +134,5 @@ private:
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;
+
 };
