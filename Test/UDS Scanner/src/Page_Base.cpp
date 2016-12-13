@@ -836,7 +836,7 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 	if(m_pUI->TW_SaveProfileToFile(strProfile))
 	{		
 		m_combo_profile.AddString(strName);
-		//m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
+		m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
 	}
 	
 	UpdateData(FALSE);

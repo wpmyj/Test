@@ -370,3 +370,8 @@ date 16.12.12
 3、更新界面排版
 4、Opencv类锐化时增加matSharpen = m_mat_image + matSharpen使显示原图处理后的效果图
 5、隐藏属性页“应用”按钮
+
+date 16.12.13
+------------------------------------------------------------
+@author zhu
+1、完成去除穿孔的功能，增加函数Mat RemovePunch(Mat src_img ,double threshold1, double threshold2, WORD width, WORD height);在函数内部进行HoughCirclesTransfer的操作。threshold1与threshold2是霍夫变换所需要的两个阈值，width与height是图像的宽高，RemovePunch函数内部只对图像的四周进行霍夫圆变换处理；内部加入填充穿孔的操作，以圈出来的区域附近的像素值填充，但是仍然填充不完美，与周边存在渐变

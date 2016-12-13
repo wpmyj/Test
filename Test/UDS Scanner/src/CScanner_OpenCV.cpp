@@ -350,14 +350,56 @@ bool CScanner_OpenCV::preScanPrep()
 		Mat matSharpen;
 		int index = FindDepth(m_mat_image);
 		Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT ); //必须是与输入图像的深度相同
-		matSharpen = m_mat_image + matSharpen;
+		matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
 		matSharpen.copyTo(m_mat_image);
 		//m_mat_image = matSharpen;
 	}
 
 	//m_mat_image = HoughLinesTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
 	//m_mat_image = HoughCirclesTransfer(m_mat_image,1,200,55); // canny边缘检测阈值200,基本不变；霍夫圆变换累加器阈值100
+	
+	if(m_bRemovePunch == TWRP_AUTO) //去除穿孔
+	{	 
+		Mat matRemovepunch;
+		matRemovepunch = RemovePunch(m_mat_image, 200, 30, unNewWidth, unNewHeight);
+		matRemovepunch.copyTo(m_mat_image);
+	}
+	
+	/*
+	vector<Rect> rects;
+	Rect rectTemp(0, 0, 3*unNewWidth/30, 3*unNewHeight/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
+	
+	rects.push_back(Rect(0, 0, unNewWidth, rectTemp.height)); //上侧
+	rects.push_back(Rect(0, unNewHeight-rectTemp.height, unNewWidth, rectTemp.height));	 //下侧	
 
+	//rects.push_back(Rect(0, 0, rectTemp.width, unNewHeight)); //全部左侧
+	//rects.push_back(Rect(unNewWidth-rectTemp.width, 0, rectTemp.width, unNewHeight)); //全部右侧
+	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, unNewHeight-2*rectTemp.height)); //左侧  只是中间部分
+	rects.push_back(Rect(unNewWidth-rectTemp.width, rectTemp.height, rectTemp.width, unNewHeight-2*rectTemp.height)); //右侧
+
+	vector<Mat> subImages;
+	for(size_t i = 0; i < rects.size(); i++)
+	{
+		Mat tempImg;
+		m_mat_image(rects[i]).copyTo(tempImg);
+		tempImg = HoughCirclesTransfer(tempImg,1,200,30);
+		subImages.push_back(tempImg);	
+	}
+
+	Mat matHough;
+	m_mat_image.copyTo(matHough);	
+	for(size_t i = 0; i < rects.size(); i++)
+	{	
+		IplImage IplHough = IplImage(matHough);
+		IplImage IplHoughTemp = IplImage(subImages[i]);
+		
+		cvSetImageROI(&IplHough, rects[i]);
+		cvCopy(&IplHoughTemp, &IplHough);
+
+		cvResetImageROI(&IplHough); 
+		//imwrite( "C://Users//Administrator//Desktop//3.jpg", matHough);	
+	}
+	matHough.copyTo(m_mat_image); */
 	
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
@@ -445,6 +487,9 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 //霍夫圆变换
 Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshold1, double threshold2)
 {
+	CvScalar scalar;
+	IplImage src_img_ipl = IplImage(src_img);
+
 	Mat midImage;//临时变量和目标图的定义
 	//【3】转为灰度图，进行图像平滑  
 	cvtColor(src_img,midImage, CV_BGR2GRAY);//转化边缘检测后的图为灰度图  
@@ -453,19 +498,29 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	//【4】进行霍夫圆变换  
 	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
-	minDist = midImage.rows/20;
-	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100
-	
+	minDist = midImage.rows/15;
+	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100 
 
 	//【5】依次在图中绘制出圆  
 	for( size_t i = 0; i < circles.size(); i++ )  
 	{  
 		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));  
 		int radius = cvRound(circles[i][2]);  
-		//绘制圆心  
-		circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 );  
-		//绘制圆轮廓  
-		circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 );  
+		int temp = 1;
+		scalar = cvGet2D(&src_img_ipl, center.y+radius, center.x+radius); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
+		
+		if(radius < threshold2) //新增，半径小于阈值2时才填充
+		{
+			//circle( src_img, center, radius, Scalar(255,255,255), -1, 8, 0 );   //B（蓝）G（绿）R（红）；线条的类型。默认是8；0圆心坐标点和半径值的小数点位数
+			circle( src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
+		}
+		else //大于时，只画圆
+		{
+			//绘制圆心
+			//circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 ); //-1表示填充，为正数表示线条粗细
+			//绘制圆轮廓 
+			//circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
+		}
 	}  
 	/*
 	//【6】边缘检测后的图   
@@ -474,6 +529,41 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", src_img);*/
 
 	return src_img;
+}
+
+Mat CScanner_OpenCV::RemovePunch(Mat src_img, double threshold1, double threshold2, WORD width, WORD height)
+{
+	vector<Rect> rects;
+	Rect rectTemp(0, 0, 3*width/30, 3*height/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
+	rects.push_back(Rect(0, 0, width, rectTemp.height)); //上侧
+	rects.push_back(Rect(0, height-rectTemp.height, width, rectTemp.height));	 //下侧	
+	//rects.push_back(Rect(0, 0, rectTemp.width, unNewHeight)); //全部左侧
+	//rects.push_back(Rect(width-rectTemp.width, 0, rectTemp.width, height)); //全部右侧
+	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //左侧  只是中间部分
+	rects.push_back(Rect(width-rectTemp.width, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //右侧
+
+	vector<Mat> subImages;
+	for(size_t i = 0; i < rects.size(); i++)
+	{
+		Mat tempImg;
+		src_img(rects[i]).copyTo(tempImg);
+		tempImg = HoughCirclesTransfer(tempImg,1,threshold1,threshold2);
+		subImages.push_back(tempImg);	
+	}
+
+	Mat dst_img;
+	src_img.copyTo(dst_img);	
+	for(size_t i = 0; i < rects.size(); i++)
+	{	
+		IplImage IplHough = IplImage(dst_img);
+		IplImage IplHoughTemp = IplImage(subImages[i]);
+
+		cvSetImageROI(&IplHough, rects[i]);
+		cvCopy(&IplHoughTemp, &IplHough);
+		cvResetImageROI(&IplHough); 
+		//imwrite( "C://Users//Administrator//Desktop//3.jpg", matHough);	
+	}
+	return dst_img;
 }
 
 int CScanner_OpenCV::FindDepth(const Mat& src_img)
