@@ -43,7 +43,6 @@ void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_IMAGETYPE, m_cbImageType);
 	DDX_Control(pDX, IDC_BUTTON_PHOTO, m_bPhoto);
 	DDX_Control(pDX, IDC_BUTTON_STOP, m_bStop);
-	DDX_Control(pDX, IDC_BUTTON_DELETE, m_bDelete);
 	DDX_Control(pDX, IDC_BUTTON_HELP, m_bHelp);
 	DDX_Control(pDX, IDC_STATIC_UI, m_sPreviewWnd);
 	DDX_Control(pDX, IDC_STATIC_PHOTONO, m_sPhotoNo);
@@ -60,7 +59,6 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PHOTO, &CDlg_Camera::OnButton_Photo)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDlg_Camera::OnButton_Stop)
 	ON_BN_CLICKED(IDC_BUTTON_CAMIMAGE, &CDlg_Camera::OnButton_Camimage)
-	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CDlg_Camera::OnButton_Delete)
 	ON_CBN_SELCHANGE(IDC_COMBO_CAMERALIST, &CDlg_Camera::OnCbnSelchangeCombo_Cameralist)
 	ON_CBN_SELCHANGE(IDC_COMBO_IMAGESIZE, &CDlg_Camera::OnCbnSelchangeCombo_Imagesize)
 	ON_CBN_SELCHANGE(IDC_COMBO_IMAGETYPE, &CDlg_Camera::OnCbnSelchangeCombo_Imagetype)
@@ -71,7 +69,6 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_ADJUST, &CDlg_Camera::OnButton_Adjust)
 	ON_BN_CLICKED(IDC_BUTTON_HELP, &CDlg_Camera::OnButton_Help)
 	ON_WM_HSCROLL()
-	ON_BN_CLICKED(IDC_BUTTON_CAMVIDEO, &CDlg_Camera::OnButton_Camvideo)
 	ON_BN_CLICKED(IDOK, &CDlg_Camera::OnOk)
 	ON_MESSAGE(WM_IMAGEREADY, OnImageReady)
 	ON_MESSAGE(WM_IMAGESAVED, OnImageSaved)
@@ -83,6 +80,7 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_COMMAND(ID_IMAGE_RIGHT90, &CDlg_Camera::OnImageRight90)
 	ON_COMMAND(ID_IMAGE_FLIPVERTICAL, &CDlg_Camera::OnImageFlipvertical)
 	ON_COMMAND(ID_IMAGE_MIRROR, &CDlg_Camera::OnImageMirror)
+	ON_BN_CLICKED(IDC_BUTTON_CAMERA_SETTING, &CDlg_Camera::OnButton_CameraSetting)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -221,7 +219,7 @@ BOOL CDlg_Camera::OnInitDialog()
 
 	m_bIsHelp = false;
 	m_bStop.EnableWindow(FALSE);  // Set m_bStop
-	m_bDelete.EnableWindow(FALSE);  // Set m_bDelete
+	//m_bDelete.EnableWindow(FALSE);  // Set m_bDelete
 	if ( m_Capture.GetDevicesList(&m_cbCameraList) > 0)  // Set m_cbCameraList
 	{
 		m_bPhoto.EnableWindow(TRUE);  // Set m_bPhoto
@@ -311,12 +309,20 @@ void CDlg_Camera::OnButton_Stop()
 	m_bStop.EnableWindow(FALSE);  // Set m_bStop
 }
 
-
+//格式
 void CDlg_Camera::OnButton_Camimage()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_Capture.ConfigCameraPin(this->m_hWnd);
 }
+
+// 属性
+void CDlg_Camera::OnButton_CameraSetting()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Capture.ConfigCameraFilter(this->m_hWnd);
+}
+
 
 void CDlg_Camera::OnButton_Adjust()
 {
@@ -324,31 +330,6 @@ void CDlg_Camera::OnButton_Adjust()
 	m_Capture.m_Auto.imageOrientation += 1;
 	if (m_Capture.m_Auto.imageOrientation > 3)  // 0, 1-90, 2-180, 3-270
 		m_Capture.m_Auto.imageOrientation = 0;
-}
-
-void CDlg_Camera::OnButton_Delete()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_Capture.m_nPhotoNo > 0)
-	{
-		m_Capture.m_nPhotoNo -= 1;  m_Capture.m_strBarcode.Empty();
-		CString str;
-		str.Format("已拍摄 %d 张", m_Capture.m_nPhotoNo);
-		m_sPhotoNo.SetWindowText(str);
-		// 删除文件
-		//str = theApp.m_tempFileList.GetAt( theApp.m_tempFileList.GetSize()-1 );
-		//::DeleteFile(str);
-		//str.Replace("~Un", "~UnTh");
-		//::DeleteFile(str);
-		// 删除theApp中保存的相关数据
-		//theApp.m_tempFileList.RemoveAt( theApp.m_tempFileList.GetSize()-1 );
-		//theApp.m_tempBarcodeList.RemoveAt( theApp.m_tempBarcodeList.GetSize()-1 );
-		//theApp.m_nTempFileCount--;
-	}
-	if (m_Capture.m_nPhotoNo > 0)
-		m_bDelete.EnableWindow(TRUE);
-	else
-		m_bDelete.EnableWindow(FALSE);
 }
 
 
@@ -518,12 +499,6 @@ void CDlg_Camera::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 
-void CDlg_Camera::OnButton_Camvideo()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	m_Capture.ConfigCameraPin(this->m_hWnd);
-}
-
 void CDlg_Camera::SetCapValue(void)
 {
 	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, m_Capture.m_nPhotoNo);  // 设置待传图片数量
@@ -628,10 +603,10 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 	//else
 		//msg.Format("第 %d张[%s]", m_Capture.m_nPhotoNo, m_Capture.m_strBarcode);
 	m_sPhotoNo.SetWindowText(msg);
-	if (m_Capture.m_nPhotoNo > 0)  // Set m_bDelete
-		m_bDelete.EnableWindow(TRUE);
-	else
-		m_bDelete.EnableWindow(FALSE);
+	//if (m_Capture.m_nPhotoNo > 0)  // Set m_bDelete
+	//	m_bDelete.EnableWindow(TRUE);
+	//else
+	//	m_bDelete.EnableWindow(FALSE);
 	if (m_Capture.m_Auto.autoClip == false)  // 手动拍摄
 		m_bPhoto.EnableWindow(TRUE);  // Set m_bPhoto
 
@@ -1134,3 +1109,5 @@ void CDlg_Camera::OnImageMirror()
 	// TODO: 在此添加命令处理程序代码
 	ImageHandle(mirror);
 }
+
+

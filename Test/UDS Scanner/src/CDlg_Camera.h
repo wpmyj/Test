@@ -46,37 +46,36 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CComboBox m_cbCameraList;
-	CComboBox m_cbDocList;
-	CComboBox m_cbSizeList;
-	CComboBox m_cbImageType;
+	CComboBox m_cbCameraList;         ///< 设备列表
+	CComboBox m_cbDocList;            ///< 文档大小
+	CComboBox m_cbSizeList;           ///< 像素（分辨率）
+	CComboBox m_cbImageType;          ///< 图像类型
 
-	CButton m_bPhoto;
-	CButton m_bStop;
-	CButton m_bDelete;
-	CButton m_bHelp;
+	CButton m_bPhoto;                 ///< 拍照
+	CButton m_bStop;                  ///< 暂停
+	CButton m_bHelp;                  ///< 帮助
+	CButton m_cAutoClip;              ///< 智能拍照
+	CButton m_cAutoEnhance;           ///< 文档增强
+	CButton m_cAutoRotate;            ///< 文档旋转
+	//CButton m_bDelete;      
 
-	CStatic m_sPreviewWnd;
-	CStatic m_sPhotoNo;
+	CStatic m_sPreviewWnd;            ///< 预览窗口
+	CStatic m_sPhotoNo;               ///< 照片数
 
-	CButton m_cAutoClip;
-	CButton m_cAutoEnhance;
-	CButton m_cAutoRotate;
+	CSliderCtrl m_slExposure;         ///< 曝光度
+	CSliderCtrl m_slBrightness;       ///< 亮度
 
-	CSliderCtrl m_slExposure;
-	CSliderCtrl m_slBrightness;
+	INI_CAMERA m_ini;                 ///< 配置文件信息
 
-	INI_CAMERA m_ini; ///< 保存配置文件信息
-
-	CListCtrl   m_listctrl;   ///< 缩略图对应ListCtrl控件
-	CImageList	m_imagelist;  ///< 缩略图对应ImageList控件
+	CListCtrl   m_listctrl;           ///< 缩略图对应ListCtrl控件
+	CImageList	m_imagelist;          ///< 缩略图对应ImageList控件
 private:
 	MFC_UI *m_pUI;
 
 	
 protected:
 	CUDSCapture m_Capture;
-	bool m_bIsHelp;
+	bool m_bIsHelp;                   ///< 是否正在显示帮助信息
 	void MapDocSize();
 	virtual BOOL OnInitDialog();
 
@@ -116,7 +115,7 @@ protected:
 	/**
 	*  @brief  清空并删除文件夹
 	*  @param[in]  szPath 待清空的文件夹路径
-	*  @param[in]  deleteDir 是否删除文件
+	*  @param[in]  deleteDir 是否删除文件夹
 	*  @retval true 表示成功
 	*  @retval false 表示失败  
 	*/
@@ -156,26 +155,29 @@ protected:
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
 	afx_msg void OnButton_Camimage();
-	afx_msg void OnButton_Delete();
+	afx_msg void OnButton_CameraSetting();
+	afx_msg void OnButton_Adjust();
+	afx_msg void OnButton_Help();
+
 	afx_msg void OnCbnSelchangeCombo_Cameralist();
 	afx_msg void OnCbnSelchangeCombo_Imagesize();
 	afx_msg void OnCbnSelchangeCombo_Imagetype();
 	afx_msg void OnCbnSelchangeCombo_Docsize();
+
 	afx_msg void OnCheck_Autophoto();
 	afx_msg void OnCheck_Autoenhance();
 	afx_msg void OnCheck_Autorotate();
-	afx_msg void OnButton_Adjust();
-	afx_msg void OnButton_Help();
+
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnButton_Camvideo();
 	afx_msg void OnOk();
 	afx_msg void OnClose();
 	afx_msg void OnCancel();
 	afx_msg void OnImageDelete();
 	afx_msg void OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult);
-public:
+
 	afx_msg void OnImageLeft90();
 	afx_msg void OnImageRight90();
 	afx_msg void OnImageFlipvertical();
 	afx_msg void OnImageMirror();
+
 };
