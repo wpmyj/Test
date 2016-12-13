@@ -150,4 +150,7 @@ protected:
 	afx_msg void OnClose();
 	afx_msg void OnCancel();
 
+public:
+	afx_msg void OnImageDelete();
+	afx_msg void OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult);
 };

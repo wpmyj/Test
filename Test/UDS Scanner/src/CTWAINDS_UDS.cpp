@@ -1403,6 +1403,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   m_CurrentState = dsState_Enabled;
   m_bCanceled = false;
 
+	// 防止有些APP再次扫描，未OpenDS,直接EnableDS，需要重置参数
+	if(!m_pScanner->resetScanner())
+	{	
+		setConditionCode(TWCC_BUMMER);
+		assert(0);
+	}
 
   //set pending xfers to whatever the user configured for XferCount
   int Count = TWON_DONTCARE32;

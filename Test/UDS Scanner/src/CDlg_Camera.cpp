@@ -30,8 +30,8 @@ CDlg_Camera::~CDlg_Camera()
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
 	ClearAndDeleteDir(m_Capture.m_strImagePath);
-	//g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
-	//m_Capture.m_nPhotoNo = 0;
+	g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
+	m_Capture.m_nPhotoNo = 0;
 }
 
 void CDlg_Camera::DoDataExchange(CDataExchange* pDX)
@@ -77,6 +77,8 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_MESSAGE(WM_IMAGESAVED, OnImageSaved)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OnCancel)
+	ON_COMMAND(ID_IMAGE_DELETE, &CDlg_Camera::OnImageDelete)
+	ON_NOTIFY(NM_RCLICK, IDC_LIST_THUNMBNAIL, &CDlg_Camera::OnNMRClickListThunmbnail)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -954,4 +956,102 @@ int CDlg_Camera::GetTypeFromFileName(const CString filename)
 
 	return type;
 
+}
+
+void CDlg_Camera::OnImageDelete()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	int nSelectedIndex = m_listctrl.GetNextItem(-1, LVNI_SELECTED);
+	if (nSelectedIndex == -1)
+	{
+		AfxMessageBox("未选中页码");
+		return;
+	}
+
+	int nCount = g_vecCust_ImageInfo.size();  // 获取图片数量
+
+	//////////////////////////////////////////////////////////////////////
+
+	int nImageCount = m_imagelist.GetImageCount();
+
+	LVITEM lvitem;
+	for (int nIndex = 0; nIndex < nImageCount - 1; nIndex++)
+	{
+		if (nIndex < nSelectedIndex)
+			continue;
+
+		m_imagelist.Copy(nIndex, nIndex + 1);
+
+		lvitem.iItem = nIndex;
+		lvitem.mask = LVIF_IMAGE;
+		m_listctrl.GetItem(&lvitem);
+		lvitem.iImage = nIndex;
+		m_listctrl.SetItem(&lvitem);
+
+		CString text = m_listctrl.GetItemText(nIndex + 1, 0);
+		m_listctrl.SetItemText(nIndex, 0, text);
+	}
+	m_imagelist.SetImageCount(nImageCount - 1);
+	m_listctrl.DeleteItem(nImageCount - 1);
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	int num = 0;
+	std::vector<CUST_IMAGEINFO>::iterator it;
+	for (it = g_vecCust_ImageInfo.begin(); it != g_vecCust_ImageInfo.end(); it++)
+	{
+		if (num < nSelectedIndex)
+		{
+			num++;
+			continue;
+		}
+
+		if (num < nCount - 1)
+			g_vecCust_ImageInfo[num] = g_vecCust_ImageInfo[num + 1];
+
+		if (num == nCount - 1)
+		{
+			g_vecCust_ImageInfo.erase(it);
+			if (m_Capture.m_nPhotoNo > 0)
+			{
+				m_Capture.m_nPhotoNo -= 1; 
+				m_Capture.m_strBarcode.Empty();
+				CString str;
+				str.Format("已拍摄 %d 张", m_Capture.m_nPhotoNo);
+				m_sPhotoNo.SetWindowText(str);
+			}
+			break;
+		}
+
+		num++;
+	}
+
+	if (nSelectedIndex > 0)
+	{
+		m_listctrl.SetItemState(-1, 0, LVIS_SELECTED);
+		m_listctrl.SetItemState(nSelectedIndex - 1, LVIS_SELECTED, LVIS_SELECTED);											
+	}
+	else
+	{
+		m_listctrl.SetItemState(-1, 0, LVIS_SELECTED);
+		m_listctrl.SetItemState(nSelectedIndex, LVIS_SELECTED, LVIS_SELECTED);
+	}
+
+	m_listctrl.Invalidate();
+}
+
+
+void CDlg_Camera::OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	CMenu menu, *pSubMenu; //定义下面要用到的cmenu对象 
+	menu.LoadMenu(IDR_POPMENU_THUMBNAIL); //装载自定义的右键菜单 
+	pSubMenu = menu.GetSubMenu(0); //获取第一个弹出菜单 
+	CPoint oPoint; //定义一个用于确定光标位置的位置 
+	GetCursorPos(&oPoint); //获取当前光标的位置 
+	pSubMenu->TrackPopupMenu(TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
+
+	*pResult = 0;
 }

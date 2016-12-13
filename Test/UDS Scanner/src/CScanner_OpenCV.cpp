@@ -350,7 +350,7 @@ bool CScanner_OpenCV::preScanPrep()
 		Mat matSharpen;
 		int index = FindDepth(m_mat_image);
 		Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT ); //必须是与输入图像的深度相同
-		//cvAdd();
+		matSharpen = m_mat_image + matSharpen;
 		matSharpen.copyTo(m_mat_image);
 		//m_mat_image = matSharpen;
 	}

@@ -148,5 +148,8 @@ BOOL CSheet_Scanner::OnInitDialog()
 	RemovePage(m_p_page_muilstream);
 	RemovePage(m_p_page_imageprocess);
 
+	CWnd *pWnd = GetDlgItem( ID_APPLY_NOW ); //隐藏应用按钮 （标准按钮的ID是IDOK，IDCANCEL，IDHELP和ID_APPLY_NOW） 
+	pWnd->ShowWindow( FALSE );
+
 	return bResult;
 }

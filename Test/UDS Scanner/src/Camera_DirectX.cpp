@@ -185,7 +185,7 @@ bool CCamera_DirectX::preScanPrep()
 	DWORD size = m_mat_image.total() * m_mat_image.elemSize();
   g_dwImageSize = size;
 
-	char buf[60];
+	//char buf[60];
 	/*itoa(g_dwImageSize, buf, 10);
 	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::g_dwImageSize",MB_OK);*/
 

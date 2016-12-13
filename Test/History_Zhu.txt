@@ -362,8 +362,11 @@ date 16.12.9
 5、修改新建模板--模板名为NULL的问题，改为为NULL时提示模板名为空，请重新输入名字
 6、商议决定删除“模板另存为”按钮功能。
 
-date 16.12.10
+date 16.12.12
 ------------------------------------------------------------
 @author zhu
 1、在CPage_Custom.h中增加两个成员变量brightness，contrast，在CPage_Advanced 类中增加Base界面的父类指针CPage_Custom* m_pBasePage;共同用于同步基本与高级界面的亮度和对比度
 2、高级界面的单位Combo在“自定义”时设为不可用
+3、更新界面排版
+4、Opencv类锐化时增加matSharpen = m_mat_image + matSharpen使显示原图处理后的效果图
+5、隐藏属性页“应用”按钮
