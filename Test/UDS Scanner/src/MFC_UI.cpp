@@ -86,6 +86,10 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	if(bSetup)
 	{
 		Data.ShowUI=1;
+		if (DEVICE_CAMERA == g_nDeviceNumber)  // 高拍仪EnableDSUIOnly,不显示界面
+		{
+			return TWRC_FAILURE;
+		}
 	}
 
 	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
