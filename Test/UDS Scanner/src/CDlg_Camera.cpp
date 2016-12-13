@@ -79,6 +79,10 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_BN_CLICKED(IDCANCEL, &CDlg_Camera::OnCancel)
 	ON_COMMAND(ID_IMAGE_DELETE, &CDlg_Camera::OnImageDelete)
 	ON_NOTIFY(NM_RCLICK, IDC_LIST_THUNMBNAIL, &CDlg_Camera::OnNMRClickListThunmbnail)
+	ON_COMMAND(ID_IMAGE_LEFT90, &CDlg_Camera::OnImageLeft90)
+	ON_COMMAND(ID_IMAGE_RIGHT90, &CDlg_Camera::OnImageRight90)
+	ON_COMMAND(ID_IMAGE_FLIPVERTICAL, &CDlg_Camera::OnImageFlipvertical)
+	ON_COMMAND(ID_IMAGE_MIRROR, &CDlg_Camera::OnImageMirror)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -1054,4 +1058,79 @@ void CDlg_Camera::OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult)
 	pSubMenu->TrackPopupMenu(TPM_LEFTALIGN, oPoint.x, oPoint.y, this); //在指定位置显示弹出菜单
 
 	*pResult = 0;
+}
+
+void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
+{
+	
+	//获得当前选中图片的索引
+	int nSelectedIndex = m_listctrl.GetNextItem(-1, LVNI_SELECTED);
+
+	if (-1 == nSelectedIndex) {
+		return;
+	}
+
+	string strTempPath = g_vecCust_ImageInfo[nSelectedIndex].imagePath;
+
+	CxImage *pImage = new CxImage();
+	pImage->Load(strTempPath.c_str());
+
+	switch (eMethod)
+	{
+	case left90: {
+		pImage->RotateLeft();
+		break;
+		}	
+	case right90: {
+		pImage->RotateRight();
+		break;
+		}		
+	case flip: {
+		pImage->Flip();
+		break;
+		}	
+	case mirror: {
+		pImage->Mirror();
+		break;
+		}
+	default: { 
+		break;
+		}		
+	}
+
+	g_vecCust_ImageInfo[nSelectedIndex].imageHeight = pImage->GetHeight();
+	g_vecCust_ImageInfo[nSelectedIndex].imageWidth = pImage->GetWidth();
+
+	int nImageType = GetTypeFromFileName(strTempPath.c_str()); 
+	pImage->Save(strTempPath.c_str(), nImageType);
+	LoadThumbNail();
+	delete pImage;
+}
+
+
+void CDlg_Camera::OnImageLeft90()
+{
+	// TODO: 在此添加命令处理程序代码
+	ImageHandle(left90);
+}
+
+
+void CDlg_Camera::OnImageRight90()
+{
+	// TODO: 在此添加命令处理程序代码
+	ImageHandle(right90);
+}
+
+// 垂直翻转
+void CDlg_Camera::OnImageFlipvertical()
+{
+	// TODO: 在此添加命令处理程序代码
+	ImageHandle(flip);
+}
+
+
+void CDlg_Camera::OnImageMirror()
+{
+	// TODO: 在此添加命令处理程序代码
+	ImageHandle(mirror);
 }

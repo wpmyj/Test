@@ -177,3 +177,17 @@ date 16.12.09
 (解决方法：CTWAINDS_Base::getDIBImage中再次调用getImageInfo(&m_ImageInfo);)
 3.修改高拍仪界面缩略图显示名称为从1开始的数字;
 
+date 16.12.12
+------------------------------------------------------------
+@author wan
+1.解决DEVICE_NUMBER = DEVICE_CAMERA，若APP再次扫描未OpenDS直接EnableDS,程序崩溃的bug;
+（解决方法：在EnbaleDS中再次调用resetScanner）
+2.DEVICE_NUMBER = DEVICE_CAMERA，在OnInitDialog()中，创建指定路径下的文件夹后，再清空该文件夹;
+
+date 16.12.13
+------------------------------------------------------------
+@author wan
+1.实现高拍仪界面缩略图旋转、翻转与镜像;
+
+
+

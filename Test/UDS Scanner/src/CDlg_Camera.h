@@ -79,6 +79,10 @@ protected:
 	bool m_bIsHelp;
 	void MapDocSize();
 	virtual BOOL OnInitDialog();
+
+	/**
+	*  @brief  打开相机
+	*/
 	void StartCamera();
 
 	/**
@@ -130,6 +134,24 @@ protected:
 	*/
 	int GetTypeFromFileName(const CString filename);
 
+	/**
+	*  @brief  图像处理
+	*/
+	enum enum_image_handle  
+	{
+		left90,          /**< 左转90度 */ 
+		right90,         /**< 右转90度 */
+		flip,            /**< 水平翻转 */
+		mirror           /**< 垂直镜像 */
+	};
+
+	/**
+	*  @brief  图像处理
+	*  @param[in]  eMethod 处理方法
+	*/
+	void ImageHandle(enum_image_handle eMethod);	
+
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
@@ -149,8 +171,11 @@ protected:
 	afx_msg void OnOk();
 	afx_msg void OnClose();
 	afx_msg void OnCancel();
-
-public:
 	afx_msg void OnImageDelete();
 	afx_msg void OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult);
+public:
+	afx_msg void OnImageLeft90();
+	afx_msg void OnImageRight90();
+	afx_msg void OnImageFlipvertical();
+	afx_msg void OnImageMirror();
 };
