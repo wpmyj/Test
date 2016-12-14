@@ -146,7 +146,7 @@ BOOL CDlg_Camera::OnInitDialog()
 	if (m_ini.CamImageType == 1) { // 灰度
 		m_Capture.m_Auto.imageType = 1;
 	}
-	else {//if (m_pMainWnd->m_ini.CamImageType == 2)  // 彩色
+	else {//if (m_pMainWnd->m_ini.CamImageType == 0)  // 彩色
 		m_Capture.m_Auto.imageType = 0;
 	}
 	m_cbImageType.SetCurSel(m_Capture.m_Auto.imageType);
@@ -582,6 +582,60 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	m_ini = tempINI;
 }
 
+
+void CDlg_Camera::WriteCameraSettingToINI()
+{
+	char szINIPath[MAX_PATH];  // INI文件路径
+	GetFilePath(FILENAME_INI,szINIPath);  // 获取INI文件路径
+
+	//CString
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERA,m_Capture.m_Auto.strCamrea,szINIPath);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMFRAMESIZE,m_Capture.m_Auto.strSize,szINIPath);
+
+	//long->CString
+	CString strTemp;
+	strTemp.Format("%ld",m_Capture.m_nExposure);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_Capture.m_nBrightness);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_Capture.m_Auto.imageType);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_Capture.m_Auto.docSize);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_Capture.m_Auto.imageOrientation);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,strTemp,szINIPath);
+
+	//bool->CString
+	if (m_Capture.m_Auto.autoClip) {
+		strTemp = "Y";
+	} 
+	else {
+		strTemp = "N";
+	}
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,strTemp,szINIPath);
+
+	if (m_Capture.m_Auto.autoEnhance) {
+		strTemp = "Y";
+	} 
+	else {
+		strTemp = "N";
+	}
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOENHANCE,strTemp,szINIPath);
+
+	if (m_Capture.m_Auto.autoRotate) {
+		strTemp = "Y";
+	} 
+	else {
+		strTemp = "N";
+	}
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOROTATE,strTemp,szINIPath);
+}
+
+
 LRESULT CDlg_Camera::OnImageReady(WPARAM wParam, LPARAM lParam)
 {
 	m_Capture.m_bIsPreview = false;  // 转入保存状态
@@ -616,7 +670,8 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 
 void CDlg_Camera::OnOk()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// TODO: 在此添加控件通知处理程序代码 
+	WriteCameraSettingToINI(); 
 	if (0 == m_Capture.m_nPhotoNo)  // 一张都没拍取消扫描
 	{
 		OnCancel();
@@ -1109,5 +1164,7 @@ void CDlg_Camera::OnImageMirror()
 	// TODO: 在此添加命令处理程序代码
 	ImageHandle(mirror);
 }
+
+
 
 

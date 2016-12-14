@@ -95,6 +95,11 @@ protected:
 	void ReadCameraSettingFromINI();
 
 	/**
+	*  @brief  将相机配置写入INI文件
+	*/
+	void WriteCameraSettingToINI();
+
+	/**
 	*  @brief  图片准备好消息响应函数
 	*/
 	LRESULT OnImageReady(WPARAM wParam, LPARAM lParam);
