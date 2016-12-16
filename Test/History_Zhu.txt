@@ -370,3 +370,31 @@ date 16.12.12
 3、更新界面排版
 4、Opencv类锐化时增加matSharpen = m_mat_image + matSharpen使显示原图处理后的效果图
 5、隐藏属性页“应用”按钮
+
+date 16.12.13
+------------------------------------------------------------
+@author zhu
+1、完成去除穿孔的功能，增加函数Mat RemovePunch(Mat src_img ,double threshold1, double threshold2, WORD width, WORD height);在函数内部进行HoughCirclesTransfer的操作。threshold1与threshold2是霍夫变换所需要的两个阈值，width与height是图像的宽高，RemovePunch函数内部只对图像的四周进行霍夫圆变换处理；内部加入填充穿孔的操作，以圈出来的区域附近的像素值填充，但是仍然填充不完美，与周边存在渐变
+2、增加自动裁切与校正所需子函数：void AutoCorrect(Mat src_img);与void removeblack(Mat src_img);
+
+date 16.12.14
+------------------------------------------------------------
+@author zhu
+1、本来的思路是先去除黑边，再进行校正，所以先开始EdgeRemove，getAverGValue，getGValue，setGValue，getScale，getGrad，nearlyEquel等函数的编写，
+2、先采用了形态学膨胀腐蚀的方法做了处理，发现效果不明显，于是改为较笨的办法，搜索四个角查找黑边：先用图像中间区域的平均灰度值作为阈值对图像进行二值化，然后四个区域分别计算小区域每个像素的梯度，当梯度发生很大变化时就代表该点突变为白色了，记录下点的位置，以角上的两个点确定一条直线，将直线与对应坐标下的原点之间的点全部变白，以这种方法搜索四个角；但这种方法很浪费时间，而且搜索不能完全去除黑边，只能去除一部分。后来与李俊魁商量后，决定换个思路，先校正，再去黑边，这样去黑边就能够直接以一个Rect去除，重写了函数removeblack（），明天再继续完善校正的函数。
+
+date 16.12.15
+------------------------------------------------------------
+@author zhu
+1、继续自动校正功能实现，函数AutoCorrect（）：先将图像转换为灰度图像，而DFT变换输入图像尺寸必须是2,3或5的倍数，所以接着是做尺寸转换；然后进行DFT变换，将图像从空间域转换到频域，将频域中心与边缘互换，频域图中会有三条直线，接着就能够利用霍夫线变换检测出最长的直线，得到倾斜角，最后利用仿射变换进行校正。完成函数的重写，测试后能够成功的校正倾斜图像。
+2、完成校正后，继续RemoveBlack（）功能的完善。将图像转换为灰度图，然后分别检测上、下、左、右四个区域，当某一点的像素小于给定黑阈值时，记下该点，再循环下一点，当某一点的左侧为黑，右侧为白时就认为该点是边缘点。最后得到四个点，直接取出原图的该rect区域图即可。
+3、结合AutoCorrect与RemoveBlack这两个方法能够实现自动裁切与校正，但是由于自动校正不是特别完美，所以裁切时会有一点偏差；另外检索区域的大小对于裁切也有影响；此时的算法会多裁切一部分，算法还需完善
+
+
+date 16.12.16
+------------------------------------------------------------
+@author zhu
+1、增加多流输出六个选择的功能Cap：UDSCAP_FRONTCOLOR，UDSCAP_FRONTGRAY，UDSCAP_FRONTBW，UDSCAP_BACKCOLOR，UDSCAP_BACKGRAY，UDSCAP_BACKBW；以及其在CTWAINDS_UDS类中的初始化(Initialize)与更新(updateScannerFromCaps)，六个功能对应变量均设为Bool型：m_bFrontColor，m_bFrontGray，m_bFrontBW，m_bBackColor，m_bBackGray，m_bBackBW。
+2、根据G系列驱动，调整多流输出部分参数联动：主要改动一处，当图像为黑白图，二值化对应选值不是动态阈值时，本来此处是亮度对比度均不可用，借鉴G系列驱动，改为亮度可用，对比度不可用
+3、增加参数联动：多流输出选中时，图像拆分不可用。
+4、多流输出选中时，不能六个checkbox一个都不选，在CPage_Custom 中增加父类成员变量basecolormode记录图像类型，在高级界面根据该值决定默认选中正面彩色、黑白还是灰度（默认是正面）。

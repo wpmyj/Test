@@ -291,6 +291,23 @@ BOOL CPage_Base::OnInitDialog()
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时吧启用
 
+	
+	//判断图像类型选中什么
+	CString strCBText; 
+	GetDlgItem(IDC_BASE_COMBO_COLORMODE)->GetWindowText(strCBText);
+	if (strCBText.Find("黑白") >= 0)
+	{
+		basecolormode = 0; //保存到父类成员变量
+	} 
+	else if (strCBText.Find("灰度") >= 0)
+	{
+		basecolormode = 1;
+	}
+	else
+	{
+		basecolormode = 2;
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -565,6 +582,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_colormode.GetCurSel();
+
 	// 直接根据当前序号nIndex设置图像类型
 	//m_basemap.insert(map<int, float> :: value_type(ICAP_PIXELTYPE, (float)nIndex)); 
 	//m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex); 
@@ -613,7 +631,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 	CString strCBText; 
 	m_combo_scanside.GetLBText( nIndex, strCBText);
 	int nval;
-	m_combo_scanside.GetLBText( nIndex, strCBText);
+	//m_combo_scanside.GetLBText( nIndex, strCBText);
 	if (strCBText.Find("单面") >= 0)
 	{
 		nval = 0;
@@ -836,7 +854,7 @@ void CPage_Base::OnBase_Btn_SaveAsprofile()
 	if(m_pUI->TW_SaveProfileToFile(strProfile))
 	{		
 		m_combo_profile.AddString(strName);
-		//m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
+		m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
 	}
 	
 	UpdateData(FALSE);

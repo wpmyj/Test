@@ -128,26 +128,24 @@ public:
 
 	float             m_fSensitiveThreshold_removespots;    /**< 去除斑点 */
 	float             m_fSensitiveThreshold_colorretent;    /**< 底色保留 */
+
 	bool              m_bMultiStream;    //zhu  /**< 多流输出 */
+	bool              m_bFrontColor;   /**< 彩色正面 */
+	bool              m_bFrontGray;    /**< 灰度正面 */
+	bool              m_bFrontBW;      /**< 黑白正面 */
+	bool              m_bBackColor;    /**< 彩色背面 */
+	bool              m_bBackGray;     /**< 灰度背面 */
+	bool              m_bBackBW;       /**< 黑白背面 */
+
 
 	float             m_fRemoveBlank;           /**< 去除空白页 */
-	//float             m_bRemovePunch;           /**< 去除穿孔 */
-	//float             m_bSharpen;               /**< 图像锐化*/
-	////int             m_nGamma;                 /**< Gamma */
-	//float             m_bMirror;                /**< 图像镜像处理 */
-	//float             m_bRemoveBack;            /**< 去除背景 */
-	//float             m_bDescreen;              /**< 去网纹 */ //weizhaojian
-	//float             m_bDenoise;               /**< 去噪声 */
-	//float             m_bAutoCrop;              /**< 自动裁切与校正 */
-
-//int                 m_fRemoveBlank;           /**< 去除空白页 */
-	bool                m_bRemovePunch;           /**< 去除穿孔 */
-	bool                m_bSharpen;               /**< 图像锐化*/
-	bool                m_bMirror;                /**< 图像镜像处理 */
-	bool                m_bRemoveBack;            /**< 去除背景 */
-	bool                m_bDescreen;              /**< 去网纹 */ //weizhaojian
-	bool                m_bDenoise;               /**< 去噪声 */
-	bool                m_bAutoCrop;              /**< 自动裁切与校正 */
+	bool              m_bRemovePunch;           /**< 去除穿孔 */
+	bool              m_bSharpen;               /**< 图像锐化*/
+	bool              m_bMirror;                /**< 图像镜像处理 */
+	bool              m_bRemoveBack;            /**< 去除背景 */
+	bool              m_bDescreen;              /**< 去网纹 */ //weizhaojian
+	bool              m_bDenoise;               /**< 去噪声 */
+	bool              m_bAutoCrop;              /**< 自动裁切与校正 */
 
 protected:
 	bool              m_bReadOnly;              /**< current mode */

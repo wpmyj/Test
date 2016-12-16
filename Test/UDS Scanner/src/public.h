@@ -103,6 +103,14 @@ typedef struct _CUST_IMAGEIFO
 #define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
 #define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
 
+#define UDSCAP_FRONTCOLOR               CAP_CUSTOMBASE+16 /**< 彩色正面 */
+#define UDSCAP_FRONTGRAY                CAP_CUSTOMBASE+17 /**< 灰度正面 */
+#define UDSCAP_FRONTBW                  CAP_CUSTOMBASE+18 /**< 黑白正面 */
+#define UDSCAP_BACKCOLOR                CAP_CUSTOMBASE+19 /**< 彩色背面 */
+#define UDSCAP_BACKGRAY                 CAP_CUSTOMBASE+20 /**< 灰度背面 */
+#define UDSCAP_BACKBW                   CAP_CUSTOMBASE+21 /**< 黑白背面 */
+
+
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
 #define TWBZ_FIXEDTHRESHOLD        1
@@ -154,5 +162,30 @@ typedef struct _CUST_IMAGEIFO
 /* ICAP_SUPPORTEDSIZES values (SS_ means Supported Sizes) 典型页面大小的固定的帧大小。added by zhu*/
 #define TWSS_PHOT64               55
 #define TWSS_PHOT53               56
+
+
+/* UDSCAP_FRONTCOLOR values (FC_ means FRONTCOLOR)彩色正面。*/
+#define TWFC_DISABLE              FALSE 
+#define TWFC_AUTO                 TRUE 
+
+/* UDSCAP_FRONTGRAY values (FG_ means FRONTGRAY)灰度正面。*/
+#define TWFG_DISABLE              FALSE 
+#define TWFG_AUTO                 TRUE 
+
+/* UDSCAP_FRONTBW values (FB_ means FRONTBW)黑白正面。*/
+#define TWFB_DISABLE              FALSE 
+#define TWFB_AUTO                 TRUE 
+
+/* UDSCAP_BACKCOLOR values (BC_ means BACKCOLOR)彩色背面。*/
+#define TWBC_DISABLE              FALSE 
+#define TWBC_AUTO                 TRUE 
+
+/* UDSCAP_BACKGRAY values (BG_ means BACKGRAY)灰度背面。*/
+#define TWBG_DISABLE              FALSE 
+#define TWBG_AUTO                 TRUE 
+
+/* UDSCAP_BACKBW values (BB_ means BACKBW)黑白背面。*/
+#define TWBB_DISABLE              FALSE 
+#define TWBB_AUTO                 TRUE 
 
 #endif //__PUBLIC_H__

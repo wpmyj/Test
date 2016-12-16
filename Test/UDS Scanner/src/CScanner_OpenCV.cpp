@@ -309,13 +309,14 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 	}
 
+	//此时m_mat_image已经是灰度图了
 	if(m_bDenoise == TWDN_AUTO) //去除噪声
 	{	
 		MedianSmooth(m_mat_image);
 	}
 
 	//Gamma校正
-	if(m_fGamma!=100.0) //zhu
+	if(m_fGamma != 100.0) //zhu
 	{
 		/*Mat& matGamma = m_mat_image; //matGamma相当于m_mat_image的别名(绰号)，对matGamma的任何操作就是对m_mat_image的操作。
 		matGamma = GammaCorrection(m_mat_image,m_fGamma/100);//取值范围为10~255，此处需要除以100，缩小取值
@@ -350,14 +351,30 @@ bool CScanner_OpenCV::preScanPrep()
 		Mat matSharpen;
 		int index = FindDepth(m_mat_image);
 		Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT ); //必须是与输入图像的深度相同
-		matSharpen = m_mat_image + matSharpen;
+		matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
 		matSharpen.copyTo(m_mat_image);
 		//m_mat_image = matSharpen;
 	}
 
 	//m_mat_image = HoughLinesTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
 	//m_mat_image = HoughCirclesTransfer(m_mat_image,1,200,55); // canny边缘检测阈值200,基本不变；霍夫圆变换累加器阈值100
+	
+	if(m_bRemovePunch == TWRP_AUTO) //去除穿孔
+	{	 
+		Mat matRemovepunch;
+		matRemovepunch = RemovePunch(m_mat_image, 200, 30, unNewWidth, unNewHeight); //去除穿孔
+		matRemovepunch.copyTo(m_mat_image);
+	}
 
+	if(m_bAutoCrop == TWAC_AUTO) //自动裁切与校正
+	{
+		Mat matAutoCrop;
+		matAutoCrop = AutoCorrect(m_mat_image); //先自动校正	
+		matAutoCrop = RemoveBlack(matAutoCrop);
+		matAutoCrop.copyTo(m_mat_image);
+		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
+		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
+	}
 	
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 	m_nWidth  = m_nSourceWidth = imgTemp.width;
@@ -405,6 +422,101 @@ bool CScanner_OpenCV::preScanPrep()
 	return true;
 }
 
+const int black = 10;
+const int white = 250;
+Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
+{
+	Mat inputImg = src_img;
+	Mat tmpMat = inputImg.clone();
+	cvtColor(tmpMat, tmpMat, CV_RGB2GRAY);
+
+	int left = 0;
+	int right = tmpMat.cols; //列
+	int up = 0;
+	int down = tmpMat.rows; //行
+	char buf[20];
+
+	int num = 0;
+	int range = tmpMat.cols / 5; //318 列
+	//左侧
+	for(int i = 0; i < tmpMat.rows; i++)
+	{
+		for(int j = 0; j < range; j++)
+		{
+			if((int)tmpMat.at<uchar>(i,j) <= black)
+			{
+				left = j;
+				if((int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
+				{
+					break;
+				}
+			}	
+		}
+	}
+	//右侧
+	for(int i = 0; i < tmpMat.rows; i++)
+	{
+		for(int j = tmpMat.cols-1; j >= (tmpMat.cols-range); j--)
+		{
+			if((int)tmpMat.at<uchar>(i,j) <= black)
+			{
+				right = j;
+				if((int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
+				{
+					break;
+				}
+			}	
+		}
+	}
+	
+	range = tmpMat.rows / 2; //520
+	//上侧
+	for(int j = 0; j < tmpMat.cols; j++)
+	{
+		for(int i = 0; i < range; i++)
+		{
+			if((int)tmpMat.at<uchar>(i,j) <= black)
+			{
+				up = i;
+				if((int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
+				{
+					break;
+				}
+			}	
+		}
+	}
+	//下侧	
+	for(int j = 0; j < tmpMat.cols; j++)
+	{
+		for(int i = tmpMat.rows-1; i >= (tmpMat.rows-range); i--)
+		{
+			if((int)tmpMat.at<uchar>(i,j) <= black)
+			{
+				down = i;
+				if((int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
+				{
+					break;
+				}
+			}	
+		}
+	}
+	
+	Rect rect(left, up, right - left, down - up);
+	
+	/*
+	itoa(left, buf, 10);
+	::MessageBox(g_hwndDLG,buf,"左侧",MB_OK);
+	itoa(up, buf, 10);
+	::MessageBox(g_hwndDLG,buf,"上侧",MB_OK);
+	itoa(right, buf, 10);
+	::MessageBox(g_hwndDLG,buf,"新右侧",MB_OK);
+	itoa(down, buf, 10);
+	::MessageBox(g_hwndDLG,buf,"新下侧",MB_OK);*/
+
+	Mat imageSave = inputImg(rect);
+	return imageSave;
+}
+
 //霍夫线变换
 Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
 {
@@ -442,38 +554,298 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 	return dstImage;
 }
 
+
+#define GRAY_THRESH 150
+#define HOUGH_VOTE 100
+#define DEGREE 27
+
+Mat CScanner_OpenCV::AutoCorrect(Mat src_img)
+{
+	Point center(src_img.cols/2, src_img.rows/2);
+
+#ifdef DEGREE
+	//旋转没有倾斜的图像，调试使用
+	Mat rotMatS = getRotationMatrix2D(center, DEGREE, 1.0);//获取旋转矩阵
+	warpAffine(src_img, src_img, rotMatS, src_img.size(), 1, 0, Scalar(255,255,255));//o实现坐标系仿射变换
+	//imwrite( "C://Users//Administrator//Desktop//RotatedSrc.jpg", src_img);
+#endif,
+
+	Mat srcImg;
+	cvtColor(src_img, srcImg, CV_BGR2GRAY);//转化为灰度图 
+
+	//Expand image to an optimal size, for faster processing speed
+	//Set widths of borders in four directions
+	//If borderType==BORDER_CONSTANT, fill the borders with (0,0,0)
+	//图像延扩iiiikkkl
+	//OpenCV中的DFT采用的是快速算法，这种算法要求图像的尺寸是2、3和5的倍数时处理速度最快。
+	//所以需要用getOptimalDFTSize()找到最适合的尺寸，然后用copyMakeBorder()填充多余的部分。
+	//这里是让原图像和扩大的图像左上角对齐。填充的颜色如果是纯色对变换结果的影响不会很大，
+	//后面寻找倾斜线的过程又会完全忽略这一点影响。
+	Mat padded;
+	int opWidth = getOptimalDFTSize(srcImg.rows); //尺寸转换为DFT可用的Size
+	int opHeight = getOptimalDFTSize(srcImg.cols);
+	copyMakeBorder(srcImg, padded, 0, opWidth-srcImg.rows, 0, opHeight-srcImg.cols, BORDER_CONSTANT, Scalar::all(0));//复制图像，超过边界区域填充0
+
+	//离散傅里叶变换DFT
+	//DFT要分别计算实部和虚部，把要处理的图像作为输入的实部、一个全零的图像作为输入的虚部。
+	//dft()输入和输出应该分别为单张图像，所以要先用merge()把实虚部图像合并，
+	//分别处于图像comImg的两个通道内。计算得到的实虚部仍然保存在comImg的两个通道内。
+	Mat planes[] = {Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F)}; //建立通道组
+	Mat comImg;
+	//Merge into a double-channel image
+	merge(planes, 2, comImg); //把实虚部图像合并
+	//Use the same image as input and output,
+	//so that the results can fit in Mat well
+	dft(comImg, comImg); //离散傅里叶变换
+
+	//获得DFT图像
+	//Compute the magnitude
+	//planes[0]=Re(DFT(I)), planes[1]=Im(DFT(I))
+	//magnitude=sqrt(Re^2+Im^2) 傅里叶谱计算公式
+	// 一般都会用幅度图像来表示图像傅里叶的变换结果（傅里叶谱）。
+	//幅度的计算公式：magnitude = sqrt(Re(DFT)^2 + Im(DFT)^2)。
+	//由于幅度的变化范围很大，而一般图像亮度范围只有[0,255]，容易造成一大片漆黑，只有几个点很亮。
+	//所以要用log函数把数值的范围缩小。
+	split(comImg, planes); //分离实、虚部通道
+	magnitude(planes[0], planes[1], planes[0]); //函数根据输入的微分处理后的x和y来计算梯度幅值
+	Mat magMat = planes[0];
+	magMat += Scalar::all(1); //归一化操作，幅值加1
+	log(magMat, magMat); //返回指定数字的自然对数
+	
+	//Crop the spectrum
+	//Width and height of magMat should be even, so that they can be divided by 2
+	//-2 is 11111110 in binary system, operator & make sure width and height are always even
+	//dft()直接获得的结果中，低频部分位于四角，高频部分位于中间。
+	//习惯上会把图像做四等份，互相对调，使低频部分位于图像中心，也就是让频域原点位于中心。
+	magMat = magMat(Rect(0, 0, magMat.cols & -2, magMat.rows & -2));
+
+	//Rearrange the quadrants of Fourier image,
+	//so that the origin is at the center of image,
+	//and move the high frequency to the corners
+	int cx = magMat.cols/2;
+	int cy = magMat.rows/2;
+
+	Mat q0(magMat, Rect(0, 0, cx, cy));//左上
+	Mat q1(magMat, Rect(0, cy, cx, cy)); //右上
+	Mat q2(magMat, Rect(cx, cy, cx, cy));//右下
+	Mat q3(magMat, Rect(cx, 0, cx, cy));//左下
+
+	Mat tmp;
+	//交换象限:左上-->右下
+	q0.copyTo(tmp);
+	q2.copyTo(q0);
+	tmp.copyTo(q2);
+
+	//交换象限:右上-->左下
+	q1.copyTo(tmp);
+	q3.copyTo(q1);
+	tmp.copyTo(q3);
+
+	//Normalize the magnitude to [0,1], then to[0,255]
+	//虽然用log()缩小了数据范围，但仍然不能保证数值都落在[0,255]之内，
+	//所以要先用normalize()规范化到[0,1]内，再用convertTo()把小数映射到[0,255]内的整数。
+	//结果保存在一幅单通道图像内：
+	normalize(magMat, magMat, 0, 1, CV_MINMAX); //归一化
+	Mat magImg(magMat.size(), CV_8UC1);
+	magMat.convertTo(magImg, CV_8UC1, 255, 0); //图像类型转换
+	//imwrite( "C://Users//Administrator//Desktop//magnitude.jpg", magImg);
+
+	//Hough直线检测
+	//从傅里叶谱可以明显地看到一条过中心点的倾斜直线。要想求出这个倾斜角，
+	//首先要在图像上找出这条直线。一个很方便的方法是采用霍夫（Hough）变换检测直线。
+	//Hough变换要求输入图像是二值的，所以要用threshold()把图像二值化。
+	//Turn into binary image
+	threshold(magImg, magImg, GRAY_THRESH, 255, CV_THRESH_BINARY); //固定阈值二值化处理
+	//imwrite( "C://Users//Administrator//Desktop//mag_binary.jpg", magImg);
+
+	//Find lines with Hough Transformation
+	//这一部分用HoughLines()检测图像中可能存在的直线，
+	//并把直线参数保存在向量组lines中，然后绘制出找到的直线。
+
+	//两个参数GRAY_THRESH和HOUGH_VOTE需要手动指定，不同的图像需要设置不同的参数，
+	//同一段文本旋转不同的角度也需要不同的参数。GRAY_THRESH越大，二值化的阈值就越高；
+	//HOUGH_VOTE越大，霍夫检测的投票数就越高（需要更多的共线点来确定一条直线）。
+	//说白了，如果发现二值化图像中直线附近有很多散点，就要适当提高GRAY_THRESH；
+	//如果发现从二值图像的一条直线上检测到了几条角度相差很小的直线，就需要适当提高HOUGH_VOTE。
+	//我们希望得到的结果时刚好检测到三条直线
+	vector<Vec2f> lines;
+	float pi180 = (float)CV_PI/180;
+	Mat linImg(magImg.size(), CV_8UC3);
+	HoughLines(magImg, lines, 1, pi180, HOUGH_VOTE, 0, 0); //霍夫线变换
+	//检测线个数
+	int numLines = lines.size();
+	for(int l = 0; l < numLines; l++)
+	{
+		float rho = lines[l][0], theta = lines[l][1];
+		Point pt1, pt2;
+		//坐标变换生成线表达式
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*rho, y0 = b*rho;
+		pt1.x = cvRound(x0 + 1000*(-b)); //cvRound对double数四舍五入
+		pt1.y = cvRound(y0 + 1000*(a));
+		pt2.x = cvRound(x0 - 1000*(-b));
+		pt2.y = cvRound(y0 - 1000*(a));
+		line(linImg, pt1, pt2, Scalar(255,0,0), 3, 8, 0);
+	}
+	//imwrite( "C://Users//Administrator//Desktop//imageText_line.jpg", linImg);
+
+	//Find the proper angel from the three found angels
+	//计算倾斜角
+	//上面得到了三个角度，一个是0度，一个是90度，另一个就是我们所需要的倾斜角。
+	//要把这个角找出来，而且要考虑误差。
+	//检测线角度判断
+	float angel = 0;
+	/*
+	float piThresh = (float)CV_PI/90;
+	for(int l = 0; l < numLines; l++)
+	{
+		float theta = lines[l][1];
+		if(abs(theta) < piThresh || abs(theta-pi2) < piThresh)
+			continue;
+		else
+		{
+			angel = theta;
+			break;
+		}
+	}*/
+	for(size_t l = 0; l < numLines; l++)
+	{
+		float theta = lines[l][1] * 180 /CV_PI;
+		if(theta > 0 && theta < 90)
+		{
+			angel = theta;
+			break;
+		}
+	}
+
+	//Calculate the rotation angel
+	//The image has to be square,
+	//so that the rotation angel can be calculate right
+	//由于DFT的特点，只有输入图像是正方形时，检测到的角才是文本真正旋转的角度。
+	//但我们的输入图像不一定是正方形的，所以要根据图像的长宽比改变这个角度。
+	//还有一个需要注意的细节，虽然HoughLines()输出的倾斜角在[0,180)之间，
+	//但在[0,90]和(90,180)之间这个角的含义是不同的。
+	//当倾斜角大于90度时，(180-倾斜角)才是直线相对竖直方向的偏离角度。
+	//在OpenCV中，逆时针旋转，角度为正。要把图像转回去，这个角度就变成了(倾斜角-180)。
+	
+	float pi2 = CV_PI/2;
+	angel = angel<pi2 ? angel : angel-CV_PI;
+	if(angel != pi2)
+	{
+		float angelT = src_img.rows * tan(angel) / src_img.cols;
+		angel = atan(angelT);
+	}
+	float angelD = angel * 180 / (float)CV_PI;
+	
+
+	//Rotate the image to recover
+	//校正图像
+	//最后一步，当然是把图像转回去
+	//先用getRotationMatrix2D()获得一个2*3的仿射变换矩阵，
+	//再把这个矩阵输入warpAffine()，做一个单纯旋转的仿射变换。
+	//warpAffine()的最后一个参数Scalar(255,255,255)是把由于旋转产生的空白用白色填充。
+	Mat rotMat = getRotationMatrix2D(center, angelD, 1.0);
+	Mat dstImg = Mat::ones(src_img.size(), CV_8UC3);
+	warpAffine(src_img, dstImg, rotMat, src_img.size(), 1, 0, Scalar(255,255,255));
+
+	//imwrite( "C://Users//Administrator//Desktop//result.jpg", dstImg);
+	return dstImg;
+}
+
 //霍夫圆变换
 Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshold1, double threshold2)
 {
-	Mat midImage;//临时变量和目标图的定义
-	//【3】转为灰度图，进行图像平滑  
-	cvtColor(src_img,midImage, CV_BGR2GRAY);//转化边缘检测后的图为灰度图  
-	GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 );  
+	CvScalar scalar;
+	IplImage src_img_ipl = IplImage(src_img);
 
+	Mat midImage;//临时变量和目标图的定义
+
+	if(src_img_ipl.nChannels == 3)
+	{
+		//::MessageBox(g_hwndDLG,"3通道",MB_CAPTION,MB_OK);
+		//【3】转为灰度图，进行图像平滑  
+		cvtColor(src_img,midImage, CV_BGR2GRAY); 
+		GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 ); 
+	}
+	else
+	{
+		/*
+		int temp = src_img.depth();
+		char buf[10];
+		itoa(temp, buf, 10);
+		::MessageBox(g_hwndDLG,buf,MB_CAPTION,MB_OK);*/
+		midImage = src_img; //不变为灰度图
+	}
+	
 	//【4】进行霍夫圆变换  
 	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
-	minDist = midImage.rows/20;
-	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100
-	
+	minDist = midImage.rows/15;
+	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100 
 
 	//【5】依次在图中绘制出圆  
 	for( size_t i = 0; i < circles.size(); i++ )  
 	{  
 		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));  
 		int radius = cvRound(circles[i][2]);  
-		//绘制圆心  
-		circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 );  
-		//绘制圆轮廓  
-		circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 );  
+		int temp = 1;
+		scalar = cvGet2D(&src_img_ipl, center.y+radius, center.x+radius); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
+		
+		if(radius < threshold2) //新增，半径小于阈值2时才填充
+		{
+			//circle( src_img, center, radius, Scalar(255,255,255), -1, 8, 0 );   //B（蓝）G（绿）R（红）；线条的类型。默认是8；0圆心坐标点和半径值的小数点位数
+			circle( src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
+		}
+		else //大于时，只画圆
+		{
+			//绘制圆心
+			//circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 ); //-1表示填充，为正数表示线条粗细
+			//绘制圆轮廓 
+			//circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
+		}
 	}  
-	/*
+	
 	//【6】边缘检测后的图   
-	imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
+	//imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
 	//【7】显示效果图    
-	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", src_img);*/
+	//imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", src_img);
 
 	return src_img;
+}
+
+Mat CScanner_OpenCV::RemovePunch(Mat src_img, double threshold1, double threshold2, WORD width, WORD height)
+{
+	vector<Rect> rects;
+	Rect rectTemp(0, 0, 3*width/30, 3*height/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
+	rects.push_back(Rect(0, 0, width, rectTemp.height)); //上侧
+	rects.push_back(Rect(0, height-rectTemp.height, width, rectTemp.height));	 //下侧	
+	//rects.push_back(Rect(0, 0, rectTemp.width, unNewHeight)); //全部左侧
+	//rects.push_back(Rect(width-rectTemp.width, 0, rectTemp.width, height)); //全部右侧
+	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //左侧  只是中间部分
+	rects.push_back(Rect(width-rectTemp.width, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //右侧
+
+	vector<Mat> subImages;
+	for(size_t i = 0; i < rects.size(); i++)
+	{
+		Mat tempImg;
+		src_img(rects[i]).copyTo(tempImg);
+		tempImg = HoughCirclesTransfer(tempImg,1,threshold1,threshold2);
+		subImages.push_back(tempImg);	
+	}
+
+	Mat dst_img;
+	src_img.copyTo(dst_img);	
+	for(size_t i = 0; i < rects.size(); i++)
+	{	
+		IplImage IplHough = IplImage(dst_img);
+		IplImage IplHoughTemp = IplImage(subImages[i]);
+
+		cvSetImageROI(&IplHough, rects[i]);
+		cvCopy(&IplHoughTemp, &IplHough);
+		cvResetImageROI(&IplHough); 
+		//imwrite( "C://Users//Administrator//Desktop//3.jpg", matHough);	
+	}
+	return dst_img;
 }
 
 int CScanner_OpenCV::FindDepth(const Mat& src_img)
