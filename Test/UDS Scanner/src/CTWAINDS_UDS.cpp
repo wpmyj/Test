@@ -1684,9 +1684,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
 			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
 			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
 		}
-		//char buf[10];
-		//itoa(nImageSize, buf, 10);
-		//::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);
+		char buf[10];
+		itoa(nImageSize, buf, 10);
+		::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);
     //If we had a previous image then get rid of it.
     if(m_hImageData)
     {

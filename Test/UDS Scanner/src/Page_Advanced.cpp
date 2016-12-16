@@ -1045,7 +1045,7 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Gamma(NMHDR *pNMHDR, LRESULT 
 	//m_pUI->SetCapValueFloat(ICAP_GAMMA,(float)sldValue);  
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)sldValue));
 	//m_advancedmap[ICAP_GAMMA] = (float)sldValue;
-	float Value = ((int)sldValue*10)/10.00f;
+	float Value = ((int)sldValue*10)/10.00;
 	m_advancedmap[ICAP_GAMMA] = Value;
 	/*
 	CString stra;
@@ -1196,7 +1196,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_Gamma()
 	m_edit_gamma.GetWindowText(str);
 
 	//int nval = _ttoi(str);
-	float fval = (float)(_ttof(str));
+	float fval = _ttof(str);
 	int nval = (int)(100*fval);
 	m_slider_gamma.SetPos(nval);
 	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_GAMMA, (float)nval));

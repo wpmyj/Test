@@ -94,7 +94,7 @@ protected:
 	BYTE*             m_pImageBuffer;           /**< Í¼Æ¬Êý¾ÝÖ¸Õë */
 	DWORD             m_dwSize;                 /**< Í¼Æ¬Êý¾Ý´óÐ¡ */
 	Mat               m_mat_image;              /**< ´æ´¢Í¼ÏñÊý¾ÝµÄMat */
-	int               m_nImageNumber;            /**< Í¼Æ¬±àºÅ */
+	int               m_nImageNumber;           /**< Í¼Æ¬±àºÅ */
 };
 
 #endif  __CCAMERA_DIRECTX_H__

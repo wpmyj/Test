@@ -113,7 +113,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)UDS General TWAIN DS.ds</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib;cximagecrt.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -137,7 +137,8 @@ if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_
       <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\cximagecrt.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>

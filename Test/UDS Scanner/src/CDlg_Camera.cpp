@@ -8,7 +8,7 @@
 #include "public.h"
 
 #include "ximage.h"  // CXImage
-#pragma comment(lib,"cximage.lib")
+//#pragma comment(lib,"cximage.lib")
 
 #define THUMB_WIDTH  100
 #define THUMB_HEIGHT 70
@@ -1134,7 +1134,7 @@ void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
 	int nImageType = GetTypeFromFileName(strTempPath.c_str()); 
 	pImage->Save(strTempPath.c_str(), nImageType);
 	LoadThumbNail();
-	delete pImage;
+	::delete pImage;
 }
 
 

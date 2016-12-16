@@ -6,15 +6,15 @@
 #include "ximage.h"  // CXImage
 #include <vector>
 
-#pragma comment(lib,"cximage.lib")
-#pragma comment(lib,"jasper.lib")
-#pragma comment(lib,"Jpeg.lib")
-#pragma comment(lib,"jbig.lib")
-#pragma comment(lib,"libdcr.lib")
-#pragma comment(lib,"mng.lib")
-#pragma comment(lib,"png.lib")
-#pragma comment(lib,"zlib.lib")
-#pragma comment(lib,"Tiff.lib")
+//#pragma comment(lib,"cximage.lib")
+//#pragma comment(lib,"jasper.lib")
+//#pragma comment(lib,"Jpeg.lib")
+//#pragma comment(lib,"jbig.lib")
+//#pragma comment(lib,"libdcr.lib")
+//#pragma comment(lib,"mng.lib")
+//#pragma comment(lib,"png.lib")
+//#pragma comment(lib,"zlib.lib")
+//#pragma comment(lib,"Tiff.lib")
 
 #pragma comment(lib, "Winmm.lib")
 
@@ -1024,7 +1024,6 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		pImage->GrayScale();
 
 
-
 	bool hasRotate = false;
 	
 	//char buf[10];
@@ -1135,7 +1134,6 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
 
 	g_vecCust_ImageInfo.push_back(temp);
-
 	//if ( retval )  // Save file success: Generate Thumbnail JPG
 	//{
 	//	float h_w = (float)pImage->GetHeight() / (float)pImage->GetWidth();
@@ -1147,8 +1145,9 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//	retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
 	//	fileName.Replace("~UnTh", "~Un");
 	//}
-	delete pImage;
-	CFile hf(fileName, CFile::modeRead);  hf.Close();  // Flush file
+	::delete pImage;  // 隐式链接cximagecrt.dll必须使用全局::delete
+	//CFile hf(fileName, CFile::modeRead); 
+	//hf.Close();  // Flush file
 	
 	
 	// 添加到临时文件列表
@@ -1158,7 +1157,6 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	  m_nTempFileCount += 1;
 	//m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
 		m_pCapture->m_nPhotoNo++;
-		
 	return TRUE;
 
 }

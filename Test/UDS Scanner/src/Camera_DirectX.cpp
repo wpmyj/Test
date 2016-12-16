@@ -17,7 +17,7 @@ CCamera_DirectX::CCamera_DirectX(void) :
 	m_nSourceHeight(0),
 	m_nImageNumber(0)
 {
-	// set default caps
+	// set default ca
 	resetScanner();
 }
 
@@ -34,6 +34,7 @@ CCamera_DirectX::~CCamera_DirectX(void)
 	{
 		m_mat_image.release();
 	}
+
 }
 
 bool CCamera_DirectX::resetScanner()
@@ -41,7 +42,7 @@ bool CCamera_DirectX::resetScanner()
 	// Unlock the scanner 
 	Unlock();
 
-		m_nDocCount           = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
+	m_nDocCount           = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
 	//Base界面
 	m_nPixelType          = TWPT_RGB; //图形类型-彩色 zhu
 	m_fXResolution        = 200.0;
@@ -113,6 +114,8 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 	//::MessageBox(g_hwndDLG, TEXT(buf),"GetImageData::size",MB_OK);
 	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG,TEXT("After memcpy!"),MB_CAPTION,MB_OK);
+
+
 }
 
 short CCamera_DirectX::getDocumentCount() const
@@ -147,7 +150,7 @@ bool CCamera_DirectX::acquireImage()
 {
 	string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
 	
-	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
+	::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
 	m_mat_image = cv::imread(filename);
 	if(true == m_mat_image.empty())
 	{
@@ -155,7 +158,7 @@ bool CCamera_DirectX::acquireImage()
 		//cout << "ds: Failed - could not acquire image" << endl;
 		return false ;
 	}
-	
+
 	// do whatever tranforms to the scanned image that was requested by the app
 	// before the image is sent to the app.
 	if(false == preScanPrep())
