@@ -27,8 +27,8 @@ static char THIS_FILE[] = __FILE__;
 extern  HINSTANCE g_hinstance;
 extern void GetFilePath( char* szFileName, char* szFilePath);
 
-vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
-
+//std::vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
+std::vector<HANDLE> g_vector_imagehandle;
 //extern CUdsPreWorkApp NEAR theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CUDSCapture
@@ -46,6 +46,7 @@ CSGCallBack::CSGCallBack()
 	m_nAngle = m_nDistance = 0;
 
 	m_nTempFileCount = 1;
+	pDIB = NULL; 
 }
 
 CSGCallBack::~CSGCallBack()
@@ -53,6 +54,10 @@ CSGCallBack::~CSGCallBack()
 	if (m_pTmpBuffer != NULL)  // Release m_pTmpBuffer buffer for Rotating Preview
 	{
 		delete []m_pTmpBuffer;  m_pTmpBuffer = NULL;  m_lTmpBufferSize = 0;
+	}
+	if (pDIB != NULL)  // Release m_pTmpBuffer buffer for Rotating Preview
+	{
+		delete []pDIB;  pDIB = NULL; 
 	}
 	ReleaseBuffer();
 }
@@ -70,6 +75,8 @@ void CSGCallBack::ReleaseBuffer()
 		delete []m_pHoughBuf;
 	if (m_pTmpBuffer != NULL)  // Release m_pTmpBuffer buffer
 		delete []m_pTmpBuffer;
+	if (pDIB != NULL)  // Release m_pTmpBuffer buffer
+		delete []pDIB;
 }
 
 STDMETHODIMP_(ULONG) CSGCallBack::AddRef()
@@ -611,7 +618,8 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	sndPlaySound(szFilePath, SND_ASYNC);
 	
 	long nAllBytes = (m_nWidth*3  + 3) / 4 * 4;  // DIB;
-	BYTE *pDIB=NULL, *pNewBuffer=NULL;
+	//BYTE *pDIB=NULL;
+	BYTE *pNewBuffer=NULL;
 	long nDIBSize, nNewWidth, nNewHeight, nNewBytes;
 	if (m_pCapture->m_Auto.autoClip == false)  // 手动拍摄
 	{
@@ -1014,11 +1022,8 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
 	//delete []pDIB;
 	
-	
-	// 处理并保存文档
 	CxImage *pImage = new CxImage();
 	pImage->CreateFromHANDLE( (HANDLE)pDIB );
-	delete []pDIB;
 
 	if (m_pCapture->m_Auto.imageType == 1)  // Gray
 		pImage->GrayScale();
@@ -1053,23 +1058,10 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//}
 
 
-
 	if ( !hasRotate )  // 未根据条码旋转: 根据指定方向旋转
 	{
 		if (m_pCapture->m_Auto.autoRotate == true)  // 自动旋转
 			pImage->RotateRight();
-	}
-	if (m_nWidth <= 1280)  // Set DPI
-	{
-		pImage->SetXDPI(100);  pImage->SetYDPI(100);
-	}
-	else if (m_nWidth <= 2048)
-	{
-		pImage->SetXDPI(150);  pImage->SetYDPI(150);
-	}
-	else
-	{
-		pImage->SetXDPI(200);  pImage->SetYDPI(200);
 	}
 	
 	switch (m_pCapture->m_Auto.imageOrientation)
@@ -1086,77 +1078,26 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	default:
 		break;
 	}
+
+	////if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
+	////{
+	////	CxImage::CXTEXTINFO TxtInfo;
+	////	pImage->InitTextInfo(&TxtInfo);
+	////	_tcscpy(TxtInfo.text, _T("UDS Sample"));
+	////	TxtInfo.lfont.lfHeight = -48;//-96;
+	////	TxtInfo.lfont.lfItalic = TRUE;
+	////	TxtInfo.fcolor = RGB(0, 0, 0);
+	////	TxtInfo.opaque = FALSE;  // No background
+	////	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
+	////	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
+	////}
+
 	
+	HANDLE handle = pImage->CopyToHandle();
+	g_vector_imagehandle.push_back(handle);
+	m_pCapture->m_nPhotoNo++;
+	::delete pImage;
 
-
-
-	//if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
-	//{
-	//	CxImage::CXTEXTINFO TxtInfo;
-	//	pImage->InitTextInfo(&TxtInfo);
-	//	_tcscpy(TxtInfo.text, _T("UDS Sample"));
-	//	TxtInfo.lfont.lfHeight = -48;//-96;
-	//	TxtInfo.lfont.lfItalic = TRUE;
-	//	TxtInfo.fcolor = RGB(0, 0, 0);
-	//	TxtInfo.opaque = FALSE;  // No background
-	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
-	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
-	//}
-
-	bool retval = false;
-	CString fileName;
-	if (pImage->GetBpp() == 1)  // 黑白图像: TIFF
-	{
-		fileName.Format("%s~Un%d.tif", m_pCapture->m_strImagePath, m_nTempFileCount);
-		pImage->SetCodecOption(3, CXIMAGE_FORMAT_TIF);  // G4 compression
-		retval = pImage->Save(fileName, CXIMAGE_FORMAT_TIF);
-		
-	}
-	else
-	{
-		fileName.Format("%s~Un%d.jpg", m_pCapture->m_strImagePath, m_nTempFileCount);
-		//pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
-		retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
-		
-	}
-
-	CUST_IMAGEINFO temp;
-	temp.imagePath = fileName.GetBuffer();
-	temp.imageWidth = pImage->GetWidth();
-	temp.imageHeight = pImage->GetHeight();
-	temp.XResolution = pImage->GetXDPI();
-	temp.YResolution = pImage->GetYDPI();
-	//temp.imageBPP = pImage->GetBpp();
-
-	/*char buf[60];
-	itoa(	pImage->GetSize(), buf, 10);
-	::MessageBox(NULL, TEXT(buf),"pImage->GetSize()",MB_OK);*/
-	//::MessageBox(NULL,TEXT(temp.imagePath.c_str()),MB_CAPTION,MB_OK);
-
-	g_vecCust_ImageInfo.push_back(temp);
-	//if ( retval )  // Save file success: Generate Thumbnail JPG
-	//{
-	//	float h_w = (float)pImage->GetHeight() / (float)pImage->GetWidth();
-	//	pImage->Resample(150, (int)(150*h_w), 1, NULL);
-	//	if ( pImage->GetBpp() < 24 )  // 缩略图全转为24位彩色图，并存为JPG文件
-	//		pImage->IncreaseBpp(24);
-	//	fileName.Replace("~Un", "~UnTh");
-	//	pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // compression
-	//	retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
-	//	fileName.Replace("~UnTh", "~Un");
-	//}
-	::delete pImage;  // 隐式链接cximagecrt.dll必须使用全局::delete
-	//CFile hf(fileName, CFile::modeRead); 
-	//hf.Close();  // Flush file
-	
-	
-	// 添加到临时文件列表
-	//theApp.m_tempFileList.Add(fileName);  // Add image to file list
-	//theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
-	//theApp.m_nTempFileCount += 1;  // 临时文件名编号
-	  m_nTempFileCount += 1;
-	//m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
-		m_pCapture->m_nPhotoNo++;
 	return TRUE;
 
 }

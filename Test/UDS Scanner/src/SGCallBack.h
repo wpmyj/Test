@@ -29,6 +29,7 @@ public:
 
 	int m_nTempFileCount;
 	CCamera_DirectX m_Camera_DirectX;
+	BYTE *pDIB;
 public:
 	CSGCallBack();
 	~CSGCallBack();

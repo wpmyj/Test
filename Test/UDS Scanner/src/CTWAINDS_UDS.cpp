@@ -1747,6 +1747,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
 {//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
+	getImageInfo(&m_ImageInfo); // ±ØÐëµ÷ÓÃ
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1765,15 +1766,15 @@ TW_INT16 CTWAINDS_UDS::transfer()
   {
 		DWORD nImageSize = 0;
 		DWORD nDestBytesPerRow = 0;
-		if (DEVICE_CAMERA == g_nDeviceNumber)
-		{
-			nImageSize = g_dwImageSize;
-		} 
-		else
-		{
+		//if (DEVICE_CAMERA == g_nDeviceNumber)
+		//{
+		//	nImageSize = g_dwImageSize;
+		//} 
+		//else
+		//{
 			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
 			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
-		}
+		//}
 		//char buf[10];
 		//itoa(nImageSize, buf, 10);
 		//::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);
@@ -1797,6 +1798,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 		switch (g_nDeviceNumber)
 		{
+		case DEVICE_CAMERA:
 		case DEVICE_FREEIMAGE:  //CScanner_FreeImage
 			{				
 				do
@@ -1823,7 +1825,6 @@ TW_INT16 CTWAINDS_UDS::transfer()
 				pImageData += dwReceived;
 			}
 			break;
-		case DEVICE_CAMERA:
 		case DEVICE_OPENCV:
 			{
 				m_pScanner->GetImageData(pImageData,dwReceived);

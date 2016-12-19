@@ -8,13 +8,15 @@
 #include "public.h"
 
 #include "ximage.h"  // CXImage
+#include <vector>
 //#pragma comment(lib,"cximage.lib")
 
 #define THUMB_WIDTH  100
 #define THUMB_HEIGHT 70
 
 extern void GetFilePath( char* szFileName, char* szFilePath);
-extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
+extern std::vector<HANDLE> g_vector_imagehandle;
+//extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
 // CDlg_Camera 对话框
 
 IMPLEMENT_DYNAMIC(CDlg_Camera, CDialogEx)
@@ -30,7 +32,9 @@ CDlg_Camera::~CDlg_Camera()
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
 	ClearAndDeleteDir(m_Capture.m_strImagePath);
-	g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
+	g_vector_imagehandle.swap(vector<HANDLE>());  // 清除容器并最小化它的容量
+	//g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
+
 	m_Capture.m_nPhotoNo = 0;
 }
 
@@ -501,7 +505,7 @@ void CDlg_Camera::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 void CDlg_Camera::SetCapValue(void)
 {
-	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, m_Capture.m_nPhotoNo);  // 设置待传图片数量
+	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, (float)m_Capture.m_nPhotoNo);  // 设置待传图片数量
 	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].XResolution);
 	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].YResolution);
 
@@ -518,7 +522,7 @@ void CDlg_Camera::SetCapValue(void)
 		break;
 	}
 		
-	m_pUI->SetCapValueFloat(ICAP_PIXELTYPE, pixeltype);  // 设置图片类型
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE, pixeltype);  // 设置图片类型
 }
 
 
@@ -534,7 +538,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	tempINI.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,0,szINIPath);
 	tempINI.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,0,szINIPath);
 	tempINI.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,0,szINIPath);
-	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,0,szINIPath);
+	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,1,szINIPath);  // 默认A4
 	tempINI.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCWIDTH,0,szINIPath);
 	tempINI.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCHEIGHT,0,szINIPath);
 	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,0,szINIPath);
@@ -671,6 +675,7 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 void CDlg_Camera::OnOk()
 {
 	// TODO: 在此添加控件通知处理程序代码 
+
 	WriteCameraSettingToINI(); 
 	if (0 == m_Capture.m_nPhotoNo)  // 一张都没拍取消扫描
 	{
@@ -812,10 +817,12 @@ void CDlg_Camera::LoadThumbNail()
 	m_listctrl.DeleteAllItems();
 
 	//set Number of image for m_imagelist
-	m_imagelist.SetImageCount(g_vecCust_ImageInfo.size());
+	//m_imagelist.SetImageCount(g_vecCust_ImageInfo.size());
+	m_imagelist.SetImageCount(g_vector_imagehandle.size());
 
-	char path[MAX_PATH];
-	std::vector<CUST_IMAGEINFO>::iterator iter;
+	//char path[MAX_PATH];
+	std::vector<HANDLE>::iterator iter;
+	//std::vector<CUST_IMAGEINFO>::iterator iter;
 
 	//重绘false防止重绘闪烁
 	m_listctrl.SetRedraw(false);
@@ -823,7 +830,7 @@ void CDlg_Camera::LoadThumbNail()
 
 	TCHAR szItem[10];
 	memset(szItem,0,sizeof(szItem));
-	for(iter=g_vecCust_ImageInfo.begin();iter!=g_vecCust_ImageInfo.end();iter++,nIndex++)
+	for(iter=g_vector_imagehandle.begin();iter!=g_vector_imagehandle.end();iter++,nIndex++)
 	{
 		//m_listctrl.InsertItem(nIndex,iter->imagePath.c_str(),nIndex);
 		sprintf_s(szItem,"%d",nIndex+1);
@@ -848,14 +855,17 @@ void CDlg_Camera::LoadThumbNail()
 	int XDest,YDest,nDestWidth,nDestHeight;
 	nIndex=0;
 
-	for(iter=g_vecCust_ImageInfo.begin();iter!=g_vecCust_ImageInfo.end();iter++,nIndex++)
+	for(iter=g_vector_imagehandle.begin();iter!=g_vector_imagehandle.end();iter++,nIndex++)
 	{ 
-	  _tcscpy_s(path, iter->imagePath.c_str());
-		int nImageType = GetTypeFromFileName(path); 
+	  //_tcscpy_s(path, iter->imagePath.c_str());
+		//int nImageType = GetTypeFromFileName(path); 
 
-		if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
-			continue;
-		CxImage image(path,nImageType);//把图像加载到image中
+		//if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
+			//continue;
+		//CxImage image(path,nImageType);//把图像加载到image中
+		CxImage image;
+		image.CreateFromHANDLE(*iter);//把图像加载到image中
+		image.Rotate180();  // CxIamge倒序存储图片数据
 		if(image.IsValid()==false)
 			continue;
 		//计算矩形rect适应画板
@@ -1003,7 +1013,8 @@ void CDlg_Camera::OnImageDelete()
 		return;
 	}
 
-	int nCount = g_vecCust_ImageInfo.size();  // 获取图片数量
+	//int nCount = g_vecCust_ImageInfo.size();  // 获取图片数量
+	int nCount = g_vector_imagehandle.size();
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -1032,8 +1043,9 @@ void CDlg_Camera::OnImageDelete()
 	////////////////////////////////////////////////////////////////////////////////
 
 	int num = 0;
-	std::vector<CUST_IMAGEINFO>::iterator it;
-	for (it = g_vecCust_ImageInfo.begin(); it != g_vecCust_ImageInfo.end(); it++)
+	//std::vector<CUST_IMAGEINFO>::iterator it;
+	std::vector<HANDLE>::iterator it;
+	for (it = g_vector_imagehandle.begin(); it != g_vector_imagehandle.end(); it++)
 	{
 		if (num < nSelectedIndex)
 		{
@@ -1042,11 +1054,11 @@ void CDlg_Camera::OnImageDelete()
 		}
 
 		if (num < nCount - 1)
-			g_vecCust_ImageInfo[num] = g_vecCust_ImageInfo[num + 1];
+			g_vector_imagehandle[num] = g_vector_imagehandle[num + 1];
 
 		if (num == nCount - 1)
 		{
-			g_vecCust_ImageInfo.erase(it);
+			g_vector_imagehandle.erase(it);
 			if (m_Capture.m_nPhotoNo > 0)
 			{
 				m_Capture.m_nPhotoNo -= 1; 
@@ -1100,10 +1112,12 @@ void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
 		return;
 	}
 
-	string strTempPath = g_vecCust_ImageInfo[nSelectedIndex].imagePath;
+	//string strTempPath = g_vecCust_ImageInfo[nSelectedIndex].imagePath;
 
+	//CxImage *pImage = new CxImage();
+	//pImage->Load(strTempPath.c_str());
 	CxImage *pImage = new CxImage();
-	pImage->Load(strTempPath.c_str());
+	pImage->CreateFromHANDLE(g_vector_imagehandle[nSelectedIndex]);
 
 	switch (eMethod)
 	{
@@ -1128,11 +1142,15 @@ void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
 		}		
 	}
 
-	g_vecCust_ImageInfo[nSelectedIndex].imageHeight = pImage->GetHeight();
-	g_vecCust_ImageInfo[nSelectedIndex].imageWidth = pImage->GetWidth();
+	g_vector_imagehandle[nSelectedIndex] = pImage->CopyToHandle();
 
-	int nImageType = GetTypeFromFileName(strTempPath.c_str()); 
-	pImage->Save(strTempPath.c_str(), nImageType);
+	//g_vecCust_ImageInfo[nSelectedIndex].imageHeight = pImage->GetHeight();
+	//g_vecCust_ImageInfo[nSelectedIndex].imageWidth = pImage->GetWidth();
+
+	//int nImageType = GetTypeFromFileName(strTempPath.c_str()); 
+	//pImage->Save(strTempPath.c_str(), nImageType);
+
+
 	LoadThumbNail();
 	::delete pImage;
 }

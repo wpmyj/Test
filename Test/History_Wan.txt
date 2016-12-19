@@ -203,6 +203,13 @@ date 16.12.16
 2.释放CxImage型指针变量时改用全局::delete，否则会出错;
 3.修改项目属性，添加引入库cximagecrt.lib并生成后拷贝cximagecrt.dll到TWAINDir;
 
+date 16.12.19
+------------------------------------------------------------
+@author wan
+1.更改高拍仪图片传输方式，由保存到磁盘，改为保存HANDLE;
+2.更改CTWAINDS_UDS::transfer()获取高拍仪图片数据方式;
+由GetImageData()改为getScanStrip();
+3.添加全局变量g_vector_imagehandle用于保存图片数据句柄;
 
 
 

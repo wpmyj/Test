@@ -1,8 +1,8 @@
 #ifndef __CCAMERA_DIRECTX_H__
 #define __CCAMERA_DIRECTX_H__
 #include "CScanner_base.h"
-#include "opencv.hpp"
-
+//#include "opencv.hpp"
+#include "ximage.h"  // CXImage
 /**
 * The FreeImage scanner define for PaperSource is ADF
 */
@@ -12,7 +12,7 @@
 */
 #define SFI_PAPERSOURCE_FB  1
 
-using namespace cv;
+//using namespace cv;
 
 class CCamera_DirectX : public CScanner_Base
 {
@@ -85,16 +85,29 @@ protected:
   */
   bool preScanPrep();
 
+
+	/**
+  * Get a scan line and put it into the _ImageXfer, fill values in _ImageXfer.
+  * @param[out] pTransferBuffer a pointer to an array of bytes to store the image data
+  * @param[in]  dwRead the number of bytes to read from scanner
+  * @param[out] dwReceived the actual number of bytes transfered
+  * @return true if successful
+  */
+  bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
 protected:
 	short             m_nDocCount;              /**< number of documents waiting to transfer */
 	short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
 	WORD              m_nSourceWidth;           /**< Width of image in FreeImage */
 	WORD              m_nSourceHeight;          /**< Height of image in FreeImage */
 	char              m_szIniPath[PATH_MAX];    /**< INI配置文件路径 */   
-	BYTE*             m_pImageBuffer;           /**< 图片数据指针 */
-	DWORD             m_dwSize;                 /**< 图片数据大小 */
-	Mat               m_mat_image;              /**< 存储图像数据的Mat */
+	//BYTE*             m_pImageBuffer;           /**< 图片数据指针 */
+	//DWORD             m_dwSize;                 /**< 图片数据大小 */
+	//Mat               m_mat_image;              /**< 存储图像数据的Mat */
 	int               m_nImageNumber;           /**< 图片编号 */
+	CxImage*          m_pCxImage;               /**< 图片数据指针 */
+	WORD              m_nScanLine;              /**< Current scan line of image in FreeImage */
+	DWORD             m_nDestBytesPerRow;       /**< number of bytes needed for a row of data */
+
 };
 
 #endif  __CCAMERA_DIRECTX_H__

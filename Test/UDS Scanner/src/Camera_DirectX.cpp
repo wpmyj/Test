@@ -1,6 +1,7 @@
 #include "Camera_DirectX.h"
 #include "public.h"
 #include <time.h>
+#include <vector>
 /**
 * Environment vars to get the Xfer Count.  Create this enviroment Varable on your system to simulate the 
 * number of pages sitting in the scanner waiting to be scanned.
@@ -8,14 +9,18 @@
 #define kGETENV_XFERCOUNT "CAP_XFERCOUNT"
 
 extern HWND g_hwndDLG;
-extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
-DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
+//extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
+extern 	std::vector<HANDLE> g_vector_imagehandle;
+//DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
 
 CCamera_DirectX::CCamera_DirectX(void) :
 	m_nDocCount(0),
 	m_nSourceWidth(0),
 	m_nSourceHeight(0),
-	m_nImageNumber(0)
+	m_nImageNumber(0),
+	m_nScanLine(0),
+	m_nDestBytesPerRow(0),
+	m_pCxImage(NULL)
 {
 	// set default ca
 	resetScanner();
@@ -24,15 +29,22 @@ CCamera_DirectX::CCamera_DirectX(void) :
 
 CCamera_DirectX::~CCamera_DirectX(void)
 {
-	if (m_pImageBuffer)
+	//if (m_pImageBuffer)
+	//{
+	//	delete [] m_pImageBuffer;
+	//	m_pImageBuffer = NULL;
+	//}
+	//
+	//if (false == m_mat_image.empty())
+	//{
+	//	m_mat_image.release();
+	//}
+
+
+	if (!m_pCxImage)
 	{
-		delete [] m_pImageBuffer;
-		m_pImageBuffer = NULL;
-	}
-	
-	if (false == m_mat_image.empty())
-	{
-		m_mat_image.release();
+		::delete m_pCxImage;
+		m_pCxImage = NULL;
 	}
 
 }
@@ -82,9 +94,15 @@ bool CCamera_DirectX::resetScanner()
 	m_bAutoCrop           = TWAC_DISABLE;
 
 	m_nImageNumber = 0;
-	if (false == m_mat_image.empty())
+	//if (false == m_mat_image.empty())
+	//{
+	//	m_mat_image.release();
+	//}
+
+	if (!m_pCxImage)
 	{
-		m_mat_image.release();
+		::delete m_pCxImage;
+		m_pCxImage = NULL;
 	}
 
 	return true;
@@ -108,11 +126,11 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
 
 
-	long size = m_mat_image.total() * m_mat_image.elemSize();
+	//long size = m_mat_image.total() * m_mat_image.elemSize();
 	//char buf[60];
 	//itoa(size, buf, 10);
 	//::MessageBox(g_hwndDLG, TEXT(buf),"GetImageData::size",MB_OK);
-	std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
+	//std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG,TEXT("After memcpy!"),MB_CAPTION,MB_OK);
 
 
@@ -148,14 +166,23 @@ short CCamera_DirectX::getDocumentCount() const
 
 bool CCamera_DirectX::acquireImage()
 {
-	string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
+	//string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
+	//
+	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
+	//m_mat_image = cv::imread(filename);
+	//if(true == m_mat_image.empty())
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
+	//	//cout << "ds: Failed - could not acquire image" << endl;
+	//	return false ;
+	//}
+
+
 	
-	::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
-	m_mat_image = cv::imread(filename);
-	if(true == m_mat_image.empty())
+	m_pCxImage = new CxImage();
+	if(false == m_pCxImage->CreateFromHANDLE(g_vector_imagehandle[m_nImageNumber]))
 	{
 		::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
-		//cout << "ds: Failed - could not acquire image" << endl;
 		return false ;
 	}
 
@@ -180,23 +207,115 @@ void CCamera_DirectX::setSetting(CScanner_Base settings)
 
 bool CCamera_DirectX::preScanPrep()
 {
-	m_nWidth = g_vecCust_ImageInfo[m_nImageNumber].imageWidth;
-	m_nHeight = g_vecCust_ImageInfo[m_nImageNumber].imageHeight;
-	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].XResolution;
-	m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].YResolution;
+	//m_nWidth = g_vecCust_ImageInfo[m_nImageNumber].imageWidth;
+	//m_nHeight = g_vecCust_ImageInfo[m_nImageNumber].imageHeight;
+	//m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].XResolution;
+	//m_fXResolution = g_vecCust_ImageInfo[m_nImageNumber].YResolution;
 
-	DWORD size = m_mat_image.total() * m_mat_image.elemSize();
-  g_dwImageSize = size;
+	//DWORD size = m_mat_image.total() * m_mat_image.elemSize();
+ // g_dwImageSize = size;
+	m_pCxImage->Rotate180();  // CxIamge倒序存储图片数据
+
+	m_pCxImage->SetXDPI((long)m_fXResolution);
+	m_pCxImage->SetYDPI((long)m_fYResolution);
+
+	m_nWidth  = m_nSourceWidth = m_pCxImage->GetWidth(); 
+	m_nHeight = m_nSourceHeight = m_pCxImage->GetHeight() ;
+	/*}*/
+
+	switch(m_nPixelType)
+	{
+	case TWPT_BW:
+		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
+		break;
+
+	case TWPT_GRAY:
+		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
+		break;
+
+	case TWPT_RGB:
+		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
+		break;
+	}
+
 
 	//char buf[60];
-	/*itoa(g_dwImageSize, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::g_dwImageSize",MB_OK);*/
-
+	//itoa(m_pCxImage->GetSize(), buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_pCxImage->GetSize()",MB_OK);
 	//itoa(m_nHeight, buf, 10);
 	//::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_nHeight",MB_OK);
-
 	//itoa(m_fXResolution, buf, 10);
 	//::MessageBox(g_hwndDLG, TEXT(buf),"preScanPrep::m_fXResolution",MB_OK);
 
+
+	// setup some convenience vars because they are used during 
+	// every strip request
+	m_nScanLine       = 0;
 	return true;
 }
+
+bool CCamera_DirectX::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
+{
+	//::MessageBox(g_hwndDLG,"getScanStrip","UDS",MB_OK);
+	dwReceived = 0;
+
+	if( NULL == pTransferBuffer ||    // Invalid paramiter
+		dwRead < m_nDestBytesPerRow ) // Need enough memory to transfer at least an entire row
+	{
+		return false;
+	}
+
+	BYTE   *pBits     = NULL;
+	WORD    nRow      = 0;
+	WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows行 to be transfered during this call (function of buffer size and line size)
+
+	if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )
+	{
+		//fill the buffer line by line to take care of alignment differences
+		for(nRow = 0; nRow<nMaxRows; nRow++)
+		{
+			//get the next scan line position and copy it
+			//pBits = (BYTE*)FreeImage_GetScanLine(m_pDIB, m_nSourceHeight-m_nScanLine-1);
+			pBits = m_pCxImage->GetBits(m_nSourceHeight-m_nScanLine-1);
+			
+			memcpy( pTransferBuffer, pBits, m_nDestBytesPerRow);
+
+			// Check to see if the result image width is wider than what we have.
+			// If it is wider fill it in with 0es
+			/*if(m_nDestBytesPerRow > FreeImage_GetLine(m_pDIB))
+			{
+				memset( pTransferBuffer+FreeImage_GetLine(m_pDIB), 255, m_nDestBytesPerRow - FreeImage_GetLine(m_pDIB) );
+			}*/
+
+			//increment the destination by the aligned line size
+			pTransferBuffer += m_nDestBytesPerRow;
+
+			// increment the current scanline for next pass
+			m_nScanLine++;
+
+			//update the number of bytes written
+			dwReceived += m_nDestBytesPerRow;
+
+			// check for finished scan
+			if( m_nScanLine >= m_nSourceHeight ||
+				m_nScanLine >= m_nHeight )
+			{
+				//we are done early
+				break;
+			}
+		}
+	}
+
+	// Check to see if the result image length is longer than we have.
+	// If it is longer fill it in with 0es
+	if(m_nHeight > m_nScanLine )
+	{
+		nMaxRows  = (WORD)((dwRead-dwReceived) / m_nDestBytesPerRow);
+		memset( pTransferBuffer, 255, m_nDestBytesPerRow * nMaxRows );
+		m_nScanLine += nMaxRows;
+		dwReceived += m_nDestBytesPerRow * nMaxRows;
+	}
+
+	return true;
+}
+

@@ -53,34 +53,6 @@ typedef enum DEVICE_NUMBER
 	DEVICE_CAMERA     = 4,   /**< 摄像头 */
 };
 
-/** 自定义图片信息,用于保存高拍仪图片 */
-typedef struct _CUST_IMAGEIFO
-{
-	string imagePath;      /**< 图片绝对路径 */
-	int    imageWidth;     /**< 图片宽度，单位:像素数 */
-	int    imageHeight;    /**< 图片高度，单位:像素数 */
-	float  XResolution;    /**< 水平方向分辨率，单位:DPI */
-	float  YResolution;    /**< 垂直方向分辨率，单位:DPI */
-	//short  imageBPP;       /**< 图片每像素位数 */
-}CUST_IMAGEINFO;
-
-///** INI文件中的Camera配置 */
-//struct INI_CAMERA
-//{
-//	CString Camera;
-//	CString CamFrameSize;
-//	long CamExposure;
-//	long CamBrightness;
-//	long CamImageType;
-//	long CamDocSize;
-//	long CamDocWidth;
-//	long CamDocHeight;
-//	long CamOrientation;
-//	bool CamAutoClip ;
-//	bool CamAutoEnhance;
-//	bool CamAutoRotate;
-//};
-
 
 #define UDSCAP_LONGDOCUMENT             CAP_CUSTOMBASE+1
 #define UDSCAP_DOCS_IN_ADF              CAP_CUSTOMBASE+2

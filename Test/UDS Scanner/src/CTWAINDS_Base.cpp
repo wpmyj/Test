@@ -1762,7 +1762,7 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
     return TWRC_FAILURE;
   }
 
-	getImageInfo(&m_ImageInfo); // 需要重新获取一次图片信息
+	//getImageInfo(&m_ImageInfo); // 需要重新获取一次图片信息
 
   TW_INT16 twrc = TWRC_FAILURE;
   *_pImage = 0;
@@ -1783,15 +1783,15 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
   /*const*/ WORD      palettesize         = sizeof(RGBQUAD)* numcolors;
   /*const*/ DWORD     bitmapSize          = sizeof(BITMAPINFOHEADER) + palettesize + DstBytesPerRowAlgn*SrcLength;	//multiply the bytes-per-row by the number of scanlines, and add that to the size of the bitmap header to find the total size of the bitmap
 
-	char buf[60];
-	itoa(bitmapSize, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"bitmapSize大小",MB_OK);
+	//char buf[60];
+	//itoa(bitmapSize, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"getDIBImage::bitmapSize",MB_OK);
 
-	itoa(m_ImageInfo.ImageLength, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"getDIBImage::ImageLength",MB_OK);
+	//itoa(m_ImageInfo.ImageLength, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"getDIBImage::ImageLength",MB_OK);
 
-	itoa(SrcLength, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"SrcLength大小",MB_OK);
+	//itoa(SrcLength, buf, 10);
+	//::MessageBox(g_hwndDLG, TEXT(buf),"SrcLength大小",MB_OK);
 
   try
   {	
