@@ -13,6 +13,8 @@ public:
 	virtual void SetCapValue(void){};
 	virtual void UpdateControls(void){};
 	virtual void InitAdvancedmap(void){};
+	virtual void SetMultistream(void){}; //高级界面的设置多流输出
+	virtual void BaseColorMode(void){}; //基本界面用于判断图像模式是否可用
 
 	int brightness; //用于高级界面的参数同步
 	int contrast;

@@ -11,6 +11,7 @@
 
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
+extern bool colormode; //高级界面多流不选中
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
@@ -149,8 +150,16 @@ void CPage_Base::SetCapValue(void)
 				break;
 			}
 
-		case CAP_FEEDERENABLED:
 		case ICAP_PIXELTYPE:
+			{
+				if(GetDlgItem(IDC_BASE_COMBO_COLORMODE)->IsWindowEnabled())//图像类型可用时才设置
+				{
+					m_pUI->SetCapValueInt(iter->first,(int)iter->second);
+				}		
+				break;
+			}
+
+		case CAP_FEEDERENABLED:
 		case ICAP_XRESOLUTION:
 		case ICAP_YRESOLUTION:
 		case CAP_DUPLEXENABLED:
@@ -269,10 +278,11 @@ void CPage_Base::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
 	m_check_multifeeddetect.SetCheck(nCapValue);
 
+	colormode = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
+
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
 	UpdateData(FALSE);
-
 }
 
 
@@ -289,10 +299,17 @@ BOOL CPage_Base::OnInitDialog()
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
-	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时吧启用
+	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时不启用
 
-	
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
+}
+
+
+void CPage_Base::BaseColorMode(void)
+{
 	//判断图像类型选中什么
+	
 	CString strCBText; 
 	GetDlgItem(IDC_BASE_COMBO_COLORMODE)->GetWindowText(strCBText);
 	if (strCBText.Find("黑白") >= 0)
@@ -303,13 +320,23 @@ BOOL CPage_Base::OnInitDialog()
 	{
 		basecolormode = 1;
 	}
-	else
+	else if(strCBText.Find("彩色") >= 0)
 	{
 		basecolormode = 2;
 	}
+	else{}
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// 异常: OCX 属性页应返回 FALSE
+	if(colormode)
+	{
+		//AfxMessageBox("不图像类型可用");
+		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(FALSE);
+	}
+	else
+	{
+		//AfxMessageBox("多流不可用，图像类型可用");
+		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(TRUE);
+	}
+	UpdateData(FALSE);
 }
 
 void CPage_Base::InitSliderCtrl()
@@ -576,6 +603,8 @@ void CPage_Base::InitComboPixType(void)
 		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE);	
 		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE);
 	}
+
+	BaseColorMode(); //获取base界面图像模式,传给高级界面。
 }
 
 void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
@@ -591,6 +620,7 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 	m_combo_colormode.SetCurSel(nIndex);
 	//UpdateControls();
 	InitComboPixType(); //zhu 判断亮度等是否可用
+	//m_pAdPage->SetMultistream(); 
 
 	/*// 设置应用按钮为可用状态
 	SetModified(TRUE);*/

@@ -252,7 +252,7 @@ protected:
 	*  @param[in]  src ：输入图像 (彩色图)
 	*  @param[out]  输出校正后的图像
 	*/
-	Mat AutoCorrect(Mat src_img);
+	Mat AutoCorrect(Mat img); 
 	
 	/**
 	*  @brief  水平镜像

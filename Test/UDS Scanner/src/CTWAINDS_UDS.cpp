@@ -359,7 +359,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELTYPE,0,TWON_ONEVALUE); //图形类型
   bResult = bResult && StoreCapInStream(DsData,ICAP_PLANARCHUNKY,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_SUPPORTEDSIZES,0,TWON_ONEVALUE); //纸张大小
-  bResult = bResult && StoreCapInStream(DsData,ICAP_ORIENTATION,0,TWON_ONEVALUE); //纸张方向
+  //bResult = bResult && StoreCapInStream(DsData,ICAP_ORIENTATION,0,TWON_ONEVALUE); //纸张方向
   bResult = bResult && StoreCapInStream(DsData,ICAP_UNITS,0,TWON_ONEVALUE); //单位
   bResult = bResult && StoreCapInStream(DsData,ICAP_XRESOLUTION,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_YRESOLUTION,0,TWON_ONEVALUE); //分辨率
@@ -427,7 +427,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
   bResult = bResult && ReadCapFromStream(DsData,ICAP_BRIGHTNESS,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gamma校正 
   bResult = bResult && ReadCapFromStream(DsData,ICAP_SUPPORTEDSIZES,0);
-  bResult = bResult && ReadCapFromStream(DsData,ICAP_ORIENTATION,0);
+  //bResult = bResult && ReadCapFromStream(DsData,ICAP_ORIENTATION,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_FRAMES,0);
 
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_ROTATION,0); //zhu
@@ -501,7 +501,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
 	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
 	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留
-   || !pnCap->Add(ICAP_ORIENTATION) //方向
+   //|| !pnCap->Add(ICAP_ORIENTATION) //方向
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
    || !pnCap->Add(ICAP_XRESOLUTION) //分辨率
@@ -838,16 +838,16 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	} //zhu
 
-  m_IndependantCapMap[ICAP_ORIENTATION] = new CTWAINContainerInt(ICAP_ORIENTATION, TWTY_UINT16, TWON_ENUMERATION);
-  if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ORIENTATION]))
-   || !pnCap->Add(TWOR_LANDSCAPE)  //wan
-	 || !pnCap->Add(TWOR_PORTRAIT, true))
-  {
-		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ORIENTATION !"),MB_CAPTION,MB_OK);
-    //cerr << "Could not create ICAP_ORIENTATION" << endl;
-    setConditionCode(TWCC_LOWMEMORY);
-    return TWRC_FAILURE;
-  }
+  //m_IndependantCapMap[ICAP_ORIENTATION] = new CTWAINContainerInt(ICAP_ORIENTATION, TWTY_UINT16, TWON_ENUMERATION);
+  //if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ORIENTATION]))
+  // || !pnCap->Add(TWOR_LANDSCAPE)  //wan
+	 //|| !pnCap->Add(TWOR_PORTRAIT, true))
+  //{
+		//::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ORIENTATION !"),MB_CAPTION,MB_OK);
+  //  //cerr << "Could not create ICAP_ORIENTATION" << endl;
+  //  setConditionCode(TWCC_LOWMEMORY);
+  //  return TWRC_FAILURE;
+  //}
 
   m_IndependantCapMap[CAP_DEVICEONLINE] = new CTWAINContainerBool(CAP_DEVICEONLINE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_DEVICEONLINE]))
@@ -2433,17 +2433,17 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
 
 	//zhu
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ORIENTATION!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_ORIENTATION" << endl;
-		bret = false;
-	}
-	else
-	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nOrientation = nVal;
-	}//zhu
+	//if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ORIENTATION!"),MB_CAPTION,MB_OK);
+	//	//cerr << "Could not get ICAP_ORIENTATION" << endl;
+	//	bret = false;
+	//}
+	//else
+	//{
+	//	pnCap->GetCurrent(nVal);
+	//	settings.m_nOrientation = nVal;
+	//}//zhu
 
 	/*
   if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_GAMMA))))

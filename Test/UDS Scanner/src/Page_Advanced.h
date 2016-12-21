@@ -45,7 +45,8 @@ private:
 	* @brief 纸张方向: 纵向/横向  
 	* @see CTWAINDS_FreeIMage.cpp Line 615
 	*/
-	CComboBox m_combo_orientation; ///<纸张方向
+//	CComboBox m_combo_orientation;
+///<纸张方向
 
 	CComboBox m_combo_uints;  ///<　单位
 
@@ -88,6 +89,8 @@ private:
 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
 
+	int checknum; ///<记录多流输出的个数
+
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
@@ -99,11 +102,13 @@ public:
 	void SetStandardsizes(void); ///<设置纸张大小选择“自定义”时，宽、高的连动
 	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
 
+	void GetCheckNum(void); ///<获取多流输出下有几个选中
+
 private:
 	virtual BOOL OnInitDialog();
 
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Standardsizes();
-	afx_msg void OnCbnSelchangeAdvanced_Combo_Orientation();
+//	afx_msg void OnCbnSelchangeAdvanced_Combo_Orientation();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Uints();
 	
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Resolution();

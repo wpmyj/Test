@@ -47,6 +47,8 @@ private:
 	void SetCapValue(void);  ///<设置参数
 	void SetDelete(void); ///<设置删除按钮是否可用
 
+	void BaseColorMode(void); ///<获取base界面图像模式
+
 	/** 
 	//* @brief 浏览并选择单个图片文件
 	//* @param[out] strFilePath 图片绝对路径
