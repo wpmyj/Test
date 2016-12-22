@@ -384,7 +384,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKBW,0,TWON_ONEVALUE); //黑白背面
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0,TWON_ONEVALUE); //去除斑点
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //底色保留
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //底色保留
 
 	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  去除空白页
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  去除穿孔
@@ -443,7 +443,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKBW,0); //黑白背面
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0); //zhu 去除斑点
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu 底色保留
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu 底色保留
 
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0);
@@ -500,7 +500,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //纸张大小
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
 	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
-	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留
+	 //|| !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留
    //|| !pnCap->Add(ICAP_ORIENTATION) //方向
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
@@ -1174,6 +1174,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
 	}
 
+	/*
 	//底色保留
 	fRange.fCurrentValue = 128.0f; 
 	fRange.fMaxValue = 255.0f;
@@ -1186,7 +1187,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD_COLORRETENT" << endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
-	}
+	}*/
 	//去除斑点
 	fRange.fCurrentValue = 0.0f; 
 	fRange.fMaxValue = 30.0f;
@@ -2247,7 +2248,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fSensitiveThreshold_removespots = fVal;
   }
 
-	//底色保留
+	/*
+	//底色保留 功能等同阈值
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_COLORRETENT!"),MB_CAPTION,MB_OK);
@@ -2258,7 +2260,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pfRCap->GetCurrent(fVal);
 		settings.m_fSensitiveThreshold_colorretent = fVal;
-	}
+	}*/
 
 	//zhu
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_ROTATION))))

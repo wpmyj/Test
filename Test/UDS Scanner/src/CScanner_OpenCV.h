@@ -231,14 +231,14 @@ protected:
 
 	/**
 	*  @brief  去除穿孔
-	*  @param[in]  src ：输入图像
+	//*  @param[in]  src ：输入图像,函数直接给出
 	*  @param[in]  threshold1 ：霍夫变换的第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
 	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
-	*  @param[in]  width :图片的宽
-	*  @param[in]  height :图片的高
+	//*  @param[in]  width :图片的宽，函数里有src决定
+	//*  @param[in]  height :图片的高
 	*  @param[out]  输出变换后图像
 	*/
-	Mat RemovePunch(Mat src_img ,double threshold1, double threshold2, WORD width, WORD height);
+	Mat RemovePunch(double threshold1, double threshold2);
 
 	/**
 	*  @brief  去除黑边
@@ -249,10 +249,10 @@ protected:
 
 	/**
 	*  @brief  自动校正
-	*  @param[in]  src ：输入图像 (彩色图)
+	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
 	*  @param[out]  输出校正后的图像
 	*/
-	Mat AutoCorrect(Mat img); 
+	Mat AutoCorrect(); 
 	
 	/**
 	*  @brief  水平镜像
@@ -280,10 +280,30 @@ protected:
 	bool ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBrightValue,int nContraValue);
 
 	/**
-	*  @brief  设置阈值
-	*  @param[in]  value  阈值
+	*  @brief  设置多流输出
+	*  @param[in]  src 原图 
+	*  @param[in]  muilt BYTE类型的数据
+	*  @param[out] dst 目标图像 
 	*/
-	void SetThreshold(int value);
+	Mat SetMuiltStream(Mat img, BYTE muilt);
+
+	BYTE SwitchBYTE(const BYTE src);
+
+	/**
+	*  @brief  设置阈值
+	*  @param[in]  src 原图 
+	*  @param[in]  value  阈值
+	*  @param[out] dst 目标图像 
+	*/
+	Mat SetThreshold(Mat src_img, int value);
+
+	/**
+	*  @brief 求十进制n的二进制表示中1的个数
+	*  @param[in]  n  十进制数
+	*  @param[out] n 该十进制数的二进制表示中1的个数 
+	*/
+	int BitCount(BYTE n);
+
 
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 
@@ -302,6 +322,12 @@ protected:
 
 	double            m_dRat;                   /**< 宽/高 */
 	Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
-};
+
+	char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
+
+	int               m_totalImageCount;        /**< 多流输出的总数 */
+	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */
+	int               m_i;
+}; 
 
 #endif// __CSCANNER_OPENCV_H__

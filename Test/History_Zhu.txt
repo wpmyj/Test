@@ -423,3 +423,14 @@ date 16.12.21
 @author zhu
 1、实现正面图像的多流输出，之前的问题在于：跟单张输出图片的代码部分重复cvtColor与threshold处理，导致程序崩溃，前后两部分代码融合在一起，调试解决。
 2、修改高级界面，删除高级界面-纸张方向相关变量m_combo_orientation与消息响应函数，以及容器内的Cap--ICAP_ORIENTATION
+3、去掉高级界面底色保留相关CAP，底色保留实际就是黑白图像二值化时选的阈值,删除原底色保留CAP---UDSCAP_SENSITIVETHRESHOLD_COLORRETENT，直接使用ICAP_THRESHOLD阈值。
+4、删除Page_Custom.h 中的成员变量basecolormode（本来用于保存Base界面的图片类型，从而决定高级界面多流输出默认是正面彩色、黑白还是灰度）及其相关功能
+5、实现背面多流输出，但是若正面与背面同时选择就只能出正面图，逻辑整理、调试中。
+
+date 16.12.22
+------------------------------------------------------------
+@author zhu
+1、修改去除穿孔函数为Mat RemovePunch(double threshold1, double threshold2);该操作使用的是另外一张图片。
+2、增加参数联动：多流选中时，去穿孔、自动裁切与校正功能不能使用
+3、修改设置阈值函数为Mat SetThreshold(Mat src_img, int value);加入数据源的输入，以及输出，不是直接对m_mat_image操作
+4、实现多流的所有操作，增加OPENCV类三个成员m_totalImageCount;  m_frontImageCount;  m_i;以及函数int BitCount(BYTE n);（用来计算二进制数中1的个数），BYTE SwitchBYTE(const BYTE src)用来判断BYTE是哪一位为1。

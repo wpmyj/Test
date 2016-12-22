@@ -308,24 +308,6 @@ BOOL CPage_Base::OnInitDialog()
 
 void CPage_Base::BaseColorMode(void)
 {
-	//判断图像类型选中什么
-	
-	CString strCBText; 
-	GetDlgItem(IDC_BASE_COMBO_COLORMODE)->GetWindowText(strCBText);
-	if (strCBText.Find("黑白") >= 0)
-	{
-		basecolormode = 0; //保存到父类成员变量
-	} 
-	else if (strCBText.Find("灰度") >= 0)
-	{
-		basecolormode = 1;
-	}
-	else if(strCBText.Find("彩色") >= 0)
-	{
-		basecolormode = 2;
-	}
-	else{}
-
 	if(colormode)
 	{
 		//AfxMessageBox("不图像类型可用");

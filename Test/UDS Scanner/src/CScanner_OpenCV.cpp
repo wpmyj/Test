@@ -42,19 +42,20 @@ extern BYTE g_MuiltStream;
 
 #ifdef TWH_CMP_MSC
 extern HINSTANCE   g_hinstance;
-#endif
+#endif 
 
+#define IMAGENAME_TWAINLOGO "TWAIN_logo.png"
+#define IMAGENAME_TWAINLOGO_BACK "TWAIN_logo_back.jpg"
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),
 	m_nDestBytesPerRow(0),
 	m_nDocCount(0),
 	m_nSourceWidth(0),
-	m_nSourceHeight(0)
+	m_nSourceHeight(0),
+	m_i(0)
 {
 	memset(m_szSourceImagePath, 0, PATH_MAX);
-
-	char szTWAIN_DS_DIR[PATH_MAX];
 
 #ifdef TWH_CMP_MSC
 	GetModuleFileName(g_hinstance, szTWAIN_DS_DIR, PATH_MAX);
@@ -74,8 +75,12 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 	strncpy(szTWAIN_DS_DIR, kTWAIN_DS_DIR, PATH_MAX);
 #endif
 
-	SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath),
-		PATH_MAX, "%s%cTWAIN_logo.png", szTWAIN_DS_DIR, PATH_SEPERATOR);
+	//SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath),
+		//PATH_MAX, "%s%cTWAIN_logo.png", szTWAIN_DS_DIR, PATH_SEPERATOR);
+	SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+	strcat(m_szSourceImagePath,  "\\");
+	strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+	//::MessageBox(g_hwndDLG,m_szSourceImagePath,"路径1",MB_OK);
 
 	// set default caps
 	resetScanner();
@@ -164,6 +169,30 @@ bool CScanner_OpenCV::acquireImage()
 	{
 		m_mat_image.release();
 	}
+	
+	m_totalImageCount = BitCount(g_MuiltStream); //计算g_MuiltStream中1的个数
+	
+	BYTE m_tempMuilt;
+	m_tempMuilt = g_MuiltStream;
+	m_tempMuilt = m_tempMuilt & 0x0F;
+	m_frontImageCount = BitCount(m_tempMuilt); //低四位中1的个数
+	
+	if(m_i < m_frontImageCount)
+	{
+		SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+		strcat(m_szSourceImagePath,  "\\");
+		strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+
+		m_i++;		
+	}
+	//当背面选中时，换一张图片
+	else
+	{
+		SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+		strcat(m_szSourceImagePath,  "\\");
+		strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
+		m_i++;
+	}
 
 	// get the image if it exists
 	if(FALSE == FILE_EXISTS(m_szSourceImagePath))
@@ -194,6 +223,19 @@ bool CScanner_OpenCV::acquireImage()
 
 	return true;
 }
+
+
+//该十进制数n的二进制表示中1的个数 
+int CScanner_OpenCV::BitCount(BYTE n)
+{
+	unsigned int c = 0;
+	for(c = 0; n; ++c)
+	{
+		n &= (n - 1) ; // 清除最低位的1 等同于n = n&(n-1);
+	}
+	return c;
+}
+
 
 bool CScanner_OpenCV::preScanPrep()
 {
@@ -269,6 +311,14 @@ bool CScanner_OpenCV::preScanPrep()
 
 	} 
 	
+	// 对比度和亮度
+	if (m_nPixelType != TWPT_BW)
+	{
+		Mat matTemp;
+		ContrastAndBright(&matTemp, &m_mat_image, (int)m_fBrightness , (int)m_fContrast);
+		matTemp.copyTo(m_mat_image);
+	}
+
 	//图像镜像处理
 	if(m_bMirror == TWMR_AUTO)
 	{ 
@@ -276,128 +326,14 @@ bool CScanner_OpenCV::preScanPrep()
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
 	}
-
+	
 	Mat matMuilt;
 	m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
-	switch(g_MuiltStream)
-	{
-		//正面
-	case 0x01:  //彩色单张
-		{
-			m_nPixelType = TWPT_RGB;	
-		}	
-		break;
-	case 0x02:  //灰度单张
-		{
-			m_nPixelType = TWPT_GRAY;
-			cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);
-			matMuilt.copyTo(m_mat_image);
-		}		
-		break;
-	case 0x03:  //灰度、彩色
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				matMuilt.copyTo(m_mat_image);
-			}
-			else{}
-		}	
-		break;
 
-	case 0x04:  //黑白单张
-		{	
-			m_nPixelType = TWPT_BW;
-			cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);
-			matMuilt.copyTo(m_mat_image);
-			SetThreshold((int)m_fThreshold);
-		}	
-		break;
-	case 0x05:  //黑白、彩色
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				threshold(matMuilt, matMuilt, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-				matMuilt.copyTo(m_mat_image);
-			}
-			else{}
-		}
-		break;
-	case 0x06:  //黑白、灰度
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);
-				threshold(matMuilt, matMuilt, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-			}
-			else{}
-			matMuilt.copyTo(m_mat_image);
-		}
-		break;
-	case 0x07:  //黑白、灰度、彩色
-		{
-			if(2 == m_nDocCount) //三张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(1 == m_nDocCount) //三张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-			}
-			else if(0 == m_nDocCount) //三张中的第三张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(matMuilt, matMuilt, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-				threshold(matMuilt, matMuilt, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
-			}
-			else{}
-			matMuilt.copyTo(m_mat_image);
-		}
-		break;
-
-		//背面
-	case 0x10:  //彩色单张
-
-		break;
-	case 0x20:  //灰度单张
-
-		break;
-	case 0x30:  //灰度、彩色
-
-		break;
-	case 0x40:  //黑白单张
-
-		break;
-
-	case 0x50:  //黑白、彩色
-
-		break;
-	case 0x60:  //黑白、灰度
-
-		break;
-	case 0x70:  //黑白、灰度、彩色
-
-		break;
-	}
-
+	BYTE m_byteMuilt = g_MuiltStream;
+	m_byteMuilt = SwitchBYTE(m_byteMuilt);
+	m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
+	
 	//多流输出不使用时
 	if(g_MuiltStream == 0x00)
 	{
@@ -414,7 +350,7 @@ bool CScanner_OpenCV::preScanPrep()
 				dstImage.create(m_mat_image.size(), m_mat_image.type());
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
-				SetThreshold((int)m_fThreshold);  // 设置阈值
+				m_mat_image = SetThreshold(m_mat_image, (int)m_fThreshold);  // 设置阈值
 				break;
 										}		
 			case TWPT_GRAY: {			
@@ -427,14 +363,6 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 	}
 	
-	// 对比度和亮度
-	if (m_nPixelType != TWPT_BW)
-	{
-		Mat matTemp;
-		ContrastAndBright(&matTemp, &m_mat_image, (int)m_fBrightness , (int)m_fContrast);
-		matTemp.copyTo(m_mat_image);
-	}
-
 	//此时m_mat_image已经是灰度图了
 	if(m_bDenoise == TWDN_AUTO) //去除噪声
 	{	
@@ -488,14 +416,15 @@ bool CScanner_OpenCV::preScanPrep()
 	if(m_bRemovePunch == TWRP_AUTO) //去除穿孔
 	{	 
 		Mat matRemovepunch;
-		matRemovepunch = RemovePunch(m_mat_image, 200, 30, unNewWidth, unNewHeight); //去除穿孔
+		matRemovepunch = RemovePunch(200, 22); //去除穿孔
 		matRemovepunch.copyTo(m_mat_image);
 	}
 
 	if(m_bAutoCrop == TWAC_AUTO) //自动裁切与校正
 	{
 		Mat matAutoCrop;
-		matAutoCrop = AutoCorrect(m_mat_image); //先自动校正	
+		//matAutoCrop = AutoCorrect(m_mat_image); //先自动校正	
+		matAutoCrop = AutoCorrect();
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
@@ -548,6 +477,293 @@ bool CScanner_OpenCV::preScanPrep()
 
 
 	return true;
+}
+
+BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
+{
+	static BYTE tempbyte = src;
+	if((tempbyte & 0x01) == 0x01)
+	{
+		tempbyte = tempbyte & 0xFE;
+		return 0x01;
+	}
+	else if((tempbyte & 0x02) == 0x02)
+	{
+		tempbyte = tempbyte & 0xFD;
+		return 0x02;
+	}
+	else if((tempbyte & 0x03) == 0x03)
+	{
+		tempbyte = tempbyte & 0xFC;
+		return 0x03;
+	}
+	else if((tempbyte & 0x04) == 0x04)
+	{
+		tempbyte = tempbyte & 0xFB;
+		return 0x04;
+	}
+	else if((tempbyte & 0x05) == 0x05)
+	{
+		tempbyte = tempbyte & 0xFA;
+		return 0x05;
+	}
+	else if((tempbyte & 0x06) == 0x06)
+	{
+		tempbyte = tempbyte & 0xF9;
+		return 0x06;
+	} 
+	else if((tempbyte & 0x07) == 0x07)
+	{
+		tempbyte = tempbyte & 0xF8;
+		return 0x07;
+	}
+	else
+	{
+		return tempbyte;
+	}
+
+	if((tempbyte & 0x10) == 0x10)
+	{
+		tempbyte = tempbyte & 0xEF;
+		return 0x10;
+	}
+	else if((tempbyte & 0x20) == 0x20)
+	{
+		tempbyte = tempbyte & 0xDF;
+		return 0x20;
+	}
+	else if((tempbyte & 0x30) == 0x30)
+	{
+		tempbyte = tempbyte & 0xCF;
+		return 0x30;
+	}
+	else if((tempbyte & 0x40) == 0x40)
+	{
+		tempbyte = tempbyte & 0xBF;
+		return 0x40;
+	}
+	else if((tempbyte & 0x50) == 0x50)
+	{
+		tempbyte = tempbyte & 0xAF;
+		return 0x50;
+	}
+	else if((tempbyte & 0x60) == 0x60)
+	{
+		tempbyte = tempbyte & 0x9F;
+		return 0x60;
+	}
+	else if((tempbyte & 0x70) == 0x70)
+	{
+		tempbyte = tempbyte & 0x8F;
+		return 0x70;
+	}
+	else
+	{
+		return tempbyte;
+	}
+
+}
+
+Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
+{
+	Mat dst_img;
+	switch(muilt)
+	{
+		//正面
+	case 0x01:  //彩色单张
+	case 0x10:
+		{
+			m_nPixelType = TWPT_RGB;	
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x02:  //灰度单张
+	case 0x20:
+		{
+			m_nPixelType = TWPT_GRAY;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(dst_img);
+		}		
+		break;
+	case 0x03:  //灰度、彩色
+	case 0x30:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+
+	case 0x04:  //黑白单张
+	case 0x40:
+		{	
+			m_nPixelType = TWPT_BW;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img = SetThreshold(src_img, (int)m_fThreshold);
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x05:  //黑白、彩色
+	case 0x50:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x06:  //黑白、灰度
+	case 0x60:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x07:  //黑白、灰度、彩色
+	case 0x70:
+		{
+			if(2 == m_nDocCount) //三张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(1 == m_nDocCount) //三张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+			}
+			else if(0 == m_nDocCount) //三张中的第三张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+/*
+		//背面
+	case 0x10:  //彩色单张
+		{
+			m_nPixelType = TWPT_RGB;
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x20:  //灰度单张
+		{
+			m_nPixelType = TWPT_GRAY;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(dst_img);
+		}		
+		break;
+	case 0x30:  //灰度、彩色
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x40:  //黑白单张
+		{	
+			m_nPixelType = TWPT_BW;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(m_mat_image); //暂时直接拷贝到m_mat_image
+			SetThreshold((int)m_fThreshold);		
+		}	
+		break;
+	case 0x50:  //黑白、彩色
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x60:  //黑白、灰度
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x70:  //黑白、灰度、彩色
+		{
+			if(2 == m_nDocCount) //三张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(1 == m_nDocCount) //三张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+			}
+			else if(0 == m_nDocCount) //三张中的第三张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	default:
+		break;*/
+	}
+	return dst_img;
 }
 
 const int black = 10;
@@ -691,10 +907,10 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 }
 
 
-#define DEGREE 27
-Mat CScanner_OpenCV::AutoCorrect(Mat img)
+//#define DEGREE 27
+Mat CScanner_OpenCV::AutoCorrect()
 {
-	//imwrite( "C://Users//Administrator//Desktop//原图.jpg", img);
+	Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\UDS_AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
 	Point center(img.cols/2, img.rows/2);
 
 #ifdef DEGREE
@@ -960,16 +1176,17 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	return src_img;
 }
 
-Mat CScanner_OpenCV::RemovePunch(Mat src_img, double threshold1, double threshold2, WORD width, WORD height)
+Mat CScanner_OpenCV::RemovePunch(double threshold1, double threshold2)
 {
+	Mat src_img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\UDS_RemovePunch.jpg", CV_LOAD_IMAGE_UNCHANGED);
 	vector<Rect> rects;
-	Rect rectTemp(0, 0, 3*width/30, 3*height/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
-	rects.push_back(Rect(0, 0, width, rectTemp.height)); //上侧
-	rects.push_back(Rect(0, height-rectTemp.height, width, rectTemp.height));	 //下侧	
+	Rect rectTemp(0, 0, 3*src_img.cols/30, 3*src_img.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
+	rects.push_back(Rect(0, 0, src_img.cols, rectTemp.height)); //上侧
+	rects.push_back(Rect(0, src_img.rows-rectTemp.height, src_img.cols, rectTemp.height));	 //下侧	
 	//rects.push_back(Rect(0, 0, rectTemp.width, unNewHeight)); //全部左侧
 	//rects.push_back(Rect(width-rectTemp.width, 0, rectTemp.width, height)); //全部右侧
-	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //左侧  只是中间部分
-	rects.push_back(Rect(width-rectTemp.width, rectTemp.height, rectTemp.width, height-2*rectTemp.height)); //右侧
+	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, src_img.rows-2*rectTemp.height)); //左侧  只是中间部分
+	rects.push_back(Rect(src_img.cols-rectTemp.width, rectTemp.height, rectTemp.width, src_img.rows-2*rectTemp.height)); //右侧
 
 	vector<Mat> subImages;
 	for(size_t i = 0; i < rects.size(); i++)
@@ -990,8 +1207,8 @@ Mat CScanner_OpenCV::RemovePunch(Mat src_img, double threshold1, double threshol
 		cvSetImageROI(&IplHough, rects[i]);
 		cvCopy(&IplHoughTemp, &IplHough);
 		cvResetImageROI(&IplHough); 
-		//imwrite( "C://Users//Administrator//Desktop//3.jpg", matHough);	
 	}
+	//imwrite( "C://Users//Administrator//Desktop//去除穿孔后的图片.jpg", dst_img);	
 	return dst_img;
 }
 
@@ -1397,14 +1614,15 @@ bool CScanner_OpenCV::ContrastAndBright(Mat *pdstImage,Mat *psrcImage,
 			}  
 		}  
 	}  
-
+	
 	return true;
 }
 
-void CScanner_OpenCV::SetThreshold(int value)
-{
-  	
-	IplImage* pImage= new IplImage(m_mat_image);  // Mat->IplImage*
+Mat CScanner_OpenCV::SetThreshold(Mat src_img, int value)
+{  	
+	Mat dst_img;
+
+	IplImage* pImage= new IplImage(src_img);  // Mat->IplImage*
 	char* pImageData = pImage->imageData;
 	int width = pImage->width;
 	int height = pImage->height;
@@ -1436,7 +1654,8 @@ void CScanner_OpenCV::SetThreshold(int value)
 			}
 		}
 	}
-
+	src_img.copyTo(dst_img);
+	return dst_img;
 }
 
 

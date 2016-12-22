@@ -108,7 +108,6 @@ private:
 	virtual BOOL OnInitDialog();
 
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Standardsizes();
-//	afx_msg void OnCbnSelchangeAdvanced_Combo_Orientation();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Uints();
 	
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Resolution();

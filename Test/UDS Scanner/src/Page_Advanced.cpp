@@ -111,12 +111,10 @@ void CPage_Advanced::SetCapValue(void)
 		case ICAP_XRESOLUTION:  //X分辨率
 		case ICAP_YRESOLUTION:  //Y分辨率
 		case ICAP_ROTATION:  //旋转
-		case UDSCAP_AUTOCROP: //自动裁切
 		case UDSCAP_DENOISE: //去噪声
 		case UDSCAP_DESCREEN: //去网纹
 		case UDSCAP_REMOVEBACKGROUND: //去背景
 		case UDSCAP_SHARPEN: //图像锐化
-		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
 		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
 		case UDSCAP_MIRROR: //镜像处理
 		case UDSCAP_BINARIZATION: //二值化
@@ -124,6 +122,32 @@ void CPage_Advanced::SetCapValue(void)
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
 			}	
+
+		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
+			{
+				if(m_check_removepunch.GetCheck()) //去穿孔可用时
+				{
+					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+				}
+				else
+				{
+					m_pUI->SetCapValueInt(iter->first,FALSE);
+				}
+				break;
+			}
+
+		case UDSCAP_AUTOCROP: //自动裁切与校正
+			{
+				if(m_check_autocrop.GetCheck()) //自动裁切与校正不可用
+				{
+					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+				}
+				else
+				{
+					m_pUI->SetCapValueInt(iter->first,FALSE);
+				}
+				break;
+			}
 
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
@@ -176,6 +200,7 @@ void CPage_Advanced::SetCapValue(void)
 				m_pUI->SetCapValueFloat(iter->first,iter->second);
 				break;
 			}
+
 		case UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS: //去除斑点
 			{
 				if(m_slider_sensitive_threshold.IsWindowEnabled())
@@ -184,6 +209,16 @@ void CPage_Advanced::SetCapValue(void)
 				}	
 				break;
 			}
+
+		case ICAP_THRESHOLD:
+			{
+				if(m_slider_sensitive_threshold.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);  //底色保留，实际是二值化的阈值
+				}
+				break;
+			}
+
 		case ICAP_BRIGHTNESS: //亮度
 			{
 				if(m_slider_brightness.IsWindowEnabled())
@@ -463,8 +498,9 @@ void CPage_Advanced::UpdateControls(void)
 	}
 	else if(str.Find("底色保留") >= 0)
 	{
-		//多流输出-底色保留
-		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)); 
+		//多流输出-底色保留  与二值化阈值是同样的意义
+		//nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)); 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 		m_slider_sensitive_threshold.SetPos(nCapValue);
 		strText.Format("%d",nCapValue);
 		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
@@ -654,19 +690,13 @@ void CPage_Advanced::SetMultistream(void)
 
 		GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(FALSE); //图像拆分不可用
 		
-		if(0 == m_pBasePage->basecolormode)
-		{
-			((CButton*)GetDlgItem(IDC_CHECK_FRONTBW))->SetCheck(TRUE);
-		}
-		else if(1 == m_pBasePage->basecolormode)
-		{
-			((CButton*)GetDlgItem(IDC_CHECK_FRONTGRAY))->SetCheck(TRUE);
-		}
-		else if(2 == m_pBasePage->basecolormode)
-		{
-			((CButton*)GetDlgItem(IDC_CHECK_FRONTCOLOR))->SetCheck(TRUE);
-		}
-		else{}
+		((CButton*)GetDlgItem(IDC_CHECK_AUTOCROP))->SetCheck(FALSE); //自动裁切与校正不选中
+		((CButton*)GetDlgItem(IDC_CHECK_REMOVEPUNCH))->SetCheck(FALSE); //去除穿孔不选中
+		m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,TWRP_DISABLE);
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+
+		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(FALSE); //自动裁切与校正不可用
+		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(FALSE);//去除穿孔不可用
 
 		colormode = true;
 		m_pBasePage->BaseColorMode();
@@ -707,6 +737,8 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(FALSE); //对比度Edit
 
 		GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(TRUE); //图像拆分可用
+		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(TRUE); //自动裁切与校正可用
+		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(TRUE); //去除穿孔可用
 
 		colormode = false;
 		m_pBasePage->BaseColorMode();
@@ -731,7 +763,7 @@ void CPage_Advanced::SetBinarization(void)
 		GetDlgItemText(IDC_ADVANCED_COMBO_BINARIZATION,strCBText);
 		if (strCBText.Find("动态阈值") >= 0)
 		{
-			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("去除斑点"));
+			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("去除斑点:"));
 			m_pUI->GetCapRangeFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, fMin, fMax, fStep);
 			m_slider_sensitive_threshold.SetRange((int)fMin, (int)fMax);
 			m_slider_sensitive_threshold.SetTicFreq((int)fStep); 
@@ -745,12 +777,14 @@ void CPage_Advanced::SetBinarization(void)
 		} 
 		else if(strCBText.Find("固定阈值") >= 0)
 		{
-			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("底色保留"));
-			m_pUI->GetCapRangeFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT, fMin, fMax, fStep);
+			SetDlgItemText(IDC_ADVANCED_STATIC_SENSITIVITY_THRESHOLD, TEXT("底色保留:"));
+			//m_pUI->GetCapRangeFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT, fMin, fMax, fStep);功能等同阈值
+			m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
 			m_slider_sensitive_threshold.SetRange((int)fMin, (int)fMax);
 			m_slider_sensitive_threshold.SetTicFreq((int)fStep); 
 
-			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT));
+			//nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT));
+			nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 			m_slider_sensitive_threshold.SetPos(nCapValue);
 
 			//设置此时亮度可用
@@ -1187,7 +1221,8 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_SensitiveThreshold(NMHDR *pNM
 	int sldValue = m_slider_sensitive_threshold.GetPos();  // 获取滑块当前位置
 	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,(float)sldValue);  
 	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, (float)sldValue));
-	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)sldValue;
+	//m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)sldValue;
+	m_advancedmap[ICAP_THRESHOLD] = (float)sldValue;
 
 	str.Format("%d", sldValue);
 	//m_edit_sensitive_threshold.SetWindowText(str);  // 在编辑框同步显示滚动条值
@@ -1286,7 +1321,8 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_SensitiveThreshold()
 	m_slider_sensitive_threshold.SetPos(nval);
 	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS, (float)nval));	
 	//m_pUI->SetCapValueFloat(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,(float)nval);  
-	m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)nval;
+	//m_advancedmap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = (float)nval;
+	m_advancedmap[ICAP_THRESHOLD] = (float)nval;
 
 	m_edit_sensitive_threshold.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	UpdateData(FALSE);  // 更新控件
