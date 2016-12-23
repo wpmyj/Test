@@ -82,6 +82,8 @@ void CPage_Base::OnOK()
 	m_pAdPage->SetCapValue();
 	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
+	//::MessageBox(g_hwndDLG,TEXT("图像模式不可用，请从高级界面进行扫描！"),MB_CAPTION,MB_OK);
+
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();
@@ -155,7 +157,8 @@ void CPage_Base::SetCapValue(void)
 				if(GetDlgItem(IDC_BASE_COMBO_COLORMODE)->IsWindowEnabled())//图像类型可用时才设置
 				{
 					m_pUI->SetCapValueInt(iter->first,(int)iter->second);
-				}		
+				}	
+
 				break;
 			}
 

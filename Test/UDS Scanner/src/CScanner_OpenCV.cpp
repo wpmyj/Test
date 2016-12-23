@@ -170,30 +170,33 @@ bool CScanner_OpenCV::acquireImage()
 		m_mat_image.release();
 	}
 	
-	m_totalImageCount = BitCount(g_MuiltStream); //计算g_MuiltStream中1的个数
-	
-	BYTE m_tempMuilt;
-	m_tempMuilt = g_MuiltStream;
-	m_tempMuilt = m_tempMuilt & 0x0F;
-	m_frontImageCount = BitCount(m_tempMuilt); //低四位中1的个数
-	
-	if(m_i < m_frontImageCount)
+	if(m_bMultiStream)
 	{
-		SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-		strcat(m_szSourceImagePath,  "\\");
-		strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+		m_totalImageCount = BitCount(g_MuiltStream); //计算g_MuiltStream中1的个数
 
-		m_i++;		
-	}
-	//当背面选中时，换一张图片
-	else
-	{
-		SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-		strcat(m_szSourceImagePath,  "\\");
-		strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
-		m_i++;
-	}
+		BYTE m_tempMuilt;
+		m_tempMuilt = g_MuiltStream;
+		m_tempMuilt = m_tempMuilt & 0x0F;
+		m_frontImageCount = BitCount(m_tempMuilt); //低四位中1的个数
 
+		if(m_i < m_frontImageCount)
+		{
+			SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+			strcat(m_szSourceImagePath,  "\\");
+			strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+
+			m_i++;		
+		}
+		//当背面选中时，换一张图片
+		else
+		{
+			SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+			strcat(m_szSourceImagePath,  "\\");
+			strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
+			m_i++;
+		}
+	}
+	
 	// get the image if it exists
 	if(FALSE == FILE_EXISTS(m_szSourceImagePath))
 	{
@@ -239,18 +242,7 @@ int CScanner_OpenCV::BitCount(BYTE n)
 
 bool CScanner_OpenCV::preScanPrep()
 {
-	//// 获取影像的水平分辨率，以每米像素数为单位 
-	//res = FreeImage_GetDotsPerMeterX( m_pDIB );
-	//WORD unNewWidth  = WORD(m_nSourceWidth /(WORD)((float)res/39.37 + 0.5)* m_fXResolution);
-
-	//// 获取影像的垂直分辨率，以每米像素数为单位 
-	//res = FreeImage_GetDotsPerMeterY( m_pDIB );
-	//WORD unNewHeight = WORD(m_nSourceHeight/(WORD)((float)res/39.37 + 0.5)* m_fYResolution);
-
-	//cout << "ds: rescaling... to " << unNewWidth << " x " << unNewHeight << endl;
-	////pDib = FreeImage_Rescale( m_pDIB, unNewWidth, unNewHeight, FILTER_BILINEAR);
-	
-	
+	//此时进入的m_mat_image均为彩色
 	IplImage img= IplImage(m_mat_image);  // Mat->IplImage
 
 	// 获取影像的宽高，都以像素为单位 
@@ -310,7 +302,7 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 
 	} 
-	
+
 	// 对比度和亮度
 	if (m_nPixelType != TWPT_BW)
 	{
@@ -327,15 +319,16 @@ bool CScanner_OpenCV::preScanPrep()
 		mat_hMirror.copyTo(m_mat_image);
 	}
 	
-	Mat matMuilt;
-	m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
-
-	BYTE m_byteMuilt = g_MuiltStream;
-	m_byteMuilt = SwitchBYTE(m_byteMuilt);
-	m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
-	
-	//多流输出不使用时
-	if(g_MuiltStream == 0x00)
+	//多流输出
+	if(m_bMultiStream)
+	{
+		Mat matMuilt;
+		m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
+		BYTE m_byteMuilt = g_MuiltStream;
+		m_byteMuilt = SwitchBYTE(m_byteMuilt);
+		m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
+	}
+	else//多流输出不使用时//if(g_MuiltStream == 0x00)
 	{
 		//颜色
 		if(m_nPixelType != TWPT_RGB)
@@ -362,7 +355,7 @@ bool CScanner_OpenCV::preScanPrep()
 			}
 		}
 	}
-	
+
 	//此时m_mat_image已经是灰度图了
 	if(m_bDenoise == TWDN_AUTO) //去除噪声
 	{	
@@ -430,6 +423,14 @@ bool CScanner_OpenCV::preScanPrep()
 		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
 	}
+	::MessageBox(g_hwndDLG,"去除空白页","去除空白页",MB_OK);
+	if(m_fRemoveBlank == TWBP_AUTO)//去除空白页可用
+	{
+		::MessageBox(g_hwndDLG,"去除空白页","去除空白页",MB_OK);
+		Mat matRemoveBlank;
+		RemoveBlank(matRemoveBlank);
+	}
+
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 
@@ -455,28 +456,74 @@ bool CScanner_OpenCV::preScanPrep()
 		m_nHeight = m_nSourceHeight = imgTemp.height;
 	}*/
 
-	/*
-	switch(m_nPixelType)
-	{
-	case TWPT_BW:
-	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
-	break;
-
-	case TWPT_GRAY:
-	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
-	break;
-
-	case TWPT_RGB:
-	m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
-	break;
-	}*/
-
 	// setup some convenience vars because they are used during 
 	// every strip request
 	m_nScanLine       = 0;
 
 
 	return true;
+}
+
+bool CScanner_OpenCV::RemoveBlank(Mat src_img)
+{
+	Mat dst_img = src_img;
+	int width = dst_img.cols; //列
+	int height = dst_img.rows; //行
+
+	int count = 0; //记录黑点的个数
+	const float range = 0.05; //当整个图中黑点占总像素的比例小于range时，就认为是空白页
+
+	if(m_nPixelType == TWPT_RGB)
+	{
+		cvtColor(dst_img, dst_img, CV_BGR2GRAY);
+		threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+	}
+	else if(m_nPixelType == TWPT_GRAY)
+	{
+		threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+	}
+	else{}
+
+	for(int i = 0; i < width; i++)
+	{
+		for(int j = 0; j < height; j++)
+		{
+			if(dst_img.channels() == 3)
+			{
+				if( (int)(dst_img.at<Vec3b>(i,j)[0]) == 0  
+					&& (int)(dst_img.at<Vec3b>(i,j)[1]) == 0
+					&& (int)(dst_img.at<Vec3b>(i,j)[2]) == 0 )
+				{
+					count++;
+				}
+			}
+			else if(dst_img.channels() == 1)
+			{
+				if( (int)(dst_img.at<uchar>(i,j)) == 0)
+				{
+					count++;
+				}
+			}
+		}
+	}
+
+	float per = (float)count / (float)(width * height);
+
+	char buf[10];
+	itoa(per, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"per",MB_OK);
+
+	if(per > range)  
+	{  
+		std::cout<<"这是空白页"<<std::endl; 
+		return true;
+	}  
+	else  
+	{  
+		std::cout<<"这不是空白页"<<std::endl;  
+		return false;
+	}  
+
 }
 
 BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
@@ -668,101 +715,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
 			src_img.copyTo(dst_img);
 		}
 		break;
-/*
-		//背面
-	case 0x10:  //彩色单张
-		{
-			m_nPixelType = TWPT_RGB;
-			src_img.copyTo(dst_img);
-		}	
-		break;
-	case 0x20:  //灰度单张
-		{
-			m_nPixelType = TWPT_GRAY;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			src_img.copyTo(dst_img);
-		}		
-		break;
-	case 0x30:  //灰度、彩色
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}	
-		break;
-	case 0x40:  //黑白单张
-		{	
-			m_nPixelType = TWPT_BW;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			src_img.copyTo(m_mat_image); //暂时直接拷贝到m_mat_image
-			SetThreshold((int)m_fThreshold);		
-		}	
-		break;
-	case 0x50:  //黑白、彩色
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-	case 0x60:  //黑白、灰度
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-	case 0x70:  //黑白、灰度、彩色
-		{
-			if(2 == m_nDocCount) //三张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(1 == m_nDocCount) //三张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-			}
-			else if(0 == m_nDocCount) //三张中的第三张
-			{
-				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-	default:
-		break;*/
 	}
+
 	return dst_img;
 }
 

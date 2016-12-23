@@ -248,6 +248,13 @@ protected:
 	Mat RemoveBlack(Mat src_img);
 
 	/**
+	*  @brief  去除空白页
+	*  @param[in]  src ：输入图像
+	*  @param[out]  是否是空白页
+	*/
+	bool RemoveBlank(Mat src_img);
+
+	/**
 	*  @brief  自动校正
 	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
 	*  @param[out]  输出校正后的图像
@@ -327,7 +334,7 @@ protected:
 
 	int               m_totalImageCount;        /**< 多流输出的总数 */
 	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */
-	int               m_i;
+	int               m_i;                      /**< count循环变量*/
 }; 
 
 #endif// __CSCANNER_OPENCV_H__

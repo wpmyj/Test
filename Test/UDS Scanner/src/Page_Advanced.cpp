@@ -151,10 +151,26 @@ void CPage_Advanced::SetCapValue(void)
 
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
-				GetCheckNum();
-				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,checknum); //设置扫描张数为checknum	
+				if(m_check_multistream.GetCheck())
+				{
+					if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_BW);
+					}
+					if(m_check_frontgray.GetCheck() || m_check_backgray.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
+					}
+					if(m_check_frontcolor.GetCheck() || m_check_backcolor.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_RGB);
+					}
 
-				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+					GetCheckNum();
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,checknum); //设置扫描张数为checknum	
+
+					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+				}	
 				break;
 			}	
 
@@ -165,7 +181,8 @@ void CPage_Advanced::SetCapValue(void)
 		case UDSCAP_BACKGRAY: //灰度背面
 		case UDSCAP_BACKBW: //黑白背面
 			{
-				if(m_check_multistream.GetCheck()) //多流输出选中时
+				if(((CButton*)GetDlgItem(IDC_CHECK_MULTISTREAM))->GetCheck())
+				//if(m_check_multistream.GetCheck()) //多流输出选中时
 				{
 					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				}
@@ -572,16 +589,6 @@ void CPage_Advanced::UpdateControls(void)
 
 
 // CPage_Advanced 消息处理程序
-
-void CPage_Advanced::InitAdvancedmap(void)
-{
-	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());//清空
-
-	int nCapIndex;
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SPLITIMAGE);
-	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex; //初始化时只为map插入“分割Cap”的值，特例
-}
-
 BOOL CPage_Advanced::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
@@ -599,6 +606,18 @@ BOOL CPage_Advanced::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
+
+
+void CPage_Advanced::InitAdvancedmap(void)
+{
+	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());//清空
+
+	int nCapIndex;
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SPLITIMAGE);
+	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex; //初始化时只为map插入“分割Cap”的值，特例
+
+}
+
 
 void CPage_Advanced::GetCheckNum(void)
 {
@@ -712,12 +731,19 @@ void CPage_Advanced::SetMultistream(void)
 	else 
 	{
 		//多流输出未选中时，六个选项也均不要选中
-		m_check_frontcolor.SetCheck(FALSE);
+		/*m_check_frontcolor.SetCheck(FALSE);
 		m_check_frontgray.SetCheck(FALSE);
 		m_check_frontbw.SetCheck(FALSE);
 		m_check_backcolor.SetCheck(FALSE);
 		m_check_backgray.SetCheck(FALSE);
-		m_check_backbw.SetCheck(FALSE);
+		m_check_backbw.SetCheck(FALSE);*/
+
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTCOLOR))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTGRAY))->SetCheck(FALSE);
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTBW))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_BACKCOLOR))->SetCheck(FALSE);
+		((CButton*)GetDlgItem(IDC_CHECK_BACKGRAY))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_BACKBW))->SetCheck(FALSE);
 
 		GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(FALSE);
 		GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(FALSE);
@@ -742,6 +768,14 @@ void CPage_Advanced::SetMultistream(void)
 
 		colormode = false;
 		m_pBasePage->BaseColorMode();
+
+		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_FRONTCOLOR,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_FRONTGRAY,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_FRONTBW,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_BACKCOLOR,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_BACKGRAY,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_BACKBW,FALSE);
 
 		//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_MULTISTREAM, 0.0));
 		m_advancedmap[UDSCAP_MULTISTREAM] = 0.0f;

@@ -434,3 +434,14 @@ date 16.12.22
 2、增加参数联动：多流选中时，去穿孔、自动裁切与校正功能不能使用
 3、修改设置阈值函数为Mat SetThreshold(Mat src_img, int value);加入数据源的输入，以及输出，不是直接对m_mat_image操作
 4、实现多流的所有操作，增加OPENCV类三个成员m_totalImageCount;  m_frontImageCount;  m_i;以及函数int BitCount(BYTE n);（用来计算二进制数中1的个数），BYTE SwitchBYTE(const BYTE src)用来判断BYTE是哪一位为1。
+
+date 16.12.23
+------------------------------------------------------------
+@author zhu
+1、Bug:在高级设置界面本来选中3张多流，现取消，不选中多流，再回到基本界面，此时应该出单张扫描，但仍然出了3张
+解决：在Page_Advanced类中的SetMultistream函数中，当多流不选中时，此时就应该m_pUI->SetCapValueInt(UDSCAP_FRONTCOLOR,FALSE);设置容器中六个多流选项均为FALSE
+2、解决Bug:当多流选中，再回到基本界面扫描不出图的问题。因为流程是点击扫描了才往容器写值，在高级界面点了多流后，再回到基本界面此时高级的多流没有生效。与2相同，在SetMultistream函数中需要加入多多流checkbox的同步设置：m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
+3、但有一个遗留问题，就是在进入驱动时，若上次选择多流扫描、此时基本界面的图形类型是不能使用的，若用户没有进入高级界面，直接从基本界面扫描，由于高级界面此时没有创建，所以此时无图。
+4、Bug：当同时又彩色与灰度时，调节亮度、对比度，只有灰度图有变化；
+解决：因为此时基本界面选择的是黑白，所以在出第一张图--彩色图时，此时OpenCV类中，不满足m_nPixelType != TWPT_BW，就不会进行亮度、对比度的调节，但在后面的SetMuiltStream中对m_nPixelType 做了调节，所以第二张灰度图就满足调节亮度、对比度的条件了。所以解决办法是：在高级设置界面的SetCapValue函数中，当多流选中时，根据哪些选中，要同时设置m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
+5、增加去除空白页函数：bool RemoveBlank(Mat src_img);完成代码编写，但还需调试
