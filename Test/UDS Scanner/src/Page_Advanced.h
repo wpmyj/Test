@@ -103,6 +103,7 @@ public:
 	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
 
 	void GetCheckNum(void); ///<获取多流输出下有几个选中
+	void SetBlank(void); ///<判断并设置去除空白页checkBox的初始状态
 
 private:
 	virtual BOOL OnInitDialog();
@@ -148,4 +149,8 @@ public:
 	/** Base界面的父类指针*/
 	CPage_Custom* m_pBasePage;
 
+	CSliderCtrl m_slider_removeblank;
+	CEdit m_edit_removeblank;
+	afx_msg void OnNMCustomdrawAdvanced_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeAdvanced_Edit_Removeblank();
 };

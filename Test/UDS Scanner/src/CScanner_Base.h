@@ -139,6 +139,7 @@ public:
 
 
 	float             m_fRemoveBlank;           /**< È¥³ý¿Õ°×Ò³ */
+	bool              m_bRemoveBlank;           /**< È¥³ý¿Õ°×Ò³µÄcheckBox */
 	bool              m_bRemovePunch;           /**< È¥³ý´©¿× */
 	bool              m_bSharpen;               /**< Í¼ÏñÈñ»¯*/
 	bool              m_bMirror;                /**< Í¼Ïñ¾µÏñ´¦Àí */

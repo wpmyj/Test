@@ -115,7 +115,7 @@ CScanner_FreeImage::CScanner_FreeImage() :
   strncpy(szTWAIN_DS_DIR, kTWAIN_DS_DIR, PATH_MAX);
 #endif
 
-  SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath), PATH_MAX, "%s%cTWAIN_logo.png", szTWAIN_DS_DIR, PATH_SEPERATOR);
+  SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath), PATH_MAX, "%s%cTWAIN_logo.jpg", szTWAIN_DS_DIR, PATH_SEPERATOR);
 	//char IniPath[PATH_MAX];
 	//strncpy_s(m_szIniPath,szTWAIN_DS_DIR,PATH_MAX);
 	//strncat_s(m_szIniPath,"\\SetUp.ini",PATH_MAX);
@@ -124,7 +124,7 @@ CScanner_FreeImage::CScanner_FreeImage() :
 
 	//char InitialImagePath[PATH_MAX];
 	//strncpy_s(InitialImagePath,szTWAIN_DS_DIR,PATH_MAX);
-	//strncat_s(InitialImagePath,"\\TWAIN_logo.png",PATH_MAX);
+	//strncat_s(InitialImagePath,"\\TWAIN_logo.jpg",PATH_MAX);
 	//GetPrivateProfileString("ImagePath Setting","ImagePath",InitialImagePath,
 	//	m_szSourceImagePath,MAX_PATH,m_szIniPath);
 	

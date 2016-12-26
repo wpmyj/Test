@@ -62,6 +62,8 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_REMOVEDESCREEN, m_check_removedescreen);
 	DDX_Control(pDX, IDC_CHECK_REMOVEDEMOISE, m_check_removedenoise);
 	DDX_Control(pDX, IDC_CHECK_AUTOCROP, m_check_autocrop);
+	DDX_Control(pDX, IDC_ADVANCED_SLIDER_REMOVEBLANK, m_slider_removeblank);
+	DDX_Control(pDX, IDC_ADVANCED_EDIT_REMOVEBLANK, m_edit_removeblank);
 }
 
 
@@ -95,6 +97,8 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEDEMOISE, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEDESCREEN, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCROP, &CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_REMOVEBLANK, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Removeblank)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_REMOVEBLANK, &CPage_Advanced::OnEnChangeAdvanced_Edit_Removeblank)
 END_MESSAGE_MAP()
 
 
@@ -115,7 +119,7 @@ void CPage_Advanced::SetCapValue(void)
 		case UDSCAP_DESCREEN: //去网纹
 		case UDSCAP_REMOVEBACKGROUND: //去背景
 		case UDSCAP_SHARPEN: //图像锐化
-		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
+		case UDSCAP_REMOVEBLANK: //去除空白页的checkbox
 		case UDSCAP_MIRROR: //镜像处理
 		case UDSCAP_BINARIZATION: //二值化
 			{
@@ -204,6 +208,15 @@ void CPage_Advanced::SetCapValue(void)
 				{
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
 				}
+				break;
+			}
+
+		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
+			{
+				if(m_slider_removeblank.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}	
 				break;
 			}
 
@@ -531,16 +544,14 @@ void CPage_Advanced::UpdateControls(void)
 	strText.Format("%.2f", valueTemp);
 	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, strText);
 
-	//去除空白页 -1自动;-2不可用
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES));
-	if(-1 == nCapValue)
-	{
-		m_check_removeblank.SetCheck(TRUE);
-	}
-	else
-	{
-		m_check_removeblank.SetCheck(FALSE);
-	}
+	//去除空白页checkbox
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBLANK));
+	m_check_removeblank.SetCheck(nCapValue);
+	//去除空白页 -1自动;-2不可用:改为滑动条 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES)); 
+	m_slider_removeblank.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	SetDlgItemText(IDC_ADVANCED_EDIT_REMOVEBLANK, strText);
 	
 	//去除穿孔等
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PUNCHHOLEREMOVEL));
@@ -600,6 +611,7 @@ BOOL CPage_Advanced::OnInitDialog()
 	UpdateControls();
 
 	SetMultistream();
+	SetBlank();
 
 	GetCheckNum();
 
@@ -607,6 +619,19 @@ BOOL CPage_Advanced::OnInitDialog()
 	// 异常: OCX 属性页应返回 FALSE
 }
 
+void CPage_Advanced::SetBlank(void)
+{
+	if(m_check_removeblank.GetCheck())
+	{
+		GetDlgItem(IDC_ADVANCED_SLIDER_REMOVEBLANK)->EnableWindow(TRUE);
+		GetDlgItem(IDC_ADVANCED_EDIT_REMOVEBLANK)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_ADVANCED_SLIDER_REMOVEBLANK)->EnableWindow(FALSE);
+		GetDlgItem(IDC_ADVANCED_EDIT_REMOVEBLANK)->EnableWindow(FALSE);
+	}
+}
 
 void CPage_Advanced::InitAdvancedmap(void)
 {
@@ -1211,6 +1236,11 @@ void CPage_Advanced::InitSliderCtrl()
 	m_slider_gamma.SetRange((int)fMin, (int)fMax);
 	m_slider_gamma.SetTicFreq((int)fStep); //步长
 
+	//去除空白页
+	m_pUI->GetCapRangeFloat(ICAP_AUTODISCARDBLANKPAGES, fMin, fMax, fStep);
+	m_slider_removeblank.SetRange((int)fMin, (int)fMax);
+	m_slider_removeblank.SetTicFreq((int)fStep); //步长
+
 	UpdateData(FALSE);  // 更新控件
 }
 
@@ -1313,6 +1343,40 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Contrast(NMHDR *pNMHDR, LRESU
 	*pResult = 0;
 }
 
+
+void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_removeblank.GetPos();  // 获取滑块当前位置
+	m_advancedmap[ICAP_AUTODISCARDBLANKPAGES] = (float)sldValue;
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_ADVANCED_EDIT_REMOVEBLANK, str);
+	UpdateData(FALSE);  // 更新控件
+
+	*pResult = 0;
+}
+
+
+void CPage_Advanced::OnEnChangeAdvanced_Edit_Removeblank()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_removeblank.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_removeblank.SetPos(nval);
+	m_advancedmap[ICAP_AUTODISCARDBLANKPAGES] = (float)nval;
+	m_edit_removeblank.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+	// TODO:  在此添加控件通知处理程序代码
+}
 
 void CPage_Advanced::OnEnChangeAdvanced_Edit_Contrast()
 {
@@ -1582,19 +1646,15 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBlank()
 	int nval;
 	if (m_check_removeblank.GetCheck())
 	{
-		nval = TWBP_AUTO;
+		nval = TWRA_AUTO;
 	} 
 	else
 	{
-		nval = TWBP_DISABLE;
+		nval = TWRA_DISABLE;
 	}
+	m_advancedmap[UDSCAP_REMOVEBLANK] = (float)nval;
 
-	//m_advancedmap.insert(map<int, float> :: value_type(ICAP_AUTODISCARDBLANKPAGES, (float)nval));
-	m_advancedmap[ICAP_AUTODISCARDBLANKPAGES] = (float)nval;
-	//m_pUI->SetCapValueInt(ICAP_AUTODISCARDBLANKPAGES,nval); 
-	//CString str;
-	//str.Format("空白页%d",ms);
-	//AfxMessageBox(str);
+	SetBlank();
 }
 
 
@@ -1737,3 +1797,4 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_AUTOCROP, (float)nval));
 	m_advancedmap[UDSCAP_AUTOCROP] = (float)nval;
 }
+

@@ -445,3 +445,12 @@ date 16.12.23
 4、Bug：当同时又彩色与灰度时，调节亮度、对比度，只有灰度图有变化；
 解决：因为此时基本界面选择的是黑白，所以在出第一张图--彩色图时，此时OpenCV类中，不满足m_nPixelType != TWPT_BW，就不会进行亮度、对比度的调节，但在后面的SetMuiltStream中对m_nPixelType 做了调节，所以第二张灰度图就满足调节亮度、对比度的条件了。所以解决办法是：在高级设置界面的SetCapValue函数中，当多流选中时，根据哪些选中，要同时设置m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
 5、增加去除空白页函数：bool RemoveBlank(Mat src_img);完成代码编写，但还需调试
+
+date 16.12.23
+------------------------------------------------------------
+@author zhu
+1、修改界面排版，去空白页功能以checkBox与滑动条共用
+2、增加CAP--UDSCAP_REMOVEBLANK以及其取值TWRA_DISABLE与TWRA_AUTO，用来记录checkBox去空白页的状态，原有的ICAP_AUTODISCARDBLANKPAGES用来记录滑动条与edit的值
+3、在容器添加该CAP,为CTWAINContainerBool型
+4、在CScanner_Base 中保留原m_fRemoveBlank,添加bool型变量m_bRemoveBlank
+5、CPage_Advanced类中增加SetBlank（）函数用来判断并设置去除空白页checkBox的初始状态；并增加其滑动条与编辑框的响应函数OnNMCustomdrawAdvanced_Slider_Removeblank（）、OnEnChangeAdvanced_Edit_Removeblank（）

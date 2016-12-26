@@ -136,7 +136,7 @@ if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_
     <PostBuildEvent>
       <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\cximagecrt.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"

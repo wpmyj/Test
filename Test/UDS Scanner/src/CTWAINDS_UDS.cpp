@@ -387,6 +387,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //µ×É«±£Áô
 
 	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  È¥³ý¿Õ°×Ò³
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBLANK,0,TWON_ONEVALUE); //zhu  È¥³ý¿Õ°×Ò³µÄcheckBox
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  È¥³ý´©¿×
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SHARPEN,0,TWON_ONEVALUE); //zhu  Èñ»¯Í¼Ïñ
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MIRROR,0,TWON_ONEVALUE); //zhu  Í¼Ïñ¾µÏñ´¦Àí
@@ -446,6 +447,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu µ×É«±£Áô
 
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVEBLANK,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SHARPEN,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MIRROR,0);
@@ -519,6 +521,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_SPLITIMAGE) //·Ö¸îÍ¼Ïñzhu
 
 	 || !pnCap->Add(ICAP_AUTODISCARDBLANKPAGES) //È¥³ý¿Õ°×Ò³
+	 || !pnCap->Add(UDSCAP_REMOVEBLANK)
 	 || !pnCap->Add(UDSCAP_PUNCHHOLEREMOVEL)
 	 || !pnCap->Add(UDSCAP_SHARPEN)
 	 || !pnCap->Add(UDSCAP_MIRROR)
@@ -1045,37 +1048,26 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerBool(ICAP_AUTODISCARDBLANKPAGES, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
-	//	|| !pbCap->Add(TRUE)
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
+	//È¥³ý¿Õ°×Ò³µÄcheckbox×´Ì¬
+	m_IndependantCapMap[UDSCAP_REMOVEBLANK] = new CTWAINContainerBool(UDSCAP_REMOVEBLANK, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_REMOVEBLANK]))
+		|| !pbCap->Add(TRUE)
+		|| !pbCap->Add(FALSE, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_REMOVEBLANK !"),MB_CAPTION,MB_OK);
+		//cerr << "Could not create UDSCAP_REMOVEBLANK" << endl;
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
 	// È¥³ý¿Õ°×Ò³µÈ
-	//FLOAT_RANGE fRange;
-	/*
-	fRange.fCurrentValue = -2.0f; //Ä¬ÈÏ²»Ñ¡ÖÐ£¬¸³Öµ-2£¬²»ÊÇ0
-	fRange.fMaxValue = 10.0f;
-	fRange.fMinValue = -10.0f;
+	fRange.fCurrentValue = 10.0f; 
+	fRange.fMaxValue = 100.0f;
+	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
 	// È¥³ý¿Õ°×Ò³µÈ
 	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
-		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}*/
-
-	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32(ICAP_AUTODISCARDBLANKPAGES,TWON_ENUMERATION, TWQC_ALL);
-	if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
-		|| !pfixCap->Add(TWBP_AUTO)
-		|| !pfixCap->Add(TWBP_DISABLE, true)) //zhu
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
@@ -2300,19 +2292,20 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nSpiltImage = nVal;
 	}//zhu
 
+
+	//È¥³ý¿Õ°×Ò³µÄcheckbox
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_REMOVEBLANK))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_REMOVEBLANK!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bRemoveBlank = bVal; 
+	}
+
 	//È¥³ý¿Õ°×Ò³µÈ8Ïî
-	//if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
-	//{
-	//	//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
-	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
-	//	bret = false;
-	//}
-	//else
-	//{
-	//	pbCap->GetCurrent(bVal);
-	//	settings.m_fRemoveBlank = bVal;
-	//}
-	/*
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
@@ -2323,19 +2316,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pfRCap->GetCurrent(fVal);
 		settings.m_fRemoveBlank = fVal;
-	}*/
-
-	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
-		bret = false;
 	}
-	else
-	{
-		pfCap->GetCurrent(fVal);
-		settings.m_fRemoveBlank = fVal;
-	}//zhu
 
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_PUNCHHOLEREMOVEL))))
 	{

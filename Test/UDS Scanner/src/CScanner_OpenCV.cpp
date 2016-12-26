@@ -44,7 +44,7 @@ extern BYTE g_MuiltStream;
 extern HINSTANCE   g_hinstance;
 #endif 
 
-#define IMAGENAME_TWAINLOGO "TWAIN_logo.png"
+#define IMAGENAME_TWAINLOGO "TWAIN_logo.jpg"
 #define IMAGENAME_TWAINLOGO_BACK "TWAIN_logo_back.jpg"
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
@@ -76,7 +76,7 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 #endif
 
 	//SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath),
-		//PATH_MAX, "%s%cTWAIN_logo.png", szTWAIN_DS_DIR, PATH_SEPERATOR);
+		//PATH_MAX, "%s%cTWAIN_logo.jpg", szTWAIN_DS_DIR, PATH_SEPERATOR);
 	SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
 	strcat(m_szSourceImagePath,  "\\");
 	strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
@@ -423,13 +423,14 @@ bool CScanner_OpenCV::preScanPrep()
 		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
 	}
-	::MessageBox(g_hwndDLG,"去除空白页","去除空白页",MB_OK);
-	if(m_fRemoveBlank == TWBP_AUTO)//去除空白页可用
+	
+	/*
+	if(m_fRemoveBlank == TWRA_AUTO)//去除空白页checkbox可用
 	{
 		::MessageBox(g_hwndDLG,"去除空白页","去除空白页",MB_OK);
 		Mat matRemoveBlank;
 		RemoveBlank(matRemoveBlank);
-	}
+	}*/
 
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽

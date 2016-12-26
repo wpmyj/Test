@@ -65,6 +65,7 @@ typedef enum DEVICE_NUMBER
 
 #define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
 #define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+7  /**< 图像锐化 */
+#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+22 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值
 //#define CUSTCAP_GAMMA                 CAP_CUSTOMBASE+8  /**< Gamma图像校正    Twain已有ICAP_GAMMA*/
 #define UDSCAP_MIRROR                   CAP_CUSTOMBASE+9  /**< 图像镜像处理 */
 #define UDSCAP_REMOVEBACKGROUND         CAP_CUSTOMBASE+10 /**< 去除背景 */
@@ -105,6 +106,10 @@ typedef enum DEVICE_NUMBER
 /* UDSCAP_SHARPEN values (SP_ means SHARPEN)图像锐化。*/
 #define TWSP_DISABLE              FALSE
 #define TWSP_AUTO                 TRUE 
+
+/* UDSCAP_REMOVEBLANK values (RA_ means REMOVEBLANK)去除空白页。*/
+#define TWRA_DISABLE              FALSE 
+#define TWRA_AUTO                 TRUE  
 
 /* CUSTCAP_GAMMA values (GM_ means GAMMA)Gamma图像校正。*/
 #define TWGM_DISABLE              FALSE
