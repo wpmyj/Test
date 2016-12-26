@@ -194,6 +194,10 @@ void CTWAIN_UI::Scan()
 		//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
     m_bScanning = m_pDS->DoXferReadyEvent();
   }
+	else
+	{
+		::MessageBox(g_hwndDLG,TEXT("¸ÃÍ¼Îª¿Õ°×Ò³,ÒÑÂË³ý£¡"),MB_CAPTION,MB_OK);
+	}
 }
 
 void CTWAIN_UI::Cancel()

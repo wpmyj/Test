@@ -252,7 +252,7 @@ protected:
 	*  @param[in]  src ：输入图像
 	*  @param[out]  是否是空白页
 	*/
-	bool RemoveBlank(Mat src_img);
+	bool RemoveBlank(Mat src_img, float fValue);
 
 	/**
 	*  @brief  自动校正

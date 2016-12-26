@@ -454,3 +454,4 @@ date 16.12.23
 3、在容器添加该CAP,为CTWAINContainerBool型
 4、在CScanner_Base 中保留原m_fRemoveBlank,添加bool型变量m_bRemoveBlank
 5、CPage_Advanced类中增加SetBlank（）函数用来判断并设置去除空白页checkBox的初始状态；并增加其滑动条与编辑框的响应函数OnNMCustomdrawAdvanced_Slider_Removeblank（）、OnEnChangeAdvanced_Edit_Removeblank（）
+6、修改去除空白页函数为bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)；fValue为界面滑动条的值。实现去除空白页功能

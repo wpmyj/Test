@@ -142,7 +142,7 @@ void CPage_Advanced::SetCapValue(void)
 
 		case UDSCAP_AUTOCROP: //自动裁切与校正
 			{
-				if(m_check_autocrop.GetCheck()) //自动裁切与校正不可用
+				if(m_check_autocrop.GetCheck()) //自动裁切与校正可用  防止客户在选中该项后，又点了多流（此时该项本应不可用），所以在不可用时要设置为FALSE
 				{
 					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				}

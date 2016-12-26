@@ -300,7 +300,6 @@ bool CScanner_OpenCV::preScanPrep()
 	default: {
 		break;
 		}
-
 	} 
 
 	// 对比度和亮度
@@ -424,14 +423,18 @@ bool CScanner_OpenCV::preScanPrep()
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
 	}
 	
-	/*
-	if(m_fRemoveBlank == TWRA_AUTO)//去除空白页checkbox可用
+	if(m_bRemoveBlank == TWRA_AUTO)//去除空白页checkbox可用
 	{
-		::MessageBox(g_hwndDLG,"去除空白页","去除空白页",MB_OK);
+		bool status = false; //默认不是空白页
 		Mat matRemoveBlank;
-		RemoveBlank(matRemoveBlank);
-	}*/
+		m_mat_image.copyTo(matRemoveBlank);
+		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
 
+		if(status) //若为真，表示是空白页
+		{
+			return false;
+		}
+	}
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 
@@ -461,18 +464,17 @@ bool CScanner_OpenCV::preScanPrep()
 	// every strip request
 	m_nScanLine       = 0;
 
-
 	return true;
 }
 
-bool CScanner_OpenCV::RemoveBlank(Mat src_img)
+bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 {
 	Mat dst_img = src_img;
 	int width = dst_img.cols; //列
 	int height = dst_img.rows; //行
 
 	int count = 0; //记录黑点的个数
-	const float range = 0.05; //当整个图中黑点占总像素的比例小于range时，就认为是空白页
+	const float range = fValue/100; //当整个图中黑点占总像素的比例小于range时，就认为是空白页
 
 	if(m_nPixelType == TWPT_RGB)
 	{
@@ -508,23 +510,22 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img)
 		}
 	}
 
-	float per = (float)count / (float)(width * height);
+	float per = (float)count / (float)(width * height); //224170/(1770*2291)=0.05528 < 0.10000
 
-	char buf[10];
-	itoa(per, buf, 10);
-	::MessageBox(g_hwndDLG,TEXT(buf),"per",MB_OK);
+	/*char buf[10];
+	gcvt(per,10,buf);
+	::MessageBox(g_hwndDLG,TEXT(buf),"per",MB_OK);*/
 
 	if(per > range)  
 	{  
-		std::cout<<"这是空白页"<<std::endl; 
-		return true;
+		//::MessageBox(g_hwndDLG,"这不是空白页","range",MB_OK);
+		return false;
 	}  
 	else  
 	{  
-		std::cout<<"这不是空白页"<<std::endl;  
-		return false;
+		//::MessageBox(g_hwndDLG,"这是空白页","range",MB_OK);
+		return true;
 	}  
-
 }
 
 BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
