@@ -6,7 +6,7 @@
 #include "ximage.h"  // CXImage
 #include <vector>
 
-//#pragma comment(lib,"cximage.lib")
+#pragma comment(lib,"cximage.lib")
 //#pragma comment(lib,"jasper.lib")
 //#pragma comment(lib,"Jpeg.lib")
 //#pragma comment(lib,"jbig.lib")
@@ -28,7 +28,8 @@ extern  HINSTANCE g_hinstance;
 extern void GetFilePath( char* szFileName, char* szFilePath);
 
 //std::vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
-std::vector<HANDLE> g_vector_imagehandle;
+std::vector<std::string> g_vector_imagepath;
+//std::vector<std::string> g_vector_thumbpath;
 //extern CUdsPreWorkApp NEAR theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CUDSCapture
@@ -1022,15 +1023,18 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//m_Camera_DirectX.SetImageData(pDIB, nDIBSize);
 	//delete []pDIB;
 	
+	// 处理并保存文档
 	CxImage *pImage = new CxImage();
 	pImage->CreateFromHANDLE( (HANDLE)pDIB );
+	delete []pDIB;
 
 	if (m_pCapture->m_Auto.imageType == 1)  // Gray
 		pImage->GrayScale();
 
 
+
 	bool hasRotate = false;
-	
+
 	//char buf[10];
 	//itoa(	nDIBSize, buf, 10);
 	//::MessageBox(NULL, TEXT(buf),"nDIBSize",MB_OK);
@@ -1058,12 +1062,25 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//}
 
 
+
 	if ( !hasRotate )  // 未根据条码旋转: 根据指定方向旋转
 	{
 		if (m_pCapture->m_Auto.autoRotate == true)  // 自动旋转
 			pImage->RotateRight();
 	}
-	
+	if (m_nWidth <= 1280)  // Set DPI
+	{
+		pImage->SetXDPI(100);  pImage->SetYDPI(100);
+	}
+	else if (m_nWidth <= 2048)
+	{
+		pImage->SetXDPI(150);  pImage->SetYDPI(150);
+	}
+	else
+	{
+		pImage->SetXDPI(200);  pImage->SetYDPI(200);
+	}
+
 	switch (m_pCapture->m_Auto.imageOrientation)
 	{
 	case 1:  // 顺时针90
@@ -1079,24 +1096,64 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		break;
 	}
 
-	////if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
-	////{
-	////	CxImage::CXTEXTINFO TxtInfo;
-	////	pImage->InitTextInfo(&TxtInfo);
-	////	_tcscpy(TxtInfo.text, _T("UDS Sample"));
-	////	TxtInfo.lfont.lfHeight = -48;//-96;
-	////	TxtInfo.lfont.lfItalic = TRUE;
-	////	TxtInfo.fcolor = RGB(0, 0, 0);
-	////	TxtInfo.opaque = FALSE;  // No background
-	////	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
-	////	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
-	////}
 
-	
-	HANDLE handle = pImage->CopyToHandle();
-	g_vector_imagehandle.push_back(handle);
+	//if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
+	//{
+	//	CxImage::CXTEXTINFO TxtInfo;
+	//	pImage->InitTextInfo(&TxtInfo);
+	//	_tcscpy(TxtInfo.text, _T("UDS Sample"));
+	//	TxtInfo.lfont.lfHeight = -48;//-96;
+	//	TxtInfo.lfont.lfItalic = TRUE;
+	//	TxtInfo.fcolor = RGB(0, 0, 0);
+	//	TxtInfo.opaque = FALSE;  // No background
+	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3, &TxtInfo);
+	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
+	//}
+
+	bool retval = false;
+	CString fileName;
+	if (pImage->GetBpp() == 1)  // 黑白图像: TIFF
+	{
+		fileName.Format("%s~Un%d.tif", m_pCapture->m_strImagePath, m_nTempFileCount);
+		pImage->SetCodecOption(3, CXIMAGE_FORMAT_TIF);  // G4 compression
+		retval = pImage->Save(fileName, CXIMAGE_FORMAT_TIF);
+
+	}
+	else
+	{
+		fileName.Format("%s~Un%d.jpg", m_pCapture->m_strImagePath, m_nTempFileCount);
+		//pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
+		retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
+	}
+
+	g_vector_imagepath.push_back(fileName.GetBuffer());  // 存储原图路径
+
+	//if ( retval )  // Save file success: Generate Thumbnail JPG  //{
+	//	float h_w = (float)pImage->GetHeight() / (float)pImag//>Get//dth();
+	//	pImage->Resample(150, (int)(150*h_w), 1, NULL);
+	//	if ( p//age->GetBpp() < 24 )  // 缩略图全转为24位彩色图，并存为JPG文件
+	////pImage->IncreaseBpp(24);
+	//	fileName.Replace("~Un", "~Un//");
+	//	pImage->SetJpegQuali//((BYTE)m_pCapture->m_nQuality);  // c//pression
+	//	retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
+	//	f//eName.Replace("~UnTh", "~Un");
+	//}
+
+	//g_vector_thumb.push_back(fileName.GetBuffer());  ///存储缩略图路径
+
+	delete pImage;
+	CFile hf(fileName, CFile::modeRead); 
+	hf.Close();  // Flush file
+
+
+	// 添加到临时文件列表
+	//theApp.m_tempFileList.Add(fileName);  // Add image to file list
+	//theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
+	//theApp.m_nTempFileCount += 1;  // 临时文件名编号
+	//m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
+	m_nTempFileCount += 1;
 	m_pCapture->m_nPhotoNo++;
-	::delete pImage;
+
 
 	return TRUE;
 

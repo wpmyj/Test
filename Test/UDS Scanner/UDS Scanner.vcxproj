@@ -49,8 +49,8 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.ds</TargetExt>
     <GenerateManifest>true</GenerateManifest>
-    <IncludePath>E:\CxImage600\include;E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\CxImage600\lib;E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>UDS General TWAIN DS</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -113,7 +113,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)UDS General TWAIN DS.ds</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib;cximagecrt.lib</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -138,7 +138,6 @@ if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\cximagecrt.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo_back.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_RemovePunch.jpg" "c:\windows\twain_32\UDS General TWAIN DS"</Command>

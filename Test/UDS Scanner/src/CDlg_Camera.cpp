@@ -9,13 +9,14 @@
 
 #include "ximage.h"  // CXImage
 #include <vector>
-//#pragma comment(lib,"cximage.lib")
+#pragma comment(lib,"cximage.lib")
 
 #define THUMB_WIDTH  100
 #define THUMB_HEIGHT 70
 
 extern void GetFilePath( char* szFileName, char* szFilePath);
-extern std::vector<HANDLE> g_vector_imagehandle;
+extern std::vector<std::string> g_vector_imagepath;
+
 //extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
 // CDlg_Camera 对话框
 
@@ -32,7 +33,7 @@ CDlg_Camera::~CDlg_Camera()
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
 	ClearAndDeleteDir(m_Capture.m_strImagePath);
-	g_vector_imagehandle.swap(vector<HANDLE>());  // 清除容器并最小化它的容量
+	g_vector_imagepath.swap(std::vector<std::string>());  // 清除容器并最小化它的容量
 	//g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
 
 	m_Capture.m_nPhotoNo = 0;
@@ -801,6 +802,7 @@ bool CDlg_Camera::ClearAndDeleteDir(const TCHAR* szPath, bool deleteDir/*= false
 
 void CDlg_Camera::LoadThumbNail()
 {
+	//::MessageBox(NULL,TEXT("LoadThumbNail()!"),MB_CAPTION,MB_OK);
 	DWORD dwStyle;
 	dwStyle = m_listctrl.GetExtendedStyle();
 	dwStyle = dwStyle|LVS_SHOWSELALWAYS|LVS_ALIGNTOP|LVS_ICON|LVS_AUTOARRANGE;
@@ -818,10 +820,10 @@ void CDlg_Camera::LoadThumbNail()
 
 	//set Number of image for m_imagelist
 	//m_imagelist.SetImageCount(g_vecCust_ImageInfo.size());
-	m_imagelist.SetImageCount(g_vector_imagehandle.size());
+	m_imagelist.SetImageCount(g_vector_imagepath.size());
 
-	//char path[MAX_PATH];
-	std::vector<HANDLE>::iterator iter;
+	char path[MAX_PATH];
+	std::vector<std::string>::iterator iter;
 	//std::vector<CUST_IMAGEINFO>::iterator iter;
 
 	//重绘false防止重绘闪烁
@@ -830,7 +832,7 @@ void CDlg_Camera::LoadThumbNail()
 
 	TCHAR szItem[10];
 	memset(szItem,0,sizeof(szItem));
-	for(iter=g_vector_imagehandle.begin();iter!=g_vector_imagehandle.end();iter++,nIndex++)
+	for(iter=g_vector_imagepath.begin();iter!=g_vector_imagepath.end();iter++,nIndex++)
 	{
 		//m_listctrl.InsertItem(nIndex,iter->imagePath.c_str(),nIndex);
 		sprintf_s(szItem,"%d",nIndex+1);
@@ -855,17 +857,20 @@ void CDlg_Camera::LoadThumbNail()
 	int XDest,YDest,nDestWidth,nDestHeight;
 	nIndex=0;
 
-	for(iter=g_vector_imagehandle.begin();iter!=g_vector_imagehandle.end();iter++,nIndex++)
+	for(iter=g_vector_imagepath.begin();iter!=g_vector_imagepath.end();iter++,nIndex++)
 	{ 
-	  //_tcscpy_s(path, iter->imagePath.c_str());
-		//int nImageType = GetTypeFromFileName(path); 
+	  SSTRCPY(path, MAX_PATH, (*iter).c_str());
+		int nImageType = GetTypeFromFileName(path); 
 
-		//if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
-			//continue;
-		//CxImage image(path,nImageType);//把图像加载到image中
-		CxImage image;
-		image.CreateFromHANDLE(*iter);//把图像加载到image中
-		image.Rotate180();  // CxIamge倒序存储图片数据
+		if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
+			continue;
+		CxImage image(path,nImageType);//把图像加载到image中
+		//::MessageBox(NULL,TEXT(*iter),"*iter",MB_OK);
+		//::MessageBox(NULL,TEXT(path),"LoadThumbNail",MB_OK);
+		//image.Save("C:\\11.jpg",CXIMAGE_FORMAT_JPG);
+		//CxImage image;
+		//image.CreateFromHANDLE(*iter);//把图像加载到image中
+		//image.Rotate180();  // CxIamge倒序存储图片数据
 		if(image.IsValid()==false)
 			continue;
 		//计算矩形rect适应画板
@@ -1014,7 +1019,7 @@ void CDlg_Camera::OnImageDelete()
 	}
 
 	//int nCount = g_vecCust_ImageInfo.size();  // 获取图片数量
-	int nCount = g_vector_imagehandle.size();
+	int nCount = g_vector_imagepath.size();
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -1044,8 +1049,8 @@ void CDlg_Camera::OnImageDelete()
 
 	int num = 0;
 	//std::vector<CUST_IMAGEINFO>::iterator it;
-	std::vector<HANDLE>::iterator it;
-	for (it = g_vector_imagehandle.begin(); it != g_vector_imagehandle.end(); it++)
+	std::vector<std::string>::iterator it;
+	for (it = g_vector_imagepath.begin(); it != g_vector_imagepath.end(); it++)
 	{
 		if (num < nSelectedIndex)
 		{
@@ -1054,11 +1059,11 @@ void CDlg_Camera::OnImageDelete()
 		}
 
 		if (num < nCount - 1)
-			g_vector_imagehandle[num] = g_vector_imagehandle[num + 1];
+			g_vector_imagepath[num] = g_vector_imagepath[num + 1];
 
 		if (num == nCount - 1)
 		{
-			g_vector_imagehandle.erase(it);
+			g_vector_imagepath.erase(it);
 			if (m_Capture.m_nPhotoNo > 0)
 			{
 				m_Capture.m_nPhotoNo -= 1; 
@@ -1104,20 +1109,32 @@ void CDlg_Camera::OnNMRClickListThunmbnail(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
 {
-	
+	//::MessageBox(NULL,TEXT("ImageHandle()!"),MB_CAPTION,MB_OK);
 	//获得当前选中图片的索引
 	int nSelectedIndex = m_listctrl.GetNextItem(-1, LVNI_SELECTED);
 
 	if (-1 == nSelectedIndex) {
 		return;
 	}
+	
+	TCHAR szTempPath[MAX_PATH]; 
+	SSTRCPY(szTempPath, MAX_PATH, g_vector_imagepath[nSelectedIndex].c_str());
 
-	//string strTempPath = g_vecCust_ImageInfo[nSelectedIndex].imagePath;
+	int nImageType = GetTypeFromFileName(szTempPath); 
 
-	//CxImage *pImage = new CxImage();
-	//pImage->Load(strTempPath.c_str());
+	if(nImageType == CXIMAGE_FORMAT_UNKNOWN) {
+		return;
+	}
+
 	CxImage *pImage = new CxImage();
-	pImage->CreateFromHANDLE(g_vector_imagehandle[nSelectedIndex]);
+	pImage->Load(szTempPath,nImageType);//把图像加载到image中
+	//::MessageBox(NULL,TEXT(szTempPath),MB_CAPTION,MB_OK);
+	//CxImage image;
+	//image.CreateFromHANDLE(*iter);//把图像加载到image中
+	//image.Rotate180();  // CxIamge倒序存储图片数据
+	if(pImage->IsValid()==false) {
+		return;
+	}
 
 	switch (eMethod)
 	{
@@ -1142,17 +1159,10 @@ void CDlg_Camera::ImageHandle(enum_image_handle eMethod)
 		}		
 	}
 
-	g_vector_imagehandle[nSelectedIndex] = pImage->CopyToHandle();
-
-	//g_vecCust_ImageInfo[nSelectedIndex].imageHeight = pImage->GetHeight();
-	//g_vecCust_ImageInfo[nSelectedIndex].imageWidth = pImage->GetWidth();
-
-	//int nImageType = GetTypeFromFileName(strTempPath.c_str()); 
-	//pImage->Save(strTempPath.c_str(), nImageType);
-
-
+	//g_vector_imagepath[nSelectedIndex] = pImage->CopyToHandle();
+	pImage->Save(szTempPath, nImageType);
+	delete pImage;
 	LoadThumbNail();
-	::delete pImage;
 }
 
 

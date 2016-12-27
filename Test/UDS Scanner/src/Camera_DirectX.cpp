@@ -10,7 +10,7 @@
 
 extern HWND g_hwndDLG;
 //extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
-extern 	std::vector<HANDLE> g_vector_imagehandle;
+extern 	std::vector<std::string> g_vector_imagepath;
 //DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
 
 CCamera_DirectX::CCamera_DirectX(void) :
@@ -177,10 +177,20 @@ bool CCamera_DirectX::acquireImage()
 	//	return false ;
 	//}
 
-
+	if (!m_pCxImage)
+	{
+		delete m_pCxImage;
+		m_pCxImage = NULL;
+	}
 	
 	m_pCxImage = new CxImage();
-	if(false == m_pCxImage->CreateFromHANDLE(g_vector_imagehandle[m_nImageNumber]))
+	//if(false == m_pCxImage->CreateFromHANDLE(g_vector_imagepath[m_nImageNumber]))
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
+	//	return false ;
+	//}
+	//::MessageBox(g_hwndDLG,TEXT(g_vector_imagepath[m_nImageNumber].c_str()),"acquire",MB_OK);
+	if(false == m_pCxImage->Load(g_vector_imagepath[m_nImageNumber].c_str()))
 	{
 		::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
 		return false ;
@@ -214,7 +224,7 @@ bool CCamera_DirectX::preScanPrep()
 
 	//DWORD size = m_mat_image.total() * m_mat_image.elemSize();
  // g_dwImageSize = size;
-	m_pCxImage->Rotate180();  // CxIamge倒序存储图片数据
+	//m_pCxImage->Rotate180();  // CxIamge倒序存储图片数据
 
 	m_pCxImage->SetXDPI((long)m_fXResolution);
 	m_pCxImage->SetYDPI((long)m_fYResolution);

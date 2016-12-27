@@ -211,8 +211,14 @@ date 16.12.19
 由GetImageData()改为getScanStrip();
 3.添加全局变量g_vector_imagehandle用于保存图片数据句柄;
 
-
-
+date 16.12.27
+------------------------------------------------------------
+@author wan
+1.CxImage由动态库(隐式链接)改为静态库;
+2.将高拍仪拍摄的照片直接存储在指定的磁盘位置;
+3.定义全局变量g_vector_imagepath用于保存所以图片路径;
+4.解决之前只能存储一张图片路径的问题;
+（方法：g_vector_imagepath类型由vector<TCHAR*>改为vector<string>）;
 
 
 
