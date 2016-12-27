@@ -446,7 +446,7 @@ date 16.12.23
 解决：因为此时基本界面选择的是黑白，所以在出第一张图--彩色图时，此时OpenCV类中，不满足m_nPixelType != TWPT_BW，就不会进行亮度、对比度的调节，但在后面的SetMuiltStream中对m_nPixelType 做了调节，所以第二张灰度图就满足调节亮度、对比度的条件了。所以解决办法是：在高级设置界面的SetCapValue函数中，当多流选中时，根据哪些选中，要同时设置m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
 5、增加去除空白页函数：bool RemoveBlank(Mat src_img);完成代码编写，但还需调试
 
-date 16.12.23
+date 16.12.26
 ------------------------------------------------------------
 @author zhu
 1、修改界面排版，去空白页功能以checkBox与滑动条共用
@@ -455,3 +455,13 @@ date 16.12.23
 4、在CScanner_Base 中保留原m_fRemoveBlank,添加bool型变量m_bRemoveBlank
 5、CPage_Advanced类中增加SetBlank（）函数用来判断并设置去除空白页checkBox的初始状态；并增加其滑动条与编辑框的响应函数OnNMCustomdrawAdvanced_Slider_Removeblank（）、OnEnChangeAdvanced_Edit_Removeblank（）
 6、修改去除空白页函数为bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)；fValue为界面滑动条的值。实现去除空白页功能
+
+
+date 16.12.27
+------------------------------------------------------------
+@author zhu
+1、测试G系列驱动上的图像增强--背景处理功能：平滑与滤波。去网纹的功能包含在平滑功能中，另外滤除背景功能又分为自动和填补白色。结合G系列驱动，UDS驱动中去背景功能等同于自动滤除背景。采用LOG高斯拉普拉斯算子，先对图像做高斯模糊，抑制噪声，然后再使用Laplacian算子滤波。
+2、在opencv类中实现去背景功能。
+3、重新排版界面，把图像增强的几个功能放在一个Group里面
+4、设计流程，当多流输出图像为黑白时，图像增强系列功能不可用
+5、添加去网纹的操作，但是该功能在测试时效果不太明显，暂时该操作只用了高斯滤波处理。

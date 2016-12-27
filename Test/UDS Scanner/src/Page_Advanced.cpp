@@ -1516,10 +1516,20 @@ void CPage_Advanced::SetBWImage(void)
 	if (m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
 	{
 		GetDlgItem(IDC_ADVANCED_COMBO_BINARIZATION)->EnableWindow(TRUE);
+		//图像增强系列不可用
+		GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(FALSE);
 	} 
 	else
 	{
 		GetDlgItem(IDC_ADVANCED_COMBO_BINARIZATION)->EnableWindow(FALSE);
+		//图像增强系列可用
+		GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(TRUE);
 	}
 	SetBinarization(); //设置“去除斑点”还是“底色保留”
 }

@@ -826,8 +826,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//zhu 二值化
 	m_IndependantCapMap[UDSCAP_BINARIZATION] = new CTWAINContainerInt(UDSCAP_BINARIZATION, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_BINARIZATION]))
-		|| !pnCap->Add(TWBZ_DYNATHRESHOLD, true) //默认动态阈值
-		|| !pnCap->Add(TWBZ_FIXEDTHRESHOLD)
+		|| !pnCap->Add(TWBZ_DYNATHRESHOLD) //默认动态阈值
+		|| !pnCap->Add(TWBZ_FIXEDTHRESHOLD, true)
 		|| !pnCap->Add(TWBZ_HALFTONE1)
 		|| !pnCap->Add(TWBZ_HALFTONE2)
 		|| !pnCap->Add(TWBZ_HALFTONE3)

@@ -355,10 +355,23 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 	}
 
-	//此时m_mat_image已经是灰度图了
-	if(m_bDenoise == TWDN_AUTO) //去除噪声
+	//去除噪声
+	if(m_bDenoise == TWDN_AUTO) 
 	{	
 		MedianSmooth(m_mat_image);
+	}
+
+	//去网纹
+	if(m_bDescreen == TWDS_AUTO) 
+	{
+		Mat matDescreen;
+		m_mat_image.copyTo(matDescreen);
+
+		//Size(5,5)模板大小，为奇数，要更精确需要自己生成模板
+		//x方向方差
+		//Y方向方差
+		GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
+		matDescreen.copyTo(m_mat_image);
 	}
 
 	//Gamma校正
@@ -392,27 +405,60 @@ bool CScanner_OpenCV::preScanPrep()
 		SpiltImage(m_mat_image,1,2);
 	}
 
-	if(m_bSharpen == TWSP_AUTO) //锐化图像
+	int index = FindDepth(m_mat_image); //index为图像的深度
+	//锐化图像
+	if(m_bSharpen == TWSP_AUTO) 
 	{	
-		Mat matSharpen;
-		int index = FindDepth(m_mat_image);
-		Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT ); //必须是与输入图像的深度相同
-		matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
-		matSharpen.copyTo(m_mat_image);
-		//m_mat_image = matSharpen;
+		if(m_nPixelType != TWPT_BW)
+		{
+			Mat matSharpen;	
+			Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
+			matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
+			matSharpen.copyTo(m_mat_image);
+			//m_mat_image = matSharpen;
+		}	
 	}
+
+	//去除背景
+	if(m_bRemoveBack == TWRB_AUTO) 
+	{
+		//LOG高斯拉拉普拉斯算子：先对图像做高斯模糊抑制噪声，再滤波
+		if(m_nPixelType != TWPT_BW)
+		{	
+			Mat matRemoveBack;
+			m_mat_image.copyTo(matRemoveBack);
+
+			GaussianBlur(matRemoveBack, matRemoveBack, Size(3,3), 0, 0, BORDER_DEFAULT);
+			Laplacian(matRemoveBack, matRemoveBack, index, 3, 1, 0, BORDER_DEFAULT);//必须是与输入图像的深度相同
+			convertScaleAbs(matRemoveBack, matRemoveBack);
+
+			//matRemoveBack = m_mat_image + matRemoveBack;//直接相加，使拉普拉斯滤波后的图与原图有个对比			
+			matRemoveBack.copyTo(m_mat_image);
+		}
+
+		/*
+		//生成一张全白图
+		IplImage* matWhite; 
+		matWhite = new IplImage(matRemoveBack);	
+		cvSet(matWhite, cvScalar(255,255,255), 0);
+		Mat matwh;
+		matwh = matWhite;*/
+	}
+
 
 	//m_mat_image = HoughLinesTransfer(m_mat_image,50,200,160);  //canny边缘检测,阈值1、2（50--200）可调 ; 霍夫变换阈值150，可调
 	//m_mat_image = HoughCirclesTransfer(m_mat_image,1,200,55); // canny边缘检测阈值200,基本不变；霍夫圆变换累加器阈值100
 	
-	if(m_bRemovePunch == TWRP_AUTO) //去除穿孔
+	//去除穿孔
+	if(m_bRemovePunch == TWRP_AUTO) 
 	{	 
 		Mat matRemovepunch;
 		matRemovepunch = RemovePunch(200, 22); //去除穿孔
 		matRemovepunch.copyTo(m_mat_image);
 	}
 
-	if(m_bAutoCrop == TWAC_AUTO) //自动裁切与校正
+	//自动裁切与校正
+	if(m_bAutoCrop == TWAC_AUTO) 
 	{
 		Mat matAutoCrop;
 		//matAutoCrop = AutoCorrect(m_mat_image); //先自动校正	
@@ -422,19 +468,20 @@ bool CScanner_OpenCV::preScanPrep()
 		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
 	}
-	
-	if(m_bRemoveBlank == TWRA_AUTO)//去除空白页checkbox可用
+
+	//去除空白页
+	bool status = false; //默认不是空白页
+	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
 	{
-		bool status = false; //默认不是空白页
 		Mat matRemoveBlank;
 		m_mat_image.copyTo(matRemoveBlank);
 		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
-
-		if(status) //若为真，表示是空白页
-		{
-			return false;
-		}
 	}
+	if(status) //若为真，表示是空白页
+	{
+		return false;
+	}
+
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
 
@@ -466,6 +513,7 @@ bool CScanner_OpenCV::preScanPrep()
 
 	return true;
 }
+
 
 bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 {
@@ -1305,9 +1353,10 @@ void CScanner_OpenCV::MedianSmooth(const Mat &src) //中值滤波
 	IplImage in = IplImage(src); /*Mat -> IplImage*/
 	IplImage *out = cvCreateImage(cvGetSize(&in),IPL_DEPTH_8U,in.nChannels); 
 
-	cvSmooth(&in,out,CV_MEDIAN,3,in.nChannels);  //  中值滤波
+	cvSmooth(&in,out,CV_MEDIAN,3,in.nChannels);  //  中值滤波 medianBlur(src,dst,3);
 	m_mat_image = out; //IplImage -> Mat
 }
+
 
 void CScanner_OpenCV::GammaCorrection(const Mat& src, Mat& dst, float fGamma)
 {

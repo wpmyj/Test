@@ -186,6 +186,11 @@ protected:
 	void MedianSmooth(const Mat &src);
 
 	/**
+	*  @brief  高斯滤波
+	*/
+	//void GaussianSmooth(const Mat &src);
+
+	/**
 	*  @brief  Gamma校正
 	*  @param[in]  src 输入图像
 	*  @param[in]  fGamma Gamma系数
@@ -254,6 +259,7 @@ protected:
 	*/
 	bool RemoveBlank(Mat src_img, float fValue);
 
+
 	/**
 	*  @brief  自动校正
 	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
@@ -294,6 +300,11 @@ protected:
 	*/
 	Mat SetMuiltStream(Mat img, BYTE muilt);
 
+	/**
+	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1
+	*  @param[in]  src 原图 
+	*  @param[out] BYTE 仅有为1的那一位还是1，其他均为0
+	*/
 	BYTE SwitchBYTE(const BYTE src);
 
 	/**
