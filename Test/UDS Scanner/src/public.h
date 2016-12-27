@@ -30,10 +30,13 @@
 #define INI_KEY_CAMDOCSIZE TEXT("CamDocSize")
 #define INI_KEY_CAMDOCWIDTH TEXT("CamDocWidth")
 #define INI_KEY_CAMDOCHEIGHT TEXT("CamDocHeight")
+#define INI_KEY_CAMORIENTATION TEXT("CamOrientation")
+#define INI_KEY_JPEGQUALITY TEXT("JpegQuality ")
 #define INI_KEY_CAMAUTOCLIP TEXT("CamAutoClip")
 #define INI_KEY_CAMAUTOENHANCE TEXT("CamAutoEnhance")
-#define INI_KEY_CAMORIENTATION TEXT("CamOrientation")
 #define INI_KEY_CAMAUTOROTATE TEXT("CamAutoRotate")
+#define INI_KEY_UPLOADFILEONEBYONE TEXT("UploadFileOnebyOne")
+#define INI_KEY_SHOWTHUMBNAIL TEXT("ShowThumbnail ")
 
 /** 消息框标题或驱动名称 */    
 #define MB_CAPTION TEXT("UDS General TWAIN DS")

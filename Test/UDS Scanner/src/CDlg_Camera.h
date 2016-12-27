@@ -15,19 +15,22 @@
 /** INI文件中的Camera配置 */
 struct INI_CAMERA
 {
-	CString Camera;
-	CString CamFrameSize;
-	CString CamTempPath;
-	long CamExposure;
-	long CamBrightness;
-	long CamImageType;
-	long CamDocSize;
-	long CamDocWidth;
-	long CamDocHeight;
-	long CamOrientation;
-	bool CamAutoClip ;
-	bool CamAutoEnhance;
-	bool CamAutoRotate;
+	CString Camera;              /**< 默认摄像头名称 */
+	CString CamFrameSize;        /**< 图像帧尺寸 */
+	CString CamTempPath;         /**< 图像存储路径 */
+	long CamExposure;            /**< 曝光度 */
+	long CamBrightness;          /**< 亮度 */
+	long CamImageType;           /**< 图像类型.  0:彩色, 1:灰度*/
+	long CamDocSize;             /**< 文档大小. 0:A3, 1:A4, 2:B5, 3:A5, 4:身份证, 5:自定义 */
+	long CamDocWidth;            /**< 自定义手动拍摄宽度 */
+	long CamDocHeight;           /**< 自定义手动拍摄高度 */
+	long CamOrientation;         /**< 默认旋转角度. 0-0, 1-90, 2-180, 3-270 */
+	BYTE JpegQuality;            /**< JPEG图片质量 */
+	bool CamAutoClip ;           /**< 是否智能裁切旋转拍摄.  N:否, Y:是 */
+	bool CamAutoEnhance;         /**< 是否进行文档增强.  N:否, Y:是 */
+	bool CamAutoRotate;          /**< 是否自动顺时针转90度. N:否, Y:是 */
+	bool UploadFileOnebyOne;     /**< 是否拍摄一张传一张. N:否, Y:是*/
+	bool ShowThumbnail;          /**< 是否显示缩略图. N:否, Y:是 */
 };
 
 class CDlg_Camera : public CDialogEx
@@ -155,6 +158,10 @@ protected:
 	*/
 	void ImageHandle(enum_image_handle eMethod);	
 
+	/**
+	*  @brief  调整窗口大小、位置等
+	*/
+	void AdjustWindow();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();

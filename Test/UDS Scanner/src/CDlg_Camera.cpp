@@ -11,8 +11,8 @@
 #include <vector>
 #pragma comment(lib,"cximage.lib")
 
-#define THUMB_WIDTH  100
-#define THUMB_HEIGHT 70
+#define THUMB_WIDTH  80
+#define THUMB_HEIGHT 100
 
 extern void GetFilePath( char* szFileName, char* szFilePath);
 extern std::vector<std::string> g_vector_imagepath;
@@ -128,8 +128,8 @@ BOOL CDlg_Camera::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	CenterWindow();
 	ReadCameraSettingFromINI();
+	AdjustWindow();
 	//MessageBox("after ReadCameraSettingFromINI");
 
 	// Mysher Camera License
@@ -209,9 +209,9 @@ BOOL CDlg_Camera::OnInitDialog()
 	m_Capture.m_strImagePath = m_ini.CamTempPath;
 	//::MessageBox(NULL,TEXT(m_Capture.m_strImagePath),MB_CAPTION,MB_OK);
 
-	//if (m_pMainWnd->m_ini.SaveHighQu.m_nQuality = 80;  // Set Hight Quality
+	//if (m_pMainWnd->m_ini.SaveHighQu.m_nQuality = 80;) // Set Hight Quality
 	//else
-	//	m_Capture.m_nQuality = m_pMainWnd->m_ini.Quality;  // Set m_nQuality
+		m_Capture.m_nQuality = m_ini.JpegQuality;  // Set m_nQuality
 
 	m_Capture.m_nExposure = m_ini.CamExposure;  // Set m_nExposure
 	m_Capture.m_nBrightness =m_ini.CamBrightness;  // Set m_nBrightness
@@ -536,13 +536,14 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	INI_CAMERA tempINI;
 
 	//long
-	tempINI.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMEXPOSURE,0,szINIPath);
-	tempINI.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMBRIGHTNESS,0,szINIPath);
-	tempINI.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMIMAGETYPE,0,szINIPath);
-	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCSIZE,1,szINIPath);  // 默认A4
-	tempINI.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCWIDTH,0,szINIPath);
-	tempINI.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMDOCHEIGHT,0,szINIPath);
-	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,0,szINIPath);
+	tempINI.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMEXPOSURE,    0,szINIPath);
+	tempINI.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMBRIGHTNESS,  0,szINIPath);
+	tempINI.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMIMAGETYPE,   0,szINIPath);
+	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCSIZE,     1,szINIPath);  // 默认A4
+	tempINI.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCWIDTH,    0,szINIPath);
+	tempINI.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCHEIGHT,   0,szINIPath);
+	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMORIENTATION, 0,szINIPath);
+	tempINI.JpegQuality    = (BYTE)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_JPEGQUALITY,   75,szINIPath);  // 默认75
 
 
   CString strTemp;
@@ -581,6 +582,22 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	} 
 	else {
 		tempINI.CamAutoRotate = false;
+	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_UPLOADFILEONEBYONE,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.UploadFileOnebyOne = true;
+	} 
+	else {
+		tempINI.UploadFileOnebyOne = false;
+	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_SHOWTHUMBNAIL,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.ShowThumbnail = true;
+	} 
+	else {
+		tempINI.ShowThumbnail = false;
 	}
 
 	strTemp.ReleaseBuffer(nMaxLength);
@@ -669,7 +686,30 @@ LRESULT CDlg_Camera::OnImageSaved(WPARAM wParam, LPARAM lParam)
 	if (m_Capture.m_Auto.autoClip == false)  // 手动拍摄
 		m_bPhoto.EnableWindow(TRUE);  // Set m_bPhoto
 
-	LoadThumbNail();
+	if (true == m_ini.ShowThumbnail) { // 显示缩略图
+		LoadThumbNail();
+	}
+
+	if (true == m_ini.UploadFileOnebyOne)
+	{
+		WriteCameraSettingToINI(); 
+		if (0 == m_Capture.m_nPhotoNo)  // 一张都没拍取消扫描
+		{
+			return FALSE;
+		}
+
+		SetCapValue();	
+		if(m_pUI->m_bSetup)  // EnableDSOnly
+		{
+			m_pUI->Save();
+		}
+		else  
+		{
+			m_pUI->Scan();
+		}
+	}
+	
+
 	return TRUE;
 }
 
@@ -1191,6 +1231,36 @@ void CDlg_Camera::OnImageMirror()
 {
 	// TODO: 在此添加命令处理程序代码
 	ImageHandle(mirror);
+}
+
+void CDlg_Camera::AdjustWindow()
+{
+	if (false == m_ini.ShowThumbnail)  // 不显示缩略图
+	{
+		GetDlgItem(IDC_LIST_THUNMBNAIL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_LIST_THUNMBNAIL)->ShowWindow(SW_HIDE);
+		CRect recDlg1,recDlg2,recList;
+
+		GetClientRect(&recDlg1);	
+		ClientToScreen(&recDlg1);//转换为荧幕坐标   
+		GetDlgItem(IDC_LIST_THUNMBNAIL)->GetClientRect(&recList);
+		ClientToScreen(&recList);//转换为荧幕坐标   
+		int listHeight = recList.Height();
+
+		recDlg2.left = recDlg1.left;
+		recDlg2.top = recDlg1.top;
+		recDlg2.right = recDlg1.right;
+		recDlg2.bottom = recDlg1.bottom - listHeight;  // 窗口新高度=窗口原高度-List控件高度
+
+		MoveWindow(&recDlg2);  // 设置窗口新Rect
+	}
+	else
+	{
+		GetDlgItem(IDC_LIST_THUNMBNAIL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIST_THUNMBNAIL)->ShowWindow(SW_SHOW);
+	}
+	
+	CenterWindow();  // 窗口居中
 }
 
 
