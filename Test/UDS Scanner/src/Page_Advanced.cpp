@@ -127,6 +127,12 @@ void CPage_Advanced::SetCapValue(void)
 				break;
 			}	
 
+		case ICAP_FRAMES: //框架
+			{
+				m_pUI->SetCurrentFrame(0,0,iter->second,iter->second);
+				break;
+			}	
+
 		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
 			{
 				if(m_check_removepunch.GetCheck()) //去穿孔可用时
@@ -356,19 +362,20 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
-	SetStandardsizes();
 
 	// 自定义宽与高
-	TW_FRAME frame;
+	TW_FRAME frameTemp;
 	CString strTemp;
 
-	frame = m_pUI->GetCurrentFrame();
-	strTemp.Format("%0.2f",FIX32ToFloat(frame.Right));
+	frameTemp = m_pUI->GetCurrentFrame();
+	strTemp.Format("%0.2f",FIX32ToFloat(frameTemp.Right)); //宽
 	SetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMWIDTH, strTemp);
 
-	frame = m_pUI->GetCurrentFrame();
-	strTemp.Format("%0.2f",FIX32ToFloat(frame.Bottom));
+	frameTemp = m_pUI->GetCurrentFrame();
+	strTemp.Format("%0.2f",FIX32ToFloat(frameTemp.Bottom)); //高
 	SetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMHEIGHT, strTemp);
+
+	SetStandardsizes();
 
 	//纸张设置-单位
 	m_combo_uints.ResetContent();  // 清空内容
@@ -909,6 +916,9 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	else if (strCBText.Find("照片64") >= 0)
 	{
 		nval = TWSS_PHOT64;
+		//frame.Right = 6000;//宽
+		//frame.Bottom = 4000; //高
+		//m_advancedmap[ICAP_FRAMES] = FIX32ToFloat(frame.Right); //只传宽
 	}
 	else if (strCBText.Find("照片53") >= 0)
 	{

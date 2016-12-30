@@ -69,6 +69,8 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_BASE_BTN_SAVEASPROFILE, &CPage_Base::OnBase_Btn_SaveAsprofile)
 //	ON_BN_CLICKED(IDC_BASE_BTN_SAVEPROFILE, &CPage_Base::OnBase_Btn_Saveprofile)
 //	ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnBnClickedButton1)
+//ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnClickedButton1)
+ON_BN_CLICKED(IDC_BASE_BTN_HELP, &CPage_Base::OnBase_Btn_Help)
 END_MESSAGE_MAP()
 
 
@@ -129,13 +131,17 @@ void CPage_Base::OnCancel()
 	//CPropertyPage::OnCancel();
 }
 
-//BOOL CPage_Base::OnApply()  //点击“确定”与“应用”按钮都调用
+
+//BOOL CPage_Base::OnApply() //点击“确定”与“应用”按钮都调用
 //{
 //	// TODO: 在此添加专用代码和/或调用基类
 //	AfxMessageBox("OnApply");
-//	ChangeControls();
+//
+//	ShellExecute(NULL,"open","C:\\Windows\\twain_32\\UDS General TWAIN DS\\UDS General TWAIN DS.CHM",NULL,NULL,SW_SHOWNORMAL);
+//	
 //	return CPropertyPage::OnApply();
 //}
+
 
 void CPage_Base::SetCapValue(void)
 {
@@ -1100,3 +1106,9 @@ bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype,
 	return true;
 }
 
+
+void CPage_Base::OnBase_Btn_Help()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	ShellExecute(NULL,"open","C:\\Windows\\twain_32\\UDS General TWAIN DS\\UDS General TWAIN DS使用手册.chm",NULL,NULL,SW_SHOWNORMAL);
+}

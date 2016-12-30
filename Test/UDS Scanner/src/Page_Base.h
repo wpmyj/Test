@@ -134,4 +134,7 @@ public:
 	/** ∏∏¿‡÷∏’Î*/
 	CPage_Custom* m_pAdPage;
 
+//	virtual BOOL OnApply();
+//	afx_msg void OnClickedButton1();
+	afx_msg void OnBase_Btn_Help();
 };

@@ -246,25 +246,28 @@ bool CScanner_OpenCV::preScanPrep()
 	IplImage img= IplImage(m_mat_image);  // Mat->IplImage
 
 	// 获取影像的宽高，都以像素为单位 
-	m_nSourceWidth   = img.width;
+	m_nSourceWidth   = img.width; //1100
 	m_nSourceHeight  = img.height;
 	WORD res = 0;
 
+	/*char buf[10];
+	itoa(m_nSourceHeight, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"m_nSourceHeight",MB_OK);*/
+
 	CxImage *pImage = new CxImage();
 	pImage->Load(m_szSourceImagePath);
-	long lXDPI = pImage->GetXDPI();
+	long lXDPI = pImage->GetXDPI(); //获得图像x轴分辨率
 	long lYDPI = pImage->GetYDPI();
 	::delete pImage;
 
 	double dFx = (double)m_fXResolution/lXDPI;
 	double dFy = (double)m_fYResolution/lYDPI;
 
-	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx); //1700
+	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx); //1770 ;根据DPI需要调节图像大小
 	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy); //2200
 
-	/*char buf[10];
-	itoa(unNewHeight, buf, 10);
-	::MessageBox(g_hwndDLG,TEXT(buf),"unNewHeight",MB_OK);*/
+	/*itoa(unNewWidth, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"unNewWidth",MB_OK);*/
 
 	cv::Mat matTemp;
 	cv::resize(m_mat_image, matTemp, cv::Size(unNewWidth, unNewHeight), 0, 0);		
@@ -484,10 +487,12 @@ bool CScanner_OpenCV::preScanPrep()
 
 
 	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
+	m_nSourceWidth = imgTemp.width; 
+	m_nSourceHeight = imgTemp.height;
 
-	m_nWidth  = m_nSourceWidth = imgTemp.width;
-	m_nHeight = m_nSourceHeight = imgTemp.height;
-
+	m_nWidth  = m_nSourceWidth;//框架宽
+	m_nHeight = m_nSourceHeight;
+	
 	/*
 	char buf[10];
 	itoa(m_nWidth, buf, 10);
@@ -495,17 +500,6 @@ bool CScanner_OpenCV::preScanPrep()
 	itoa(m_nHeight, buf, 10);
 	::MessageBox(g_hwndDLG,TEXT(buf),"height",MB_OK); //2200
 	*/
-	/*
-	if(m_nWidth <= 0 || m_nHeight <= 0)
-	{
-		m_nWidth  = m_nSourceWidth = imgTemp.width;
-		m_nHeight = m_nSourceHeight = imgTemp.height;
-	}
-	else
-	{
-		m_nWidth = m_nSourceWidth = imgTemp.width;
-		m_nHeight = m_nSourceHeight = imgTemp.height;
-	}*/
 
 	// setup some convenience vars because they are used during 
 	// every strip request

@@ -91,6 +91,8 @@ private:
 
 	int checknum; ///<记录多流输出的个数
 
+	TW_FRAME frame;
+
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件

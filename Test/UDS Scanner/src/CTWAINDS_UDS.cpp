@@ -502,7 +502,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //纸张大小
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
 	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
-	 //|| !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留
+	 //|| !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留 直接对应“阈值”
    //|| !pnCap->Add(ICAP_ORIENTATION) //方向
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
@@ -1278,10 +1278,27 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   }
 	
   // setup the ICAP_FRAMES
-  // expressed internally as 1000 pixels per inch
+  // expressed internally as 1000 pixels per inch ；1000像素没英寸
   // Currently only supports one frame see: ICAP_MAXFRAMES
   if( NULL == (m_pICAP_FRAMES = new CTWAINContainerFrame(ICAP_FRAMES, TWON_ENUMERATION, TWQC_ALL))
-   || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) )
+   || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) //8.5*11 英寸 US Letter
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 8500, 14000) //8.5*14  US Legal
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 6000, 4000) //照片64
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 5000, 3000) //照片53
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 11690, 16540)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 8270, 11690)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 5830, 8270)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 4130, 5830)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 2910, 4130)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 9840, 13900)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 6930, 9840)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 4920, 6930)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 3460, 4920)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 49490, 14330)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 7170, 10120)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 5040, 7170)
+	 //|| !m_pICAP_FRAMES->Add(0, 0, 3580, 5040)
+	 )   	
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_FRAMES !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_FRAMES" << endl;
@@ -1984,7 +2001,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
 	CTWAINContainerBool* pbCap = 0; //zhu
 
-	////纸张大小
+	//纸张大小
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_SUPPORTEDSIZES))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
@@ -2166,7 +2183,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fYResolution = fVal;
   }
 
-  // set the image dimensions
+  // set the image dimensions设置图像尺寸
   InternalFrame frame;
   if(!m_pICAP_FRAMES->GetCurrent(frame))
   {

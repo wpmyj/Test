@@ -148,8 +148,10 @@ BOOL CSheet_Scanner::OnInitDialog()
 	RemovePage(m_p_page_muilstream);
 	RemovePage(m_p_page_imageprocess);
 
-	CWnd *pWnd = GetDlgItem( ID_APPLY_NOW ); //隐藏应用按钮 （标准按钮的ID是IDOK，IDCANCEL，IDHELP和ID_APPLY_NOW） 
-	pWnd->ShowWindow( FALSE );
+	GetDlgItem(ID_APPLY_NOW)->ShowWindow(FALSE); //隐藏应用按钮 （标准按钮的ID是IDOK，IDCANCEL，IDHELP和ID_APPLY_NOW） 
+
+	//GetDlgItem(ID_APPLY_NOW)->EnableWindow(TRUE);
+	//GetDlgItem(ID_APPLY_NOW)->SetWindowText("帮助");//把“应用”改为“帮助”
 
 	return bResult;
 }
