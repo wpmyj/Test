@@ -37,8 +37,9 @@ CUDSCapture::CUDSCapture()
 	m_Auto.edgePixel = 30;                     // 最大边缘像素
 	m_Auto.stayPixel = 400;                    // 最大不稳定像素
 	m_Auto.stayFrame = 1;                      // 最小稳定帧数
-	m_Auto.imageType = 0;                      // 0-彩色  1-灰度  2-自动
+	m_Auto.imageType = 2;                      // 0-黑白  1-灰度  2-彩色
 	m_Auto.imageOrientation = 0;               // 调整图像方向: 0-0, 1-90, 2-180, 3-270
+	m_Auto.threshold = 128;                    // 阈值: 0~255
 	m_Auto.fastPreview = false;                // 是否采用快速预览
 	m_Auto.autoClip = true;                    // 是否智能裁切旋转拍摄
 	m_Auto.autoRotate = false;                 // 是否自动顺时针转90度

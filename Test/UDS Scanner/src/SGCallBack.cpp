@@ -150,14 +150,41 @@ STDMETHODIMP CSGCallBack::BufferCB( double dblSampleTime, BYTE * pBuffer, long l
 				nPos = y * nBytes;
 				for (x = 0; x < m_nWidth; x++)
 				{
-					B = pBuffer[nPos];  G = pBuffer[nPos+1];  R = pBuffer[nPos+2];
+					B = pBuffer[nPos];  G = pBuffer[nPos+1];  R = pBuffer[nPos+2];						
 #if 1  // 0.299R + 0.587G + 0.114B
-						pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)(0.299*R + 0.587*G + 0.114*B);
+							pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)(0.299*R + 0.587*G + 0.114*B);
 #else  // (R+G+B) / 3
-					pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)((R+G+B) / 3);
+							pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)((R+G+B) / 3);
 #endif
+				}		
+				nPos += 3;
+			}
+		}
+		if (m_pCapture->m_Auto.imageType == 0)   // 0-B&W: Change Color to B&W
+		{
+			long nBytes = (m_nWidth*3 + 3) / 4 * 4;  // DIB;
+			long nPos, R, G, B;
+			for (y = 0; y < m_nHeight; y++)
+			{
+				nPos = y * nBytes;
+				for (x = 0; x < m_nWidth; x++)
+				{
+					B = pBuffer[nPos];  G = pBuffer[nPos+1];  R = pBuffer[nPos+2];				
+					if(R > m_pCapture->m_Auto.threshold)
+					{
+						pBuffer[nPos] = 255 ;
+						pBuffer[nPos+1] = 255 ;
+						pBuffer[nPos+2] = 255 ;
+					}
+					else
+					{
+						pBuffer[nPos] = 0 ;
+						pBuffer[nPos+1] = 0 ;
+						pBuffer[nPos+2] = 0 ;
+					}
 					nPos += 3;
 				}
+			
 			}
 		}
 	}
@@ -179,21 +206,55 @@ STDMETHODIMP CSGCallBack::BufferCB( double dblSampleTime, BYTE * pBuffer, long l
 						    (x >= x1 && x <= x2) && (y1-y>=1 && y1-y<=FW || y-y2>=1 && y-y2<=FW) )  // 边缘像素：紫色显示
 					{  pBuffer[nPos] = 255;  pBuffer[nPos+1] = 0;  pBuffer[nPos+2] = 255;  }
 					else
-					{
+					{				
 #if 1  // 0.299R + 0.587G + 0.114B
-						pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)(0.299*R + 0.587*G + 0.114*B);
+								pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)(0.299*R + 0.587*G + 0.114*B);
 #else  // (R+G+B) / 3
-						pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)((R+G+B) / 3);
+								pBuffer[nPos] = pBuffer[nPos+1] = pBuffer[nPos+2] = (BYTE)((R+G+B) / 3);
 #endif
 					}
 					nPos += 3;
 				}
 			}
 		}
-		else if (m_pCapture->m_Auto.docWidth != -1)  // 手动拍摄时指定区域的预览：画边框
+		if (m_pCapture->m_Auto.imageType == 0)  // 0-B&W: Change Color to B&W
 		{
 			long nBytes = (m_nWidth*3 + 3) / 4 * 4;  // DIB;
-			long nPos;
+			long nPos, R, G, B;
+			for (y = 0; y < m_nHeight; y++)
+			{
+				nPos = y * nBytes;
+				for (x = 0; x < m_nWidth; x++)
+				{
+					B = pBuffer[nPos];  G = pBuffer[nPos+1];  R = pBuffer[nPos+2];
+
+					if ((x1-x>=1 && x1-x<=FW || x-x2>=1 && x-x2<=FW) && (y >= y1-FW && y <= y2+FW) ||
+						(x >= x1 && x <= x2) && (y1-y>=1 && y1-y<=FW || y-y2>=1 && y-y2<=FW) )  // 边缘像素：紫色显示
+					{  pBuffer[nPos] = 255;  pBuffer[nPos+1] = 0;  pBuffer[nPos+2] = 255;  }
+					else
+					{
+						if(R > m_pCapture->m_Auto.threshold)
+						{
+							pBuffer[nPos] = 255 ;
+							pBuffer[nPos+1] = 255 ;
+							pBuffer[nPos+2] = 255 ;
+						}
+						else
+						{
+							pBuffer[nPos] = 0 ;
+							pBuffer[nPos+1] = 0 ;
+							pBuffer[nPos+2] = 0 ;
+						}
+					}
+					nPos += 3;
+				}
+			}
+		}
+		if (m_pCapture->m_Auto.docWidth != -1)  // 手动拍摄时指定区域的预览：画边框
+		{
+			long nPos, nBytes;	
+			nBytes = (m_nWidth*3 + 3) / 4 * 4;  // DIB;
+			
 			for (y = 0; y < m_nHeight; y++)
 			{
 				nPos = y * nBytes;
@@ -716,6 +777,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		}
 	}
 	BITMAPINFOHEADER *pBIH = (BITMAPINFOHEADER *)pDIB;
+
 	memset( pBIH, 0, sizeof(BITMAPINFOHEADER) );
 	pBIH->biSize = sizeof(BITMAPINFOHEADER);
 	pBIH->biWidth = nNewWidth;
@@ -791,7 +853,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		long T, A, Rb, Gb, Bb, P[256], GW=1, BT=16;
 		double Rsum, Gsum, Bsum, H, S, I, fac=180/3.141592653589793;
 		W = 100;  // Block window width
-		if (m_pCapture->m_Auto.imageType == 1)  // 1-Gray: Background
+		if (m_pCapture->m_Auto.imageType != 2)  // 1-Gray: Background
 		{
 			Rb = Gb = Bb = 255;
 		}
@@ -861,7 +923,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 				for (x = 0; x < 256; x++)
 					P[x] = 0;
 				// Segmentation
-				if (m_pCapture->m_Auto.imageType == 1)  // 1-Gray: Segmentation
+				if (m_pCapture->m_Auto.imageType != 2)  // 1-Gray: Segmentation
 				{
 					for (y = y1; y <= y2; y++)  // Histogram
 					{
@@ -1028,10 +1090,17 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	pImage->CreateFromHANDLE( (HANDLE)pDIB );
 	delete []pDIB;
 
-	if (m_pCapture->m_Auto.imageType == 1)  // Gray
+	if ( 1 == m_pCapture->m_Auto.imageType )  // Gray
+	{
 		pImage->GrayScale();
+	}
 
-
+	if (0 == m_pCapture->m_Auto.imageType)  //  B&W
+	{	
+		pImage->Negative();
+	  pImage->DecreaseBpp(1,false);			
+		//pImage->Dither(3);
+	}
 
 	bool hasRotate = false;
 
@@ -1068,19 +1137,24 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		if (m_pCapture->m_Auto.autoRotate == true)  // 自动旋转
 			pImage->RotateRight();
 	}
-	if (m_nWidth <= 1280)  // Set DPI
-	{
-		pImage->SetXDPI(100);  pImage->SetYDPI(100);
-	}
-	else if (m_nWidth <= 2048)
-	{
-		pImage->SetXDPI(150);  pImage->SetYDPI(150);
-	}
-	else
-	{
-		pImage->SetXDPI(200);  pImage->SetYDPI(200);
-	}
+	//if (m_nWidth <= 1280)  // Set DPI
+	//{
+	//	pImage->SetXDPI(100);  pImage->SetYDPI(100);
+	//}
+	//else if (m_nWidth <= 2048)
+	//{
+	//	pImage->SetXDPI(150);  pImage->SetYDPI(150);
+	//}
+	//else
+	//{
+	//	pImage->SetXDPI(200);  pImage->SetYDPI(200);
+	//}
 
+	// Set DPI
+	pImage->SetXDPI(m_pCapture->m_Auto.XDPI); 
+	pImage->SetYDPI(m_pCapture->m_Auto.YDPI);
+
+	// 旋转处理
 	switch (m_pCapture->m_Auto.imageOrientation)
 	{
 	case 1:  // 顺时针90
@@ -1096,7 +1170,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 		break;
 	}
 
-
+	
 	//if (m_pCapture->m_bActive == false)  // 未激活，加水印：SmartCamera Sample
 	//{
 	//	CxImage::CXTEXTINFO TxtInfo;

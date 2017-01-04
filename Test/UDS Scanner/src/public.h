@@ -36,8 +36,11 @@
 #define INI_KEY_CAMAUTOENHANCE TEXT("CamAutoEnhance")
 #define INI_KEY_CAMAUTOROTATE TEXT("CamAutoRotate")
 #define INI_KEY_UPLOADFILEONEBYONE TEXT("UploadFileOnebyOne")
-#define INI_KEY_SHOWTHUMBNAIL TEXT("ShowThumbnail ")
-
+#define INI_KEY_SHOWTHUMBNAIL TEXT("ShowThumbnail")
+#define INI_KEY_THRESHOLD TEXT("Threshold")
+#define INI_KEY_DPINUMBER TEXT("DpiNumber")
+//#define INI_KEY_XDPI TEXT("XDPI")
+//#define INI_KEY_YDPI TEXT("YDPI")
 /** 消息框标题或驱动名称 */    
 #define MB_CAPTION TEXT("UDS General TWAIN DS")
 

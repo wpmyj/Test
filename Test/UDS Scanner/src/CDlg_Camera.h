@@ -25,6 +25,9 @@ struct INI_CAMERA
 	long CamDocWidth;            /**< 自定义手动拍摄宽度 */
 	long CamDocHeight;           /**< 自定义手动拍摄高度 */
 	long CamOrientation;         /**< 默认旋转角度. 0-0, 1-90, 2-180, 3-270 */
+	long threshold;              /**< 阈值. 0~255 */
+	long DpiNumber;              /**< DPI对应编号 */ 
+	//long YDPI;                   /**< 垂直方向分辨率 */
 	BYTE JpegQuality;            /**< JPEG图片质量 */
 	bool CamAutoClip ;           /**< 是否智能裁切旋转拍摄.  N:否, Y:是 */
 	bool CamAutoEnhance;         /**< 是否进行文档增强.  N:否, Y:是 */
@@ -72,9 +75,11 @@ public:
 
 	CListCtrl   m_listctrl;           ///< 缩略图对应ListCtrl控件
 	CImageList	m_imagelist;          ///< 缩略图对应ImageList控件
+
+	
 private:
 	MFC_UI *m_pUI;
-
+	//MAP_CAP m_mapCap;                ///<用于保存参数改变后的值
 	
 protected:
 	CUDSCapture m_Capture;
@@ -163,6 +168,19 @@ protected:
 	*/
 	void AdjustWindow();
 
+	/**
+	*  @brief 更新控件状态
+	*/
+	//void UpdateControls(void);  
+
+	/**
+	*  @brief 初始化控件
+	*/
+	void InitControls(void);  
+
+
+	
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();
 	afx_msg void OnButton_Stop();
@@ -192,4 +210,7 @@ protected:
 	afx_msg void OnImageFlipvertical();
 	afx_msg void OnImageMirror();
 
+public:
+	afx_msg void OnNMCustomdrawCamera_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnCbnSelchange_Camera_ComboDpi();
 };

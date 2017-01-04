@@ -25,7 +25,7 @@ typedef struct
 	long edgePixel;                    /**< 最大边缘像素 */
 	long stayPixel;                    /**< 最大不稳定像素 */
 	long stayFrame;                    /**< 最小稳定帧数 */
-	long imageType;                    /**< 0-彩色  1-灰度  2-自动 */
+	long imageType;                    /**< 0-黑白  1-灰度  2-彩色 */
 	long imageOrientation;             /**< 调整图像方向: 0-0, 1-90, 2-180, 3-270 */
 	bool fastPreview;                  /**< 是否采用快速预览*/
 	bool autoClip;                     /**< 是否智能裁切旋转拍摄*/
@@ -33,6 +33,9 @@ typedef struct
 	bool autoEnhance;                  /**< 是否进行文档增强 */
 	long docSize;                      /**< 手动拍摄时的文档尺寸*/
 	long docWidth, docHeight;          /**< 自定义手动拍摄区域*/
+  long threshold;                    /**< 阈值 */
+	long XDPI;                         /**< 水平方向分辨率 */ 
+	long YDPI;                         /**< 垂直方向分辨率 */
 	CString strCamrea;                 /**< 默认摄像机*/
 	CString strSize;                   /**< 默认图像帧尺寸*/
 } AUTOPARAMETER; 

@@ -232,10 +232,11 @@ bool CCamera_DirectX::preScanPrep()
 	m_nWidth  = m_nSourceWidth = m_pCxImage->GetWidth(); 
 	m_nHeight = m_nSourceHeight = m_pCxImage->GetHeight() ;
 	/*}*/
-
+	
 	switch(m_nPixelType)
 	{
 	case TWPT_BW:
+		//m_pCxImage->Negative();
 		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
 		break;
 

@@ -86,6 +86,8 @@ BEGIN_MESSAGE_MAP(CDlg_Camera, CDialogEx)
 	ON_COMMAND(ID_IMAGE_FLIPVERTICAL, &CDlg_Camera::OnImageFlipvertical)
 	ON_COMMAND(ID_IMAGE_MIRROR, &CDlg_Camera::OnImageMirror)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA_SETTING, &CDlg_Camera::OnButton_CameraSetting)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_CAMERA_SLIDER_THRESHOLD, &CDlg_Camera::OnNMCustomdrawCamera_Slider_Threshold)
+	ON_CBN_SELCHANGE(IDC_CAMERA_COMBO_DPI, &CDlg_Camera::OnCbnSelchange_Camera_ComboDpi)
 END_MESSAGE_MAP()
 
 void CDlg_Camera::MapDocSize()
@@ -130,6 +132,8 @@ BOOL CDlg_Camera::OnInitDialog()
 	// TODO:  在此添加额外的初始化
 	ReadCameraSettingFromINI();
 	AdjustWindow();
+	InitControls();
+ 	//UpdateControls(); 
 	//MessageBox("after ReadCameraSettingFromINI");
 
 	// Mysher Camera License
@@ -145,16 +149,27 @@ BOOL CDlg_Camera::OnInitDialog()
 	//}
 
 	// 初始化界面选项: 图像类型、智能拍摄、自动旋转、文档增强
-	m_cbImageType.InsertString(0, "彩色");  // Set m_cbImageType
+	m_cbImageType.InsertString(0, "黑白");  // Set m_cbImageType
 	m_cbImageType.InsertString(1, "灰度");
+	m_cbImageType.InsertString(2, "彩色");
 	//m_cbImageType.AddString("自动");
-	if (m_ini.CamImageType == 1) { // 灰度
-		m_Capture.m_Auto.imageType = 1;
-	}
-	else {//if (m_pMainWnd->m_ini.CamImageType == 0)  // 彩色
-		m_Capture.m_Auto.imageType = 0;
-	}
+	//if (m_ini.CamImageType == 1) { // 灰度
+	//	m_Capture.m_Auto.imageType = 1;
+	//}
+	//else {//if (m_pMainWnd->m_ini.CamImageType == 0)  // 彩色
+	//	m_Capture.m_Auto.imageType = 0;
+	//}
+	m_Capture.m_Auto.imageType = m_ini.CamImageType;
 	m_cbImageType.SetCurSel(m_Capture.m_Auto.imageType);
+
+	if ( 0 == m_Capture.m_Auto.imageType ) // B&W
+	{
+		((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->EnableWindow(TRUE);
+	}
+	else
+	{
+		((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->EnableWindow(FALSE);
+	}
 
 	m_Capture.m_Auto.autoClip = m_ini.CamAutoClip;
 	if (m_Capture.m_Auto.autoClip == true)  // Set m_cAutoClip: 智能裁剪-旋转拍摄
@@ -187,10 +202,20 @@ BOOL CDlg_Camera::OnInitDialog()
 	m_cbDocList.SetCurSel(m_Capture.m_Auto.docSize);
 	MapDocSize();
 
-	// 初始化参数：摄像机、像素、预览方向
+	// 初始化参数：摄像机、像素、预览方向、DPI
 	m_Capture.m_Auto.strCamrea = m_ini.Camera;  // 默认摄像机
 	m_Capture.m_Auto.strSize = m_ini.CamFrameSize;  // 默认像素
 	m_Capture.m_Auto.imageOrientation = m_ini.CamOrientation;  // 默认预览方向
+	m_Capture.m_Auto.threshold = m_ini.threshold;  // 默认阈值
+	((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetPos(m_Capture.m_Auto.threshold);
+
+	//m_Capture.m_Auto.XDPI = m_ini.XDPI;  // 默认XDPI
+	//m_Capture.m_Auto.YDPI = m_ini.YDPI;  // 默认XDPI
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->SetCurSel(m_ini.DpiNumber);
+	CString strCBText;
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->GetLBText(m_ini.DpiNumber, strCBText);  // 获取序号对应字符串
+	int nval = _ttoi(strCBText);  // CString 转 int
+	m_Capture.m_Auto.XDPI = m_Capture.m_Auto.YDPI = (long)nval;
 	//m_Capture.m_Auto.fastPreview = m_ini.CamFastPreview;
 	// 初始化参数：条码类型、条码格式、图像文件路径、压缩比
 	//m_Capture.m_strBarcodeType = m_ini.BarcodeType;
@@ -241,6 +266,8 @@ BOOL CDlg_Camera::OnInitDialog()
 	CString msg;
 	msg.Format("已拍摄 %d张", m_Capture.m_nPhotoNo);
 	m_sPhotoNo.SetWindowText(msg);
+
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -365,6 +392,14 @@ void CDlg_Camera::OnCbnSelchangeCombo_Imagetype()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_Capture.m_Auto.imageType = m_cbImageType.GetCurSel();
+	if ( 0 == m_Capture.m_Auto.imageType ) // B&W
+	{
+		 ((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->EnableWindow(TRUE);
+	}
+	else
+	{
+		((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->EnableWindow(FALSE);
+	}
 }
 
 
@@ -507,23 +542,49 @@ void CDlg_Camera::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 void CDlg_Camera::SetCapValue(void)
 {
 	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, (float)m_Capture.m_nPhotoNo);  // 设置待传图片数量
-	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].XResolution);
-	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, g_vecCust_ImageInfo[m_Capture.m_nPhotoNo].YResolution);
+	m_pUI->SetCapValueInt(ICAP_PIXELTYPE, (int)m_Capture.m_Auto.imageType);  // 设置图片类型
 
-	int pixeltype;
-	switch(m_Capture.m_Auto.imageType)  
-	{
-	case 1: // 灰度
-		pixeltype = TWPT_GRAY;
-		break;
-	case 0: // 彩色
-		pixeltype = TWPT_RGB;
-		break;
-	default:
-		break;
-	}
-		
-	m_pUI->SetCapValueInt(ICAP_PIXELTYPE, pixeltype);  // 设置图片类型
+	//int pixeltype;
+	//switch(m_Capture.m_Auto.imageType)  
+	//{
+	//case 1: // 灰度
+	//	pixeltype = TWPT_GRAY;
+	//	break;
+	//case 0: // 彩色
+	//	pixeltype = TWPT_RGB;
+	//	break;
+	//default:
+	//	break;
+	//}
+	//m_pUI->SetCapValueInt(ICAP_PIXELTYPE, pixeltype);  // 设置图片类型
+	
+	//MAP_CAP::iterator iter; 
+	//for(iter = m_mapCap.begin(); iter != m_mapCap.end(); iter++)
+	//{
+	//	switch(iter->first)
+	//	{
+	//	//case ICAP_CONTRAST:
+	//	//case ICAP_BRIGHTNESS:
+	//	case ICAP_THRESHOLD:
+	//		{
+	//			m_pUI->SetCapValueFloat(iter->first,iter->second);  // 设置阈值为当前滚动条值
+	//			break;
+	//		}
+	//	//case ICAP_PIXELTYPE:
+	//	case ICAP_XRESOLUTION:
+	//	case ICAP_YRESOLUTION:
+	//	//case CAP_FEEDERENABLED:
+	//	//case UDSCAP_MULTIFEEDDETECT:
+	//		{
+	//			m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
+	//			break;
+	//		}	
+	//	default:
+	//		{
+	//			break;
+	//		}	
+	//	}
+	//}
 }
 
 
@@ -539,12 +600,14 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	tempINI.CamExposure    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMEXPOSURE,    0,szINIPath);
 	tempINI.CamBrightness  = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMBRIGHTNESS,  0,szINIPath);
 	tempINI.CamImageType   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMIMAGETYPE,   0,szINIPath);
-	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCSIZE,     1,szINIPath);  // 默认A4
+	tempINI.CamDocSize     = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCSIZE,     1,szINIPath);  // 默认文档大小 = A4
 	tempINI.CamDocWidth    = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCWIDTH,    0,szINIPath);
 	tempINI.CamDocHeight   = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMDOCHEIGHT,   0,szINIPath);
 	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMORIENTATION, 0,szINIPath);
-	tempINI.JpegQuality    = (BYTE)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_JPEGQUALITY,   75,szINIPath);  // 默认75
-
+	tempINI.JpegQuality    = (BYTE)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_JPEGQUALITY,   75,szINIPath);  // 默认JPEG图片质量 = 75
+	tempINI.threshold      = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_THRESHOLD,    128,szINIPath);  // 默认阈值 = 128
+	tempINI.DpiNumber      = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPINUMBER,    3,szINIPath);  // 默认图像DPI = 200(3)
+	//tempINI.YDPI           = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_YDPI,         200,szINIPath);  // 默认图像YDPI = 200
 
   CString strTemp;
 	int nMaxLength = 512;
@@ -630,6 +693,15 @@ void CDlg_Camera::WriteCameraSettingToINI()
 
 	strTemp.Format("%ld",m_Capture.m_Auto.imageOrientation);
 	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMORIENTATION,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_Capture.m_Auto.threshold);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_THRESHOLD,strTemp,szINIPath);
+
+	strTemp.Format("%ld",m_ini.DpiNumber);
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_DPINUMBER,strTemp,szINIPath);
+
+	//strTemp.Format("%ld",m_ini.DpiNumber);
+	//WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_YDPI,strTemp,szINIPath);
 
 	//bool->CString
 	if (m_Capture.m_Auto.autoClip) {
@@ -905,6 +977,11 @@ void CDlg_Camera::LoadThumbNail()
 		if(nImageType == CXIMAGE_FORMAT_UNKNOWN)
 			continue;
 		CxImage image(path,nImageType);//把图像加载到image中
+
+		if (CXIMAGE_FORMAT_TIF == nImageType)
+		{
+			image.Negative();  // 黑白图像需要黑白反转
+		}
 		//::MessageBox(NULL,TEXT(*iter),"*iter",MB_OK);
 		//::MessageBox(NULL,TEXT(path),"LoadThumbNail",MB_OK);
 		//image.Save("C:\\11.jpg",CXIMAGE_FORMAT_JPG);
@@ -913,6 +990,7 @@ void CDlg_Camera::LoadThumbNail()
 		//image.Rotate180();  // CxIamge倒序存储图片数据
 		if(image.IsValid()==false)
 			continue;
+
 		//计算矩形rect适应画板
 		const float fImgRatio=(float)image.GetHeight()/image.GetWidth();
 		if(fImgRatio>fRatio)
@@ -1263,6 +1341,110 @@ void CDlg_Camera::AdjustWindow()
 	CenterWindow();  // 窗口居中
 }
 
+//void CDlg_Camera::UpdateControls(void)
+//{
+//	//float fMin,fMax,fStep;
+//	//int nCapValue,nCapIndex;
+//	//const FloatVector* lstCapValuesFlt;
+//	//// 获取并设置阈值范围
+//	//m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+//	//((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetRange((int)fMin, (int)fMax);
+//	//((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetTicFreq((int)fStep);
+//
+//	//// 更新滑块位置
+//	//nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
+//	//((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetPos(nCapValue);
+//	////m_Capture.m_Auto.threshold = nCapValue;
+//
+//	//// DPI
+//	////m_pUI->SetCapValueFloat(ICAP_XRESOLUTION,0);
+//	//((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->ResetContent();
+//	//nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
+//	//lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
+//
+//	//for(unsigned int i=0; i<lstCapValuesFlt->size();i++)
+//	//{
+//	//	CString strTemp;
+//	//	strTemp.Format("%d",(int)lstCapValuesFlt->at(i));
+//	//	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(i,strTemp);
+//	//}
+//	//((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->SetCurSel(nCapIndex);
+//	////OnCbnSelchange_Camera_ComboDpi();
+//
+//	//UpdateData(FALSE);  // 更新控件
+//}
 
 
 
+
+
+
+void CDlg_Camera::OnNMCustomdrawCamera_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //接收数据
+	int sldValue = ((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->GetPos(); //获取滑块的当前位置
+	
+	m_Capture.m_Auto.threshold = sldValue;
+	//m_mapCap[ICAP_THRESHOLD] = (float)sldValue;
+	//CString str;
+	//m_edit_threshold.SetWindowText(str); //在编辑框同步显示滚动条值
+	//SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, str);
+	//UpdateControls();
+
+	*pResult = 0;
+}
+
+
+void CDlg_Camera::OnCbnSelchange_Camera_ComboDpi()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex =  ((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->GetCurSel();
+	CString strCBText; 
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->GetLBText(nIndex, strCBText);
+	int nval = _ttoi(strCBText);  // CString 转 int
+	m_Capture.m_Auto.XDPI = (long)nval;
+	m_Capture.m_Auto.YDPI = (long)nval;
+	m_ini.DpiNumber = nIndex;
+
+	//m_mapCap[ICAP_XRESOLUTION] = (float)nval;
+	//m_mapCap[ICAP_YRESOLUTION] = (float)nval;
+	//UpdateControls();
+}
+
+void CDlg_Camera::InitControls(void)
+{
+	// 设置阈值
+	const int threshold_min = 0;
+	const int threshold_max = 255;
+	const int step = 1;
+	((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetRange(threshold_min, threshold_max);
+	((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetTicFreq(step);
+	((CSliderCtrl*)GetDlgItem(IDC_CAMERA_SLIDER_THRESHOLD))->SetPos(128); // 默认阈值 = 128
+
+
+	// DPI
+	//TCHAR* szDPI[8] = {
+	//	TEXT("50"),  TEXT("100"), TEXT("150"), TEXT("200"), 
+	//	TEXT("300"), TEXT("400"), TEXT("500"), TEXT("600") };
+
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->ResetContent();
+	//for (unsigned int i = 0; i < sizeof(szDPI); i++ )
+	//{
+	//	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(i, szDPI[i]);
+	//}
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(0, TEXT("50"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(1, TEXT("100"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(2, TEXT("150"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(3, TEXT("200"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(4, TEXT("300"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(5, TEXT("400"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(6, TEXT("500"));
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->InsertString(7, TEXT("600"));
+
+
+	((CComboBox*)GetDlgItem(IDC_CAMERA_COMBO_DPI))->SetCurSel(3); // 默认DPI = 200
+
+	UpdateData(FALSE);
+}

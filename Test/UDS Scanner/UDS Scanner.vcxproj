@@ -141,7 +141,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\t
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo_back.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_RemovePunch.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
