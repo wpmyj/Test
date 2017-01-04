@@ -17,7 +17,7 @@ struct INI_CAMERA
 {
 	CString Camera;              /**< 默认摄像头名称 */
 	CString CamFrameSize;        /**< 图像帧尺寸 */
-	CString CamTempPath;         /**< 图像存储路径 */
+	CString SaveAsPath;         /**< 图像存储路径 */
 	long CamExposure;            /**< 曝光度 */
 	long CamBrightness;          /**< 亮度 */
 	long CamImageType;           /**< 图像类型.  0:彩色, 1:灰度*/
@@ -34,6 +34,7 @@ struct INI_CAMERA
 	bool CamAutoRotate;          /**< 是否自动顺时针转90度. N:否, Y:是 */
 	bool UploadFileOnebyOne;     /**< 是否拍摄一张传一张. N:否, Y:是*/
 	bool ShowThumbnail;          /**< 是否显示缩略图. N:否, Y:是 */
+	bool SaveAs;                 /**< 是否另存图片 */
 };
 
 class CDlg_Camera : public CDialogEx
@@ -178,8 +179,13 @@ protected:
 	*/
 	void InitControls(void);  
 
-
-	
+	/**
+	*  @brief  获取临时保存图片的文件夹路径
+	*  @param[out]  pszPath 图片路径
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool GetTempSavePath(TCHAR* pszPath);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnButton_Photo();

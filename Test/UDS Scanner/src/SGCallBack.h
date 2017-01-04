@@ -47,6 +47,13 @@ public:
 	long DynamicThreshold(BYTE * pBuffer, long Width, long Height, long WidthBytes);
 	void AutoBalance(long *P);
 	void ReleaseBuffer();
+
+	/**
+	*  @brief  命名文件
+	*  @param[in]  szExtName 文件扩展名 
+	*  @return 文件名
+	*/
+	CString NameFile(const TCHAR* szExtName);
 };
 
 /////////////////////////////////////////////////////////////////////////////

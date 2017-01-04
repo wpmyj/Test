@@ -91,12 +91,13 @@ public:
 	bool m_bCaptureBackground;                                      /**< ÊÇ·ñ²¶»ñ±³¾° */
 	bool m_bIsAutoClipping;                                         /**< ÊÇ·ñÖÇÄÜ×¥ÅÄ */
 	bool m_bIsBackground;
+	bool m_bSaveAs;                                                 /**< ÊÇ·ñÁí´æÍ¼Æ¬ */
 	AUTOPARAMETER m_Auto;
 	CString m_strMinSize, m_strMaxSize;
 	CString m_strBarcodeType, m_strBarcodeFormat;
 	long m_nBarcodeLength;
 	bool m_bMultiBarcode, m_bBarcodeRotate;
-	CString m_strImagePath, m_strBarcode;
+	CString m_strImagePath, m_strBarcode, m_strTempPath;
 	long m_nQuality, m_nPhotoNo;
 	
 	//ÊÓÆÁÉèÖÃ

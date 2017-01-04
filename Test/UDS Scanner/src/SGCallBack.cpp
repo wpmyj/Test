@@ -1097,7 +1097,7 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 
 	if (0 == m_pCapture->m_Auto.imageType)  //  B&W
 	{	
-		pImage->Negative();
+		//pImage->Negative();
 	  pImage->DecreaseBpp(1,false);			
 		//pImage->Dither(3);
 	}
@@ -1184,23 +1184,49 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//	pImage->DrawStringEx(0, pImage->GetWidth()/2, pImage->GetHeight()/3*2, &TxtInfo);
 	//}
 
+	
+
 	bool retval = false;
-	CString fileName;
+	CString strFileName;
 	if (pImage->GetBpp() == 1)  // 黑白图像: TIFF
 	{
-		fileName.Format("%s~Un%d.tif", m_pCapture->m_strImagePath, m_nTempFileCount);
+		if ( true == m_pCapture->m_bSaveAs )
+		{
+			// 存放用户指定文件夹
+			strFileName = m_pCapture->m_strImagePath;
+			CString strTemp = NameFile("tif");
+		  strFileName.Format("%s%s",strFileName,strTemp);
+			pImage->SetCodecOption(3, CXIMAGE_FORMAT_TIF);  // G4 compression
+			retval = pImage->Save(strFileName, CXIMAGE_FORMAT_TIF);
+		}
+
+		// 存放临时文件夹 C:\Users\[用户名]\AppData\Local\Temp
+		pImage->Negative();
+		strFileName.Format("%s~Un%d.tif", m_pCapture->m_strTempPath, m_nTempFileCount);
 		pImage->SetCodecOption(3, CXIMAGE_FORMAT_TIF);  // G4 compression
-		retval = pImage->Save(fileName, CXIMAGE_FORMAT_TIF);
+		retval = pImage->Save(strFileName, CXIMAGE_FORMAT_TIF);
 
 	}
 	else
 	{
-		fileName.Format("%s~Un%d.jpg", m_pCapture->m_strImagePath, m_nTempFileCount);
-		pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
-		retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
-	}
+		if ( true == m_pCapture->m_bSaveAs )
+		{
+			// 存放用户指定文件夹
+			strFileName = m_pCapture->m_strImagePath;
+			CString strTemp = NameFile("jpg");
+			strFileName.Format("%s%s",strFileName,strTemp);
+			//strFileName.Format("%s~Un%d.jpg", m_pCapture->m_strImagePath, m_nTempFileCount);
+			pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
+			retval = pImage->Save(strFileName, CXIMAGE_FORMAT_JPG);
+		}
 
-	g_vector_imagepath.push_back(fileName.GetBuffer());  // 存储原图路径
+		// 存放临时文件夹 C:\Users\[用户名]\AppData\Local\Temp
+		strFileName.Format("%s~Un%d.jpg", m_pCapture->m_strTempPath, m_nTempFileCount);
+		pImage->SetJpegQuality((BYTE)m_pCapture->m_nQuality);  // JPEG compression
+		retval = pImage->Save(strFileName, CXIMAGE_FORMAT_JPG);
+	}
+	
+	g_vector_imagepath.push_back(strFileName.GetBuffer());  // 存储原图路径
 
 	//if ( retval )  // Save file success: Generate Thumbnail JPG
   //{
@@ -1208,21 +1234,21 @@ BOOL CSGCallBack::SaveImage( BYTE * pBuffer, long lBufferSize )
 	//	pImage->Resample(150, (int)(150*h_w), 1, NULL);
 	//	if ( p//age->GetBpp() < 24 )  // 缩略图全转为24位彩色图，并存为JPG文件
 	////pImage->IncreaseBpp(24);
-	//	fileName.Replace("~Un", "~Un//");
+	//	strFileName.Replace("~Un", "~Un//");
 	//	pImage->SetJpegQuali//((BYTE)m_pCapture->m_nQuality);  // c//pression
-	//	retval = pImage->Save(fileName, CXIMAGE_FORMAT_JPG);
+	//	retval = pImage->Save(strFileName, CXIMAGE_FORMAT_JPG);
 	//	f//eName.Replace("~UnTh", "~Un");
 	//}
 
-	//g_vector_thumb.push_back(fileName.GetBuffer());  ///存储缩略图路径
+	//g_vector_thumb.push_back(strFileName.GetBuffer());  ///存储缩略图路径
 
 	delete pImage;
-	CFile hf(fileName, CFile::modeRead); 
+	CFile hf(strFileName, CFile::modeRead); 
 	hf.Close();  // Flush file
 
 
 	// 添加到临时文件列表
-	//theApp.m_tempFileList.Add(fileName);  // Add image to file list
+	//theApp.m_tempFileList.Add(strFileName);  // Add image to file list
 	//theApp.m_tempBarcodeList.Add(strBarcode);  // Add barcode to file list
 	//theApp.m_nTempFileCount += 1;  // 临时文件名编号
 	//m_pCapture->m_strBarcode = strBarcode;  // Save strBarcode for showing in dialog
@@ -1462,4 +1488,47 @@ BYTE CSGCallBack::Median(BYTE *v, long pNo)
 		if (g >= pNo/2)  return (BYTE)x;
 	}
 	return max;
+}
+
+CString CSGCallBack::NameFile(const TCHAR* szExtName)
+{
+	static int nCount = 0;
+	static bool bRunned = false;
+
+	CTime time;
+	CString strTime;
+	CString strFileName;
+
+	time=CTime::GetCurrentTime();
+	strTime = time.Format("%Y%m%d_%H%M%S");
+	strFileName = strTime;
+
+	static int nPreSecond,nCurSecond;
+
+	if (false == bRunned)
+	{
+		nCurSecond = time.GetSecond();
+		nPreSecond = nCurSecond -1 ;
+	}
+	else
+	{
+		nCurSecond = time.GetSecond();
+	}
+
+	if (nCurSecond != nPreSecond)
+	{
+		strFileName = strTime;
+		nCount = 0;
+	} 
+	else
+	{
+		strFileName.Format("%s_%d",strTime,++nCount);
+	}
+
+	nPreSecond = nCurSecond;
+	bRunned = true;
+
+	strFileName += ".";
+	strFileName += szExtName;
+	return strFileName;
 }

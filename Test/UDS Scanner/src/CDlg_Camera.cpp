@@ -32,7 +32,7 @@ CDlg_Camera::~CDlg_Camera()
 {
 	//::MessageBox(NULL,TEXT("~CDlg_Camera()"),MB_CAPTION,MB_OK);
 	//m_Capture.StopCamera();
-	ClearAndDeleteDir(m_Capture.m_strImagePath);
+	ClearAndDeleteDir(m_Capture.m_strTempPath); // 清空临时文件夹
 	g_vector_imagepath.swap(std::vector<std::string>());  // 清除容器并最小化它的容量
 	//g_vecCust_ImageInfo.swap( vector<CUST_IMAGEINFO>() );  // 清除容器并最小化它的容量
 
@@ -224,20 +224,26 @@ BOOL CDlg_Camera::OnInitDialog()
 	//m_Capture.m_bMultiBarcode = m_pMainWnd->m_ini.MultiBarcode;
 	//m_Capture.m_bBarcodeRotate = m_pMainWnd->m_ini.BarcodeRotate;
 	
-	//if (!PathIsDirectory(m_ini.CamTempPath)) // 判断输入路径是否合理
-	//{	
-	//	::MessageBox(NULL,TEXT("Path is not dir"),MB_CAPTION,MB_OK);
-	//	
-	//}
+	// 保存另存图片的文件夹路径
+	if ( true == m_ini.SaveAs )
+	{
+		m_Capture.m_bSaveAs = m_ini.SaveAs;
+		if ('\\' != m_ini.SaveAsPath.Right(1) )
+		{
+			m_ini.SaveAsPath.Format("%s%s", m_ini.SaveAsPath, "\\");
+		}
+		CreateDir(m_ini.SaveAsPath);
+		m_Capture.m_strImagePath = m_ini.SaveAsPath;
+	}
 
-	CreateDir(m_ini.CamTempPath);
-	m_Capture.m_strImagePath = m_ini.CamTempPath;
-	//::MessageBox(NULL,TEXT(m_Capture.m_strImagePath),MB_CAPTION,MB_OK);
-
-	//if (m_pMainWnd->m_ini.SaveHighQu.m_nQuality = 80;) // Set Hight Quality
-	//else
-		m_Capture.m_nQuality = m_ini.JpegQuality;  // Set m_nQuality
-
+	// 保存临时保存图片的文件夹路径
+	{
+		TCHAR szPath[MAX_PATH];
+		GetTempSavePath(szPath);
+		m_Capture.m_strTempPath = szPath;
+	}
+	
+	m_Capture.m_nQuality = m_ini.JpegQuality;  // Set m_nQuality
 	m_Capture.m_nExposure = m_ini.CamExposure;  // Set m_nExposure
 	m_Capture.m_nBrightness =m_ini.CamBrightness;  // Set m_nBrightness
 
@@ -620,7 +626,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	tempINI.CamFrameSize = strTemp;
 
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMTEMPPATH,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
-	tempINI.CamTempPath = strTemp;
+	tempINI.SaveAsPath = strTemp;
 
 	//bool
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMAUTOCLIP,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
@@ -662,6 +668,15 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	else {
 		tempINI.ShowThumbnail = false;
 	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_SAVEAS,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.SaveAs = true;
+	} 
+	else {
+		tempINI.SaveAs = false;
+	}
+
 
 	strTemp.ReleaseBuffer(nMaxLength);
 	m_ini = tempINI;
@@ -1448,3 +1463,26 @@ void CDlg_Camera::InitControls(void)
 
 	UpdateData(FALSE);
 }
+
+
+bool CDlg_Camera::GetTempSavePath(TCHAR* pszPath)
+{
+	TCHAR szTempPath[MAX_PATH];
+	memset(szTempPath, 0, MAX_PATH);
+	GetTempPath(MAX_PATH, szTempPath);
+
+	SSTRCAT(szTempPath, MAX_PATH, MB_CAPTION);
+	SSTRCAT(szTempPath, MAX_PATH, TEXT("\\"));
+
+	if (false == CreateDir(szTempPath))
+	{
+		MessageBox(TEXT("创建临时文件夹失败！"));
+		return false;
+	}
+
+	SSTRCPY(pszPath, MAX_PATH, szTempPath);
+	return true;
+}
+
+
+

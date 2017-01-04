@@ -54,7 +54,9 @@ CUDSCapture::CUDSCapture()
 	m_nBarcodeLength = 0;
 	m_bMultiBarcode = false;  
 	m_bBarcodeRotate = false;
+	m_bSaveAs = false;
 	m_strImagePath.Empty(); 
+	m_strTempPath.Empty();
 	m_strBarcode.Empty();
 	m_nQuality = 40; 
 	m_nPhotoNo = 0;
