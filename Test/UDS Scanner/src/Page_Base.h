@@ -49,6 +49,8 @@ private:
 
 	void BaseColorMode(void); ///<获取base界面图像模式
 
+	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
+
 	/** 
 	//* @brief 浏览并选择单个图片文件
 	//* @param[out] strFilePath 图片绝对路径

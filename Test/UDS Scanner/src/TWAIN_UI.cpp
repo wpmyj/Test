@@ -196,7 +196,8 @@ void CTWAIN_UI::Scan()
   }
 	else
 	{
-		::MessageBox(g_hwndDLG,TEXT("该图为空白页,已滤除！"),MB_CAPTION,MB_OK);
+		//::MessageBox(g_hwndDLG,TEXT("该图为空白页,已滤除！"),MB_CAPTION,MB_OK);
+		Cancel();
 	}
 }
 

@@ -192,7 +192,6 @@ void CPage_Advanced::SetCapValue(void)
 		case UDSCAP_BACKBW: //黑白背面
 			{
 				if(((CButton*)GetDlgItem(IDC_CHECK_MULTISTREAM))->GetCheck())
-				//if(m_check_multistream.GetCheck()) //多流输出选中时
 				{
 					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				}
@@ -208,10 +207,12 @@ void CPage_Advanced::SetCapValue(void)
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
 				if((int)(iter->second) != TWSI_NONE)
 				{
+					//::MessageBox(NULL,TEXT("2张"),MB_CAPTION,MB_OK);
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
 				}
 				else
 				{
+					//::MessageBox(NULL,TEXT("1张"),MB_CAPTION,MB_OK);
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
 				}
 				break;
@@ -916,9 +917,6 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	else if (strCBText.Find("照片64") >= 0)
 	{
 		nval = TWSS_PHOT64;
-		//frame.Right = 6000;//宽
-		//frame.Bottom = 4000; //高
-		//m_advancedmap[ICAP_FRAMES] = FIX32ToFloat(frame.Right); //只传宽
 	}
 	else if (strCBText.Find("照片53") >= 0)
 	{

@@ -214,6 +214,10 @@ bool CScanner_OpenCV::acquireImage()
 		return false;
 	}
 
+	char buf[10];
+	itoa(m_nDocCount, buf, 10);
+	::MessageBox(NULL,TEXT(buf),"ICAP_GAMMA",MB_OK);
+
 	//Document scanned, remove it from simulated intray
 	m_nDocCount--;
 
@@ -239,11 +243,43 @@ int CScanner_OpenCV::BitCount(BYTE n)
 	return c;
 }
 
+void CScanner_OpenCV::Mat2uchar(Mat src_img, uchar *dataout)
+{ 
+	int widthStep = (src_img.cols * src_img.elemSize()+3)/4*4; // 补齐行字节数，使它能够被4整除  
+	uchar *frameData = (uchar *)calloc(src_img.rows*widthStep, sizeof(uchar)); // 申请内存  
+	memset(frameData, 0, src_img.rows*widthStep);  
+
+	int channel = src_img.channels(); 
+	// 逐一复制数据  
+	uchar *p;  
+	for (int i = 0; i < src_img.rows; i++)  
+	{  
+		p = src_img.data + i * src_img.cols * src_img.channels();  
+		dataout =  frameData + i * widthStep;  
+		for (int j = 0; j < src_img.cols; j++)  
+		{  
+			if(1 == channel)
+			{
+				*(dataout) = *(p);
+				p += 3;  
+				dataout += 3;  
+			}
+			else if(3 == channel)
+			{
+				*(dataout) = *(p);  
+				*(dataout+1) = *(p+1);  
+				*(dataout+2) = *(p+2);        
+				p += 3;  
+				dataout += 3;  
+			}		
+		}  
+	}  
+}
 
 bool CScanner_OpenCV::preScanPrep()
 {
 	//此时进入的m_mat_image均为彩色
-	IplImage img= IplImage(m_mat_image);  // Mat->IplImage
+	IplImage img = IplImage(m_mat_image);  // Mat->IplImage
 
 	// 获取影像的宽高，都以像素为单位 
 	m_nSourceWidth   = img.width; //1100
@@ -408,6 +444,7 @@ bool CScanner_OpenCV::preScanPrep()
 		SpiltImage(m_mat_image,1,2);
 	}
 
+	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
 	//锐化图像
 	if(m_bSharpen == TWSP_AUTO) 
@@ -422,6 +459,7 @@ bool CScanner_OpenCV::preScanPrep()
 		}	
 	}
 
+	//锐化
 	//去除背景
 	if(m_bRemoveBack == TWRB_AUTO) 
 	{
@@ -472,27 +510,21 @@ bool CScanner_OpenCV::preScanPrep()
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
 	}
 
-	//去除空白页
-	bool status = false; //默认不是空白页
-	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
+	//m_nSourceWidth = m_mat_image.cols; 
+	//m_nSourceHeight = m_mat_image.rows;
+	//m_nWidth  = m_nSourceWidth;//框架宽
+	//m_nHeight = m_nSourceHeight;
+	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
-		Mat matRemoveBlank;
-		m_mat_image.copyTo(matRemoveBlank);
-		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+		m_nWidth  = m_nSourceWidth = m_mat_image.cols;
+		m_nHeight = m_nSourceHeight = m_mat_image.rows;
 	}
-	if(status) //若为真，表示是空白页
+	else
 	{
-		return false;
+		m_nSourceWidth  = m_mat_image.cols;
+		m_nSourceHeight = m_mat_image.rows;
 	}
 
-
-	IplImage imgTemp= IplImage(m_mat_image);  // Mat->IplImage 直接改变框架长、宽
-	m_nSourceWidth = imgTemp.width; 
-	m_nSourceHeight = imgTemp.height;
-
-	m_nWidth  = m_nSourceWidth;//框架宽
-	m_nHeight = m_nSourceHeight;
-	
 	/*
 	char buf[10];
 	itoa(m_nWidth, buf, 10);
@@ -501,11 +533,42 @@ bool CScanner_OpenCV::preScanPrep()
 	::MessageBox(g_hwndDLG,TEXT(buf),"height",MB_OK); //2200
 	*/
 
+	switch(m_nPixelType)
+	{
+		case TWPT_BW:
+			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
+			break;
+
+		case TWPT_GRAY:
+			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
+			break;
+
+		case TWPT_RGB:
+			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
+			break;
+	}
 	// setup some convenience vars because they are used during 
 	// every strip request
-	m_nScanLine       = 0;
+	m_nScanLine = 0;
 
-	return true;
+
+	//去除空白页
+	bool status = false; //默认不是空白页
+	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
+	{
+		Mat matRemoveBlank;
+		m_mat_image.copyTo(matRemoveBlank);
+		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+	}
+
+	if(status) //若为真，表示是空白页
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 
@@ -521,11 +584,15 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 	if(m_nPixelType == TWPT_RGB)
 	{
 		cvtColor(dst_img, dst_img, CV_BGR2GRAY);
-		threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+		//threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+		//cvThreshold(&dst_img, &dst_img, 0, 255, CV_THRESH_OTSU); //OTSU算法二值化
+		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); 	
 	}
 	else if(m_nPixelType == TWPT_GRAY)
 	{
-		threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+		//threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+		//cvThreshold(&dst_img, &dst_img, 0, 255, CV_THRESH_OTSU); //OTSU算法二值化
+		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); //通过 Otsu 算法自行选择阈值，此时对于threshold的设定不在起作用
 	}
 	else{}
 
@@ -764,6 +831,7 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
 	return dst_img;
 }
 
+
 const int black = 10;
 const int white = 250;
 Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
@@ -867,6 +935,109 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	return imageSave;
 }
 
+/*
+Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
+{
+	//创建首地址并分配存储空间
+	//cvCvtColor(img_src, gray, CV_BGR2GRAY);
+	cvtColor(src_img, src_img, CV_BGR2GRAY);
+
+	IplImage* img_src = new IplImage(src_img);
+	IplImage* gray = new IplImage(src_img);
+
+	cvThreshold(gray, gray, 110, 255, CV_THRESH_BINARY);
+	
+	cvSmooth(gray, gray, CV_MEDIAN, 3, 0, 0, 0);
+
+	cvErode(gray, gray, 0, 2); //腐蚀
+	
+	cvDilate(gray, gray,0,1); //膨胀
+
+	int i;
+
+	int width  = cvGetSize(img_src).width;
+	int height = cvGetSize(img_src).height;
+	
+	//设置合适的阈值至关重要
+	//上
+	for (i = 0; i <= 5; i++)
+	{
+		for (int j = 0; j< width ; j++)
+		{
+			int channel0 = (uchar)(gray->imageData + i*gray->widthStep)[j*gray->nChannels + 0];
+			if (channel0 == 0)
+			{
+				int channel0 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 0];
+				int channel1 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 1];
+				int channel2 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 2];
+
+				if (channel0 < 100 && channel1 < 100 && channel2 < 100)
+				{
+					cvFloodFill(img_src,cvPoint(j,i),cvScalar(255,255,255),cvScalar(5,5,5,0),cvScalar(250,250,250,0),NULL, 4);
+				}
+			}
+		}
+	}
+	//左
+	for(int j=0 ; j<=5 ; j++)
+	{
+		for (int i = 0; i< height ; i++)
+		{
+			int channel0 = (uchar)(gray->imageData + i*gray->widthStep)[j*gray->nChannels + 0];
+			if (channel0 == 0)
+			{
+				int channel0 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 0];
+				int channel1 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 1];
+				int channel2 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 2];
+				if (channel0 < 100 && channel1 < 100 && channel2 < 100)
+				{
+					cvFloodFill(img_src,cvPoint(j,i),cvScalar(255,255,255),cvScalar(5,5,5,0),cvScalar(250,250,250,0),NULL, 4);
+				}
+			}
+		}
+	}
+	//下
+	for (i = height-1 ; i>=height-5 ; i--)
+	{
+		for (int j = 0; j< width ; j++)
+		{
+			int channel0 = (uchar)(gray->imageData + i*gray->widthStep)[j*gray->nChannels + 0];
+			if (channel0 == 0)
+			{
+				int channel0 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 0];
+				int channel1 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 1];
+				int channel2 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 2];
+				if (channel0 < 100 && channel1 < 100 && channel2 < 100)
+				{
+					cvFloodFill(img_src,cvPoint(j,i),cvScalar(255,255,255),cvScalar(5,5,5,0),cvScalar(250,250,250,0),NULL, 4);
+				}
+			}
+		}
+	}
+	//右
+	for(int j=width-1 ; j>=width-5 ; j--)
+	{
+		for (int i = 0; i< height ; i++)
+		{
+			int channel0 = (uchar)(gray->imageData + i*gray->widthStep)[j*gray->nChannels + 0];
+			if (channel0 == 0)
+			{
+				int channel0 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 0];
+				int channel1 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 1];
+				int channel2 = (uchar)(img_src->imageData + i*img_src->widthStep)[j*img_src->nChannels + 2];
+				if (channel0 < 100 && channel1 < 100 && channel2 < 100)
+				{
+					cvFloodFill(img_src,cvPoint(j,i),cvScalar(255,255,255),cvScalar(5,5,5,0),cvScalar(250,250,250,0),NULL, 4);
+				}
+			}
+		}
+	}
+	Mat dst_img = img_src;
+	//imwrite( "C://Users//Administrator//Desktop//2.jpg", dst_img);
+	dst_img.copyTo(m_mat_image);
+	return img_src;
+}*/
+
 //霍夫线变换
 Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
 {
@@ -909,6 +1080,48 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 Mat CScanner_OpenCV::AutoCorrect()
 {
 	Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\UDS_AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
+
+	/*
+	int width = img.cols;
+	int height = img.rows;
+
+	//if(height > m_nWidth || width > m_nHeight)
+	{
+		float xScale = (float)m_nWidth/(float)height;
+		float yScale = (float)m_nHeight/(float)width;
+		float ScaleIndex =  ((xScale >= yScale) ? yScale : xScale);//x>y时,取y(小的比例)；x<y，取x(小的比例)
+		CvSize size;
+		size.width = (int)(ScaleIndex * width); //637
+		size.height = (int)(ScaleIndex * height); //1041
+		
+		char buf[10];
+		itoa(size.width, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"size.width",MB_OK);
+		itoa(size.height, buf, 10);
+		::MessageBox(g_hwndDLG,TEXT(buf),"size.height",MB_OK);
+
+		resize(img, img, size, 0, 0, CV_INTER_LINEAR);
+		imwrite( "C://Users//Administrator//Desktop//重新调整大小.jpg", img);
+	}*/
+	/*
+	m_picture_original.GetClientRect(&rect); //获得pictrue控件所在的矩形区域 rect 0,587,0,854
+	hdc = m_picture_original.GetDC();//获得pictrue控件的*pDc
+
+	if(width <= rect.Width() && height <= rect.Height()) //小图片，不缩放
+	{
+		hBitmap_original = pOriginalImage[m_nSelectedItem]->MakeBitmap(hdc->m_hDC);//Creates a device-dependent bitmap (DDB) from the image (DIB). 
+	}
+	else
+	{   
+		float xScale=(float)rect.Width()/(float)width;//0.502353
+		float yScale=(float)rect.Height()/(float)height;//0.266818
+		ScaleIndex = ((xScale >= yScale) ? yScale : xScale);//x>y时,取y(小的比例)；x<y，取x(小的比例)
+
+		pOriginalImage[m_nSelectedItem]->Resample((int)(ScaleIndex * width), (int)(ScaleIndex * height), 1, NULL);//能显示,但没有显示完， ? xScale : yScale)修改为 ? yScale : xScale)后，正确	
+		hBitmap_original = pOriginalImage[m_nSelectedItem]->MakeBitmap(hdc->m_hDC);//Creates a device-dependent bitmap (DDB) from the image (DIB). 
+	}
+	*/
+
 	Point center(img.cols/2, img.rows/2);
 
 #ifdef DEGREE
@@ -985,7 +1198,6 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//习惯上会把图像做四等份，互相对调，使低频部分位于图像中心，也就是让频域原点位于中心。
 	magnitudeMat = magnitudeMat(Rect(0, 0, magnitudeMat.cols & -2, magnitudeMat.rows & -2));
 
-
 	//Normalize the magnitude to [0,1], then to[0,255]
 	//虽然用log()缩小了数据范围，但仍然不能保证数值都落在[0,255]之内，
 	//所以要先用normalize()规范化到[0,1]内，再用convertTo()把小数映射到[0,255]内的整数。
@@ -1033,7 +1245,6 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//Find lines with Hough Transformation
 	//这一部分用HoughLines()检测图像中可能存在的直线，
 	//并把直线参数保存在向量组lines中，然后绘制出找到的直线。
-
 	//两个参数GRAY_THRESH和HOUGH_VOTE需要手动指定，不同的图像需要设置不同的参数，
 	//同一段文本旋转不同的角度也需要不同的参数。GRAY_THRESH越大，二值化的阈值就越高；
 	//HOUGH_VOTE越大，霍夫检测的投票数就越高（需要更多的共线点来确定一条直线）。
@@ -1088,7 +1299,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//在OpenCV中，逆时针旋转，角度为正。要把图像转回去，这个角度就变成了(倾斜角-180)。
 	//角度转换
 	float angleT = nRows * tan(theta / 180 * CV_PI)/nCols;
-	theta=atan(angleT) * 180/CV_PI;
+	theta = atan(angleT) * 180/CV_PI;
 
 	//仿射变换校正***********************
 	//取图像中心
@@ -1247,19 +1458,6 @@ int CScanner_OpenCV::FindDepth(const Mat& src_img)
 	return Outdex;
 }
 
-//bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
-//{
-//	////::MessageBox(g_hwndDLG,"getScanStrip","UDS",MB_OK);
-//	
-//
-//
-//	IplImage* pImg= new IplImage(m_mat_image);  // Mat->IplImage*
-//	BYTE* pTempBuffer = (BYTE*)pImg->imageData;   // IplImage*->BYTE*
-//
-//	memcpy(pTransferBuffer, pTempBuffer, pImg->imageSize);
-//
-//	return true;
-//}
 
 short CScanner_OpenCV::getDocumentCount() const
 {
@@ -1304,20 +1502,85 @@ bool CScanner_OpenCV::getDeviceOnline() const
 {
 	return true;
 }
-
+/*
 void CScanner_OpenCV::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
 	MatToBYTEs(m_mat_image, buffer);
+}*/
+
+
+bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
+{
+	dwReceived = 0;
+
+	if( NULL == pTransferBuffer ||    // Invalid paramiter
+		dwRead < m_nDestBytesPerRow ) // Need enough memory to transfer at least an entire row
+	{
+		return false;
+	}
+
+	BYTE    *pBits     = NULL;
+	WORD    nRow      = 0;
+	WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows行 to be transfered during this call (function of buffer size and line size)
+
+	if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )
+	{
+		//fill the buffer line by line to take care of alignment differences
+		for(nRow = 0; nRow < nMaxRows; nRow++)
+		{
+			//get the next scan line position and copy it
+			//pBits = m_mat_image.ptr<uchar>(m_nSourceHeight - m_nScanLine - 1);
+			pBits = m_mat_image.ptr<uchar>(m_nScanLine);
+			
+			IplImage *Ipl_img = new IplImage(m_mat_image);
+			memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, Ipl_img->widthStep)); //MIN(5100,5310)
+			//memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, widthstep)); 
+
+			// Check to see if the result image width is wider than what we have.
+			// If it is wider fill it in with 0es
+			if(m_nDestBytesPerRow > Ipl_img->widthStep)
+			{
+				memset( pTransferBuffer + Ipl_img->widthStep, 0, m_nDestBytesPerRow - Ipl_img->widthStep );
+			}
+
+			//increment the destination by the aligned line size
+			pTransferBuffer += m_nDestBytesPerRow;
+
+			// increment the current scanline for next pass
+			m_nScanLine++;
+
+			//update the number of bytes written
+			dwReceived += m_nDestBytesPerRow;
+		
+			// check for finished scan
+			if( m_nScanLine >= m_nSourceHeight ||
+				m_nScanLine >= m_nHeight )
+			{
+				//we are done early
+				break;
+			}
+		}
+	}
+
+	// Check to see if the result image length is longer than we have.
+	// If it is longer fill it in with 0es
+	if(m_nHeight > m_nScanLine )
+	{
+		nMaxRows  = (WORD)((dwRead-dwReceived) / m_nDestBytesPerRow);
+		memset( pTransferBuffer, 0, m_nDestBytesPerRow * nMaxRows );
+		m_nScanLine += nMaxRows;
+		dwReceived += m_nDestBytesPerRow * nMaxRows;
+	}
+
+	return true;
 }
 
+/*
 void CScanner_OpenCV::MatToBYTEs(cv::Mat matIn, BYTE* bytesOut)
 {
 	int size = matIn.total() * matIn.elemSize();
-	/*char buf[10];
-  itoa(size, buf, 10);
-	::MessageBox(g_hwndDLG,TEXT(buf),"size",MB_OK);*/
 	std::memcpy(bytesOut, matIn.data, size * sizeof(BYTE));
-}
+}*/
 
 
 void CScanner_OpenCV::RotateImage(double angle)

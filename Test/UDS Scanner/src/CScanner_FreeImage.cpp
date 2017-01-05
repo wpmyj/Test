@@ -409,14 +409,14 @@ bool CScanner_FreeImage::preScanPrep()
     FreeImage_Unload(m_pDIB);
     m_pDIB = pDib;
   }
-
+	
   if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
     m_nWidth  = m_nSourceWidth  = FreeImage_GetWidth(m_pDIB);
     m_nHeight = m_nSourceHeight = FreeImage_GetHeight(m_pDIB);
   }
   else
-  {
+	{
     m_nSourceWidth  = FreeImage_GetWidth(m_pDIB);
     m_nSourceHeight = FreeImage_GetHeight(m_pDIB);
   }
@@ -558,12 +558,17 @@ bool CScanner_FreeImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD
       //get the next scan line position and copy it
       pBits = (BYTE*)FreeImage_GetScanLine(m_pDIB, m_nSourceHeight-m_nScanLine-1);
 
+			char buf[20];
+			itoa(m_nDestBytesPerRow,buf,10);
+			::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);
+
       memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, FreeImage_GetLine(m_pDIB)) );
 
       // Check to see if the result image width is wider than what we have.
       // If it is wider fill it in with 0es
       if(m_nDestBytesPerRow > FreeImage_GetLine(m_pDIB))
       {
+				::MessageBox(NULL,"m_nDestBytesPerRow > Ipl_img->widthStep","nImageSize",MB_OK);
         memset( pTransferBuffer+FreeImage_GetLine(m_pDIB), 0, m_nDestBytesPerRow - FreeImage_GetLine(m_pDIB) );
       }
 

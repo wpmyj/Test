@@ -161,18 +161,34 @@ protected:
 
 	/**
 	*  @brief  获取图片数据.
-	*  @note 仅供扫描仪G6400使用
+	*  @note 仅供扫描仪opencv使用
 	*  @param[out] buffer 保存图片数据buffer.
 	*  @param[out] dwReceived 传输的实际大小（以字节为单位）
 	*/
-	void GetImageData(BYTE *buffer, DWORD &dwReceived);
+	//void GetImageData(BYTE *buffer, DWORD &dwReceived);
 
 	/**
 	*  @brief  Mat类型转BYTE*
 	*  @param[in]  matIn 待转换的Mat型变量
 	*  @param[out] bytesOut  转换完成的BYTE*类型变量
 	*/
-	void MatToBYTEs(cv::Mat matIn, BYTE* bytesOut);
+	//void MatToBYTEs(cv::Mat matIn, BYTE* bytesOut);
+
+	/**
+  * Get a scan line and put it into the _ImageXfer, fill values in _ImageXfer.
+  * @param[out] pTransferBuffer a pointer to an array of bytes to store the image data
+  * @param[in]  dwRead the number of bytes to read from scanner
+  * @param[out] dwReceived the actual number of bytes transfered
+  * @return true if successful
+  */
+	bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
+
+	/**
+	*  @brief  mat转换为uchar格式
+	*  @param[in]  src_img 输入，mat格式的图像数据
+	*  @param[out]  dataout 输出 uchar数据
+	*/
+	void Mat2uchar(Mat src_img, uchar *dataout);
 
 	/**
 	*  @brief  逆时针旋转图像（原尺寸）

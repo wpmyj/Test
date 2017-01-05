@@ -1388,12 +1388,12 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   _pImageInfo->ImageWidth  = settings.m_nWidth; //1700
   _pImageInfo->ImageLength = settings.m_nHeight; //2200
 
-	//char buf[10];
-	//itoa(settings.m_nWidth, buf, 10);
-	//::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
-	//char buff[10];
-	//itoa(settings.m_nHeight, buff, 10);
-	//::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);
+	/*char buf[10];
+	itoa(settings.m_nWidth, buf, 10);
+	::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
+	char buff[10];
+	itoa(settings.m_nHeight, buff, 10);
+	::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);*/
   
   // Our sample scanner only does one combination for each PixelType.
   switch(settings.m_nPixelType)
@@ -1809,6 +1809,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		switch (g_nDeviceNumber)
 		{
 		case DEVICE_CAMERA:
+		case DEVICE_OPENCV:  //CScanner_Opencv
 		case DEVICE_FREEIMAGE:  //CScanner_FreeImage
 			{				
 				do
@@ -1835,12 +1836,12 @@ TW_INT16 CTWAINDS_UDS::transfer()
 				pImageData += dwReceived;
 			}
 			break;
-		case DEVICE_OPENCV:
-			{
-				m_pScanner->GetImageData(pImageData,dwReceived);
-				//::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
-			}
-			break;
+		//case DEVICE_OPENCV:
+		//	{
+		//		m_pScanner->GetImageData(pImageData,dwReceived);
+		//		//::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
+		//	}
+		//	break;
 		default:
 			{
 				::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
@@ -2597,7 +2598,7 @@ CTWAINContainer* CTWAINDS_UDS::getICAP_BITDEPTH()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::dat_imagelayout(TW_UINT16         _MSG,
                                              pTW_IMAGELAYOUT   _pData)
-{//::MessageBox(g_hwndDLG,TEXT("dat_imagelayout"),MB_CAPTION,MB_OK);
+{//::MessageBox(g_hwndDLG,TEXT("CTWAINDS_UDS::dat_imagelayout"),MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   switch(_MSG)

@@ -270,6 +270,7 @@ TW_INT16 CTWAINDS_Base::dat_identity(pTW_IDENTITY _pOrigin,
 TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
                                        pTW_CAPABILITY _pCap)
 {
+	//::MessageBox(g_hwndDLG,TEXT("dat_capability!"),MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_FAILURE;
 
   if(MSG_RESETALL == _MSG) // special case
@@ -1182,6 +1183,7 @@ TW_INT16 CTWAINDS_Base::updatePreDependencies(CTWAINContainer* _pContainer)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_Base::updatePostDependencies(TW_UINT16 MSG, TW_UINT16 Cap)
 {
+	//::MessageBox(g_hwndDLG,TEXT("updatePostDependencies!"),MB_CAPTION,MB_OK);
   TW_INT16 twrc  = TWRC_SUCCESS;
 
   // Handle some special post dependancy cases

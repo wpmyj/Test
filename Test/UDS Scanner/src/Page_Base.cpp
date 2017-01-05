@@ -171,12 +171,22 @@ void CPage_Base::SetCapValue(void)
 		case CAP_FEEDERENABLED:
 		case ICAP_XRESOLUTION:
 		case ICAP_YRESOLUTION:
-		case CAP_DUPLEXENABLED:
 		case UDSCAP_MULTIFEEDDETECT:
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
 				break;
 			}	
+
+		case CAP_DUPLEXENABLED:
+			{
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
+				if(1 == ((int)iter->second)) //双面，单面该值为0
+				{
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
+					//::MessageBox(NULL,TEXT("双面"),MB_CAPTION,MB_OK);
+				}		
+				break;
+			}
 
 		default:
 			{
@@ -295,11 +305,23 @@ void CPage_Base::UpdateControls(void)
 }
 
 
+void CPage_Base::InitBasemap(void)
+{
+	m_basemap.erase(m_basemap.begin(),m_basemap.end());//清空
+
+	int nCapIndex;
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
+}
+
+
 BOOL CPage_Base::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化	
+	InitBasemap();
+
 	InitSliderCtrl();
 	UpdateControls();
 

@@ -100,132 +100,7 @@ date 16.11.16
 1、SetCapInt返回0，错误，调试到_datCap
 2、SetCapValueInt一直返回为0，证明是CAP的问题，尝试修改为SetCapValueFloat，并把参数类型也改为float型等
 3、改为SetCapValueFloat正确。
-CTWAINDS_UDS::Initialize()中改为：
-	FLOAT_RANGE fRange;
-	fRange.fCurrentValue = 0.0f;
-	fRange.fMaxValue = 10.0f;
-	fRange.fMinValue = -10.0f;
-	fRange.fStepSize = 1.0f;
-	// 去除空白页等
-	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_AUTODISCARDBLANKPAGES !"),MB_CAPTION,MB_OK);
-		//cerr << "Could not create ICAP_AUTODISCARDBLANKPAGES" << endl;
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
-
-CTWAINDS_UDS::updateScannerFromCaps()中改为：
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
-		bret = false;
-	}
-	else
-	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fRemoveBlank = fVal;
-	}
 4、调试语句
-	if(m_nBinarization == TWBZ_HALFTONE4)
-	{
-	::MessageBox(g_hwndDLG,TEXT("半色调4"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nBinarization == TWBZ_DYNATHRESHOLD)
-	{
-	::MessageBox(g_hwndDLG,TEXT("二值化自动可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_nSpiltImage == TWSI_NONE)
-	{
-	::MessageBox(g_hwndDLG,TEXT("分割图像不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nSpiltImage == TWSI_HORIZONTAL)
-	{
-	::MessageBox(g_hwndDLG,TEXT("水平分割可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_nSpiltImage == TWSI_VERTICAL)
-	{
-	::MessageBox(g_hwndDLG,TEXT("垂直分割可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fRemoveBlank == TWBP_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除空白页不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fRemoveBlank == TWBP_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除空白页可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fRemovePunch == TWRP_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除穿孔不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fRemovePunch == TWRP_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除穿孔可用"),MB_CAPTION,MB_OK);
-	}
-	/*char buf[1024];
-	itoa((int)m_fRemovePunch,buf,10);
-	::MessageBox(g_hwndDLG,buf,"去除穿孔值",MB_OK);*/
-
-	if(m_fSharpen == TWSP_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("图像锐化不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fSharpen == TWSP_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("图像锐化可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fMirror == TWMR_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("镜像不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fMirror == TWMR_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("镜像可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fRemoveBack == TWRB_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除背景不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fRemoveBack == TWRB_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除背景可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fDescreen == TWDS_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除网纹不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fDescreen == TWDS_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除网纹可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fDenoise == TWDN_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除噪声不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fDenoise == TWDN_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("去除噪声可用"),MB_CAPTION,MB_OK);
-	}
-
-	if(m_fAutoCrop == TWAC_DISABLE)
-	{
-		::MessageBox(g_hwndDLG,TEXT("自动裁切不可用"),MB_CAPTION,MB_OK);
-	}
-	else if(m_fAutoCrop == TWAC_AUTO)
-	{
-		::MessageBox(g_hwndDLG,TEXT("自动裁切可用"),MB_CAPTION,MB_OK);
-	}
-
 5、修改CUSTCAP_PUNCHHOLEREMOVEL等参数为UDSCAP_PUNCHHOLEREMOVEL
 
 date 16.11.17
@@ -474,3 +349,26 @@ date 16.12.30
 ?3、清除超链接的下划线：使用Shift+左右光标键将选中的超链接定义为块，然后使用Ctrl+U快捷键，系统会在保持超链接的基础上取消下划线。
 ?4、完成最终版本的使用手册，在基本界面添加“帮助”按钮，使用ShellExecute命令直接打开UDS General TWAIN DS使用手册.chm文件。
 ?5、完善高级设置界面纸张大小与自定义宽高、单位的功能。
+
+
+date 17.1.3
+------------------------------------------------------------
+@author zhu
+1、优化自动裁切与校正功能的RemoveBlack函数，结果发现不是因为裁切不精确，而是因为图像校正后发生了90度的旋转，图像本来是宽比高长，放在框架中时，把长的宽的部分自动截取了，所以不是算法的问题。
+2、为实现调节纸张大小的功能，之前opencv一直没有找见类似于FreeImage类中getScanStrip函数用的FreeImage_GetScanLine，该函数是获取图像某一行的数据。下午查找了opencv库，找到了访问某一行中所有像素值的方法。
+3、为opencv增加两个函数bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);该函数与FreeImage类的函数功能相同；void GetScanLine(Mat image, BYTE *dataout, int scanline);该函数用来得到某一行的所有像素值，存储在dataout中。
+
+date 17.1.4
+------------------------------------------------------------
+@author zhu
+1、修改CScanner_OpenCV::RemoveBlank中二值化的方法，从直接阈值改为以OTSU（最大类间方差法）；对比两种实现方法，一种是采用opencv自带的函数threshold，最后一个参数改为THRESH_OTSU即可；另一种是自己写函数实现otsu函数，运算速度等差别不大，最终选用opencv自带函数。
+2、修改About界面，为公司网址static增加消息响应，弹出公司的网站;并在OnCtlColor中设置字体颜色为蓝色
+
+date 17.1.5
+------------------------------------------------------------
+@author zhu
+1、实现opencv类的选择不同纸张大小，图像调节大小的功能。保留getScanStrip函数，去掉GetScanLine函数。IplImage数据结构有一个widthStep参数即是图像某一行的字节数；另外m_mat_image.ptr<uchar>(m_nScanLine);即可获取m_nScanLine行的指针。
+2、解决滤除空白页发现空白页后，不能再次打开驱动界面的问题：在CTWAIN_UI::Scan()函数中，m_pDS->StartScanning()返回false时需要调用同类的Cancel（）函数，不能没有任何操作。
+3、opencv类增加void Mat2uchar(Mat src_img, uchar *dataout)函数，把mat类型数据转为uchar类型。未使用。
+4、为About类增加CPage_About::OnSetCursor函数，用来实现鼠标滑过公司网址时，鼠标变为手型，点击后打开网站
+5、为实现基本界面的“双面”模拟，增加void CPage_Base::InitBasemap(void)函数，往basemap初始化时就加入CAP_DUPLEXENABLED，防止当单双面为双面，但用户未点击下拉框改变时，直接扫描，这时也应该是两张，若没有初始就加入Cap,此时会是只有一张。功能同高级的InitAdvancedmap（）。
