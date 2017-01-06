@@ -127,12 +127,6 @@ void CPage_Advanced::SetCapValue(void)
 				break;
 			}	
 
-		case ICAP_FRAMES: //框架
-			{
-				m_pUI->SetCurrentFrame(0,0,iter->second,iter->second);
-				break;
-			}	
-
 		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
 			{
 				if(m_check_removepunch.GetCheck()) //去穿孔可用时
@@ -506,6 +500,8 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_splitimage.SetCurSel(nCapIndex);
+	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex;//不能只更新容器，还要更新CAP
+
 
 	//多流输出-对比度
 	//nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 

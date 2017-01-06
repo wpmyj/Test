@@ -380,3 +380,4 @@ date 17.1.6
 2、但是调换了顺序后又与之前的功能冲突了，OnOK中应该是先设置base,再设置Advan,所以在CPage_Custom 类中增加了成员变量scanside来记录单双面，高级的SetCapValue中“拆分”时增加判断：&& m_pBasePage->scanside == 0。
 3、改名CPage_Advanced的全局变量colormode为muiltstream，因为它是用来记录多流是否选中的状态变量，不应该命名为图像模式。同样修改Base类的void BaseColorMode(void);函数名改为BaseStatus()；表示用来根据高级界面的全局变量muiltstream设置基本界面的参数可用不可用。
 4、实现双面模拟。
+5、解决单双面reset时失效的问题：在Base界面中，只更新了容器与界面，没有更新Map值；同之前遇到的拆分的问题一样。解决方法：在UpdateControl时同时更新该Cap的在Map中的值

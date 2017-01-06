@@ -284,7 +284,7 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
     CTWAINContainer      *pCap     = NULL;
     CTWAINContainerInt   *pCapSC   = dynamic_cast<CTWAINContainerInt*>(findCapability(CAP_SUPPORTEDCAPS));
     if(!pCapSC)
-    {
+		{
       setConditionCode(TWCC_BADCAP);
       return TWRC_FAILURE;
     }
@@ -313,6 +313,7 @@ TW_INT16 CTWAINDS_Base::dat_capability(TW_UINT16      _MSG,
 		CTWAINContainerBool   *pBoolCapSC   = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_SUPPORTEDCAPS));
 		if(!pBoolCapSC)
 		{
+			//::MessageBox(g_hwndDLG,"4","m_nSourceHeight",MB_OK);
 			setConditionCode(TWCC_BADCAP);
 			return TWRC_FAILURE;
 		}

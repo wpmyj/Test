@@ -183,8 +183,13 @@ void CPage_Base::SetCapValue(void)
 					m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
 					if(1 == ((int)iter->second)) //双面，单面该值为0
 					{
+						//::MessageBox(g_hwndDLG,"双面","m_nSourceHeight",MB_OK);
 						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
-					}		
+					}	
+					else
+					{
+						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
+					}
 				}		
 				break;
 			}
@@ -271,6 +276,7 @@ void CPage_Base::UpdateControls(void)
 			m_combo_scanside.InsertString(1,lstCapValues->at(1)!=0?"双面":"单面");
 		}
 		m_combo_scanside.SetCurSel(nCapIndex);  // 显示默认值
+		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; 
 	}
 
 	// 对比度 
@@ -1021,7 +1027,15 @@ void CPage_Base::LoadProfile()
 	int nIndex = m_combo_profile.GetCurSel();
 	if(0 == nIndex)  // 默认模板，重置驱动参数
 	{
-		m_pUI->ResetAllCaps();
+		bool resetstatus = m_pUI->ResetAllCaps();
+		if(resetstatus)
+		{
+			//::MessageBox(g_hwndDLG,"Reset成功","m_nSourceHeight",MB_OK);
+		}
+		else
+		{
+			//::MessageBox(g_hwndDLG,"Reset失败","m_nSourceHeight",MB_OK);
+		}
 	}
 	else  // 其它模板
 	{	
@@ -1032,6 +1046,7 @@ void CPage_Base::LoadProfile()
 	
 	UpdateControls();
 	m_pAdPage->UpdateControls();//高级设置界面参数也更新(有分辨率共同存在)
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

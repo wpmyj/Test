@@ -530,6 +530,7 @@ bool CScanner_OpenCV::preScanPrep()
 	//m_nSourceHeight = m_mat_image.rows;
 	//m_nWidth  = m_nSourceWidth;//¿ò¼Ü¿í
 	//m_nHeight = m_nSourceHeight;
+
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
 		m_nWidth  = m_nSourceWidth = m_mat_image.cols;
@@ -548,11 +549,11 @@ bool CScanner_OpenCV::preScanPrep()
 	itoa(m_nHeight, buf, 10);
 	::MessageBox(g_hwndDLG,TEXT(buf),"height",MB_OK); //2200
 	*/
-
+	
 	switch(m_nPixelType)
 	{
 		case TWPT_BW:
-			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
+			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8); //Îª1Ê±±ÀÀ£
 			break;
 
 		case TWPT_GRAY:
