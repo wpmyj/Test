@@ -47,7 +47,7 @@ private:
 	void SetCapValue(void);  ///<设置参数
 	void SetDelete(void); ///<设置删除按钮是否可用
 
-	void BaseColorMode(void); ///<获取base界面图像模式
+	void BaseStatus(void); ///<根据muiltstream变量，设置base界面图像模式,以及单双面是否可用
 
 	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
 
@@ -136,7 +136,5 @@ public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;
 
-//	virtual BOOL OnApply();
-//	afx_msg void OnClickedButton1();
 	afx_msg void OnBase_Btn_Help();
 };

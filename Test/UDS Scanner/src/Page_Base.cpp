@@ -11,7 +11,7 @@
 
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
-extern bool colormode; //高级界面多流不选中
+extern bool muiltstream; //高级界面多流不选中
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
@@ -81,10 +81,9 @@ void CPage_Base::OnOK()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	SetCapValue(); //点击确定后才设置	
-	m_pAdPage->SetCapValue();
+	m_pAdPage->SetCapValue(); //先设置高级界面，再设置基本界面,否则基本的“双面”设置后，高级的“分割”又设置为1了
+	
 	m_pUI->TW_SaveProfileToFile("上次使用模板");
-
-	//::MessageBox(g_hwndDLG,TEXT("图像模式不可用，请从高级界面进行扫描！"),MB_CAPTION,MB_OK);
 
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
@@ -179,11 +178,13 @@ void CPage_Base::SetCapValue(void)
 
 		case CAP_DUPLEXENABLED:
 			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
-				if(1 == ((int)iter->second)) //双面，单面该值为0
+				if(GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->IsWindowEnabled())//单双面可用时才设置
 				{
-					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
-					//::MessageBox(NULL,TEXT("双面"),MB_CAPTION,MB_OK);
+					m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
+					if(1 == ((int)iter->second)) //双面，单面该值为0
+					{
+						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
+					}		
 				}		
 				break;
 			}
@@ -297,7 +298,7 @@ void CPage_Base::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
 	m_check_multifeeddetect.SetCheck(nCapValue);
 
-	colormode = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
+	muiltstream = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
 
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
 
@@ -311,6 +312,7 @@ void CPage_Base::InitBasemap(void)
 
 	int nCapIndex;
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+	scanside = nCapIndex; //初始化scanside，防止用户未点击下拉框改变单双面直接扫描时，scanside默认为0，高级界面仍会设置裁切
 	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
 }
 
@@ -337,17 +339,19 @@ BOOL CPage_Base::OnInitDialog()
 }
 
 
-void CPage_Base::BaseColorMode(void)
+void CPage_Base::BaseStatus(void)
 {
-	if(colormode)
+	if(muiltstream)
 	{
 		//AfxMessageBox("不图像类型可用");
 		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->EnableWindow(FALSE);
 	}
 	else
 	{
 		//AfxMessageBox("多流不可用，图像类型可用");
 		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->EnableWindow(TRUE);
 	}
 	UpdateData(FALSE);
 }
@@ -617,7 +621,7 @@ void CPage_Base::InitComboPixType(void)
 		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE);
 	}
 
-	BaseColorMode(); //获取base界面图像模式,传给高级界面。
+	BaseStatus(); //获取base界面图像模式,传给高级界面。
 }
 
 void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
@@ -674,14 +678,15 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
 	CString strCBText; 
 	m_combo_scanside.GetLBText( nIndex, strCBText);
 	int nval;
-	//m_combo_scanside.GetLBText( nIndex, strCBText);
 	if (strCBText.Find("单面") >= 0)
 	{
 		nval = 0;
+		scanside = 0;
 	} 
 	else
 	{
 		nval = 1;
+		scanside = 1;
 	}
 
 	//m_basemap.insert(map<int, float> :: value_type(CAP_DUPLEXENABLED, (float)nval));

@@ -12,7 +12,7 @@
 **********************************************************/
 BYTE g_MuiltStream = 0x00;
 
-bool colormode; //高级界面多流不选中
+bool muiltstream; //高级界面多流不选中
 
 // CPage_Advanced 对话框
 
@@ -207,12 +207,10 @@ void CPage_Advanced::SetCapValue(void)
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
 				if((int)(iter->second) != TWSI_NONE)
 				{
-					//::MessageBox(NULL,TEXT("2张"),MB_CAPTION,MB_OK);
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
 				}
-				else
+				else if((int)(iter->second) == TWSI_NONE && m_pBasePage->scanside == 0) //不拆分&&单面
 				{
-					//::MessageBox(NULL,TEXT("1张"),MB_CAPTION,MB_OK);
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
 				}
 				break;
@@ -750,8 +748,8 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(FALSE); //自动裁切与校正不可用
 		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(FALSE);//去除穿孔不可用
 
-		colormode = true;
-		m_pBasePage->BaseColorMode();
+		muiltstream = true;
+		m_pBasePage->BaseStatus();
 
 		//m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,nval); 
 		//UpdateControls();
@@ -799,8 +797,8 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(TRUE); //自动裁切与校正可用
 		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(TRUE); //去除穿孔可用
 
-		colormode = false;
-		m_pBasePage->BaseColorMode();
+		muiltstream = false;
+		m_pBasePage->BaseStatus();
 
 		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
 		m_pUI->SetCapValueInt(UDSCAP_FRONTCOLOR,FALSE);

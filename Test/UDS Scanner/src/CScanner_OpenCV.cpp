@@ -196,6 +196,26 @@ bool CScanner_OpenCV::acquireImage()
 			m_i++;
 		}
 	}
+	else //多流未选中
+	//基本界面单双面
+	{
+		if(m_bDuplex) //双面
+		{
+			if(m_nDocCount == 2) //正面
+			{
+				SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+				strcat(m_szSourceImagePath,  "\\");
+				strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+			}
+			else if(m_nDocCount == 1) //反面
+			{
+				SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+				strcat(m_szSourceImagePath,  "\\");
+				strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
+			}
+		}
+	}
+	
 	
 	// get the image if it exists
 	if(FALSE == FILE_EXISTS(m_szSourceImagePath))
@@ -213,10 +233,6 @@ bool CScanner_OpenCV::acquireImage()
 		//cout << "ds: Failed - could not acquire image" << endl;
 		return false;
 	}
-
-	char buf[10];
-	itoa(m_nDocCount, buf, 10);
-	::MessageBox(NULL,TEXT(buf),"ICAP_GAMMA",MB_OK);
 
 	//Document scanned, remove it from simulated intray
 	m_nDocCount--;
