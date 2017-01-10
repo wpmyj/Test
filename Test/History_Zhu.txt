@@ -381,3 +381,11 @@ date 17.1.6
 3、改名CPage_Advanced的全局变量colormode为muiltstream，因为它是用来记录多流是否选中的状态变量，不应该命名为图像模式。同样修改Base类的void BaseColorMode(void);函数名改为BaseStatus()；表示用来根据高级界面的全局变量muiltstream设置基本界面的参数可用不可用。
 4、实现双面模拟。
 5、解决单双面reset时失效的问题：在Base界面中，只更新了容器与界面，没有更新Map值；同之前遇到的拆分的问题一样。解决方法：在UpdateControl时同时更新该Cap的在Map中的值
+
+date 17.1.10
+------------------------------------------------------------
+@author zhu
+1、增加两个成员uchar *m_mat_data; int m_widthstep; *m_mat_data用来记录m_mat_image转为的字节对齐的uchar类型数据，m_widthstep是字节对齐后的每行的字节数。同时增加两个成员函数void Mat2uchar(Mat src_img);将mat转换为uchar格式；BYTE *GetScanLine(int scanline);用来得到指向scanline行的指针。
+2、解决昨天遗留问题：将mat数据转换为字节对齐的uchar类型。
+3、修改纸张大小的默认值为A4，不是US letter
+4、增加int FindPaperSize(int index);函数，寻找index对应的纸张大小,返回index对应的纸张大小。在OnCbnSelchangeAdvanced_Combo_Standardsizes以及UpdateControls中都需要。说明：解决“纸张大小”在回到默认模板时，参数不生效的问题。同样的是需要在UpdateControls时再次往Map里写一次值（Cap对应的选项与下拉框对应的序号不相同时，就需要该操作）。

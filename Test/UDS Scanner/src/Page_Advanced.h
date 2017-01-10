@@ -107,6 +107,8 @@ public:
 	void GetCheckNum(void); ///<获取多流输出下有几个选中
 	void SetBlank(void); ///<判断并设置去除空白页checkBox的初始状态
 
+	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
+
 private:
 	virtual BOOL OnInitDialog();
 

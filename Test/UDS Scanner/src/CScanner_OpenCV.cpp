@@ -95,6 +95,10 @@ CScanner_OpenCV::~CScanner_OpenCV(void)
 		m_mat_image.release();
 	}
 	
+	if(m_mat_data != NULL)
+	{
+		free(m_mat_data);
+	}	
 }
 
 bool CScanner_OpenCV::resetScanner()
@@ -169,6 +173,10 @@ bool CScanner_OpenCV::acquireImage()
 	{
 		m_mat_image.release();
 	}
+	if(m_mat_data != NULL)
+	{
+		free(m_mat_data);
+	}	
 	
 	if(m_bMultiStream)
 	{
@@ -259,38 +267,6 @@ int CScanner_OpenCV::BitCount(BYTE n)
 	return c;
 }
 
-void CScanner_OpenCV::Mat2uchar(Mat src_img, uchar *dataout)
-{ 
-	int widthStep = (src_img.cols * src_img.elemSize()+3)/4*4; // 补齐行字节数，使它能够被4整除  
-	uchar *frameData = (uchar *)calloc(src_img.rows*widthStep, sizeof(uchar)); // 申请内存  
-	memset(frameData, 0, src_img.rows*widthStep);  
-
-	int channel = src_img.channels(); 
-	// 逐一复制数据  
-	uchar *p;  
-	for (int i = 0; i < src_img.rows; i++)  
-	{  
-		p = src_img.data + i * src_img.cols * src_img.channels();  
-		dataout =  frameData + i * widthStep;  
-		for (int j = 0; j < src_img.cols; j++)  
-		{  
-			if(1 == channel)
-			{
-				*(dataout) = *(p);
-				p += 3;  
-				dataout += 3;  
-			}
-			else if(3 == channel)
-			{
-				*(dataout) = *(p);  
-				*(dataout+1) = *(p+1);  
-				*(dataout+2) = *(p+2);        
-				p += 3;  
-				dataout += 3;  
-			}		
-		}  
-	}  
-}
 
 bool CScanner_OpenCV::preScanPrep()
 {
@@ -530,7 +506,7 @@ bool CScanner_OpenCV::preScanPrep()
 	//m_nSourceHeight = m_mat_image.rows;
 	//m_nWidth  = m_nSourceWidth;//框架宽
 	//m_nHeight = m_nSourceHeight;
-
+	
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
 		m_nWidth  = m_nSourceWidth = m_mat_image.cols;
@@ -564,10 +540,10 @@ bool CScanner_OpenCV::preScanPrep()
 			m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
 			break;
 	}
+
 	// setup some convenience vars because they are used during 
 	// every strip request
 	m_nScanLine = 0;
-
 
 	//去除空白页
 	bool status = false; //默认不是空白页
@@ -577,6 +553,12 @@ bool CScanner_OpenCV::preScanPrep()
 		m_mat_image.copyTo(matRemoveBlank);
 		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
 	}
+
+	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
+	Mat tempmat;
+	m_mat_image.copyTo(tempmat);
+	BYTE *temp = NULL;
+	Mat2uchar(tempmat);
 
 	if(status) //若为真，表示是空白页
 	{
@@ -1526,6 +1508,46 @@ void CScanner_OpenCV::GetImageData(BYTE *buffer, DWORD &dwReceived)
 }*/
 
 
+void CScanner_OpenCV::Mat2uchar(Mat src_img)
+{
+	m_widthstep = (src_img.step+7)/8*8; //8字节对齐   4字节对齐：(src_img.step+3)/4*4
+	m_mat_data = (BYTE *)calloc(src_img.rows*m_widthstep, sizeof(BYTE)); // 申请内存
+	int channel = src_img.channels(); 
+
+	// 逐一复制数据  
+	BYTE *p1, *p2;
+	for (int i = 0; i < src_img.rows; i++)  
+	{ 
+		p1 = src_img.data + i * src_img.step;  //p1 = src_img.data + scanline * src_img.cols * src_img.channels();  
+		p2 = m_mat_data + i * m_widthstep;
+	
+		for(int j = 0; j < src_img.cols; j++)  
+		{ 
+			if(1 == channel)
+			{
+				*(p2) = *(p1);
+				p1    += 1;
+				p2    += 1;
+			}
+			else if(3 == channel)
+			{
+				*(p2)   = *(p1);  
+				*(p2+1) = *(p1+1);  
+				*(p2+2) = *(p1+2);        
+				p1  += 3;  
+				p2  += 3;  
+			}	
+		}
+	}  
+}
+
+BYTE *CScanner_OpenCV::GetScanLine(int scanline)
+{
+	BYTE *ps;
+	ps = m_mat_data + scanline * m_widthstep;  //memcpy(p2, p1, widthStep);
+	return ps;
+}
+
 bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
 {
 	dwReceived = 0;
@@ -1536,28 +1558,33 @@ bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &d
 		return false;
 	}
 
-	BYTE    *pBits     = NULL;
+	BYTE    *pBits    = NULL;
 	WORD    nRow      = 0;
 	WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows行 to be transfered during this call (function of buffer size and line size)
 
-	if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )
+	if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) ) //0<min(2250,2200)
 	{
 		//fill the buffer line by line to take care of alignment differences
-		for(nRow = 0; nRow < nMaxRows; nRow++)
+		for(nRow = 0; nRow < nMaxRows; nRow++) //nMaxRows = 12
 		{
 			//get the next scan line position and copy it
 			//pBits = m_mat_image.ptr<uchar>(m_nSourceHeight - m_nScanLine - 1);
-			pBits = m_mat_image.ptr<uchar>(m_nScanLine);
+			//pBits = m_mat_image.ptr<uchar>(m_nScanLine);	
+			pBits = GetScanLine(m_nScanLine);
+
+			//IplImage *Ipl_img = new IplImage(m_mat_image);	
+			//memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, Ipl_img->widthStep)); //MIN(5100,5310)
+		
+			memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, m_widthstep)); //MIN(5100,4956) step表示以字节为单位的每行的长度
 			
-			IplImage *Ipl_img = new IplImage(m_mat_image);
-			memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, Ipl_img->widthStep)); //MIN(5100,5310)
-			//memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, widthstep)); 
+			//DWORD widthStep = (m_mat_image.cols * m_mat_image.elemSize()+3)/4*4;
+			//memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, widthStep)); //widthStep=4956  4960
 
 			// Check to see if the result image width is wider than what we have.
 			// If it is wider fill it in with 0es
-			if(m_nDestBytesPerRow > Ipl_img->widthStep)
+			if(m_nDestBytesPerRow > m_widthstep)
 			{
-				memset( pTransferBuffer + Ipl_img->widthStep, 0, m_nDestBytesPerRow - Ipl_img->widthStep );
+				memset( pTransferBuffer + m_widthstep, 0, m_nDestBytesPerRow - m_widthstep );
 			}
 
 			//increment the destination by the aligned line size
@@ -1566,11 +1593,11 @@ bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &d
 			// increment the current scanline for next pass
 			m_nScanLine++;
 
-			//update the number of bytes written
-			dwReceived += m_nDestBytesPerRow;
+			//update the number of bytes written 
+			dwReceived += m_nDestBytesPerRow; //dwReceived=20400
 		
 			// check for finished scan
-			if( m_nScanLine >= m_nSourceHeight ||
+			if( m_nScanLine >= m_nSourceHeight || //m_nScanLine = 2200
 				m_nScanLine >= m_nHeight )
 			{
 				//we are done early
@@ -1609,8 +1636,7 @@ void CScanner_OpenCV::RotateImage(double angle)
 		scale = m_dRat;
 	}
 	cv::Point2f center = cv::Point2f((float)m_mat_image.cols / 2, 
-		(float)m_mat_image.rows / 2);  // 旋转中心   
-	 
+		(float)m_mat_image.rows / 2);  // 旋转中心   	 
 
 	cv::Mat rotateMat;   
 	rotateMat = cv::getRotationMatrix2D(center, angle, scale);  

@@ -550,17 +550,18 @@ bool CScanner_FreeImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD
   WORD    nRow      = 0;
   WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows–– to be transfered during this call (function of buffer size and line size)
 
-  if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )
+  if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) )//0<min(2200,2200)
   {
     //fill the buffer line by line to take care of alignment differences
-    for(nRow = 0; nRow<nMaxRows; nRow++)
+    for(nRow = 0; nRow<nMaxRows; nRow++) //nMaxRows = 12
     {
       //get the next scan line position and copy it
       pBits = (BYTE*)FreeImage_GetScanLine(m_pDIB, m_nSourceHeight-m_nScanLine-1);
 
-			char buf[20];
+			/*
+			char buf[10];
 			itoa(m_nDestBytesPerRow,buf,10);
-			::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);
+			::MessageBox(g_hwndDLG,buf,"UDS",MB_OK);*/
 
       memcpy( pTransferBuffer, pBits, MIN(m_nDestBytesPerRow, FreeImage_GetLine(m_pDIB)) );
 
@@ -568,7 +569,7 @@ bool CScanner_FreeImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD
       // If it is wider fill it in with 0es
       if(m_nDestBytesPerRow > FreeImage_GetLine(m_pDIB))
       {
-				::MessageBox(NULL,"m_nDestBytesPerRow > Ipl_img->widthStep","nImageSize",MB_OK);
+				//::MessageBox(NULL,"m_nDestBytesPerRow > Ipl_img->widthStep","nImageSize",MB_OK);
         memset( pTransferBuffer+FreeImage_GetLine(m_pDIB), 0, m_nDestBytesPerRow - FreeImage_GetLine(m_pDIB) );
       }
 
@@ -582,7 +583,7 @@ bool CScanner_FreeImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD
       dwReceived += m_nDestBytesPerRow;
 
       // check for finished scan
-      if( m_nScanLine >= m_nSourceHeight ||
+      if( m_nScanLine >= m_nSourceHeight || //m_nScanLine = 2200
           m_nScanLine >= m_nHeight )
       {
         //we are done early

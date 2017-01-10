@@ -186,9 +186,16 @@ protected:
 	/**
 	*  @brief  mat转换为uchar格式
 	*  @param[in]  src_img 输入，mat格式的图像数据
-	*  @param[out]  dataout 输出 uchar数据
+	*  @param[out] 输出 uchar数据
 	*/
-	void Mat2uchar(Mat src_img, uchar *dataout);
+	void Mat2uchar(Mat src_img);
+
+	/**
+	*  @brief  得到scanline行的数据
+	*  @param[in]  src_img 输入，mat格式的图像数据
+	*  @param[out] 输出 uchar数据
+	*/
+	BYTE *GetScanLine(int scanline);
 
 	/**
 	*  @brief  逆时针旋转图像（原尺寸）
@@ -362,6 +369,9 @@ protected:
 	int               m_totalImageCount;        /**< 多流输出的总数 */
 	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */
 	int               m_i;                      /**< count循环变量*/
+
+	uchar             *m_mat_data;              /**< m_mat_image转为的字节对齐的uchar类型数据*/
+	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 }; 
 
 #endif// __CSCANNER_OPENCV_H__

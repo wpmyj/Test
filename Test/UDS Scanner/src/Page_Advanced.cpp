@@ -355,6 +355,8 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
+	int nval = FindPaperSize(nCapIndex);
+	m_advancedmap[ICAP_SUPPORTEDSIZES] = (float)nval;//不能只更新容器，还要更新CAP
 
 	// 自定义宽与高
 	TW_FRAME frameTemp;
@@ -401,6 +403,7 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_uints.SetCurSel(nCapIndex);
+
 
 	//多流输出-二值化
 	m_combo_binarization.ResetContent(); //清空内容
@@ -891,15 +894,11 @@ void CPage_Advanced::SetStandardsizes(void)
 	}
 }
 
-
-void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
+int CPage_Advanced::FindPaperSize(int index)
 {
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_standardsizes.GetCurSel();
 	CString strCBText; 
-	m_combo_standardsizes.GetLBText( nIndex, strCBText);
+	m_combo_standardsizes.GetLBText(index, strCBText);
 	int nval;
-	//int nval = _ttoi(strCBText);  // CString 转 int
 	if (strCBText.Find("自定义") >= 0)
 	{
 		nval = TWSS_NONE;
@@ -982,8 +981,17 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	}
 	else
 	{
-		return;
+		nval = TWSS_A4; //默认A4
 	}
+	return nval;
+}
+
+
+void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_standardsizes.GetCurSel();
+	int nval = FindPaperSize(nIndex);
 	//m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES,nval); 
 	//m_advancedmap.insert(map<int, double> :: value_type(ICAP_SUPPORTEDSIZES, (double)nval));
 	m_advancedmap[ICAP_SUPPORTEDSIZES] = (float)nval;

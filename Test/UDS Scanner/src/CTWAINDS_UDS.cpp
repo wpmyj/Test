@@ -769,12 +769,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
    || !pnCap->Add(TWSS_NONE) //zhu
-	 || !pnCap->Add(TWSS_USLETTER, true)  //纸张大小，默认USLETTER
+	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
-	 || !pnCap->Add(TWSS_PHOT64) //zhu
+	 || !pnCap->Add(TWSS_PHOT64) 
 	 || !pnCap->Add(TWSS_PHOT53)
-	 || !pnCap->Add(TWSS_A3)  //zhu
-	 || !pnCap->Add(TWSS_A4)  //wan
+	 || !pnCap->Add(TWSS_A3)  
+	 || !pnCap->Add(TWSS_A4, true) 
 	 || !pnCap->Add(TWSS_A5)  //wan
 	 || !pnCap->Add(TWSS_A6)  //
 	 || !pnCap->Add(TWSS_A7)  //wan
@@ -1785,9 +1785,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
 			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
 		//}
-		//char buf[10];
-		//itoa(nImageSize, buf, 10);
-		//::MessageBox(NULL,TEXT(buf),"nImageSize",MB_OK);
+		
     //If we had a previous image then get rid of it.
     if(m_hImageData)
     {
@@ -1814,8 +1812,8 @@ TW_INT16 CTWAINDS_UDS::transfer()
 			{				
 				do
 				{
-					dwRead = MIN((unsigned long)64000, nImageSize) / nDestBytesPerRow * nDestBytesPerRow;
-					dwReceived =0;
+					dwRead = MIN((unsigned long)64000, nImageSize) / nDestBytesPerRow * nDestBytesPerRow;//dwRead=61200
+					dwReceived = 0;
 
 					if( !m_pScanner->getScanStrip(pImageData, dwRead, dwReceived) ||
 						dwReceived != dwReceived / nDestBytesPerRow * nDestBytesPerRow)
@@ -1825,9 +1823,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
 					}
 					pImageData += dwReceived;
 
-					nImageSize -= dwReceived;
+					nImageSize -= dwReceived;  //dwReceived=20400 nImageSize=11158800
 				}while(nImageSize>0 && twrc == TWRC_SUCCESS);
-
+				
 			}
 			break;
 		case DEVICE_G6400:  // CScanner_G6400
