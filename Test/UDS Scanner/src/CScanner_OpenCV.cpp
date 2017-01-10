@@ -419,23 +419,6 @@ bool CScanner_OpenCV::preScanPrep()
 		m_mat_image = matGamma;
 	}
 
-	//图像分割
-	if(m_nSpiltImage == TWSI_NONE)
-	{
-	}
-	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
-	{
-		//SpiltImage(m_mat_image, unNewWidth, unNewHeight/2); //(1700,2200/2)---(1700,1100)
-		//imwrite( "C://Users//Administrator//Desktop//水平.tif", m_mat_image);
-		SpiltImage(m_mat_image,2,1);
-	}
-	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
-	{
-		//SpiltImage(m_mat_image, unNewWidth/2, unNewHeight); //(1700/2, 2200)---(850,2200)
-		//imwrite( "C://Users//Administrator//Desktop//垂直.jpg", m_mat_image);
-		SpiltImage(m_mat_image,1,2);
-	}
-
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
 	//锐化图像
@@ -488,6 +471,9 @@ bool CScanner_OpenCV::preScanPrep()
 		Mat matRemovepunch;
 		matRemovepunch = RemovePunch(200, 22); //去除穿孔
 		matRemovepunch.copyTo(m_mat_image);
+
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
 	}
 
 	//自动裁切与校正
@@ -500,13 +486,12 @@ bool CScanner_OpenCV::preScanPrep()
 		matAutoCrop.copyTo(m_mat_image);
 		//imwrite( "C://Users//Administrator//Desktop//自动校正后的图.jpg", matAutoCrop);
 		//imwrite( "C://Users//Administrator//Desktop//去黑边后的图.jpg", m_mat_image);
+
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
 	}
 
-	//m_nSourceWidth = m_mat_image.cols; 
-	//m_nSourceHeight = m_mat_image.rows;
-	//m_nWidth  = m_nSourceWidth;//框架宽
-	//m_nHeight = m_nSourceHeight;
-	
+
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
 		m_nWidth  = m_nSourceWidth = m_mat_image.cols;
@@ -516,6 +501,29 @@ bool CScanner_OpenCV::preScanPrep()
 	{
 		m_nSourceWidth  = m_mat_image.cols;
 		m_nSourceHeight = m_mat_image.rows;
+	}
+
+	//图像分割
+	if(m_nSpiltImage == TWSI_NONE)
+	{
+	}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
+	{
+		//SpiltImage(m_mat_image, unNewWidth, unNewHeight/2); //(1700,2200/2)---(1700,1100)
+		//imwrite( "C://Users//Administrator//Desktop//水平.tif", m_mat_image);
+		SpiltImage(m_mat_image,2,1);
+
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
+	{
+		//SpiltImage(m_mat_image, unNewWidth/2, unNewHeight); //(1700/2, 2200)---(850,2200)
+		//imwrite( "C://Users//Administrator//Desktop//垂直.jpg", m_mat_image);
+		SpiltImage(m_mat_image,1,2);
+
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
 	}
 
 	/*
