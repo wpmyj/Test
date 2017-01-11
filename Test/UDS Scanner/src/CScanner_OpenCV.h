@@ -159,6 +159,7 @@ protected:
   */
   bool preScanPrep();
 
+	int otsu(IplImage *frame);
 	/**
 	*  @brief  获取图片数据.
 	*  @note 仅供扫描仪opencv使用
@@ -219,7 +220,7 @@ protected:
 	*  @param[in]  fGamma Gamma系数
 	*  @param[out] dst 输出图像
 	*/
-	void GammaCorrection(const Mat& src, Mat& dst, float fGamma);
+	void GammaCorrection(const Mat &src, Mat &dst, float fGamma);
 
 	/**
 	*  @brief  图像分割-裁切
@@ -228,14 +229,14 @@ protected:
 	*  @param[in]  height 分割后的图像的高
 	*/
 	//void SpiltImage(const Mat& src, int width, int height);
-	void SpiltImage(const Mat& src_img,int m,int n);
+	void SpiltImage(const Mat &src_img, int m, int n);
 
 	/**
 	*  @brief  判断输入图像深度
 	*  @param[in]  src 输入图像
 	*  @param[out]  输出图像深度
 	*/
-	int FindDepth(const Mat& src_img);
+	int FindDepth(const Mat &src_img);
 
 	/**
 	*  @brief  霍夫线变换
@@ -245,7 +246,7 @@ protected:
 	*  @param[in]  threshold HoughLines的阈值
 	*  @param[out]  输出变换后图像
 	*/
-	Mat HoughLinesTransfer(const Mat& src_img ,double threshold1, double threshold2, int threshold);
+	Mat HoughLinesTransfer(const Mat &src_img ,double threshold1, double threshold2, int threshold);
 
 	/**
 	*  @brief  霍夫圆变换

@@ -373,7 +373,9 @@ bool CScanner_OpenCV::preScanPrep()
 				dstImage.create(m_mat_image.size(), m_mat_image.type());
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
-				m_mat_image = SetThreshold(m_mat_image, (int)m_fThreshold);  // 设置阈值
+				//m_mat_image = SetThreshold(m_mat_image, (int)m_fThreshold);  // 设置阈值
+				//threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
+				threshold(m_mat_image, m_mat_image, 0, 255, THRESH_OTSU);
 				break;
 										}		
 			case TWPT_GRAY: {			
@@ -591,7 +593,7 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 	if(m_nPixelType == TWPT_RGB)
 	{
 		cvtColor(dst_img, dst_img, CV_BGR2GRAY);
-		//threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+		//threshold(dst_img, dst_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白 将大于阈值的灰度值设为最大灰度值255，小于阈值的值设为0。
 		//cvThreshold(&dst_img, &dst_img, 0, 255, CV_THRESH_OTSU); //OTSU算法二值化
 		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); 	
 	}
@@ -772,7 +774,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
 		{	
 			m_nPixelType = TWPT_BW;
 			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			src_img = SetThreshold(src_img, (int)m_fThreshold);
+			//src_img = SetThreshold(src_img, (int)m_fThreshold);
+			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
 			src_img.copyTo(dst_img);
 		}	
 		break;
@@ -1971,4 +1974,82 @@ Mat CScanner_OpenCV::SetThreshold(Mat src_img, int value)
 	return dst_img;
 }
 
+//输入参数为一个图像指针，返回分割该图像的最佳阈值。
+int CScanner_OpenCV::otsu(IplImage *frame)
+{
+	const int GrayScale = 256; //灰度级
+	int width = frame->width;
+	int height = frame->height;
+	int pixelCount[GrayScale]; //总像素点
+	float pixelPro[GrayScale]; //像素比例
+	int i,j,pixelSum = width*height, threshold = 0;
+	uchar* data = (uchar*)frame->imageData; //指向像素数据的指针
+
+	for(i = 0; i < GrayScale; i++)
+	{
+		pixelCount[i] = 0;
+		pixelPro[i] = 0;
+	}
+
+	//统计灰度级中每个像素在整幅图像中的个数
+	for(i = 0; i < height; i++)
+	{
+		for(j = 0; j < width; j++)
+		{
+			pixelCount[(int)data[i*width + j]]++; //将像素值作为计数数组的下标
+		}
+	}
+
+	//计算每个像素在整幅图像中的比例
+	float maxPro = 0.0;
+	int kk = 0;
+	for(i = 0; i < GrayScale; i++)
+	{
+		pixelPro[i] = (float)pixelCount[i] / pixelSum;
+		if(pixelPro[i] > maxPro)
+		{
+			maxPro = pixelPro[i];
+			kk = i;
+		}
+	}
+
+	//遍历灰度级【0，255】
+	/*w0为背景像素点占整幅图像的比例
+	u0为w0平均灰度
+	w1为前景像素点占整幅图像的比例
+	u1为w1平均灰度
+	u为整幅图像的平均灰度
+	公式:g = w0*pow((u-u0),2) + w1*pow((u-u1),2)*/
+	float w0,w1,u0tmp,u1tmp,u0,u1,u,deltaTmp,deltaMax = 0;
+	for(i = 0; i < GrayScale; i++)
+	{
+		w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
+		for(j = 0; j < GrayScale; j++)
+		{
+			if(j <= i)//背景部分
+			{
+				w0 += pixelPro[j];
+				u0tmp += j * pixelPro[j];
+			}
+			else //前景部分
+			{
+				w1 += pixelPro[j];
+				u1tmp += j * pixelPro[j];
+			}
+		}
+
+		u0 = u0tmp/w0;
+		u1 = u1tmp/w1;
+		u = u0tmp + u1tmp;
+		deltaTmp = w0 * pow((u0 - u), 2) + w1 * pow((u1 - u), 2);
+
+		if(deltaTmp > deltaMax)
+		{
+			deltaMax = deltaTmp;
+			threshold = i;
+		}
+	}
+
+	return threshold;
+}
 

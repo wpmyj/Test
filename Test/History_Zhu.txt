@@ -389,4 +389,8 @@ date 17.1.10
 2、解决昨天遗留问题：将mat数据转换为字节对齐的uchar类型。
 3、修改纸张大小的默认值为A4，不是US letter
 4、增加int FindPaperSize(int index);函数，寻找index对应的纸张大小,返回index对应的纸张大小。在OnCbnSelchangeAdvanced_Combo_Standardsizes以及UpdateControls中都需要。说明：解决“纸张大小”在回到默认模板时，参数不生效的问题。同样的是需要在UpdateControls时再次往Map里写一次值（Cap对应的选项与下拉框对应的序号不相同时，就需要该操作）。
-5、修改几个特殊图像处理时，框架的宽高的设置
+
+date 17.1.11
+------------------------------------------------------------
+@author zhu
+1、修改SetThreshold函数为opencv自带的threshold函数，TYPE类型为THRES_OTSU
