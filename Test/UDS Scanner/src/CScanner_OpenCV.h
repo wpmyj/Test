@@ -371,7 +371,7 @@ protected:
 	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */
 	int               m_i;                      /**< count循环变量*/
 
-	uchar             *m_mat_data;              /**< m_mat_image转为的字节对齐的uchar类型数据*/
+	uchar             *m_byte_image;              /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 }; 
 

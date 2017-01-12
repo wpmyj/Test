@@ -55,6 +55,7 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nSourceHeight(0),
 	m_i(0)
 {
+	m_byte_image = NULL;
 	memset(m_szSourceImagePath, 0, PATH_MAX);
 
 #ifdef TWH_CMP_MSC
@@ -95,9 +96,9 @@ CScanner_OpenCV::~CScanner_OpenCV(void)
 		m_mat_image.release();
 	}
 	
-	if(m_mat_data != NULL)
+	if(m_byte_image != NULL)
 	{
-		free(m_mat_data);
+		free(m_byte_image);
 	}	
 }
 
@@ -173,9 +174,9 @@ bool CScanner_OpenCV::acquireImage()
 	{
 		m_mat_image.release();
 	}
-	if(m_mat_data != NULL)
+	if(m_byte_image != NULL)
 	{
-		free(m_mat_data);
+		free(m_byte_image);
 	}	
 	
 	if(m_bMultiStream)
@@ -224,7 +225,6 @@ bool CScanner_OpenCV::acquireImage()
 		}
 	}
 	
-	
 	// get the image if it exists
 	if(FALSE == FILE_EXISTS(m_szSourceImagePath))
 	{
@@ -251,7 +251,6 @@ bool CScanner_OpenCV::acquireImage()
 	{
 		return false;
 	}
-
 	return true;
 }
 
@@ -361,7 +360,7 @@ bool CScanner_OpenCV::preScanPrep()
 	else//多流输出不使用时//if(g_MuiltStream == 0x00)
 	{
 		//颜色
-		if(m_nPixelType != TWPT_RGB)
+		if(m_nPixelType != TWPT_RGB)//
 		{
 			Mat dstImage;
 			// Apply bit depth color transforms
@@ -1522,7 +1521,7 @@ void CScanner_OpenCV::GetImageData(BYTE *buffer, DWORD &dwReceived)
 void CScanner_OpenCV::Mat2uchar(Mat src_img)
 {
 	m_widthstep = (src_img.step+7)/8*8; //8字节对齐   4字节对齐：(src_img.step+3)/4*4
-	m_mat_data = (BYTE *)calloc(src_img.rows*m_widthstep, sizeof(BYTE)); // 申请内存
+	m_byte_image = (BYTE *)calloc(src_img.rows*m_widthstep, sizeof(BYTE)); // 申请内存
 	int channel = src_img.channels(); 
 
 	// 逐一复制数据  
@@ -1530,7 +1529,7 @@ void CScanner_OpenCV::Mat2uchar(Mat src_img)
 	for (int i = 0; i < src_img.rows; i++)  
 	{ 
 		p1 = src_img.data + i * src_img.step;  //p1 = src_img.data + scanline * src_img.cols * src_img.channels();  
-		p2 = m_mat_data + i * m_widthstep;
+		p2 = m_byte_image + i * m_widthstep;
 	
 		for(int j = 0; j < src_img.cols; j++)  
 		{ 
@@ -1555,7 +1554,7 @@ void CScanner_OpenCV::Mat2uchar(Mat src_img)
 BYTE *CScanner_OpenCV::GetScanLine(int scanline)
 {
 	BYTE *ps;
-	ps = m_mat_data + scanline * m_widthstep;  //memcpy(p2, p1, widthStep);
+	ps = m_byte_image + scanline * m_widthstep;  //memcpy(p2, p1, widthStep);
 	return ps;
 }
 

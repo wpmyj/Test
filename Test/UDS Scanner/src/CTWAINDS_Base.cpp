@@ -779,6 +779,7 @@ bool CTWAINDS_Base::DoXferReadyEvent()
 
   if( dsState_Enabled != m_CurrentState )
   {
+		//::MessageBox(g_hwndDLG,"dsState_Enabled != m_CurrentState","UDS",MB_OK);
     setConditionCode(TWCC_SEQERROR);
     return bRC;
   }
@@ -798,8 +799,10 @@ bool CTWAINDS_Base::DoXferReadyEvent()
                               MSG_XFERREADY,
                               0))
   {
+		//::MessageBox(g_hwndDLG,"DoXferReadyEvent--bRC = true","UDS",MB_OK);
     bRC = true;
   }
+	//::MessageBox(g_hwndDLG,"end--DoXferReadyEvent","UDS",MB_OK);
   return bRC;
 }
 

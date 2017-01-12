@@ -76,9 +76,8 @@ MFC_UI::~MFC_UI(void)
 
 TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndicators)
 {
-	
   TW_INT16 nRes = CTWAIN_UI::DisplayTWAINGUI(Data, bSetup, bIndicators);
-	//::MessageBox(g_hwndDLG,TEXT("MFC_UI::DisplayTWAINGUI!"),MB_CAPTION,MB_OK);
+	
 	if(nRes)
 	{
 		return nRes;
@@ -163,7 +162,6 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	
 	}
 	return TWRC_SUCCESS;
-
 }
 
 void MFC_UI::DestroyTWAINGUI()

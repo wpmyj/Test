@@ -1432,7 +1432,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 
 	_pImageInfo->Planar = FALSE;
 	_pImageInfo->Compression = TWCP_NONE;
-
+	//::MessageBox(g_hwndDLG,"end--getImageInfo",MB_CAPTION,MB_OK);
   return twrc;
 }
 
@@ -1517,7 +1517,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   {
     pnCap->GetCurrent(Count);
   }
-	//::MessageBox(g_hwndDLG,"CAP_XFERCOUNT",MB_CAPTION,MB_OK);
+
   m_Xfers.Count = Count;
 
   // Indicate we have not transferred any images yet
@@ -1528,14 +1528,10 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
 
-	//::MessageBox(g_hwndDLG,"Enable",MB_CAPTION,MB_OK);
-
 	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
 	{
 		if(FALSE == _pData->ShowUI)
 		{   
-			//::MessageBox(g_hwndDLG,"FALSE == _pData->ShowUI",MB_CAPTION,MB_OK);
-			//::MessageBox((HWND)_pData->hParent,"NoUI",MB_CAPTION,MB_OK);
 			// Update the scanner with the latest negotiated caps
 			if(!updateScannerFromCaps())
 			{
@@ -1553,8 +1549,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			// need in order to prepare for the next few calls and the scan.
 			// get the scanner to load the image so that image info calls can be done
 
-
-			//::MessageBox(g_hwndDLG," EnableDS: acquireImage! ",MB_CAPTION,MB_OK);
 			if(!m_pScanner->acquireImage())
 			{
 				::MessageBox(g_hwndDLG,TEXT("There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
@@ -1573,7 +1567,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 		}
 	}
 
- 
   CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
   bool bIndicators = FALSE;
   if(pbCap)
@@ -1584,7 +1577,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   {
     // A user interface is not supported as of right now because we are
     // in text mode.
-		//::MessageBox(hwndDLG,"DisplayTWAINGUI","UDS Scanner",MB_OK);
     m_CurrentState = dsState_Open;
     setConditionCode(TWCC_OPERATIONERROR);
     return TWRC_FAILURE;
@@ -1867,7 +1859,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
-{//::MessageBox(g_hwndDLG,"endXfer",MB_CAPTION,MB_OK);
+{
   TW_INT16 twrc = TWRC_SUCCESS;
 
   if( !( dsState_XferReady == m_CurrentState ||
@@ -1984,7 +1976,8 @@ TW_INT16 CTWAINDS_UDS::resetXfer(pTW_PENDINGXFERS _pXfers)
 
 //////////////////////////////////////////////////////////////////////////////
 bool CTWAINDS_UDS::updateScannerFromCaps()
-{//::MessageBox(g_hwndDLG,"updateScannerFromCaps",MB_CAPTION,MB_OK);
+{
+	//::MessageBox(g_hwndDLG,"updateScannerFromCaps",MB_CAPTION,MB_OK);
   int   nVal;
   float fVal;
 	bool  bVal; //zhu
@@ -2473,6 +2466,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		//::MessageBox(g_hwndDLG,"setSetting",MB_CAPTION,MB_OK);
     m_pScanner->setSetting(settings);
   }
+	//::MessageBox(g_hwndDLG,"end--updateScannerFromCaps",MB_CAPTION,MB_OK);
   return bret;
 }
 
