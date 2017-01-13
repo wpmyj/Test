@@ -136,11 +136,11 @@ if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_
     <PostBuildEvent>
       <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_front.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\TWAIN_logo_back.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_RemovePunch.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_back.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\RemovePunch.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>

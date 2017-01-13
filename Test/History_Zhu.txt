@@ -409,3 +409,4 @@ date 17.1.13
 4、限制高级界面宽、高、Gamma校正这三个需要输入小数的Edit只能输入一个小数点，数字、Backspace和delete键
 5、问题：无论“打开”还是“关闭”，返回值均为TWBP_AUTO。
    解决：该处DS中使用的CAP为UDSCAP_REMOVEBLANK，其对应值为TWRA_DISABLE与TWRA_AUTO；而不是ICAP_AUTODISCARDBLANKPAGES，该CAP是对应滑动条与编辑框的CAP。
+6、修改项目属性中拷贝的图片名称

@@ -1598,7 +1598,6 @@ TW_INT16 CTWAINDS_UDS::enableDSOnly()
   memset(&Data,0,sizeof(TW_USERINTERFACE));
   Data.ShowUI = 1;
 
-
   if(m_pGUI->DisplayTWAINGUI(Data,true,false)!=TWRC_SUCCESS)
   {
     // A user interface is not supported as of right now because we are

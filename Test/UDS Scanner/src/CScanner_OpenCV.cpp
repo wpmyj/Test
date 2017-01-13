@@ -44,8 +44,8 @@ extern BYTE g_MuiltStream;
 extern HINSTANCE   g_hinstance;
 #endif 
 
-#define IMAGENAME_TWAINLOGO "TWAIN_logo.jpg"
-#define IMAGENAME_TWAINLOGO_BACK "TWAIN_logo_back.jpg"
+#define IMAGENAME_TWAINLOGO "Scanner_leaflet_front.jpg"
+#define IMAGENAME_TWAINLOGO_BACK "Scanner_leaflet_back.jpg"
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),
@@ -1087,7 +1087,7 @@ Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, do
 //#define DEGREE 27
 Mat CScanner_OpenCV::AutoCorrect()
 {
-	Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\UDS_AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
 
 	/*
 	int width = img.cols;
@@ -1395,7 +1395,7 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 
 Mat CScanner_OpenCV::RemovePunch(double threshold1, double threshold2)
 {
-	Mat src_img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\UDS_RemovePunch.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	Mat src_img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\RemovePunch.jpg", CV_LOAD_IMAGE_UNCHANGED);
 	vector<Rect> rects;
 	Rect rectTemp(0, 0, 3*src_img.cols/30, 3*src_img.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
 	rects.push_back(Rect(0, 0, src_img.cols, rectTemp.height)); //上侧
