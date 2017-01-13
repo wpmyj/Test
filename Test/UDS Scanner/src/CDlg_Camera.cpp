@@ -195,7 +195,7 @@ BOOL CDlg_Camera::OnInitDialog()
 	m_cbDocList.InsertString(0, "A3 420×297mm");  // Set m_cbDocList
 	m_cbDocList.InsertString(1, "A4 297×210mm");
 	m_cbDocList.InsertString(2, "B5 257×182mm");
-	m_cbDocList.InsertString(3, "A5 210×148cm");
+	m_cbDocList.InsertString(3, "A5 210×148mm");
 	m_cbDocList.InsertString(4, "身份证 95×60mm");
 	m_cbDocList.InsertString(5, "自定义");
 	m_Capture.m_Auto.docSize = m_ini.CamDocSize;
@@ -480,14 +480,14 @@ void CDlg_Camera::OnButton_Help()
 		m_bStop.EnableWindow(FALSE);  // Set m_bStop
 		m_bHelp.SetWindowText("返回");
 		CString strHelp;
-		strHelp  = " 【准备】铺好拍摄垫，连接速拍仪。可放上一张测试文档，调整亮度。\n";
-		strHelp += "   根据文档要求，选择图像、像素、文档旋转或增强等拍摄参数。\n\n";
+		strHelp  = "\n\n 【准备】铺好拍摄垫，连接速拍仪。可放上一张测试文档，调整亮度。\n";
+		strHelp += "  根据文档要求，选择图像、像素、文档旋转或增强等拍摄参数。\n\n";
 		strHelp += " 【智能拍照】清除拍摄垫上的文档，点击【拍照】进入智能连拍状态。\n";
-		strHelp += "   放入文档，系统将自动检测放入的文档，自动拍照。拿走上一张再\n";
-		strHelp += "   放入下一张，系统继续检测拍照。点击【暂停】结束智能连拍。\n\n";
+		strHelp += "  放入文档，系统将自动检测放入的文档，自动拍照。拿走上一张再\n";
+		strHelp += "  放入下一张，系统继续检测拍照。点击【暂停】结束智能连拍。\n\n";
 		strHelp += " 【手动拍照】将文档放在拍摄垫上合适的位置，点击【拍照】。\n\n";
-		strHelp += " 【结束拍照】选择【保存拍照】或【取消拍照】。\n\n";
-		strHelp += " 【调整预览】调整预览方向。【回退】删除图像。\n\n";
+		strHelp += " 【结束拍照】选择【确定】或【取消】。\n\n";
+		strHelp += " 【预览】调整预览方向。\n\n";
 		/*if (m_Capture.m_bActive == false)
 		{
 		CString errMsg;
@@ -497,7 +497,7 @@ void CDlg_Camera::OnButton_Help()
 		errMsg.Format(" 【软件授权】速拍仪未授权, 序列号【%s】。\n   您可以继续测试全部功能，但拍摄图像含水印。\n\n", theApp.m_strCameraMysherSN);
 		strHelp += errMsg;
 		}*/
-		strHelp += "\n\n                                     点击【返回】按钮结束帮助";
+		strHelp += "  点击【返回】按钮结束帮助。\n\n";
 		//::MessageBox(this->m_hWnd,TEXT("SetWindowText!"),MB_CAPTION,MB_OK);
 		m_sPreviewWnd.SetWindowText(strHelp);
 	}
@@ -612,7 +612,7 @@ void CDlg_Camera::ReadCameraSettingFromINI()
 	tempINI.CamOrientation = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMORIENTATION, 0,szINIPath);
 	tempINI.JpegQuality    = (BYTE)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_JPEGQUALITY,   75,szINIPath);  // 默认JPEG图片质量 = 75
 	tempINI.threshold      = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_THRESHOLD,    128,szINIPath);  // 默认阈值 = 128
-	tempINI.DpiNumber      = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPINUMBER,    3,szINIPath);  // 默认图像DPI = 200(3)
+	tempINI.DpiNumber      = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPINUMBER,      3,szINIPath);  // 默认图像DPI = 200(3)
 	//tempINI.YDPI           = (long)GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_YDPI,         200,szINIPath);  // 默认图像YDPI = 200
 
   CString strTemp;
