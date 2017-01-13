@@ -373,8 +373,7 @@ bool CScanner_OpenCV::preScanPrep()
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
 				//m_mat_image = SetThreshold(m_mat_image, (int)m_fThreshold);  // …Ë÷√„–÷µ
-				//threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
-				threshold(m_mat_image, m_mat_image, 0, 255, THRESH_OTSU);
+				threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
 				break;
 										}		
 			case TWPT_GRAY: {			
@@ -604,9 +603,9 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 	}
 	else{}
 
-	for(int i = 0; i < width; i++)
+	for(int j = 0; j < width; j++)
 	{
-		for(int j = 0; j < height; j++)
+		for(int i = 0; i < height; i++)
 		{
 			if(dst_img.channels() == 3)
 			{
@@ -628,7 +627,7 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 	}
 
 	float per = (float)count / (float)(width * height); //224170/(1770*2291)=0.05528 < 0.10000
-
+	
 	/*char buf[10];
 	gcvt(per,10,buf);
 	::MessageBox(g_hwndDLG,TEXT(buf),"per",MB_OK);*/

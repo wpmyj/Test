@@ -17,10 +17,10 @@
 #include "Camera_DirectX.h"
 
 /** 数据源接口唯一标识  */
-#define kCUSTOMDSGUI "{B4FAF845-1383-4036-AEDC-17C3968188B4}"
+#define kCUSTOMDSGUI "{A4FAF845-1383-4036-AEDC-17C3968188B4}"
 
 const TW_GUID CustomDSGUI = 
-{ 0xb4faf845, 0x1383, 0x4036, { 0xae, 0xdc, 0x17, 0xc3, 0x96, 0x81, 0x88, 0xb4 } };
+{ 0xa4faf845, 0x1383, 0x4036, { 0xae, 0xdc, 0x17, 0xc3, 0x96, 0x81, 0x88, 0xb4 } };
 
    
 typedef struct _CUST_DS_DATA_ELEMENT

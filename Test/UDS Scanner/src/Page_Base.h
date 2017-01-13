@@ -21,6 +21,7 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -132,9 +133,9 @@ private:
 	/** 保存当前模板*/
 //	afx_msg void OnBase_Btn_Saveprofile();
 
+	afx_msg void OnBase_Btn_Help();
+
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;
-
-	afx_msg void OnBase_Btn_Help();
 };

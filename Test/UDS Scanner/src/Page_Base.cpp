@@ -67,10 +67,7 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)	
 	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT, &CPage_Base::OnClicked_Check_Multifeeddetect)
 	ON_BN_CLICKED(IDC_BASE_BTN_SAVEASPROFILE, &CPage_Base::OnBase_Btn_SaveAsprofile)
-//	ON_BN_CLICKED(IDC_BASE_BTN_SAVEPROFILE, &CPage_Base::OnBase_Btn_Saveprofile)
-//	ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnBnClickedButton1)
-//ON_BN_CLICKED(IDC_BUTTON1, &CPage_Base::OnClickedButton1)
-ON_BN_CLICKED(IDC_BASE_BTN_HELP, &CPage_Base::OnBase_Btn_Help)
+	ON_BN_CLICKED(IDC_BASE_BTN_HELP, &CPage_Base::OnBase_Btn_Help)
 END_MESSAGE_MAP()
 
 
@@ -339,6 +336,10 @@ BOOL CPage_Base::OnInitDialog()
 
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时不启用
+	/*
+	CEdit* m_edit=(CEdit*)GetDlgItem(IDC_BASE_EDIT_CONTRAST);
+	long nm = GetWindowLong(m_edit->m_hWnd,GWL_STYLE);
+	SetWindowLong(m_edit->m_hWnd, GWL_STYLE, nm|ES_NUMBER); //只能输入数字*/
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -547,7 +548,9 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 	int nval = _ttoi(str);
 	m_slider_threshold.SetPos(nval); //_ttoi把CString类型转换为int
 	//m_basemap.insert(map<int, int> :: value_type(ICAP_THRESHOLD, nval));
-	if(0 == nval)
+	
+	/*
+	if(0 == nval) //阈值设置为0时，表示128
 	{
 		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, 128.0f));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,128.0);  // 设置阈值为当前滚动条值
@@ -558,7 +561,9 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 		//m_basemap.insert(map<int, float> :: value_type(ICAP_THRESHOLD, (float)nval));
 		//m_pUI->SetCapValueFloat(ICAP_THRESHOLD,(float)nval);  // 设置阈值为当前滚动条值
 		m_basemap[ICAP_THRESHOLD] = (float)nval;
-	}
+	}*/
+
+	m_basemap[ICAP_THRESHOLD] = (float)nval;
 
 	m_edit_threshold.SetSel(str.GetLength(), str.GetLength(), TRUE); //设置编辑框控件范围
 	//UpdateControls();
@@ -1153,4 +1158,53 @@ void CPage_Base::OnBase_Btn_Help()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	ShellExecute(NULL,"open","C:\\Windows\\twain_32\\UDS General TWAIN DS\\UDS General TWAIN DS使用手册.chm",NULL,NULL,SW_SHOWNORMAL);
+}
+
+
+BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	//获取控件窗口指针  
+	CEdit* pEdit1 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS);  
+	CEdit* pEdit2 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_CONTRAST);  
+
+	CString str1, str2;   
+	GetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS, str1); // 获取edit中文本  
+	GetDlgItemText(IDC_BASE_EDIT_CONTRAST, str2);
+
+	if( (GetFocus() == pEdit1 ||GetFocus() == pEdit2) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字//和小数点“.”
+		if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else if(pMsg->wParam == '.')
+		{
+			return 1; //不准输入小数点
+		}
+		//保证负号'-'只能出现一次,并且只能出现在第一个字符
+		else if (pMsg->wParam == '-') //亮度、对比度只能输入负号与数字
+		{
+			if(str1.IsEmpty() || str2.IsEmpty())
+			{
+				return 0; //第一位时才能输入
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}  
+
+	return __super::PreTranslateMessage(pMsg);
 }

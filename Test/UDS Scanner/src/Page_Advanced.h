@@ -157,4 +157,5 @@ public:
 	CEdit m_edit_removeblank;
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeAdvanced_Edit_Removeblank();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

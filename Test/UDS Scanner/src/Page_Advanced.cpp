@@ -1818,3 +1818,151 @@ void CPage_Advanced::OnAdvanced_Btn_Check_AutoCrop()
 	m_advancedmap[UDSCAP_AUTOCROP] = (float)nval;
 }
 
+
+
+//PreTranslateMessage返回TRUE时，不会把消息发送给窗口函数处理
+BOOL CPage_Advanced::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	CEdit* pEdit1 = (CEdit*)GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS);  
+	CEdit* pEdit2 = (CEdit*)GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST);  
+
+	CString str1, str2;   
+	GetDlgItemText(IDC_ADVANCED_EDIT_BRIGHTNESS, str1); // 获取edit中文本  
+	GetDlgItemText(IDC_ADVANCED_EDIT_CONTRAST, str2);
+
+	if( (GetFocus() == pEdit1 ||GetFocus() == pEdit2) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字//和小数点“.”
+		if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else if(pMsg->wParam == '.')
+		{
+			return 1; //不准输入小数点
+		}
+		// 保证负号'-'只能出现一次,并且只能出现在第一个字符
+		else if (pMsg->wParam == '-') //亮度、对比度只能输入负号与数字
+		{
+			if(str1.IsEmpty() || str2.IsEmpty())
+			{
+				return 0; //第一位时才能输入
+			}
+			else 
+			{
+				return 1;
+			}
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else
+		{ 
+			return 1; 
+		}
+	}  
+
+	//需要输入小数点的Edit只允许一个小数点
+	CEdit* pEdit3 = (CEdit*)GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA); 
+	CString str3;   
+	GetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, str3); // 获取edit中文本  
+	if( (GetFocus() == pEdit3) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字和小数点“.”
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			int nPos3 = 0; 
+			nPos3 = str3.Find('.'); // 查找.的位置 
+	
+			if(nPos3 >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else
+		{ 
+			return 1; 
+		}
+	}
+
+	//必须分开写，或||操作的话总会满足
+	CEdit* pEdit4 = (CEdit*)GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMWIDTH); 
+	CString str4;     
+	GetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMWIDTH, str4);
+	if( (GetFocus() == pEdit4) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字和小数点“.”
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			int nPos4 = 0; 
+			nPos4 = str4.Find('.');
+			if(nPos4 >= 0)  
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else
+		{ 
+			return 1; 
+		}
+	}
+
+	CEdit* pEdit5 = (CEdit*)GetDlgItem(IDC_ADVANCED_EDIT_CUSTOMHEIGHT);
+	CString str5;   
+	GetDlgItemText(IDC_ADVANCED_EDIT_CUSTOMHEIGHT, str5);
+	if( (GetFocus() == pEdit5) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字和小数点“.”
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			int nPos5 = 0; 
+			nPos5 = str5.Find('.');
+			if(nPos5 >= 0)
+			{
+				return 1;
+			}
+			return 0;
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else
+		{ 
+			return 1; 
+		}
+	}
+
+	return __super::PreTranslateMessage(pMsg);
+}
