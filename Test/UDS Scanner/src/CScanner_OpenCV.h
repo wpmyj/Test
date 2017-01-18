@@ -123,13 +123,21 @@ public:
   *  @brief  获取ADF中纸张个数
 	*  @return 纸张数
 	*/
-	short GetMaxPagesInADF(void){return m_nMaxDocCount;}
+	short GetMaxPagesInADF(void){
+		/*char buf[10];
+		itoa(m_nMaxDocCount,buf,10);
+		::MessageBox(NULL,TEXT(buf),"CScanner_OpenCV::GetMaxPagesInADF()",MB_OK);*/
+		return m_nMaxDocCount;
+	}
 
 	/**
 	*  @brief  设置ADF中最大待扫纸张数
 	*  @param[in]  nVal 设置的数目 
 	*/
-  void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;};
+  void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;
+	/*char buf[64];
+	itoa(m_nMaxDocCount,buf,10);
+	::MessageBox(NULL,TEXT(buf),"CScanner_OpenCV::SetMaxPagesInADF()",MB_OK);*/};
 
 
 	/**
@@ -346,13 +354,18 @@ protected:
 	*/
 	int BitCount(BYTE n);
 
+	/**
+	*  @brief  更换图片
+	*  @param[in]  imageName 图片名  
+	*/
+	void ChangeImage(const TCHAR* imageName);
 
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 
   WORD              m_nScanLine;              /**< Current scan line of image in FreeImage */
   DWORD             m_nDestBytesPerRow;       /**< number of bytes needed for a row of data */
   short             m_nDocCount;              /**< number of documents waiting to transfer */
-  short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
+  //short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
   WORD              m_nSourceWidth;           /**< Width of image in FreeImage */
   WORD              m_nSourceHeight;          /**< Height of image in FreeImage */
  

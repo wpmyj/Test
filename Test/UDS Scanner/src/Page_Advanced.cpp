@@ -10,10 +10,7 @@
 *  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0
 * （背面） 保留 黑白 灰度 彩色    （正面）  保留 黑白 灰度 彩色
 **********************************************************/
-BYTE g_MuiltStream = 0x00;
-
-bool muiltstream; //高级界面多流不选中
-
+bool g_bMuiltStream = false; ///< 判断多流是否选中
 // CPage_Advanced 对话框
 
 IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
@@ -21,11 +18,13 @@ IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
 CPage_Advanced::CPage_Advanced(MFC_UI *pUI)
 	: m_pUI(pUI), CPropertyPage(CPage_Advanced::IDD)
 {
-
+	//m_enum_multiId = FRONT_COLOR;
+	//SetMultiIDValue(); 
 }
 
 CPage_Advanced::~CPage_Advanced()
 {
+	m_advancedmap.swap(map<int, float>());  // 清空并释放内存
 }
 
 void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
@@ -105,7 +104,10 @@ END_MESSAGE_MAP()
 void CPage_Advanced::SetCapValue(void)
 {
 	MAP_CAP::iterator iter;
-
+	if (true == m_advancedmap.empty())
+	{
+		return;
+	}
 	for(iter = m_advancedmap.begin(); iter != m_advancedmap.end(); iter++)
 	{
 		switch(iter->first)
@@ -126,7 +128,6 @@ void CPage_Advanced::SetCapValue(void)
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
 			}	
-
 		case UDSCAP_PUNCHHOLEREMOVEL: //去除穿孔
 			{
 				if(m_check_removepunch.GetCheck()) //去穿孔可用时
@@ -139,7 +140,6 @@ void CPage_Advanced::SetCapValue(void)
 				}
 				break;
 			}
-
 		case UDSCAP_AUTOCROP: //自动裁切与校正
 			{
 				if(m_check_autocrop.GetCheck()) //自动裁切与校正可用  防止客户在选中该项后，又点了多流（此时该项本应不可用），所以在不可用时要设置为FALSE
@@ -152,7 +152,6 @@ void CPage_Advanced::SetCapValue(void)
 				}
 				break;
 			}
-
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
 				if(m_check_multistream.GetCheck())
@@ -170,46 +169,49 @@ void CPage_Advanced::SetCapValue(void)
 						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_RGB);
 					}
 
-					GetCheckNum();
+					//GetCheckNum();
 					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,checknum); //设置扫描张数为checknum	
-
 					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				}	
 				break;
 			}	
-
-		case UDSCAP_FRONTCOLOR: //彩色正面
-		case UDSCAP_FRONTGRAY: //灰度正面
-		case UDSCAP_FRONTBW: //黑白正面
-		case UDSCAP_BACKCOLOR: //彩色背面
-		case UDSCAP_BACKGRAY: //灰度背面
-		case UDSCAP_BACKBW: //黑白背面
-			{
-				if(((CButton*)GetDlgItem(IDC_CHECK_MULTISTREAM))->GetCheck())
-				{
-					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
-				}
-				else
-				{
-					m_pUI->SetCapValueInt(iter->first,FALSE);
-				}
-				break;
-			}	
-
+		//case UDSCAP_FRONTCOLOR: //彩色正面
+		//case UDSCAP_FRONTGRAY: //灰度正面
+		//case UDSCAP_FRONTBW: //黑白正面
+		//case UDSCAP_BACKCOLOR: //彩色背面
+		//case UDSCAP_BACKGRAY: //灰度背面
+		//case UDSCAP_BACKBW: //黑白背面
+		//	{
+		//		if(((CButton*)GetDlgItem(IDC_CHECK_MULTISTREAM))->GetCheck())
+		//		{
+		//			m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+		//		}
+		//		else
+		//		{
+		//			m_pUI->SetCapValueInt(iter->first,FALSE);
+		//		}
+		//		break;
+		//	}	
 		case UDSCAP_SPLITIMAGE: //图像分割
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
-				if((int)(iter->second) != TWSI_NONE)
+				if ( m_combo_splitimage.IsWindowEnabled())
 				{
-					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
+					if((int)(iter->second) != TWSI_NONE)
+					{
+						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2); //设置扫描张数为2
+					}
+					else if((int)(iter->second) == TWSI_NONE /*&& m_pBasePage->scanside == 0*/) //不拆分&&单面
+					{
+						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
+					}	
 				}
-				else if((int)(iter->second) == TWSI_NONE && m_pBasePage->scanside == 0) //不拆分&&单面
+				else
 				{
-					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); //不拆分时又设回1
+					m_pUI->SetCapValueInt(iter->first, TWSI_NONE); //设置参数生效
 				}
 				break;
 			}
-
 		case ICAP_AUTODISCARDBLANKPAGES: //去除空白页
 			{
 				if(m_slider_removeblank.IsWindowEnabled())
@@ -218,18 +220,11 @@ void CPage_Advanced::SetCapValue(void)
 				}	
 				break;
 			}
-
 		case ICAP_GAMMA: //Gamma校正
-			{
-				/*
-				char buf[10];
-				itoa(iter->second, buf, 10);
-				::MessageBox(NULL,TEXT(buf),"ICAP_GAMMA",MB_OK);*/
-
+			{			
 				m_pUI->SetCapValueFloat(iter->first,iter->second);
 				break;
 			}
-
 		case UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS: //去除斑点
 			{
 				if(m_slider_sensitive_threshold.IsWindowEnabled())
@@ -238,7 +233,6 @@ void CPage_Advanced::SetCapValue(void)
 				}	
 				break;
 			}
-
 		case ICAP_THRESHOLD:
 			{
 				if(m_slider_sensitive_threshold.IsWindowEnabled())
@@ -247,7 +241,6 @@ void CPage_Advanced::SetCapValue(void)
 				}
 				break;
 			}
-
 		case ICAP_BRIGHTNESS: //亮度
 			{
 				if(m_slider_brightness.IsWindowEnabled())
@@ -264,14 +257,84 @@ void CPage_Advanced::SetCapValue(void)
 				}
 				break;
 			}
+		case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
+			{
+				 
+				BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+				unsigned int doc_count = 0;
 
+				//若多流未选中多流 选项值设为0，,然后退出
+				if( 0 == m_check_multistream.GetCheck()) {
+					m_pUI->SetCapValueFloat(iter->first, 0.0f); // 保存多流选项值
+					break;
+				}
+
+				/************************************************************
+				* 判断多流chebox各选项的状态;
+				* 若选中则‘&’上对应bit为1的值;
+				* 若未选中则'|'上对应bit为0的值.
+				************************************************************/
+				// 正面彩色
+				if (m_check_frontcolor.GetCheck()) {  
+					temp |= 0x01;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x01);
+				}
+				// 正面彩色
+				if (m_check_frontgray.GetCheck()) {
+					temp |= 0x02;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x02);
+				}
+				// 正面黑白
+				if (m_check_frontbw.GetCheck()) {
+					temp |= 0x04;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x04);
+				}
+				// 背面彩色
+				if (m_check_backcolor.GetCheck()) {
+					temp |= 0x10;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x10);
+				}
+				// 背面灰度
+				if (m_check_backgray.GetCheck()) {
+					temp |= 0x20;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x20);
+				}
+				// 背面黑白
+				if (m_check_backbw.GetCheck()) {
+					temp |= 0x40;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x40);
+				}
+
+				m_pUI->SetCapValueFloat(iter->first, (float)temp); // 保存多流选项值
+				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+			}
+			break;
 		default:
 			{
 				break;
 			}	
-			//未完
+
 		}
 	}
+	
 }
 
 void CPage_Advanced::UpdateControls(void)
@@ -299,12 +362,12 @@ void CPage_Advanced::UpdateControls(void)
 		case TWSS_USLEGAL:
 			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
 			break;
-		case TWSS_PHOT64:
-			m_combo_standardsizes.InsertString(i,"照片64 (6\" x 4\")");  //152mm x 102mm
-			break;
-		case TWSS_PHOT53:
-			m_combo_standardsizes.InsertString(i,"照片53 (5\" x 3\")");  //127mm x 76mm
-			break;
+		//case TWSS_PHOT64:
+		//	m_combo_standardsizes.InsertString(i,"照片64 (6\" x 4\")");  //152mm x 102mm
+		//	break;
+		//case TWSS_PHOT53:
+		//	m_combo_standardsizes.InsertString(i,"照片53 (5\" x 3\")");  //127mm x 76mm
+		//	break;
 		case TWSS_A3:
 			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //国际标准
 			break;
@@ -583,24 +646,105 @@ void CPage_Advanced::UpdateControls(void)
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	m_check_multistream.SetCheck(nCapValue);
-	//彩色正面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTCOLOR));
-	m_check_frontcolor.SetCheck(nCapValue);
-	//灰度正面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTGRAY));
-	m_check_frontgray.SetCheck(nCapValue);
-	//黑白正面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTBW));
-	m_check_frontbw.SetCheck(nCapValue);
-	//彩色背面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKCOLOR));
-	m_check_backcolor.SetCheck(nCapValue);
-	//灰度背面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKGRAY));
-	m_check_backgray.SetCheck(nCapValue);
-	//黑白背面
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKBW));
-	m_check_backbw.SetCheck(nCapValue);
+
+	// 获取多流选项值并更新控件状态
+	BYTE value = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+
+	// 判断多流是否选中
+	if ( 1 == m_check_multistream.GetCheck() ) 
+	{
+		// 循环判断每bit的值，并更新对应控件的状态
+		for (unsigned int i = 0; i < 7; i++)
+		{
+			switch(i)
+			{
+			case 0:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 1:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontgray.SetCheck(FALSE);
+					}
+				}
+			case 2:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 4:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_backcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 5:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_backgray.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 6:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_backbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			value = value >> 1; // 始终比较最低位
+		} // for end
+	} // if end
+
+
+  
+
+	////彩色正面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTCOLOR));
+	//m_check_frontcolor.SetCheck(nCapValue);
+	////灰度正面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTGRAY));
+	//m_check_frontgray.SetCheck(nCapValue);
+	////黑白正面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_FRONTBW));
+	//m_check_frontbw.SetCheck(nCapValue);
+	////彩色背面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKCOLOR));
+	//m_check_backcolor.SetCheck(nCapValue);
+	////灰度背面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKGRAY));
+	//m_check_backgray.SetCheck(nCapValue);
+	////黑白背面
+	//nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_BACKBW));
+	//m_check_backbw.SetCheck(nCapValue);
 }
 
 
@@ -611,14 +755,11 @@ BOOL CPage_Advanced::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	InitAdvancedmap(); //初始化Map
-
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
 	UpdateControls();
-
 	SetMultistream();
 	SetBlank();
-
-	GetCheckNum();
+	//GetCheckNum();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -641,80 +782,14 @@ void CPage_Advanced::SetBlank(void)
 void CPage_Advanced::InitAdvancedmap(void)
 {
 	m_advancedmap.erase(m_advancedmap.begin(),m_advancedmap.end());//清空
-
 	int nCapIndex;
 	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SPLITIMAGE);
 	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex; //初始化时只为map插入“分割Cap”的值，特例
 
+	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+	m_advancedmap[UDSCAP_MULTISTREAM_VALUE] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
 }
 
-
-void CPage_Advanced::GetCheckNum(void)
-{
-	checknum = 0;
-	if(m_check_frontcolor.GetCheck())
-	{
-		g_MuiltStream = g_MuiltStream|0x01; //正面彩色
-		checknum++;
-		/*char buf[10] = {0};
-		_stprintf_s(buf, 10, _T("%02x"), g_MuiltStream);
-		::MessageBox(NULL,TEXT(buf),"0x01",MB_OK);*/
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xFE;
-	}
-
-	if(m_check_frontgray.GetCheck())
-	{ 
-		g_MuiltStream = g_MuiltStream|0x02;  //正面灰度
-		checknum++;
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xFD;
-	}
-
-	if(m_check_frontbw.GetCheck())
-	{
-		g_MuiltStream = g_MuiltStream|0x04;  //正面背白
-		checknum++;
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xFB;
-	}
-
-	if(m_check_backcolor.GetCheck())
-	{
-		g_MuiltStream = g_MuiltStream|0x10;  //背面彩色
-		checknum++;
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xEF;
-	}
-
-	if(m_check_backgray.GetCheck())
-	{
-		g_MuiltStream = g_MuiltStream|0x20;  //背面灰度
-		checknum++;
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xDF;
-	}
-
-	if(m_check_backbw.GetCheck())
-	{
-		g_MuiltStream = g_MuiltStream|0x40;  //背面黑白
-		checknum++;
-	}
-	else
-	{
-		g_MuiltStream = g_MuiltStream&0xBF;
-	}
-}
 
 void CPage_Advanced::SetMultistream(void)
 {
@@ -736,7 +811,6 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD)->EnableWindow(TRUE); //去除斑点Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
 		GetDlgItem(IDC_ADVANCED_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
-
 		GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(FALSE); //图像拆分不可用
 		
 		((CButton*)GetDlgItem(IDC_CHECK_AUTOCROP))->SetCheck(FALSE); //自动裁切与校正不选中
@@ -747,7 +821,7 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(FALSE); //自动裁切与校正不可用
 		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(FALSE);//去除穿孔不可用
 
-		muiltstream = true;
+		g_bMuiltStream = true;
 		m_pBasePage->BaseStatus();
 
 		//m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,nval); 
@@ -796,16 +870,16 @@ void CPage_Advanced::SetMultistream(void)
 		GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(TRUE); //自动裁切与校正可用
 		GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(TRUE); //去除穿孔可用
 
-		muiltstream = false;
+		g_bMuiltStream = false;
 		m_pBasePage->BaseStatus();
 
 		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_FRONTCOLOR,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_FRONTGRAY,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_FRONTBW,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_BACKCOLOR,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_BACKGRAY,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_BACKBW,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_FRONTCOLOR,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_FRONTGRAY,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_FRONTBW,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_BACKCOLOR,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_BACKGRAY,FALSE);
+		//m_pUI->SetCapValueInt(UDSCAP_BACKBW,FALSE);
 
 		//m_advancedmap.insert(map<int, float> :: value_type(UDSCAP_MULTISTREAM, 0.0));
 		m_advancedmap[UDSCAP_MULTISTREAM] = 0.0f;
@@ -880,18 +954,18 @@ void CPage_Advanced::SetStandardsizes(void)
 	int nIndex = m_combo_standardsizes.GetCurSel();
 	CString strCBText; 
 	m_combo_standardsizes.GetLBText( nIndex, strCBText);
-	if (strCBText.Find("自定义") >= 0)
-	{
-		m_edit_custom_width.EnableWindow(TRUE);
-		m_edit_custom_height.EnableWindow(TRUE);
-		m_combo_uints.EnableWindow(TRUE);
-	} 
-	else
-	{
-		m_edit_custom_width.EnableWindow(FALSE);
-		m_edit_custom_height.EnableWindow(FALSE);
-		m_combo_uints.EnableWindow(FALSE); //单位此时也不可用
-	}
+	//if (strCBText.Find("自定义") >= 0)
+	//{
+	//	m_edit_custom_width.EnableWindow(TRUE);
+	//	m_edit_custom_height.EnableWindow(TRUE);
+	//	m_combo_uints.EnableWindow(TRUE);
+	//} 
+	//else
+	//{
+	//	//m_edit_custom_width.EnableWindow(FALSE);
+	//	//m_edit_custom_height.EnableWindow(FALSE);
+	//	//m_combo_uints.EnableWindow(FALSE); //单位此时也不可用
+	//}
 }
 
 int CPage_Advanced::FindPaperSize(int index)
@@ -907,14 +981,14 @@ int CPage_Advanced::FindPaperSize(int index)
 	{
 		nval = TWSS_USLETTER;
 	}
-	else if (strCBText.Find("照片64") >= 0)
-	{
-		nval = TWSS_PHOT64;
-	}
-	else if (strCBText.Find("照片53") >= 0)
-	{
-		nval = TWSS_PHOT53;
-	}
+	//else if (strCBText.Find("照片64") >= 0)
+	//{
+	//	nval = TWSS_PHOT64;
+	//}
+	//else if (strCBText.Find("照片53") >= 0)
+	//{
+	//	nval = TWSS_PHOT53;
+	//}
 	else if (strCBText.Find("US Legal") >= 0)
 	{
 		nval = TWSS_USLEGAL;
@@ -1550,17 +1624,18 @@ void CPage_Advanced::OnAdvanced_Btn_Check_FrontColor()
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
 
-	int nval;
-	if (m_check_frontcolor.GetCheck())
-	{
-		nval = TWFC_AUTO;
-	} 
-	else
-	{
-		nval = TWFC_DISABLE;
-	}
-	m_advancedmap[UDSCAP_FRONTCOLOR] = (float)nval;
-	GetCheckNum();
+	//int nval;
+	//if (m_check_frontcolor.GetCheck())
+	//{
+	//	nval = TWFC_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWFC_DISABLE;
+	//}
+
+	//m_advancedmap[UDSCAP_FRONTCOLOR] = (float)nval;
+	//GetCheckNum();
 }
 
 //灰度正面
@@ -1569,17 +1644,17 @@ void CPage_Advanced::OnAdvanced_Btn_Check_FrontGray()
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
 
-	int nval;
-	if (m_check_frontgray.GetCheck())
-	{
-		nval = TWFG_AUTO;
-	} 
-	else
-	{
-		nval = TWFG_DISABLE;
-	}
-	m_advancedmap[UDSCAP_FRONTGRAY] = (float)nval;
-	GetCheckNum();
+	//int nval;
+	//if (m_check_frontgray.GetCheck())
+	//{
+	//	nval = TWFG_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWFG_DISABLE;
+	//}
+	//m_advancedmap[UDSCAP_FRONTGRAY] = (float)nval;
+	//GetCheckNum();
 }
 
 //黑白正面
@@ -1588,18 +1663,17 @@ void CPage_Advanced::OnAdvanced_Btn_Check_FrontBW()
 	// TODO: 在此添加控件通知处理程序代码
 	SetBWImage();
 
-	int nval;
-	if (m_check_frontbw.GetCheck())
-	{
-		nval = TWFB_AUTO;
-	} 
-	else
-	{
-		nval = TWFB_DISABLE;
-	}
-	m_advancedmap[UDSCAP_FRONTBW] = (float)nval;
-
-	GetCheckNum();
+	//int nval;
+	//if (m_check_frontbw.GetCheck())
+	//{
+	//	nval = TWFB_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWFB_DISABLE;
+	//}
+	//m_advancedmap[UDSCAP_FRONTBW] = (float)nval;
+	//GetCheckNum();
 }
 
 //彩色背面
@@ -1608,17 +1682,17 @@ void CPage_Advanced::OnAdvanced_Btn_Check_BackColor()
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
 
-	int nval;
-	if (m_check_backcolor.GetCheck())
-	{
-		nval = TWBC_AUTO;
-	} 
-	else
-	{
-		nval = TWBC_DISABLE;
-	}
-	m_advancedmap[UDSCAP_BACKCOLOR] = (float)nval;
-	GetCheckNum();
+	//int nval;
+	//if (m_check_backcolor.GetCheck())
+	//{
+	//	nval = TWBC_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWBC_DISABLE;
+	//}
+	//m_advancedmap[UDSCAP_BACKCOLOR] = (float)nval;
+	//GetCheckNum();
 }
 
 //灰度背面
@@ -1627,17 +1701,17 @@ void CPage_Advanced::OnAdvanced_Btn_Check_BackGray()
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
 
-	int nval;
-	if (m_check_backgray.GetCheck())
-	{
-		nval = TWBG_AUTO;
-	} 
-	else
-	{
-		nval = TWBG_DISABLE;
-	}
-	m_advancedmap[UDSCAP_BACKGRAY] = (float)nval;
-	GetCheckNum();
+	//int nval;
+	//if (m_check_backgray.GetCheck())
+	//{
+	//	nval = TWBG_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWBG_DISABLE;
+	//}
+	//m_advancedmap[UDSCAP_BACKGRAY] = (float)nval;
+	//GetCheckNum();
 }
 
 //黑白背面
@@ -1646,17 +1720,17 @@ void CPage_Advanced::OnAdvanced_Btn_Check_BackBW()
 	// TODO: 在此添加控件通知处理程序代码
 	SetBWImage();
 
-	int nval;
-	if (m_check_backbw.GetCheck())
-	{
-		nval = TWBB_AUTO;
-	} 
-	else
-	{
-		nval = TWBB_DISABLE;
-	}
-	m_advancedmap[UDSCAP_BACKBW] = (float)nval;
-	GetCheckNum();
+	//int nval;
+	//if (m_check_backbw.GetCheck())
+	//{
+	//	nval = TWBB_AUTO;
+	//} 
+	//else
+	//{
+	//	nval = TWBB_DISABLE;
+	//}
+	//m_advancedmap[UDSCAP_BACKBW] = (float)nval;
+	//GetCheckNum();
 }
 
 //去除空白页
@@ -1966,3 +2040,32 @@ BOOL CPage_Advanced::PreTranslateMessage(MSG* pMsg)
 
 	return __super::PreTranslateMessage(pMsg);
 }
+
+//void CPage_Advanced::SetMultiIDValue()
+//{
+//	multiID[0] = IDC_CHECK_FRONTCOLOR;
+//	multiID[1] = IDC_CHECK_FRONTGRAY;
+//	multiID[2] = IDC_CHECK_FRONTBW;
+//	multiID[3] = IDC_CHECK_BACKCOLOR;
+//	multiID[4] = IDC_CHECK_BACKGRAY;
+//	multiID[5] = IDC_CHECK_BACKBW;
+//}
+
+
+//void CPage_Advanced::OnOK()
+//{
+//	// TODO: 在此添加专用代码和/或调用基类
+//	SetCapValue(); 
+//	m_pUI->TW_SaveProfileToFile("上次使用模板");
+//
+//	if(m_pUI->m_bSetup)  // EnableDSOnly
+//	{
+//		m_pUI->Save();
+//	}
+//	else  
+//	{
+//		m_pUI->Scan();
+//	}
+//	//::MessageBox(NULL,TEXT("CPage_Advanced::OnOK()!"),MB_CAPTION,MB_OK);
+//	__super::OnOK();
+//}

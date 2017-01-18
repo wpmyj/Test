@@ -14,7 +14,6 @@ IMPLEMENT_DYNAMIC(CPage_Paper, CPropertyPage)
 CPage_Paper::CPage_Paper(MFC_UI *pUI)
 	: m_pUI(pUI),CPropertyPage(CPage_Paper::IDD)
 {
-
 }
 
 CPage_Paper::~CPage_Paper()
@@ -99,12 +98,12 @@ void CPage_Paper::UpdateControls(void)
 		case TWSS_USLEGAL:
 			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
 			break;
-		case TWSS_PHOT64:
-			m_combo_standardsizes.InsertString(i,"ÕÕÆ¬64 (6\" x 4\")");  //152mm x 102mm
-			break;
-		case TWSS_PHOT53:
-			m_combo_standardsizes.InsertString(i,"ÕÕÆ¬53 (5\" x 3\")");  //127mm x 76mm
-			break;
+		//case TWSS_PHOT64:
+		//	m_combo_standardsizes.InsertString(i,"ÕÕÆ¬64 (6\" x 4\")");  //152mm x 102mm
+		//	break;
+		//case TWSS_PHOT53:
+		//	m_combo_standardsizes.InsertString(i,"ÕÕÆ¬53 (5\" x 3\")");  //127mm x 76mm
+		//	break;
 		case TWSS_A3:
 			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //¹ú¼Ê±ê×¼
 			break;
@@ -280,14 +279,14 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Standardsizes()
 	{
 		nval = TWSS_USLEGAL;
 	}
-	else if (strCBText.Find("ÕÕÆ¬64") >= 0)
-	{
-		nval = TWSS_PHOT64;
-	}
-	else if (strCBText.Find("ÕÕÆ¬53") >= 0)
-	{
-		nval = TWSS_PHOT53;
-	}
+	//else if (strCBText.Find("ÕÕÆ¬64") >= 0)
+	//{
+	//	nval = TWSS_PHOT64;
+	//}
+	//else if (strCBText.Find("ÕÕÆ¬53") >= 0)
+	//{
+	//	nval = TWSS_PHOT53;
+	//}
 	else if (strCBText.Find("ISO A3") >= 0)
 	{
 		nval = TWSS_A3;

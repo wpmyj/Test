@@ -18,7 +18,6 @@ public:
 	
 	int brightness; //用于高级界面的参数同步
 	int contrast;
-
 	int scanside; //用于记录基本界面是单面还是双面，便于解决与高级的SetCapValue中的“分割”设置UDSCAP_DOCS_IN_ADF的冲突
 };
 

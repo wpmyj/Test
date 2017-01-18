@@ -133,7 +133,8 @@ BOOL CSheet_Scanner::OnInitDialog()
 	BOOL bResult = CPropertySheet::OnInitDialog();
 
 	// TODO:  在此添加您的专用代码
-
+	SetActivePage(m_p_page_advanced);
+	SetActivePage(m_p_page_base);
 	if(m_pUI->m_bSetup)  // EnableDSUIOnly（只打开驱动界面），更改按钮名称为“保存”
 	{
 		GetDlgItem(IDOK)->SetWindowText("保存");

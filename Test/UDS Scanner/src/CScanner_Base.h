@@ -86,7 +86,7 @@ public:
 	*  @note  仅供虚拟扫描仪使用
 	*  @Return:  short:纸张数量
 	*/
-  virtual short GetMaxPagesInADF(void) {return 0;}
+  virtual short GetMaxPagesInADF(void) {return m_nMaxDocCount;}
 
 	/**
 	*  @brief  设置自动进纸器(ADF)中纸张数量.
@@ -147,7 +147,13 @@ public:
 	bool              m_bDescreen;              /**< 去网纹 */ //weizhaojian
 	bool              m_bDenoise;               /**< 去噪声 */
 	bool              m_bAutoCrop;              /**< 自动裁切与校正 */
+  short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
 
+	/**********************************************************
+	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0
+	* （背面） 保留 黑白 灰度 彩色    （正面）  保留 黑白 灰度 彩色
+	**********************************************************/
+	BYTE              m_byteMultiValue;         /**< 多流选项值 */
 protected:
 	bool              m_bReadOnly;              /**< current mode */
 

@@ -2,9 +2,10 @@
 
 
 CScanner_Base::CScanner_Base():
-m_bReadOnly(false)
+	m_bReadOnly(false),
+	m_byteMultiValue(0x00)
 {
-
+        
 }
 
 
@@ -47,6 +48,9 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 	m_bDescreen						= settings.m_bDescreen;
 	m_bDenoise						= settings.m_bDenoise;
 	m_bAutoCrop						= settings.m_bAutoCrop;
+	m_nMaxDocCount        = settings.m_nMaxDocCount;
+	m_byteMultiValue      = settings.m_byteMultiValue;
+
 }
 
 CScanner_Base* CScanner_Base::getSetting() const

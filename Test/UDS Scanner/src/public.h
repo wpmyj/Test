@@ -73,8 +73,7 @@ typedef enum DEVICE_NUMBER
 
 #define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
 #define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+7  /**< 图像锐化 */
-#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+22 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值
-//#define CUSTCAP_GAMMA                 CAP_CUSTOMBASE+8  /**< Gamma图像校正    Twain已有ICAP_GAMMA*/
+
 #define UDSCAP_MIRROR                   CAP_CUSTOMBASE+9  /**< 图像镜像处理 */
 #define UDSCAP_REMOVEBACKGROUND         CAP_CUSTOMBASE+10 /**< 去除背景 */
 #define UDSCAP_DESCREEN                 CAP_CUSTOMBASE+11 /**< 去网纹 */
@@ -84,13 +83,15 @@ typedef enum DEVICE_NUMBER
 #define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
 #define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
 
-#define UDSCAP_FRONTCOLOR               CAP_CUSTOMBASE+16 /**< 彩色正面 */
-#define UDSCAP_FRONTGRAY                CAP_CUSTOMBASE+17 /**< 灰度正面 */
-#define UDSCAP_FRONTBW                  CAP_CUSTOMBASE+18 /**< 黑白正面 */
-#define UDSCAP_BACKCOLOR                CAP_CUSTOMBASE+19 /**< 彩色背面 */
-#define UDSCAP_BACKGRAY                 CAP_CUSTOMBASE+20 /**< 灰度背面 */
-#define UDSCAP_BACKBW                   CAP_CUSTOMBASE+21 /**< 黑白背面 */
+//#define UDSCAP_FRONTCOLOR               CAP_CUSTOMBASE+16 /**< 彩色正面 */
+//#define UDSCAP_FRONTGRAY                CAP_CUSTOMBASE+17 /**< 灰度正面 */
+//#define UDSCAP_FRONTBW                  CAP_CUSTOMBASE+18 /**< 黑白正面 */
+//#define UDSCAP_BACKCOLOR                CAP_CUSTOMBASE+19 /**< 彩色背面 */
+//#define UDSCAP_BACKGRAY                 CAP_CUSTOMBASE+20 /**< 灰度背面 */
+//#define UDSCAP_BACKBW                   CAP_CUSTOMBASE+21 /**< 黑白背面 */
 
+#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+22 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */
+#define UDSCAP_MULTISTREAM_VALUE        CAP_CUSTOMBASE+23 /**< 多流输出选项值 */
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -144,9 +145,9 @@ typedef enum DEVICE_NUMBER
 #define TWAC_AUTO                 TRUE
 
 
-/* ICAP_SUPPORTEDSIZES values (SS_ means Supported Sizes) 典型页面大小的固定的帧大小。added by zhu*/
-#define TWSS_PHOT64               55
-#define TWSS_PHOT53               56
+///* ICAP_SUPPORTEDSIZES values (SS_ means Supported Sizes) 典型页面大小的固定的帧大小。added by zhu*/
+//#define TWSS_PHOT64               55
+//#define TWSS_PHOT53               56
 
 
 /* UDSCAP_FRONTCOLOR values (FC_ means FRONTCOLOR)彩色正面。*/

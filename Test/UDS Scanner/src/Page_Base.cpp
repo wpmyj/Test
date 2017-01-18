@@ -11,7 +11,7 @@
 
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
-extern bool muiltstream; //高级界面多流不选中
+extern bool g_bMuiltStream; //高级界面多流不选中
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
@@ -76,6 +76,7 @@ END_MESSAGE_MAP()
 
 void CPage_Base::OnOK()
 {
+	//::MessageBox(g_hwndDLG,TEXT("CPage_Base::OnOK()!"),MB_CAPTION,MB_OK);
 	// TODO: 在此添加专用代码和/或调用基类
 	SetCapValue(); //点击确定后才设置	
 	m_pAdPage->SetCapValue(); //先设置高级界面，再设置基本界面,否则基本的“双面”设置后，高级的“分割”又设置为1了
@@ -90,6 +91,7 @@ void CPage_Base::OnOK()
 	{
 		m_pUI->Scan();
 	}
+	//::MessageBox(g_hwndDLG,TEXT("CPage_Base::OnOK()! end"),MB_CAPTION,MB_OK);
 
 	CPropertyPage::OnOK();
 }
@@ -244,7 +246,6 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_colormode.SetCurSel(nCapIndex);
 
-	
 	// 分辨率
 	//m_pUI->SetCapValueFloat(ICAP_XRESOLUTION,0);
 	m_combo_resolution.ResetContent();
@@ -259,7 +260,6 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_resolution.SetCurSel(nCapIndex);
 
-	
 	// 单面/双面扫
 	// @see CTWAINDS_FreeIMage.cpp Line 675
 	m_combo_scanside.ResetContent();  // 清空内容
@@ -275,36 +275,29 @@ void CPage_Base::UpdateControls(void)
 		m_combo_scanside.SetCurSel(nCapIndex);  // 显示默认值
 		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; 
 	}
-
 	// 对比度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	//m_edit_contrast.SetWindowText(strText);
 	SetDlgItemText(IDC_BASE_EDIT_CONTRAST,strText);
-
 	// 亮度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS));
 	m_slider_brightness.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	//m_edit_brightness.SetWindowText(strText);
 	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,strText);
-
 	// 阈值 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 	m_slider_threshold.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	//m_edit_threshold.SetWindowText(strText);
 	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
-
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
 	m_check_multifeeddetect.SetCheck(nCapValue);
-
-	muiltstream = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
-
+	g_bMuiltStream = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
-
 	UpdateData(FALSE);
 }
 
@@ -323,15 +316,12 @@ void CPage_Base::InitBasemap(void)
 BOOL CPage_Base::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
-
 	// TODO:  在此添加额外的初始化	
 	InitBasemap();
-
 	InitSliderCtrl();
 	UpdateControls();
 
 	InitComboProfile();
-
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
@@ -348,7 +338,7 @@ BOOL CPage_Base::OnInitDialog()
 
 void CPage_Base::BaseStatus(void)
 {
-	if(muiltstream)
+	if(g_bMuiltStream)
 	{
 		//AfxMessageBox("不图像类型可用");
 		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(FALSE);
@@ -944,9 +934,10 @@ void CPage_Base::InitComboProfile()
 	m_combo_profile.ResetContent();
 	m_combo_profile.InsertString(0,"默认模板");
   m_combo_profile.SetCurSel(0); //设置为默认模板
-	
+
 	NewBaseProfile();
 	SetLastProfile();
+	SetDelete();
 }
 
 //遍历模板，设置模板中存在“上次使用模板”的情况
@@ -1032,15 +1023,7 @@ void CPage_Base::LoadProfile()
 	int nIndex = m_combo_profile.GetCurSel();
 	if(0 == nIndex)  // 默认模板，重置驱动参数
 	{
-		bool resetstatus = m_pUI->ResetAllCaps();
-		if(resetstatus)
-		{
-			//::MessageBox(g_hwndDLG,"Reset成功","m_nSourceHeight",MB_OK);
-		}
-		else
-		{
-			//::MessageBox(g_hwndDLG,"Reset失败","m_nSourceHeight",MB_OK);
-		}
+		m_pUI->ResetAllCaps();
 	}
 	else  // 其它模板
 	{	
@@ -1069,7 +1052,7 @@ void CPage_Base::SetDelete(void)
 	int nIndex = m_combo_profile.GetCurSel();
 	CString strCBText; 
 	m_combo_profile.GetLBText( nIndex, strCBText);
-	if (strCBText.Find("UDS") >= 0)
+	if (strCBText.Find("UDS") >= 0 || strCBText.Find("默认模板") >= 0)
 	{
 		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(FALSE);
 	} 
@@ -1133,23 +1116,18 @@ bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype,
 	if(false == m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype)) { 
 		return false;
 	}
-	
 	if(false == m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,duplexenabled)) {
 		return false;
 	}
-
 	if(false == m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution)) { 
 		return false;
 	}
-
 	if(false == m_pUI->SetCapValueInt(ICAP_YRESOLUTION,resolution)) {
 		return false;
 	}
-
 	if(false == m_pUI->TW_SaveProfileToFile(profilename)) {
 		return false;
 	}
-
 	return true;
 }
 

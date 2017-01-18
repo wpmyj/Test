@@ -93,6 +93,19 @@ private:
 
 	TW_FRAME frame;
 
+	//typedef enum _MULTISTREAM_ID
+	//{
+	//	FRONT_COLOR = IDC_CHECK_FRONTCOLOR,
+	//	FRONT_GRAY,  
+	//	FRONT_BW,    
+	//	BACK_COLOR = FRONT_BW + 2, 
+	//	BACK_GRAY,  
+	//  BACK_BW,    
+	//} MULTISTREAM_ID;
+
+	//MULTISTREAM_ID m_enum_multiId;
+
+	//int multiID[6];
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
@@ -104,11 +117,12 @@ public:
 	void SetStandardsizes(void); ///<设置纸张大小选择“自定义”时，宽、高的连动
 	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
 
-	void GetCheckNum(void); ///<获取多流输出下有几个选中
+	//void GetCheckNum(void); ///<获取多流输出下有几个选中
 	void SetBlank(void); ///<判断并设置去除空白页checkBox的初始状态
 
 	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
-
+	 
+	//void SetMultiIDValue();  ///< 给数组multiID赋值
 private:
 	virtual BOOL OnInitDialog();
 
@@ -158,4 +172,5 @@ public:
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeAdvanced_Edit_Removeblank();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	//virtual void OnOK();
 };

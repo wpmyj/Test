@@ -30,7 +30,6 @@
 //#pragma comment(lib,"Tiff.lib")
 
 extern HWND g_hwndDLG;
-extern BYTE g_MuiltStream;
 
 //using namespace std;
 
@@ -44,8 +43,8 @@ extern BYTE g_MuiltStream;
 extern HINSTANCE   g_hinstance;
 #endif 
 
-#define IMAGENAME_TWAINLOGO "Scanner_leaflet_front.jpg"
-#define IMAGENAME_TWAINLOGO_BACK "Scanner_leaflet_back.jpg"
+#define IMAGENAME_FRONT "Scanner_leaflet_front.jpg"
+#define IMAGENAME_BACK "Scanner_leaflet_back.jpg"
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),
@@ -78,10 +77,8 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 
 	//SSNPRINTF(m_szSourceImagePath, sizeof(m_szSourceImagePath),
 		//PATH_MAX, "%s%cTWAIN_logo.jpg", szTWAIN_DS_DIR, PATH_SEPERATOR);
-	SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-	strcat(m_szSourceImagePath,  "\\");
-	strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
-	//::MessageBox(g_hwndDLG,m_szSourceImagePath,"路径1",MB_OK);
+
+	ChangeImage(IMAGENAME_FRONT);
 
 	// set default caps
 	resetScanner();
@@ -165,6 +162,9 @@ void CScanner_OpenCV::setSetting(CScanner_Base settings)
 {
 	CScanner_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
+	//char buf[64];
+	//itoa(m_nDocCount,buf,10);
+	//::MessageBox(g_hwndDLG,TEXT(buf),"setSetting",MB_OK);
 }
 
 bool CScanner_OpenCV::acquireImage()
@@ -181,28 +181,27 @@ bool CScanner_OpenCV::acquireImage()
 	
 	if(m_bMultiStream)
 	{
-		m_totalImageCount = BitCount(g_MuiltStream); //计算g_MuiltStream中1的个数
-
+		m_totalImageCount = BitCount(m_byteMultiValue); //计算1的个数
 		BYTE m_tempMuilt;
-		m_tempMuilt = g_MuiltStream;
+		m_tempMuilt = m_byteMultiValue;
 		m_tempMuilt = m_tempMuilt & 0x0F;
 		m_frontImageCount = BitCount(m_tempMuilt); //低四位中1的个数
 
 		if(m_i < m_frontImageCount)
 		{
-			SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-			strcat(m_szSourceImagePath,  "\\");
-			strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
-
+			ChangeImage(IMAGENAME_FRONT);
 			m_i++;		
 		}
 		//当背面选中时，换一张图片
 		else
 		{
-			SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-			strcat(m_szSourceImagePath,  "\\");
-			strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
+			ChangeImage(IMAGENAME_BACK);
 			m_i++;
+		}
+
+		if (m_i > m_totalImageCount-1)
+		{
+			m_i = 0;
 		}
 	}
 	else //多流未选中
@@ -212,16 +211,16 @@ bool CScanner_OpenCV::acquireImage()
 		{
 			if(m_nDocCount == 2) //正面
 			{
-				SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-				strcat(m_szSourceImagePath,  "\\");
-				strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO);
+				ChangeImage(IMAGENAME_FRONT);
 			}
 			else if(m_nDocCount == 1) //反面
 			{
-				SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
-				strcat(m_szSourceImagePath,  "\\");
-				strcat(m_szSourceImagePath, IMAGENAME_TWAINLOGO_BACK);
+				ChangeImage(IMAGENAME_BACK);
 			}
+		} // if(m_bDuplex) end
+		else // 单面
+		{
+			ChangeImage(IMAGENAME_FRONT);
 		}
 	}
 	
@@ -353,11 +352,18 @@ bool CScanner_OpenCV::preScanPrep()
 	{
 		Mat matMuilt;
 		m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
-		BYTE m_byteMuilt = g_MuiltStream;
+		BYTE m_byteMuilt = m_byteMultiValue;
+
+		//char buf[10];
+		//itoa(m_byteMuilt,buf,10);
+		//::MessageBox(g_hwndDLG,TEXT(buf),"preScaanPrep_m_byteMuilt_1",MB_OK);
 		m_byteMuilt = SwitchBYTE(m_byteMuilt);
+
+		//itoa(m_byteMuilt,buf,10);
+		//::MessageBox(g_hwndDLG,TEXT(buf),"preScaanPrep_m_byteMuilt_2",MB_OK);
 		m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
 	}
-	else//多流输出不使用时//if(g_MuiltStream == 0x00)
+	else//多流输出不使用时//if(m_byteMultiValue == 0x00)
 	{
 		//颜色
 		if(m_nPixelType != TWPT_RGB)//
@@ -647,6 +653,11 @@ bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
 {
 	static BYTE tempbyte = src;
+
+	if (0x00 == tempbyte)
+	{
+		tempbyte = src;
+	}
 	if((tempbyte & 0x01) == 0x01)
 	{
 		tempbyte = tempbyte & 0xFE;
@@ -682,12 +693,7 @@ BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
 		tempbyte = tempbyte & 0xF8;
 		return 0x07;
 	}
-	else
-	{
-		return tempbyte;
-	}
-
-	if((tempbyte & 0x10) == 0x10)
+	else if((tempbyte & 0x10) == 0x10)
 	{
 		tempbyte = tempbyte & 0xEF;
 		return 0x10;
@@ -712,7 +718,7 @@ BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
 		tempbyte = tempbyte & 0xAF;
 		return 0x50;
 	}
-	else if((tempbyte & 0x60) == 0x60)
+	if((tempbyte & 0x60) == 0x60)
 	{
 		tempbyte = tempbyte & 0x9F;
 		return 0x60;
@@ -724,8 +730,38 @@ BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
 	}
 	else
 	{
-		return tempbyte;
+		return 0x00;
 	}
+
+
+	//static BYTE x = 0x01;
+
+	//if ( 0x10 <= x)
+	//{
+	//	x += 0x10;
+	//}
+	//else
+	//{
+	//	x += 0x01;
+	//}
+
+	//if ( 0x08 == x)
+	//{
+	//	x = 0x10;
+	//}
+	//else if ( 0x80 == x)
+	//{
+	//	x= 0x01;
+	//}
+
+	//if( (tempbyte & x) == x )
+	//{
+	//	tempbyte = tempbyte & (0xFF - x);
+	//	return x;
+	//}
+
+
+	
 
 }
 
@@ -1745,7 +1781,7 @@ void CScanner_OpenCV::SpiltImage(const Mat& src_img,int m,int n)
 		matTemp.copyTo(m_mat_image);
 		cvReleaseImage(&Ipldst);  		
 	}
-	else if(m_nDocCount == 0)
+	else if(m_nDocCount  == 0)
 	{
 		if(m_nSpiltImage == TWSI_HORIZONTAL)
 		{
@@ -2049,5 +2085,12 @@ int CScanner_OpenCV::otsu(IplImage *frame)
 	}
 
 	return threshold;
+}
+
+void CScanner_OpenCV::ChangeImage(const TCHAR* imageName)
+{
+	SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
+	strcat(m_szSourceImagePath,  "\\");
+	strcat(m_szSourceImagePath, imageName);
 }
 
