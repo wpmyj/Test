@@ -46,6 +46,7 @@
 #include "CommonTWAIN.h"
 
 #include "public.h"
+#include "uds_cap.h"
 
 #ifdef TWH_CMP_MSC
   #include "resource.h"

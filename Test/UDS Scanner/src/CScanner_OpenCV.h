@@ -86,15 +86,6 @@ public:
   bool resetScanner();
 
   /**
-  * Get a scan line and put it into the _ImageXfer, fill values in _ImageXfer.
-  * @param[out] pTransferBuffer a pointer to an array of bytes to store the image data
-  * @param[in]  dwRead the number of bytes to read from scanner
-  * @param[out] dwReceived the actual number of bytes transfered
-  * @return true if successful
-  */
-  //bool getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived);
-
-  /**
   * Retrieves the image to scan from disk into memory.
   * @return true if image was loaded into memory successfully.
   */
@@ -124,9 +115,6 @@ public:
 	*  @return 纸张数
 	*/
 	short GetMaxPagesInADF(void){
-		/*char buf[10];
-		itoa(m_nMaxDocCount,buf,10);
-		::MessageBox(NULL,TEXT(buf),"CScanner_OpenCV::GetMaxPagesInADF()",MB_OK);*/
 		return m_nMaxDocCount;
 	}
 
@@ -134,10 +122,7 @@ public:
 	*  @brief  设置ADF中最大待扫纸张数
 	*  @param[in]  nVal 设置的数目 
 	*/
-  void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;
-	/*char buf[64];
-	itoa(m_nMaxDocCount,buf,10);
-	::MessageBox(NULL,TEXT(buf),"CScanner_OpenCV::SetMaxPagesInADF()",MB_OK);*/};
+  void SetMaxPagesInADF(short nVal){m_nMaxDocCount = nVal;};
 
 
 	/**
@@ -166,22 +151,6 @@ protected:
   * @return true if successful
   */
   bool preScanPrep();
-
-	int otsu(IplImage *frame);
-	/**
-	*  @brief  获取图片数据.
-	*  @note 仅供扫描仪opencv使用
-	*  @param[out] buffer 保存图片数据buffer.
-	*  @param[out] dwReceived 传输的实际大小（以字节为单位）
-	*/
-	//void GetImageData(BYTE *buffer, DWORD &dwReceived);
-
-	/**
-	*  @brief  Mat类型转BYTE*
-	*  @param[in]  matIn 待转换的Mat型变量
-	*  @param[out] bytesOut  转换完成的BYTE*类型变量
-	*/
-	//void MatToBYTEs(cv::Mat matIn, BYTE* bytesOut);
 
 	/**
   * Get a scan line and put it into the _ImageXfer, fill values in _ImageXfer.
@@ -218,11 +187,6 @@ protected:
 	void MedianSmooth(const Mat &src);
 
 	/**
-	*  @brief  高斯滤波
-	*/
-	//void GaussianSmooth(const Mat &src);
-
-	/**
 	*  @brief  Gamma校正
 	*  @param[in]  src 输入图像
 	*  @param[in]  fGamma Gamma系数
@@ -236,7 +200,6 @@ protected:
 	*  @param[in]  width 分割后的图像的宽
 	*  @param[in]  height 分割后的图像的高
 	*/
-	//void SpiltImage(const Mat& src, int width, int height);
 	void SpiltImage(const Mat &src_img, int m, int n);
 
 	/**
@@ -245,16 +208,6 @@ protected:
 	*  @param[out]  输出图像深度
 	*/
 	int FindDepth(const Mat &src_img);
-
-	/**
-	*  @brief  霍夫线变换
-	*  @param[in]  src 输入图像
-	*  @param[in]  threshold1 Canny的滞后性阈值1
-	*  @param[in]  threshold2 Canny的滞后性阈值2
-	*  @param[in]  threshold HoughLines的阈值
-	*  @param[out]  输出变换后图像
-	*/
-	Mat HoughLinesTransfer(const Mat &src_img ,double threshold1, double threshold2, int threshold);
 
 	/**
 	*  @brief  霍夫圆变换
@@ -268,11 +221,8 @@ protected:
 
 	/**
 	*  @brief  去除穿孔
-	//*  @param[in]  src ：输入图像,函数直接给出
 	*  @param[in]  threshold1 ：霍夫变换的第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
 	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
-	//*  @param[in]  width :图片的宽，函数里有src决定
-	//*  @param[in]  height :图片的高
 	*  @param[out]  输出变换后图像
 	*/
 	Mat RemovePunch(double threshold1, double threshold2);

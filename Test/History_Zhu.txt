@@ -410,3 +410,30 @@ date 17.1.13
 5、问题：无论“打开”还是“关闭”，返回值均为TWBP_AUTO。
    解决：该处DS中使用的CAP为UDSCAP_REMOVEBLANK，其对应值为TWRA_DISABLE与TWRA_AUTO；而不是ICAP_AUTODISCARDBLANKPAGES，该CAP是对应滑动条与编辑框的CAP。
 6、修改项目属性中拷贝的图片名称
+
+date 17.01.16
+------------------------------------------------------------
+@author wan and zhu
+1.修复先调用EnableDSUIOnly，再NoUI扫描时，涉及到纸张数相关Cap出错的bug;
+  解决方法：注释CTWAINDS_UDS::findCapability()中UDSCAP_DOCS_IN_ADF(用于设置纸张的)相关的代码，因为这里将纸张数重置为0，导致其它程序中地方设置纸张数不成功；
+2.修复OpenCV，多流输出时再次扫描出错的bug;
+  解决方法：CScanner_OpenCV::SwitchBYTE()中添加判断条件，当0x00 == tempbyte时，执行tempbyte = src；
+
+date 17.01.17
+------------------------------------------------------------
+@author wan and zhu
+1.修复OpenCV，显示界面后直接在【基本】属性页点扫描，而不进入【高级】属性页时，程序崩溃的bug;
+解决方法：将获取控件方法由GetDlgItem()换为控件变量;
+2.新建Cap【UDSCAP_MULTISTRAM_VALUE】用于保存多流选项值（注：存在加载模板后获取值不正确的问题）
+3.解决OpenCV，显示界面后直接在【基本】属性页点扫描，而不进入【高级】属性页时，选择多流扫描错误的bug;
+解决方法：在CSheet_Scanner::OnInitDialog()中添加SetActivePage(m_p_page_advanced)与SetActivePage(m_p_page_base)，用于现将【高级】属性页设为活动页，再将【基本】属性页设为活动页，否则【高级】属性页的控件未初始化；
+4.修复【基本】属性页与【高级】属性页中多流控件未同步的问题；
+解决方法：定义全局变量g_bMuiltStream用于保存多流控件状态;
+
+
+date 17.01.18
+------------------------------------------------------------
+@author zhu
+1、把public.h中的CAP单独存放在新建uds_cap.h中。
+2、调试Base界面：当扫描模式为平板时，单双面跳回单面，此时只能是单面。添加SetFlat()函数
+3、已删除无用调试代码

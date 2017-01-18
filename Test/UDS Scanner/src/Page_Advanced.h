@@ -41,13 +41,6 @@ private:
 	*/
 	CComboBox m_combo_standardsizes;  
 
-	/**
-	* @brief 纸张方向: 纵向/横向  
-	* @see CTWAINDS_FreeIMage.cpp Line 615
-	*/
-//	CComboBox m_combo_orientation;
-///<纸张方向
-
 	CComboBox m_combo_uints;  ///<　单位
 
 	CComboBox m_combo_rotate;  ///<图像设置-图像旋转
@@ -80,7 +73,6 @@ private:
 	CButton m_check_removeblank;
 	CButton m_check_removepunch;
 	CButton m_check_sharpen;
-//	CButton m_check_gamma;
 	CButton m_check_mirror;
 	CButton m_check_removeback;
 	CButton m_check_removedescreen;
@@ -89,23 +81,7 @@ private:
 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
 
-	int checknum; ///<记录多流输出的个数
-
 	TW_FRAME frame;
-
-	//typedef enum _MULTISTREAM_ID
-	//{
-	//	FRONT_COLOR = IDC_CHECK_FRONTCOLOR,
-	//	FRONT_GRAY,  
-	//	FRONT_BW,    
-	//	BACK_COLOR = FRONT_BW + 2, 
-	//	BACK_GRAY,  
-	//  BACK_BW,    
-	//} MULTISTREAM_ID;
-
-	//MULTISTREAM_ID m_enum_multiId;
-
-	//int multiID[6];
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
@@ -116,13 +92,9 @@ public:
 	void SetBinarization(void); ///<设置二值化分别选择不同值时，该显示“去除斑点”还是“底色保留”
 	void SetStandardsizes(void); ///<设置纸张大小选择“自定义”时，宽、高的连动
 	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
-
-	//void GetCheckNum(void); ///<获取多流输出下有几个选中
 	void SetBlank(void); ///<判断并设置去除空白页checkBox的初始状态
-
 	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
-	 
-	//void SetMultiIDValue();  ///< 给数组multiID赋值
+	
 private:
 	virtual BOOL OnInitDialog();
 
@@ -172,5 +144,4 @@ public:
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeAdvanced_Edit_Removeblank();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//virtual void OnOK();
 };

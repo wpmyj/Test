@@ -496,8 +496,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //纸张大小
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
 	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
-	 //|| !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT)  //底色保留 直接对应“阈值”
-   //|| !pnCap->Add(ICAP_ORIENTATION) //方向
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
    || !pnCap->Add(ICAP_XRESOLUTION) //分辨率
@@ -524,13 +522,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_AUTOCROP)
 	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT) //多张进纸检测
 	 || !pnCap->Add(UDSCAP_MULTISTREAM_VALUE) // 多流输出选项值
-	 //六个多流输出
-	 //|| !pnCap->Add(UDSCAP_FRONTCOLOR)
-	 //|| !pnCap->Add(UDSCAP_FRONTGRAY)
-	 //|| !pnCap->Add(UDSCAP_FRONTBW)
-	 //|| !pnCap->Add(UDSCAP_BACKCOLOR)
-	 //|| !pnCap->Add(UDSCAP_BACKGRAY)
-	 //|| !pnCap->Add(UDSCAP_BACKBW)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -690,82 +681,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	////六个多流输出对应Cap
-	////彩色正面
-	//m_IndependantCapMap[UDSCAP_FRONTCOLOR] = new CTWAINContainerBool(UDSCAP_FRONTCOLOR, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_FRONTCOLOR]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FRONTCOLOR !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_FRONTCOLOR" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-	////灰度正面
-	//m_IndependantCapMap[UDSCAP_FRONTGRAY] = new CTWAINContainerBool(UDSCAP_FRONTGRAY, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_FRONTGRAY]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FRONTGRAY !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_FRONTGRAY" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-	////黑白正面
-	//m_IndependantCapMap[UDSCAP_FRONTBW] = new CTWAINContainerBool(UDSCAP_FRONTBW, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_FRONTBW]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FRONTBW !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_FRONTBW" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-	////彩色背面
-	//m_IndependantCapMap[UDSCAP_BACKCOLOR] = new CTWAINContainerBool(UDSCAP_BACKCOLOR, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_BACKCOLOR]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_BACKCOLOR !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_BACKCOLOR" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-	////灰度背面
-	//m_IndependantCapMap[UDSCAP_BACKGRAY] = new CTWAINContainerBool(UDSCAP_BACKGRAY, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_BACKGRAY]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_BACKGRAY !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_BACKGRAY" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-	////黑白背面
-	//m_IndependantCapMap[UDSCAP_BACKBW] = new CTWAINContainerBool(UDSCAP_BACKBW, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	//if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_BACKBW]))
-	//	|| !pbCap->Add(TRUE) 
-	//	|| !pbCap->Add(FALSE, true) )
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_BACKBW !"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not create UDSCAP_BACKBW" << endl;
-	//	setConditionCode(TWCC_LOWMEMORY);
-	//	return TWRC_FAILURE;
-	//}
-
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
    //|| !pnCap->Add(TWSS_NONE) //zhu
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
-	 //|| !pnCap->Add(TWSS_PHOT64) 
-	 //|| !pnCap->Add(TWSS_PHOT53)
 	 || !pnCap->Add(TWSS_A3)  
 	 || !pnCap->Add(TWSS_A4, true) 
 	 || !pnCap->Add(TWSS_A5)  //wan
@@ -833,17 +754,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	} //zhu
-
-  //m_IndependantCapMap[ICAP_ORIENTATION] = new CTWAINContainerInt(ICAP_ORIENTATION, TWTY_UINT16, TWON_ENUMERATION);
-  //if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_ORIENTATION]))
-  // || !pnCap->Add(TWOR_LANDSCAPE)  //wan
-	 //|| !pnCap->Add(TWOR_PORTRAIT, true))
-  //{
-		//::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ORIENTATION !"),MB_CAPTION,MB_OK);
-  //  //cerr << "Could not create ICAP_ORIENTATION" << endl;
-  //  setConditionCode(TWCC_LOWMEMORY);
-  //  return TWRC_FAILURE;
-  //}
 
   m_IndependantCapMap[CAP_DEVICEONLINE] = new CTWAINContainerBool(CAP_DEVICEONLINE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_DEVICEONLINE]))
@@ -965,9 +875,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 
-
-	
-
   m_IndependantCapMap[CAP_CUSTOMDSDATA] = new CTWAINContainerBool(CAP_CUSTOMDSDATA, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_GETS);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_CUSTOMDSDATA]))
    || !pbCap->Add(TRUE, true) )
@@ -1015,18 +922,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-	/*
-  m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32(ICAP_GAMMA,TWON_ONEVALUE, TWQC_ALL);
-  if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_GAMMA]))
-   // || !pfixCap->Add(1, true))
-	 //|| !pfixCap->Add(100, true)) //zhu
-	 || !pfixCap->Add(1, true)) //zhu默认改为1，即直线校正
-  {
-		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_GAMMA !"),MB_CAPTION,MB_OK);
-    //cerr << "Could not create ICAP_GAMMA" << endl;
-    setConditionCode(TWCC_LOWMEMORY);
-    return TWRC_FAILURE;
-  }*/
 	
 	FLOAT_RANGE fRange;
 	//Gamma校正范围
@@ -1162,20 +1057,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
 	}
 
-	/*
-	//底色保留
-	fRange.fCurrentValue = 128.0f; 
-	fRange.fMaxValue = 255.0f;
-	fRange.fMinValue = 0.0f;
-	fRange.fStepSize = 1.0f;
-	m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_COLORRETENT]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD_COLORRETENT !"),MB_CAPTION,MB_OK);
-		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD_COLORRETENT" << endl;
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}*/
 	//去除斑点
 	fRange.fCurrentValue = 0.0f; 
 	fRange.fMaxValue = 30.0f;
@@ -1211,7 +1092,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-
 
   // expressed internally as pixels per inch
   if( NULL == (m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION] = new CTWAINContainerFix32(ICAP_XRESOLUTION, TWON_ENUMERATION, TWQC_ALL))
@@ -1287,22 +1167,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   // Currently only supports one frame see: ICAP_MAXFRAMES
   if( NULL == (m_pICAP_FRAMES = new CTWAINContainerFrame(ICAP_FRAMES, TWON_ENUMERATION, TWQC_ALL))
    || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) //8.5*11 英寸 US Letter
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 8500, 14000) //8.5*14  US Legal
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 6000, 4000) //照片64
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 5000, 3000) //照片53
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 11690, 16540)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 8270, 11690)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 5830, 8270)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 4130, 5830)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 2910, 4130)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 9840, 13900)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 6930, 9840)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 4920, 6930)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 3460, 4920)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 49490, 14330)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 7170, 10120)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 5040, 7170)
-	 //|| !m_pICAP_FRAMES->Add(0, 0, 3580, 5040)
 	 )   	
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_FRAMES !"),MB_CAPTION,MB_OK);
@@ -1393,13 +1257,6 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   _pImageInfo->ImageWidth  = settings.m_nWidth; //1700
   _pImageInfo->ImageLength = settings.m_nHeight; //2200
 
-	/*char buf[10];
-	itoa(settings.m_nWidth, buf, 10);
-	::MessageBox(g_hwndDLG,TEXT(buf),"settings.m_nWidth",MB_OK);
-	char buff[10];
-	itoa(settings.m_nHeight, buff, 10);
-	::MessageBox(g_hwndDLG,TEXT(buff),"settings.m_nHeight",MB_OK);*/
-  
   // Our sample scanner only does one combination for each PixelType.
   switch(settings.m_nPixelType)
   {
@@ -1437,7 +1294,6 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 
 	_pImageInfo->Planar = FALSE;
 	_pImageInfo->Compression = TWCP_NONE;
-	//::MessageBox(g_hwndDLG,"end--getImageInfo",MB_CAPTION,MB_OK);
   return twrc;
 }
 
@@ -2172,9 +2028,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   else
   {
     pfRCap->GetCurrent(fVal);
-	/*	char buf[1024];
-    itoa((int)fVal,buf,10);
-		::MessageBox(hwndDLG,buf,MB_CAPTION,MB_OK);*/
     settings.m_fBrightness = fVal;
 	}
 
@@ -2190,20 +2043,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     pfRCap->GetCurrent(fVal);
     settings.m_fSensitiveThreshold_removespots = fVal;
   }
-
-	/*
-	//底色保留 功能等同阈值
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD_COLORRETENT))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_COLORRETENT!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get UDSCAP_SENSITIVETHRESHOLD_COLORRETENT" << endl;
-		bret = false;
-	}
-	else
-	{
-		pfRCap->GetCurrent(fVal);
-		settings.m_fSensitiveThreshold_colorretent = fVal;
-	}*/
 
 	// 图像旋转
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_ROTATION))))
@@ -2228,24 +2067,8 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfCap->GetCurrent(fVal);
-		//char buf[20];
-		//itoa((int)fVal, buf, 10);
-		//::MessageBox(g_hwndDLG,TEXT(buf),"updateScannercap",MB_OK);
 		settings.m_byteMultiValue = (BYTE)fVal;
 	}
-
-	//zhu
-	//if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ROTATION))))
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ROTATION!"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not get ICAP_ROTATION" << endl;
-	//	bret = false;
-	//}
-	//else
-	//{
-	//	pnCap->GetCurrent(nVal);
-	//	settings.m_fRotation = nVal;
-	//}//zhu
 
 	// 图像切割
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_SPLITIMAGE))))
@@ -2394,33 +2217,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nMaxDocCount = nVal;
 	}
-
-
-	//zhu
-	//if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_ORIENTATION))))
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ORIENTATION!"),MB_CAPTION,MB_OK);
-	//	//cerr << "Could not get ICAP_ORIENTATION" << endl;
-	//	bret = false;
-	//}
-	//else
-	//{
-	//	pnCap->GetCurrent(nVal);
-	//	settings.m_nOrientation = nVal;
-	//}//zhu
-
-	/*
-  if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_GAMMA))))
-  {
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_GAMMA!"),MB_CAPTION,MB_OK);
-    //cerr << "Could not get ICAP_GAMMA" << endl;
-    bret = false;
-  }
-  else
-  {
-    pfCap->GetCurrent(fVal);
-    settings.m_fGamma = fVal;
-  }*/
 
 	// Gamma
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_GAMMA))))

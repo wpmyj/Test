@@ -22,12 +22,12 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnInitDialog();
 
 	DECLARE_MESSAGE_MAP()
 private:
 	virtual void OnOK();
 	virtual void OnCancel();
-	//virtual BOOL OnApply();
 
 private:
 	/**
@@ -44,21 +44,13 @@ private:
 	void NewBaseProfile(); ///<新建常用模板
 	void SetLastProfile(); ///<遍历模板，设置模板中存在“上次使用模板”的情况
 	void InitComboPixType(void); ///<初始化图像类型编辑框
-
 	void SetCapValue(void);  ///<设置参数
 	void SetDelete(void); ///<设置删除按钮是否可用
-
 	void BaseStatus(void); ///<根据muiltstream变量，设置base界面图像模式,以及单双面是否可用
-
 	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
-
-	/** 
-	//* @brief 浏览并选择单个图片文件
-	//* @param[out] strFilePath 图片绝对路径
-	//* @return 成功返回true
-	//*/
+	void SetFlat(void); ///< 设置扫描模式为平板时，只能为单面。
+	
 	//bool MyBrowseForSignalImage(PTCHAR strFilePath);
-
 	/**
 	* @brief 浏览并选择多个图片文件
 	* @return 成功返回vector<string>类型值
@@ -100,12 +92,6 @@ private:
 	CButton m_btn_chooseimage; ///<"选择图片按钮"
 
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
-
-	//vector<string> m_vector_string_imagepath;  /**< 图片路劲 */
-
-	//CDlg_Profile *m_pDlg;
-
-	virtual BOOL OnInitDialog();
 	
 	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
@@ -128,11 +114,8 @@ private:
 
   /** 选择待扫图片 */
 	afx_msg void OnBase_Btn_Chooseimage();
-	/** 另存为模板 */
+	/** 另存为模板 *//** 保存当前模板*/
 	afx_msg void OnBase_Btn_SaveAsprofile();
-	/** 保存当前模板*/
-//	afx_msg void OnBase_Btn_Saveprofile();
-
 	afx_msg void OnBase_Btn_Help();
 
 public:
