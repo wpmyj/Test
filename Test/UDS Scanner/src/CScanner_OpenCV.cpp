@@ -133,9 +133,9 @@ bool CScanner_OpenCV::resetScanner()
 	return bret;
 }
 
-void CScanner_OpenCV::setSetting(CScanner_Base settings)
+void CScanner_OpenCV::setSetting(CDevice_Base settings)
 {
-	CScanner_Base::setSetting(settings);  // 调用父类的方法
+	CDevice_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
 	if ( (false == m_bMultiStream) &&(true == m_bDuplex) )
 	{

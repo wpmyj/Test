@@ -373,9 +373,9 @@ void CScanner_G6400::CancelTransfer(void)
 }
 
 
-void CScanner_G6400::setSetting(CScanner_Base settings)
+void CScanner_G6400::setSetting(CDevice_Base settings)
 {
-  CScanner_Base::setSetting(settings);
+  CDevice_Base::setSetting(settings);
 }
 
 bool CScanner_G6400::resetScanner()

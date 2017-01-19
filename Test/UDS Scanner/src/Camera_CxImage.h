@@ -1,6 +1,6 @@
 #ifndef __CCAMERA_DIRECTX_H__
 #define __CCAMERA_DIRECTX_H__
-#include "CScanner_base.h"
+#include "Device_Base.h"
 //#include "opencv.hpp"
 #include "ximage.h"  // CXImage
 /**
@@ -14,11 +14,11 @@
 
 //using namespace cv;
 
-class CCamera_DirectX : public CScanner_Base
+class CCamera_CxImage : public CDevice_Base
 {
 public:
-	CCamera_DirectX(void);
-	~CCamera_DirectX(void);
+	CCamera_CxImage(void);
+	~CCamera_CxImage(void);
 
 	/**
   * Resets the scanner to factory default settings.
@@ -58,7 +58,7 @@ public:
   * set the current settings
   * @param[in] settings the new settings for the scanner
   */
-  void setSetting(CScanner_Base settings);
+  void setSetting(CDevice_Base settings);
 
 protected:
 	/**

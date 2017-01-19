@@ -1,5 +1,5 @@
 /**
-* @file   CScanner_Base.h
+* @file   Device_Base.h
 * @brief …®√Ë“«ª˘¿‡.
 * @author UDS
 * @par   Copyright (c) UDS All Rights Reserved.
@@ -12,13 +12,13 @@
 #include "Common.h"
 #include "twain.h"
 
-//class CScanner_Base
-class CScanner_Base
+//class CDevice_Base
+class CDevice_Base
 {
 
 public:
-	CScanner_Base();
-	~CScanner_Base();
+	CDevice_Base();
+	~CDevice_Base();
 
 public:
 	/**
@@ -60,13 +60,13 @@ public:
   * get the current settings
   * @return the current scanner settngs
   */
-  virtual CScanner_Base* getSetting() const  ;
+  virtual CDevice_Base* getSetting() const  ;
 
   /**
   * set the current settings
   * @param[in] settings the new settings for the scanner
   */
-  virtual void setSetting(CScanner_Base settings) ;
+  virtual void setSetting(CDevice_Base settings) ;
 
   /**
   * Determine if there is paper sitting in the feeder.

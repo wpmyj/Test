@@ -12,7 +12,7 @@
 
 //#include "Common.h"
 //#include "twain.h"
-#include "CScanner_Base.h"
+#include "Device_Base.h"
 #include <vector>
 #include "opencv.hpp"
 
@@ -64,7 +64,7 @@ using namespace cv;
 #define SFI_PAPERSOURCE_FB  1
 
 
-class CScanner_OpenCV : public CScanner_Base
+class CScanner_OpenCV : public CDevice_Base
 {
 public:
 	/**
@@ -95,7 +95,7 @@ public:
   * set the current settings
   * @param[in] settings the new settings for the scanner
   */
-  void setSetting(CScanner_Base settings);
+  void setSetting(CDevice_Base settings);
 
   /**
   * Determine if there is paper sitting in the feeder.

@@ -1,4 +1,4 @@
-#include "Camera_DirectX.h"
+#include "Camera_CxImage.h"
 #include "public.h"
 #include "uds_cap.h"
 #include <time.h>
@@ -14,7 +14,7 @@ extern HWND g_hwndDLG;
 extern 	std::vector<std::string> g_vector_imagepath;
 //DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
 
-CCamera_DirectX::CCamera_DirectX(void) :
+CCamera_CxImage::CCamera_CxImage(void) :
 	m_nDocCount(0),
 	m_nSourceWidth(0),
 	m_nSourceHeight(0),
@@ -28,7 +28,7 @@ CCamera_DirectX::CCamera_DirectX(void) :
 }
 
 
-CCamera_DirectX::~CCamera_DirectX(void)
+CCamera_CxImage::~CCamera_CxImage(void)
 {
 	//if (m_pImageBuffer)
 	//{
@@ -50,7 +50,7 @@ CCamera_DirectX::~CCamera_DirectX(void)
 
 }
 
-bool CCamera_DirectX::resetScanner()
+bool CCamera_CxImage::resetScanner()
 {
 	// Unlock the scanner 
 	Unlock();
@@ -109,7 +109,7 @@ bool CCamera_DirectX::resetScanner()
 	return true;
 }
 
-bool CCamera_DirectX::isFeederLoaded()
+bool CCamera_CxImage::isFeederLoaded()
 {
 	//::MessageBox(g_hwndDLG,TEXT("isFeederLoaded()"),MB_CAPTION,MB_OK);
 	bool rtn = true;
@@ -121,7 +121,7 @@ bool CCamera_DirectX::isFeederLoaded()
 	return rtn;
 }
 
-void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
+void CCamera_CxImage::GetImageData(BYTE *buffer, DWORD &dwReceived)
 {
 	//memcpy(buffer, m_pImageBuffer, m_dwSize * sizeof(BYTE));
 	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
@@ -137,7 +137,7 @@ void CCamera_DirectX::GetImageData(BYTE *buffer, DWORD &dwReceived)
 
 }
 
-short CCamera_DirectX::getDocumentCount() const
+short CCamera_CxImage::getDocumentCount() const
 {
 	// Simulate the number of pages sitting in the scanner.
 	int nCount = 1;
@@ -165,7 +165,7 @@ short CCamera_DirectX::getDocumentCount() const
 	return nCount;
 }
 
-bool CCamera_DirectX::acquireImage()
+bool CCamera_CxImage::acquireImage()
 {
 	//string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
 	//
@@ -210,13 +210,13 @@ bool CCamera_DirectX::acquireImage()
 	return true;
 }
 
-void CCamera_DirectX::setSetting(CScanner_Base settings)
+void CCamera_CxImage::setSetting(CDevice_Base settings)
 {
-	CScanner_Base::setSetting(settings);  // 调用父类的方法
+	CDevice_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
 }
 
-bool CCamera_DirectX::preScanPrep()
+bool CCamera_CxImage::preScanPrep()
 {
 	//m_nWidth = g_vecCust_ImageInfo[m_nImageNumber].imageWidth;
 	//m_nHeight = g_vecCust_ImageInfo[m_nImageNumber].imageHeight;
@@ -266,7 +266,7 @@ bool CCamera_DirectX::preScanPrep()
 	return true;
 }
 
-bool CCamera_DirectX::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
+bool CCamera_CxImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
 {
 	//::MessageBox(g_hwndDLG,"getScanStrip","UDS",MB_OK);
 	dwReceived = 0;

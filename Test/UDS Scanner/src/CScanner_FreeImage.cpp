@@ -219,9 +219,9 @@ bool CScanner_FreeImage::resetScanner()
 
 
 //////////////////////////////////////////////////////////////////////////////
-void CScanner_FreeImage::setSetting(CScanner_Base settings)
+void CScanner_FreeImage::setSetting(CDevice_Base settings)
 {
-  CScanner_Base::setSetting(settings);  // 调用父类的方法
+  CDevice_Base::setSetting(settings);  // 调用父类的方法
   m_nDocCount = m_nMaxDocCount;
 }
 

@@ -1,7 +1,7 @@
-#include "CScanner_Base.h"
+#include "Device_Base.h"
 
 
-CScanner_Base::CScanner_Base():
+CDevice_Base::CDevice_Base():
 	m_bReadOnly(false),
 	m_byteMultiValue(0x00)
 {
@@ -9,12 +9,12 @@ CScanner_Base::CScanner_Base():
 }
 
 
-CScanner_Base::~CScanner_Base()
+CDevice_Base::~CDevice_Base()
 {
 
 }
 
-void CScanner_Base::setSetting(CScanner_Base settings)
+void CDevice_Base::setSetting(CDevice_Base settings)
 {
 	m_nPaperSource				= settings.m_nPaperSource;
 	m_bDuplex							= settings.m_bDuplex;
@@ -53,8 +53,8 @@ void CScanner_Base::setSetting(CScanner_Base settings)
 
 }
 
-CScanner_Base* CScanner_Base::getSetting() const
+CDevice_Base* CDevice_Base::getSetting() const
 {
-	//return (CScanner_Base)(*this);
-	return (CScanner_Base*)(this);
+	//return (CDevice_Base)(*this);
+	return (CDevice_Base*)(this);
 }

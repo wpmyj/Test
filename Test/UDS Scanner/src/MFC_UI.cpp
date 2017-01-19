@@ -2,7 +2,7 @@
 //#include "UDS Scanner.h"
 #include "Sheet_Scanner.h"  // 必须放cpp文件中，因为重复包含
 #include "public.h"
-#include "CDlg_Camera.h"
+#include "Dlg_Camera.h"
 /**
 * @file   MFC_UI.cpp
 * @brief This is a brief description.

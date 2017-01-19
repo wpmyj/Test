@@ -105,9 +105,6 @@
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\CScanner_Base.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\CScanner_G6400.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -117,16 +114,19 @@
     <ClCompile Include="src\Page_Custom.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\CDlg_Camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\UDSCapture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\SGCallBack.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera_DirectX.cpp">
+    <ClCompile Include="src\Camera_CxImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device_Base.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -227,9 +227,6 @@
     <ClInclude Include="..\..\..\testfiles\pub\external\include\AVSDK.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\CScanner_Base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\CScanner_G6400.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -239,19 +236,22 @@
     <ClInclude Include="src\Page_Custom.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\CDlg_Camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\UDSCapture.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\SGCallBack.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Camera_DirectX.h">
+    <ClInclude Include="src\uds_cap.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\uds_cap.h">
+    <ClInclude Include="src\Camera_CxImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device_Base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,7 @@
 //
 
 #include "UDScapture.h"
-#include "Camera_DirectX.h"
+#include "Camera_CxImage.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSGCallBack class
 
@@ -28,7 +28,7 @@ public:
 	double m_nX0, m_nY0;
 
 	int m_nTempFileCount;
-	CCamera_DirectX m_Camera_DirectX;
+	CCamera_CxImage m_Camera_DirectX;
 	BYTE *pDIB;
 public:
 	CSGCallBack();

@@ -14,7 +14,7 @@
 #include "CTWAINDS_Base.h"
 #include "CScanner_FreeImage.h"
 #include "CScanner_OpenCV.h"
-#include "Camera_DirectX.h"
+#include "Camera_CxImage.h"
 
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{B4FAF845-1383-4036-AEDC-17C3968188B4}"
@@ -244,7 +244,7 @@ public:
 protected:
 	//CScanner_FreeImage        m_Scanner;                 /**< The main scanner. */
 	//CScanner_G6400            m_Scanner;                 /**< The main scanner. */   
-	CScanner_Base               *m_pScanner;               /**< The pointer of main scanner. */         
+	CDevice_Base               *m_pScanner;               /**< The pointer of main scanner. */         
 
   TWAINCapabilitiesMap_int    m_BitDepthMap;             /**< Capability for various Bit Depths */
   TWAINCapabilitiesMap_FIX32  m_ICAP_UNIT_Dependant;     /**< Capability for any Fix32 based TWAIN container */

@@ -12,7 +12,7 @@
 #include "Common.h"
 #include "FreeImage.h"
 #include "twain.h"
-#include "CScanner_Base.h"
+#include "Device_Base.h"
 
 //wan
 #include <vector>
@@ -92,7 +92,7 @@ using namespace std;
 * The FreeImage scanner.  The software scanner using FreeImage.
 * 
 */
-class CScanner_FreeImage : public CScanner_Base
+class CScanner_FreeImage : public CDevice_Base
 {
 public:
   /**
@@ -131,7 +131,7 @@ public:
   * set the current settings
   * @param[in] settings the new settings for the scanner
   */
-  void setSetting(CScanner_Base settings);
+  void setSetting(CDevice_Base settings);
 
   /**
   * Determine if there is paper sitting in the feeder.

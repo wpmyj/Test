@@ -6,7 +6,7 @@
 #define __MFC_UI_H__
 
 #include "TWAIN_UI.h"
-//#include "CDlg_Camera.h"
+//#include "Dlg_Camera.h"
 class CSheet_Scanner;
 class CDlg_Camera;
 /**

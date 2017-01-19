@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "UDS Scanner.h"
-#include "CDlg_Camera.h"
+#include "Dlg_Camera.h"
 #include "afxdialogex.h"
 #include "public.h"
 

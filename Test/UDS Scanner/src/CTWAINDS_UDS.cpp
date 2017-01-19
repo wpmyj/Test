@@ -131,7 +131,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 		}		
 	case DEVICE_CAMERA:
 		{
-			m_pScanner = new CCamera_DirectX;
+			m_pScanner = new CCamera_CxImage;
 			//::MessageBox(g_hwndDLG,TEXT("Î´ÊµÏÖ!"),MB_CAPTION,MB_OK);
 			break;
 		}
@@ -1250,7 +1250,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
   }
 
   // Get the actual values used by the scanner.
-  CScanner_Base settings = *(m_pScanner->getSetting());
+  CDevice_Base settings = *(m_pScanner->getSetting());
 
   _pImageInfo->XResolution = FloatToFIX32(settings.m_fXResolution);
   _pImageInfo->YResolution = FloatToFIX32(settings.m_fYResolution);
@@ -1846,7 +1846,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   float fVal;
 	bool  bVal; //zhu
   bool  bret = true;  // Set to false if anything fails
-  CScanner_Base settings;
+  CDevice_Base settings;
 
   // Get current before updating
   settings = *(m_pScanner->getSetting());

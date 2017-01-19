@@ -4,7 +4,7 @@
 #include "UDSCapture.h"
 #include "MFC_UI.h"
 /**
-* @file   CDlg_Camera.h
+* @file   Dlg_Camera.h
 * @brief …„œÒÕ∑ΩÁ√Ê.
 * @author UDS
 * @par   Copyright (c) UDS All Rights Reserved.

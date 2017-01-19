@@ -157,8 +157,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\CTiffWriter.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp" />
-    <ClCompile Include="src\Camera_DirectX.cpp" />
-    <ClCompile Include="src\CDlg_Camera.cpp" />
+    <ClCompile Include="src\Camera_CxImage.cpp" />
+    <ClCompile Include="src\Dlg_Camera.cpp" />
     <ClCompile Include="src\CommonDS.cpp" />
     <ClCompile Include="src\CommonFunc.cpp" />
     <ClCompile Include="src\CScanner_FreeImage.cpp" />
@@ -171,7 +171,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClCompile Include="src\Page_About.cpp" />
     <ClCompile Include="src\Page_Advanced.cpp" />
     <ClCompile Include="src\Page_Base.cpp" />
-    <ClCompile Include="src\CScanner_Base.cpp" />
+    <ClCompile Include="src\Device_Base.cpp" />
     <ClCompile Include="src\CScanner_G6400.cpp" />
     <ClCompile Include="src\Page_Custom.cpp" />
     <ClCompile Include="src\SGCallBack.cpp" />
@@ -200,8 +200,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
     <ClInclude Include="..\..\..\testfiles\pub\external\include\AVSDK.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="src\Camera_DirectX.h" />
-    <ClInclude Include="src\CDlg_Camera.h" />
+    <ClInclude Include="src\Camera_CxImage.h" />
+    <ClInclude Include="src\Dlg_Camera.h" />
     <ClInclude Include="src\CommonDS.h" />
     <ClInclude Include="src\CommonFunc.h" />
     <ClInclude Include="src\CScanner_FreeImage.h" />
@@ -217,7 +217,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClInclude Include="src\Page_Base.h" />
     <ClInclude Include="src\Page_Custom.h" />
     <ClInclude Include="src\public.h" />
-    <ClInclude Include="src\CScanner_Base.h" />
+    <ClInclude Include="src\Device_Base.h" />
     <ClInclude Include="src\CScanner_G6400.h" />
     <ClInclude Include="src\SGCallBack.h" />
     <ClInclude Include="src\Sheet_Scanner.h" />

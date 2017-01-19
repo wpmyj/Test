@@ -17,12 +17,12 @@
 #include "afxwin.h"
 #include "AVSDK.h"
 #include "CommonFunc.h"
-#include "CScanner_Base.h"
+#include "Device_Base.h"
 
 #define BUFFERSIZE		(1024*1024)
 
 
-class CScanner_G6400 : public CScanner_Base
+class CScanner_G6400 : public CDevice_Base
 {
 public:
 	CScanner_G6400(void);
@@ -87,7 +87,7 @@ public:
   * set the current settings
   * @param[in] settings the new settings for the scanner
   */
-  void setSetting(CScanner_Base settings);
+  void setSetting(CDevice_Base settings);
 
 	/**
   * Determine if there is paper sitting in the feeder.
