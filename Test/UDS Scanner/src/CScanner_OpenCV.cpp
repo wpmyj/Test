@@ -20,6 +20,9 @@ extern HINSTANCE   g_hinstance;
 
 #define IMAGENAME_FRONT "Scanner_leaflet_front.jpg"
 #define IMAGENAME_BACK "Scanner_leaflet_back.jpg"
+#define IMAGENAME_REMOVEPUNCH "RemovePunch.jpg"
+#define IMAGENAME_AUTOCORRECT "AutoCorrect.jpg"
+
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),
@@ -421,9 +424,8 @@ bool CScanner_OpenCV::preScanPrep()
 	//自动裁切与校正
 	if(m_bAutoCrop == TWAC_AUTO) 
 	{
-		Mat matAutoCrop;
-		//matAutoCrop = AutoCorrect(m_mat_image); //先自动校正	
-		matAutoCrop = AutoCorrect();
+		Mat matAutoCrop; 
+		matAutoCrop = AutoCorrect();//先自动校正	
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		
@@ -848,49 +850,12 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	return imageSave;
 }
 
-/*
-//霍夫线变换
-Mat CScanner_OpenCV::HoughLinesTransfer(const Mat& src_img,double threshold1, double threshold2, int threshold)
-{
-	Mat midImage,dstImage;//临时变量和目标图的定义  
-
-	//【2】进行边缘检测和转化为灰度图  
-	Canny(src_img, midImage, threshold1, threshold2, 3);//进行一次canny边缘检测 ，阈值1、2（50--200）可调 
-	cvtColor(midImage,dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图  
-
-	//【3】进行霍夫线变换  
-	vector<Vec2f> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合  
-	HoughLines(midImage, lines, 1, CV_PI/180, threshold, 0, 0 );  //150为阈值，可调 canny边缘检测 ，阈值1、2（50--200）可调
-
-	//【4】依次在图中绘制出每条线段  
-	for( size_t i = 0; i < lines.size(); i++ )  
-	{  
-		float rho = lines[i][0], theta = lines[i][1];  
-		Point pt1, pt2;  
-		double a = cos(theta), b = sin(theta);  
-		double x0 = a*rho, y0 = b*rho;  
-		pt1.x = cvRound(x0 + 1000*(-b));  
-		pt1.y = cvRound(y0 + 1000*(a));  
-		pt2.x = cvRound(x0 - 1000*(-b));  
-		pt2.y = cvRound(y0 - 1000*(a));  
-		line( dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);   //Scalar(55,100,195)该值来确定线条颜色
-	}  
-	/*
-	//【5】显示原始图    
-	imwrite( "C://Users//Administrator//Desktop//原始图.jpg", src_img);
-	//【6】边缘检测后的图   
-	imwrite( "C://Users//Administrator//Desktop//边缘检测后的图.jpg", midImage);
-	//【7】显示效果图    
-	imwrite( "C://Users//Administrator//Desktop//霍夫变换效果图.jpg", dstImage);
-	/
-	return dstImage;
-}*/
-
-
 //#define DEGREE 27
 Mat CScanner_OpenCV::AutoCorrect()
 {
-	Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	ChangeImage(IMAGENAME_AUTOCORRECT);
+	Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
+	//Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
 
 	Point center(img.cols/2, img.rows/2);
 
@@ -1141,7 +1106,8 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 
 Mat CScanner_OpenCV::RemovePunch(double threshold1, double threshold2)
 {
-	Mat src_img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\RemovePunch.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	ChangeImage(IMAGENAME_REMOVEPUNCH);
+	Mat src_img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
 	vector<Rect> rects;
 	Rect rectTemp(0, 0, 3*src_img.cols/30, 3*src_img.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
 	rects.push_back(Rect(0, 0, src_img.cols, rectTemp.height)); //上侧
@@ -1434,11 +1400,6 @@ void CScanner_OpenCV::GammaCorrection(const Mat& src, Mat& dst, float fGamma)
 			}  
 			break;
 		}
-	default:
-		{
-			::MessageBox(g_hwndDLG,TEXT("Gamma校正其他"),MB_CAPTION,MB_OK);
-			break;
-		}	
 	} 
 }
 
@@ -1492,12 +1453,6 @@ void CScanner_OpenCV::SpiltImage(const Mat& src_img,int m,int n)
 			matTemp.copyTo(m_mat_image);
 			cvReleaseImage(&Ipldst); 
 		}	
-	}
-	else
-	{
-		char buf[10];
-		itoa(m_nDocCount, buf, 10);
-		::MessageBox(g_hwndDLG,TEXT(buf),"SpiltImage--m_nDocCount",MB_OK);
 	}
 }
 

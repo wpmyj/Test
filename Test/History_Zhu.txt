@@ -436,4 +436,3 @@ date 17.01.18
 @author zhu
 1、把public.h中的CAP单独存放在新建uds_cap.h中。
 2、调试Base界面：当扫描模式为平板时，单双面跳回单面，此时只能是单面。添加SetFlat()函数
-3、已删除无用调试代码
