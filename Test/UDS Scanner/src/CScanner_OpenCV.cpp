@@ -137,6 +137,10 @@ void CScanner_OpenCV::setSetting(CScanner_Base settings)
 {
 	CScanner_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
+	if ( (false == m_bMultiStream) &&(true == m_bDuplex) )
+	{
+		m_nDocCount = 2;
+	}
 }
 
 bool CScanner_OpenCV::acquireImage()

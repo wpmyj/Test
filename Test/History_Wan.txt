@@ -276,3 +276,11 @@ date 17.01.17
 解决方法：在CSheet_Scanner::OnInitDialog()中添加SetActivePage(m_p_page_advanced)与SetActivePage(m_p_page_base)，用于现将【高级】属性页设为活动页，再将【基本】属性页设为活动页，否则【高级】属性页的控件未初始化；
 4.修复【基本】属性页与【高级】属性页中多流控件未同步的问题；
 解决方法：定义全局变量g_bMuiltStream用于保存多流控件状态;
+
+
+
+date 17.01.18
+------------------------------------------------------------
+@author wan
+1.删除NoUI扫描时，OpenDS()中先调用模板再响应APP的Capability的值；
+2.修复界面显示上面扫，但是第一次扫描后只有一张图的bug;

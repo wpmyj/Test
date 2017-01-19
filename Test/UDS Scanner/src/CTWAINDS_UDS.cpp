@@ -1333,6 +1333,8 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
     m_CurrentState = dsState_Open;
   }
 
+	//m_pGUI->TW_LoadProfileFromFile("上次使用模板");
+
   return ret;
 }
 
@@ -1394,7 +1396,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 		if(FALSE == _pData->ShowUI)
 		{   
 			// Update the scanner with the latest negotiated caps
-			m_pGUI->TW_LoadProfileFromFile("上次使用模板");
+			//m_pGUI->TW_LoadProfileFromFile("上次使用模板");
 			if(!updateScannerFromCaps())
 			{
 				::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
@@ -2637,11 +2639,6 @@ bool CTWAINDS_UDS::StartScanning()
   return m_pScanner->acquireImage();
 };
 
-//void CTWAINDS_UDS::SetScannerImagePath_Signal(char* szImagePath)
-//{
-//	//::MessageBox(NULL, szImagePath, "2", 0);  
-//	m_pScanner->SetImagePath_Signal(szImagePath);
-//}
 
 void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagepath)
 {
