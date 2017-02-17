@@ -149,6 +149,14 @@ public:
 	bool              m_bAutoCrop;              /**< ×Ô¶¯²ÃÇÐÓëÐ£Õý */
   short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
 
+	float             m_fEdgeUp;                /**< ±ßÔµÀ©³ä */
+	float             m_fEdgeDown;              /**< ±ßÔµÀ©³ä */
+	float             m_fEdgeLeft;              /**< ±ßÔµÀ©³ä */
+	float             m_fEdgeRight;             /**< ±ßÔµÀ©³ä */
+
+	float             m_fXPos;                  /**< XÆ«ÒÆÁ¿ */
+	float             m_fYPos;                  /**< XÆ«ÒÆÁ¿ */
+
 	/**********************************************************
 	*  ¸ß4Î» £º 7    6   5    4      µÍËÄÎ» £º 3    2   1    0
 	* £¨±³Ãæ£© ±£Áô ºÚ°× »Ò¶È ²ÊÉ«    £¨ÕýÃæ£©  ±£Áô ºÚ°× »Ò¶È ²ÊÉ«

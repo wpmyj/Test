@@ -61,6 +61,8 @@ CTWAINDS_Base::CTWAINDS_Base() :
   m_hImageData = 0;
   m_DocumentNumber = 0;
   m_PageNumber = 0;
+	pDIBInfoHeader = NULL;
+
   return;
 }
 
@@ -645,6 +647,7 @@ TW_INT16 CTWAINDS_Base::dat_imageinfo(TW_UINT16     _MSG,
   switch(_MSG)
   {
     case MSG_GET:
+			//::MessageBox(g_hwndDLG,"dat_imageinfo-MSG_GET",MB_CAPTION,MB_OK);
       twrc = getImageInfo(_pImageInfo);
       break;
 
@@ -1717,6 +1720,7 @@ TW_INT16 CTWAINDS_Base::saveImageFileAsBMP()
   // Save the image to disk
   FILE *pFile;
   FOPEN(pFile, m_CurFileExferName, "wb");
+	
   if(pFile == 0)
   {
     setConditionCode(TWCC_FILEWRITEERROR);
@@ -1767,7 +1771,6 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
     setConditionCode(TWCC_BADVALUE);
     return TWRC_FAILURE;
   }
-
 	//getImageInfo(&m_ImageInfo); // 需要重新获取一次图片信息
 
   TW_INT16 twrc = TWRC_FAILURE;
@@ -1778,8 +1781,9 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
   BYTE           *pDestBuff           = NULL;
   BYTE           *pSrc                = NULL;
   BYTE           *pDst                = NULL;
-
-  PBITMAPINFOHEADER pDIBInfoHeader    = NULL;
+	//::MessageBox(g_hwndDLG,TEXT("1!"),MB_CAPTION,MB_OK);
+  //PBITMAPINFOHEADER pDIBInfoHeader    = NULL;
+	
   /*const*/ WORD      bpp                 = m_ImageInfo.BitsPerPixel;
   /*const*/ DWORD     SrcWidth            = m_ImageInfo.ImageWidth;
   /*const*/ DWORD     SrcLength           = m_ImageInfo.ImageLength;
@@ -1801,6 +1805,7 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
 
   try
   {	
+		//::MessageBox(g_hwndDLG,TEXT("2!"),MB_CAPTION,MB_OK);
     pSourceBuff = (BYTE *)_DSM_LockMemory(m_hImageData);
     if(pSourceBuff == NULL)
     {
@@ -1926,6 +1931,7 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
 
     twrc = TWRC_SUCCESS;
     *_pImage = hDIB;
+		//::MessageBox(g_hwndDLG,TEXT("3!"),MB_CAPTION,MB_OK);
   
   } // try
   catch (WORD wConditionCodeError)
@@ -2236,6 +2242,7 @@ TW_INT16 CTWAINDS_Base::transferNativeImage(TW_MEMREF* _pData)
 
   return twrc;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_Base::GetGustomDSData(pTW_CUSTOMDSDATA _pDSData)

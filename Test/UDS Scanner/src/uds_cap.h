@@ -12,7 +12,7 @@
 /** 添加的功能及其值 */   
 #define UDSCAP_BINARIZATION             CAP_CUSTOMBASE+3  /**< 二值化 */
 #define UDSCAP_SPLITIMAGE               CAP_CUSTOMBASE+4  /**< 图像分割 */
-#define UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS       CAP_CUSTOMBASE+5  /**< 去除斑点 共用一个slider，但CAP分为两部分*/
+#define UDSCAP_REMOVESPOTS              CAP_CUSTOMBASE+5  /**< 去除斑点 共用一个slider，但CAP分为两部分*/
 #define UDSCAP_SENSITIVETHRESHOLD_COLORRETENT       CAP_CUSTOMBASE+8  /**< 底色保留 */
 
 #define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
@@ -27,8 +27,18 @@
 #define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
 #define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
 
-#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+22 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */
-#define UDSCAP_MULTISTREAM_VALUE        CAP_CUSTOMBASE+23 /**< 多流输出选项值 */
+#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+16 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */
+#define UDSCAP_MULTISTREAM_VALUE        CAP_CUSTOMBASE+17 /**< 多流输出选项值 */
+
+//#define UDSCAP_SPLITIMAGE_VH            CAP_CUSTOMBASE+18 /**< 图像分割自定义是垂直、水平*/
+
+#define UDSCAP_EDGE_UP                  CAP_CUSTOMBASE+18   /**< 边缘扩充上下左右 */
+#define UDSCAP_EDGE_DOWN                CAP_CUSTOMBASE+19
+#define UDSCAP_EDGE_LEFT                CAP_CUSTOMBASE+20
+#define UDSCAP_EDGE_RIGHT               CAP_CUSTOMBASE+21
+
+#define UDSCAP_XPOS                     CAP_CUSTOMBASE+22  /**< X偏移量 */
+#define UDSCAP_YPOS                     CAP_CUSTOMBASE+23
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -44,6 +54,7 @@
 #define TWSI_NONE                  0
 #define TWSI_HORIZONTAL            1
 #define TWSI_VERTICAL              2
+#define TWSI_DEFINED               3 //自定义
 
 /* UDSCAP_PUNCHHOLEREMOVEL values (RP_ means REMOVELPUNCHHOLE)去除穿孔。*/
 #define TWRP_DISABLE              FALSE 

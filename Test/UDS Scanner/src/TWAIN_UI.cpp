@@ -191,14 +191,36 @@ void CTWAIN_UI::Scan()
 {
   if(m_pDS->StartScanning())
   {
-		//::MessageBox(g_hwndDLG,"StartScanning",MB_CAPTION,MB_OK);
     m_bScanning = m_pDS->DoXferReadyEvent();
   }
 	else
 	{
-		//::MessageBox(g_hwndDLG,TEXT("该图为空白页,已滤除！"),MB_CAPTION,MB_OK);
 		Cancel();
 	}
+}
+
+TW_MEMREF* CTWAIN_UI::PreView()
+{
+	TW_MEMREF *pdata = NULL;
+	if(m_pDS->StartScanning())
+	{
+		m_bScanning = m_pDS->DoXferReadyEvent();
+		//m_pDS->saveImageFile();
+		//m_pDS->transfer();
+		if(m_pDS->transferNativeImage(pdata))
+		{
+			return pdata;
+		}	
+	}
+	else
+	{
+		Cancel();
+	}
+}
+
+PBITMAPINFOHEADER CTWAIN_UI::GetDIBInfoHeader()
+{
+	return m_pDS->pDIBInfoHeader;
 }
 
 void CTWAIN_UI::Cancel()
@@ -241,7 +263,7 @@ int CTWAIN_UI::GetCurrentCapIndex(const TW_UINT16 _unCap)
 
 TW_FRAME CTWAIN_UI::GetCurrentFrame()
 {
-  CTWAINContainerFrame  *pfCap = (CTWAINContainerFrame  *)m_pDS->findCapability(ICAP_FRAMES);
+  CTWAINContainerFrame *pfCap = (CTWAINContainerFrame *)m_pDS->findCapability(ICAP_FRAMES);
   if(pfCap==NULL)
   {
     assert(0);
@@ -701,7 +723,7 @@ bool CTWAIN_UI::TW_DeleteProfile(string strFileName)
     strFileName  = m_strProfilesDirectory+strFileName+FILEEXTENTION;
 
     //delete file from the disk
-    return remove(strFileName.c_str())==0;
+    return remove(strFileName.c_str())==0; //remove成功返回0，失败返回-1
   }
   else
   {

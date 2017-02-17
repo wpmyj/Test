@@ -11,7 +11,6 @@
 
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
-extern bool g_bMuiltStream; //高级界面多流不选中
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
@@ -28,19 +27,24 @@ CPage_Base::~CPage_Base()
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_BASE_COMBO_SOURCE, m_combo_source);
 	DDX_Control(pDX, IDC_BASE_COMBO_COLORMODE, m_combo_colormode);
 	DDX_Control(pDX, IDC_BASE_COMBO_RESOLUTION, m_combo_resolution);
-	DDX_Control(pDX, IDC_BASE_COMBO_SCANSIDE, m_combo_scanside);
 	DDX_Control(pDX, IDC_BASE_SLIDER_CONTRAST, m_slider_contrast);
 	DDX_Control(pDX, IDC_BASE_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_BASE_SLIDER_THRESHOLD, m_slider_threshold);
-	DDX_Control(pDX, IDC_CHECK_MULTIFEEDDETECT, m_check_multifeeddetect);
 	DDX_Control(pDX, IDC_BASE_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_BASE_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_BASE_EDIT_THRESHOLD, m_edit_threshold);
-	DDX_Control(pDX, IDC_BASE_COMBO_PROFILE, m_combo_profile);
 	DDX_Control(pDX, IDC_BASE_BTN_CHOOSEIMAGE, m_btn_chooseimage);
+	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
+	DDX_Radio(pDX, IDC_BASE_RADIO_DUPLEX_DAN, m_radiobtn_duplex);
+	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
+	DDX_Control(pDX, IDC_CHECK_FRONTGRAY, m_check_frontgray);
+	DDX_Control(pDX, IDC_CHECK_FRONTBW, m_check_frontbw);
+	DDX_Control(pDX, IDC_CHECK_BACKBW, m_check_backbw);
+	DDX_Control(pDX, IDC_CHECK_BACKGRAY, m_check_backgray);
+	DDX_Control(pDX, IDC_CHECK_BACKCOLOR, m_check_backcolor);
+	DDX_Control(pDX, IDC_BASE_COMBO_BINARIZATION, m_combo_binarization);
 }
 
 
@@ -51,75 +55,25 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_EN_CHANGE(IDC_BASE_EDIT_CONTRAST, &CPage_Base::OnEnChangeBase_Edit_Contrast)
 	ON_EN_CHANGE(IDC_BASE_EDIT_BRIGHTNESS, &CPage_Base::OnEnChangeBase_Edit_Brightness)
 	ON_EN_CHANGE(IDC_BASE_EDIT_THRESHOLD, &CPage_Base::OnEnChangeBase_Edit_Threshold)
-	ON_CBN_SELCHANGE(IDC_BASE_COMBO_SOURCE, &CPage_Base::OnCbnSelchangeBase_Combo_Source)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORMODE, &CPage_Base::OnCbnSelchangeBase_Combo_Colormode)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_RESOLUTION, &CPage_Base::OnCbnSelchangeBase_Combo_Resolution)
-	ON_CBN_SELCHANGE(IDC_BASE_COMBO_PROFILE, &CPage_Base::OnCbnSelchangeBase_Combo_Profile)
-	ON_CBN_SELCHANGE(IDC_BASE_COMBO_SCANSIDE, &CPage_Base::OnCbnSelchangeBase_Combo_Scanside)
-	ON_BN_CLICKED(IDC_BASE_BTN_DELETEPROFILE, &CPage_Base::OnBase_Btn_Deleteprofile)
 	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)	
-	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT, &CPage_Base::OnClicked_Check_Multifeeddetect)
-	ON_BN_CLICKED(IDC_BASE_BTN_SAVEASPROFILE, &CPage_Base::OnBase_Btn_SaveAsprofile)
-	ON_BN_CLICKED(IDC_BASE_BTN_HELP, &CPage_Base::OnBase_Btn_Help)
+	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode)
+	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode)
+	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_DAN, &CPage_Base::OnBase_RadioBtn_Duplex)
+	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_SHUANG, &CPage_Base::OnBase_RadioBtn_Duplex)
+	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM, &CPage_Base::OnBase_RadioBtn_Duplex)
+	ON_BN_CLICKED(IDC_CHECK_FRONTCOLOR, &CPage_Base::OnBase_Btn_Check_FrontColor)
+	ON_BN_CLICKED(IDC_CHECK_FRONTGRAY, &CPage_Base::OnBase_Btn_Check_FrontGray)
+	ON_BN_CLICKED(IDC_CHECK_FRONTBW, &CPage_Base::OnBase_Btn_Check_FrontBw)
+	ON_BN_CLICKED(IDC_CHECK_BACKCOLOR, &CPage_Base::OnBase_Btn_Check_BackColor)
+	ON_BN_CLICKED(IDC_CHECK_BACKGRAY, &CPage_Base::OnBase_Btn_Check_BackGray)
+	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Base::OnBase_Btn_Check_BackBw)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BINARIZATION, &CPage_Base::OnCbnSelchangeBase_Combo_Binarization)
 END_MESSAGE_MAP()
 
 
 // CPage_Base 消息处理程序
-
-
-void CPage_Base::OnOK()
-{
-	// TODO: 在此添加专用代码和/或调用基类
-	SetCapValue(); //点击确定后才设置	
-	m_pAdPage->SetCapValue(); //先设置高级界面，再设置基本界面,否则基本的“双面”设置后，高级的“分割”又设置为1了
-	
-	m_pUI->TW_SaveProfileToFile("上次使用模板");
-
-	if(m_pUI->m_bSetup)  // EnableDSOnly
-	{
-		m_pUI->Save();
-	}
-	else  
-	{
-		m_pUI->Scan();
-	}
-
-	CPropertyPage::OnOK();
-}
-
-
-void CPage_Base::OnCancel()
-{
-	// TODO: 在此添加专用代码和/或调用基类
-	bool status = false;
-	unsigned int unIndex = 1;
-	lstString strFileNames;
-	m_pUI->TW_GetAllProfiles(strFileNames);
-
-	lstString::iterator iter = strFileNames.begin();
-	for(;iter!=strFileNames.end(); iter++)
-	{
-		CString strTemp(iter->c_str());		
-
-		if(strTemp.Find("上次使用模板") >=0 ) 
-		{
-			m_combo_profile.SetCurSel(unIndex);
-			LoadProfile();
-			status = true;	
-		}
-		unIndex ++;
-	}
-
-	if(!status) //没找见上次使用模板
-	{
-		m_pUI->ResetAllCaps();
-	}
-
-	m_pUI->Cancel();
-
-	__super::OnCancel();
-}
-
 
 void CPage_Base::SetCapValue(void)
 {
@@ -146,20 +100,30 @@ void CPage_Base::SetCapValue(void)
 				break;
 			}
 
+		case UDSCAP_BINARIZATION: //二值化
 		case CAP_FEEDERENABLED:
 		case ICAP_XRESOLUTION:
 		case ICAP_YRESOLUTION:
-		case UDSCAP_MULTIFEEDDETECT:
 			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); // 设置重张检测
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
 				break;
 			}	
 
+		case UDSCAP_REMOVESPOTS: //去除斑点
+			{
+				if(m_slider_threshold.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}	
+				break;
+			}
+
 		case CAP_DUPLEXENABLED:
 			{
-				if(GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->IsWindowEnabled())//单双面可用时才设置
+				if(0 == m_radiobtn_duplex || 1 == m_radiobtn_duplex) //单面或双面选中
 				{
 					m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
+
 					if(1 == ((int)iter->second)) //双面，单面该值为0
 					{
 						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
@@ -168,9 +132,101 @@ void CPage_Base::SetCapValue(void)
 					{
 						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
 					}
-				}		
+				}
 				break;
 			}
+
+		case UDSCAP_MULTISTREAM: //多流输出
+			{
+				if(m_radiobtn_duplex == 2) //选中多流
+				{
+					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+
+					if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_BW);
+					}
+					if(m_check_frontgray.GetCheck() || m_check_backgray.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
+					}
+					if(m_check_frontcolor.GetCheck() || m_check_backcolor.GetCheck())
+					{
+						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_RGB);
+					}
+				}	
+				break;
+			}	
+	
+			case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
+			{
+				BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+				unsigned int doc_count = 0;
+
+				//若多流未选中多流 选项值设为0，,然后退出
+				if( 0 == m_radiobtn_duplex) {
+					m_pUI->SetCapValueFloat(iter->first, 0.0f); // 保存多流选项值
+					break;
+				}
+
+				/************************************************************
+				* 判断多流chebox各选项的状态;
+				* 若选中则‘&’上对应bit为1的值;
+				* 若未选中则'|'上对应bit为0的值.
+				************************************************************/
+				// 正面彩色
+			if (m_check_frontcolor.GetCheck()) {  
+					temp |= 0x01;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x01);
+				}
+				// 正面彩色
+				if (m_check_frontgray.GetCheck()) {
+					temp |= 0x02;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x02);
+				}
+				// 正面黑白
+				if (m_check_frontbw.GetCheck()) {
+					temp |= 0x04;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x04);
+				}
+				// 背面彩色
+				if (m_check_backcolor.GetCheck()) {
+					temp |= 0x10;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x10);
+				}
+				// 背面灰度
+				if (m_check_backgray.GetCheck()) {
+					temp |= 0x20;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x20);
+				}
+				// 背面黑白
+				if (m_check_backbw.GetCheck()) {
+					temp |= 0x40;
+					doc_count++;
+				} 
+				else {
+					temp &= (0xFF-0x40);
+				}
+
+				m_pUI->SetCapValueFloat(iter->first, (float)temp); // 保存多流选项值
+				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+			}
+			break;
 
 		default:
 			{
@@ -189,19 +245,74 @@ void CPage_Base::UpdateControls(void)
 	int nCapValue;
 	CString strText;
 
-	// 扫描方式	
-	m_combo_source.ResetContent();
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
-	lstCapValues = m_pUI->GetValidCap(CAP_FEEDERENABLED);
-	if(lstCapValues && lstCapValues->size()>0)
+	//二值化
+	m_combo_binarization.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_BINARIZATION);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_BINARIZATION);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
 	{
-		m_combo_source.InsertString(0,lstCapValues->at(0)!=0?"自动送纸器":"平板");
-		if(lstCapValues->size()>1)
+		switch(lstCapValues->at(i))
 		{
-			m_combo_source.InsertString(1,lstCapValues->at(1)!=0?"自动送纸器":"平板");
-		}	
+		case TWBZ_DYNATHRESHOLD:
+			m_combo_binarization.InsertString(i,"动态阈值");
+			break;
+		case TWBZ_FIXEDTHRESHOLD:
+			m_combo_binarization.InsertString(i,"固定阈值"); 
+			break;
+		case TWBZ_HALFTONE1:
+			m_combo_binarization.InsertString(i,"半色调1");
+			break;
+		case TWBZ_HALFTONE2:
+			m_combo_binarization.InsertString(i,"半色调2");
+			break;
+		case TWBZ_HALFTONE3:
+			m_combo_binarization.InsertString(i,"半色调3");
+			break;
+		case TWBZ_HALFTONE4:
+			m_combo_binarization.InsertString(i,"半色调4");
+			break;
+		case TWBZ_HALFTONE5:
+			m_combo_binarization.InsertString(i,"半色调5");
+			break;
+		case TWBZ_ERRORDIFF:
+			m_combo_binarization.InsertString(i,"误差扩散");
+			break;
+		default:
+			continue;
+		}
 	}
-	m_combo_source.SetCurSel(nCapIndex);
+	m_combo_binarization.SetCurSel(nCapIndex);
+
+	CString str;
+	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
+	if(str.Find("去除斑点") >= 0)
+	{
+		//多流输出-去除斑点 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
+		m_slider_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, strText);
+	}
+	else if(str.Find("底色保留") >= 0)
+	{
+		//多流输出-底色保留  与二值化阈值是同样的意义 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
+		m_slider_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
+	}
+	else{}//必须保留
+
+	// 扫描方式	
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
+	if(0 == nCapIndex) //平板
+	{
+		m_radiobtn_scanmode = 1;
+	}
+	else
+	{
+		m_radiobtn_scanmode = 0;
+	}
 
   // 图像类型 
 	m_combo_colormode.ResetContent();
@@ -239,22 +350,6 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_resolution.SetCurSel(nCapIndex);
 
-	// 单面/双面扫
-	// @see CTWAINDS_FreeIMage.cpp Line 675
-	m_combo_scanside.ResetContent();  // 清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED); 
-	lstCapValues = m_pUI->GetValidCap(CAP_DUPLEXENABLED);
-	if(lstCapValues && lstCapValues->size()>0)
-	{
-		m_combo_scanside.InsertString(0,lstCapValues->at(0)!=0?"双面":"单面"); //插入顺序是 0-单面，1-双面
-		if(lstCapValues->size()>1)
-		{
-			m_combo_scanside.InsertString(1,lstCapValues->at(1)!=0?"双面":"单面");
-		}
-		m_combo_scanside.SetCurSel(nCapIndex);  // 显示默认值
-		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; 
-	}
-
 	// 对比度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
@@ -273,12 +368,95 @@ void CPage_Base::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
 
-	//重张检测：默认使用
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
-	m_check_multifeeddetect.SetCheck(nCapValue);
-	g_bMuiltStream = m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM);
-	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用
-	UpdateData(FALSE);
+	// 单面/双面扫
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+	m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
+	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
+
+	//多流输出：默认不使用
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(nCapValue == 1) //多流选中
+	{
+		m_radiobtn_duplex = 2;
+	}
+
+	// 获取多流选项值并更新控件状态
+	BYTE value = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+
+	// 判断多流是否选中
+	if (2 == m_radiobtn_duplex) 
+	{
+		// 循环判断每bit的值，并更新对应控件的状态
+		for (unsigned int i = 0; i < 7; i++)
+		{
+			switch(i)
+			{
+			case 0:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 1:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontgray.SetCheck(FALSE);
+					}
+				}
+			case 2:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 4:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_backcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 5:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_backgray.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 6:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_backbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			value = value >> 1; // 始终比较最低位
+		} // for end
+	} // if end
+	
 }
 
 
@@ -290,6 +468,9 @@ void CPage_Base::InitBasemap(void)
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
 	scanside = nCapIndex; //初始化scanside，防止用户未点击下拉框改变单双面直接扫描时，scanside默认为0，高级界面仍会设置裁切
 	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
+
+	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+	m_basemap[UDSCAP_MULTISTREAM_VALUE] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
 }
 
 
@@ -300,34 +481,58 @@ BOOL CPage_Base::OnInitDialog()
 	InitBasemap();
 	InitSliderCtrl();
 	UpdateControls();
+	
+	SetMultistream();
 	SetFlat();
+	SetBinarization();
+	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用,需在SetBinarization后
 
-	InitComboProfile();
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 
 	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
-	GetDlgItem(IDC_BASE_BTN_SAVEPROFILE)->ShowWindow(FALSE); //保存当前模板暂时不启用
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
 
-void CPage_Base::BaseStatus(void)
+void CPage_Base::PreView()
 {
-	if(g_bMuiltStream)
-	{
-		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->EnableWindow(FALSE);
-	}
-	else
-	{
-		GetDlgItem(IDC_BASE_COMBO_COLORMODE)->EnableWindow(TRUE);
-		GetDlgItem(IDC_BASE_COMBO_SCANSIDE)->EnableWindow(TRUE);
-	}
-	UpdateData(FALSE);
-}
+	SetCapValue();
+	m_pAdPage->SetCapValue();
+	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
+	TW_MEMREF *data = m_pUI->PreView(); //m_pUI->Scan();
+	PBITMAPINFOHEADER BitmapInfoHeader = m_pUI->GetDIBInfoHeader();
+	
+	BITMAPINFO *bitmapinfo = NULL; //位图信息结构
+	bitmapinfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
+	/*把BMP位图信息头中的数据读取到位图信息结构中去.*/
+	memcpy(bitmapinfo, &BitmapInfoHeader, sizeof(BITMAPINFOHEADER));
+
+	CClientDC dc(this);
+	CStatic *pstatic = (CStatic*)GetDlgItem(IDC_BASE_PREPICTURE);
+	CRect lprect;
+	pstatic->GetClientRect(lprect);
+	//StretchDIBits(pstatic->GetDC()->GetSafeHdc(), lprect.left, lprect.top, lprect.Width(), lprect.Height(), 
+		//0,0, BitmapInfoHeader->biWidth, BitmapInfoHeader->biHeight, data, bitmapinfo, DIB_RGB_COLORS, SRCCOPY);
+	
+	HBITMAP m_hPhotoBitmap = CreateDIBitmap(pstatic->GetDC()->m_hDC, BitmapInfoHeader,
+		CBM_INIT, (VOID*)data, bitmapinfo, DIB_RGB_COLORS);
+	CBitmap bmp;                            //定义位图变量
+	bmp.Attach(m_hPhotoBitmap);    
+	BITMAP bm;                                //定义一个位图结构
+	bmp.GetBitmap(&bm);        
+	CDC dcMem; 
+	dcMem.CreateCompatibleDC(GetDC());        //创建一个兼容的DC
+	CBitmap *poldBitmap=(CBitmap*)dcMem.SelectObject(bmp); //将位图选入设备环境类
+	CRect lRect;                            //定义一个区域
+	pstatic->GetClientRect(&lRect);            //获取控件的客户区域
+	lRect.NormalizeRect(); 
+	pstatic->GetDC()->StretchBlt(lRect.left, lRect.top, lRect.Width(), lRect.Height(), 
+		&dcMem, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY); //显示位图 
+	dcMem.SelectObject(&poldBitmap); //将原有的句柄选入设备环境	
+}
 
 void CPage_Base::InitSliderCtrl()
 {
@@ -344,7 +549,7 @@ void CPage_Base::InitSliderCtrl()
 	m_slider_threshold.SetRange((int)fMin, (int)fMax);
 	m_slider_threshold.SetTicFreq((int)fStep);
 
-	UpdateData(FALSE);  // 更新控件
+	UpdateData(FALSE);  // 更新控件，刷新当前对话框
 }
 
 
@@ -399,7 +604,6 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pRe
 	UpdateData(TRUE); //接收数据
 	CString str;
 	int sldValue = m_slider_threshold.GetPos(); //获取滑块的当前位置
-	
 	m_basemap[ICAP_THRESHOLD] = (float)sldValue;
 
 	str.Format("%d", sldValue);
@@ -425,7 +629,7 @@ void CPage_Base::OnEnChangeBase_Edit_Contrast()
 	m_edit_contrast.GetWindowText(str);
 	int nval = _ttoi(str);
 	m_slider_contrast.SetPos(nval);
-m_basemap[ICAP_CONTRAST] = (float)nval;
+	m_basemap[ICAP_CONTRAST] = (float)nval;
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	
@@ -479,36 +683,11 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 
 void CPage_Base::SetFlat(void)
 {
-	if(1 == m_combo_scanside.GetCurSel())
+	if(1 == m_radiobtn_duplex)
 	{
 		m_basemap[CAP_DUPLEXENABLED] = 0.0f;
-		m_combo_scanside.SetCurSel(0); //平板时，只能是单面	
+		m_radiobtn_duplex = 0; //平板时，只能是单面	
 	}		
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Combobox控件内容变动
-void CPage_Base::OnCbnSelchangeBase_Combo_Source()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_source.GetCurSel();  // 当前combo序号
-
-	CString strCBText; 
-	m_combo_source.GetLBText( nIndex, strCBText);  // 获取当前选项内容
-	int nval;
-	if(strCBText.Find("平板") >= 0)
-	{
-		nval = 0;
-		SetFlat();
-	} 
-	else
-	{
-		nval = 1; 
-	}
-	m_basemap[CAP_FEEDERENABLED] = (float)nval;
-	m_combo_source.SetCurSel(nIndex);
-
-	return;
 }
 
 
@@ -518,23 +697,25 @@ void CPage_Base::InitComboPixType(void)
 
 	if(0 == nIndex) //黑白
 	{
-		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE);	
+		m_slider_contrast.EnableWindow(FALSE);  //由指针改为变量，否则初始化就闪退
+		m_edit_contrast.EnableWindow(FALSE);
+		m_slider_brightness.EnableWindow(FALSE);
+		m_edit_brightness.EnableWindow(FALSE);
 
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE);	
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE);		
+		m_slider_threshold.EnableWindow(TRUE);
+		m_edit_threshold.EnableWindow(TRUE);
+		m_combo_binarization.EnableWindow(TRUE);
 	} 
 	else
 	{
-		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE);
-		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE);
-		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE);
-		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+		m_slider_contrast.EnableWindow(TRUE);  
+		m_edit_contrast.EnableWindow(TRUE);
+		m_slider_brightness.EnableWindow(TRUE);
+		m_edit_brightness.EnableWindow(TRUE);
 
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE);	
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE);
+		m_slider_threshold.EnableWindow(FALSE);
+		m_edit_threshold.EnableWindow(FALSE);
+		m_combo_binarization.EnableWindow(FALSE);
 	}
 
 	BaseStatus(); //获取base界面图像模式,传给高级界面。
@@ -564,48 +745,6 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Resolution()
 	m_basemap[ICAP_YRESOLUTION] = (float)nval;
 	
 	m_combo_resolution.SetCurSel(nIndex);
-
-	return;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// 双面/单面扫 
-void CPage_Base::OnCbnSelchangeBase_Combo_Scanside()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_scanside.GetCurSel();
-	CString strCBText; 
-	m_combo_scanside.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("单面") >= 0)
-	{
-		nval = 0;
-		scanside = 0;
-	} 
-	else
-	{
-		nval = 1;
-		scanside = 1;
-	}
-
-	m_basemap[CAP_DUPLEXENABLED] = (float)nval;
-	m_combo_scanside.SetCurSel(nIndex);
-
-	return;
-}
-
-
-void CPage_Base::OnClicked_Check_Multifeeddetect()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_check_multifeeddetect.GetCheck()) //点中
-	{
-		m_basemap[UDSCAP_MULTIFEEDDETECT] = TRUE;
-	} 
-	else
-	{
-		m_basemap[UDSCAP_MULTIFEEDDETECT] = FALSE;
-	}
 }
 
 
@@ -742,288 +881,6 @@ vector<string> CPage_Base::MyBrowseForMultiImages()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-// 新建模板,即另存为模板 
-void CPage_Base::OnBase_Btn_SaveAsprofile()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	CDlg_Profile dlg;  // 新建模版对话框
-	dlg.DoModal();
-
-	CString strExistName;
-
-	if (TRUE == dlg.m_bOk)  // 确定新建模版
-	{
-		strExistName = dlg.GetProfileName();  // 获取对话框中保存的模版名
-	}
-	else
-	{
-		return;
-	}
-
-	// 判断新建模板名是否已存在
-	CString strCombo;  
-	int nLength;   
-	for (int i=0;i < m_combo_profile.GetCount();i++)
-	{        
-		nLength = m_combo_profile.GetLBTextLen( i );  // 获取Combobox内容长度
-		m_combo_profile.GetLBText( i, strCombo.GetBuffer(nLength));
-		if (strCombo == strExistName)
-		{
-			if (AfxMessageBox("模版已存在，您想要重新创建吗？",MB_OKCANCEL) == IDCANCEL)  
-			{
-				return;  // 取消新建同名模版
-			}
-		}
-		strCombo.ReleaseBuffer();      
-	}
-
-	//保存修改的CapValue
-	SetCapValue();
-
-	CString strName = strExistName;
-	string strProfile = strName.GetBuffer();  // CString->string
-	strName.ReleaseBuffer();
-
-	if(m_pUI->TW_SaveProfileToFile(strProfile))
-	{		
-		m_combo_profile.AddString(strName);
-		m_combo_profile.SetCurSel(m_combo_profile.GetCount()-1);
-	}
-	
-	UpdateData(FALSE);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// 删除模板 
-void CPage_Base::OnBase_Btn_Deleteprofile()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	int nIndex = m_combo_profile.GetCurSel();
-	CString strProfile; 
-	m_combo_profile.GetLBText( nIndex, strProfile);
-
-	if(m_pUI->TW_DeleteProfile(strProfile.GetBuffer()))
-	{
-		m_combo_profile.DeleteString(nIndex);
-	}
-	int nCount = m_combo_profile.GetCount();
-	m_combo_profile.SetCurSel(0);  // 切换到默认模板
-	LoadProfile();
-}
-
-void CPage_Base::InitComboProfile()
-{
-	m_combo_profile.ResetContent();
-	m_combo_profile.InsertString(0,"默认模板");
-    m_combo_profile.SetCurSel(0); //设置为默认模板
-
-	NewBaseProfile();
-	SetLastProfile();
-	SetDelete();
-}
-
-//遍历模板，设置模板中存在“上次使用模板”的情况
-void CPage_Base::SetLastProfile(void)
-{
-	lstString strFileNames;
-	m_pUI->TW_GetAllProfiles(strFileNames);
-
-	unsigned int unIndex = 1;
-	lstString::iterator iter = strFileNames.begin();
-	for(;iter!=strFileNames.end(); iter++)
-	{
-		CString strTemp(iter->c_str());		
-		m_combo_profile.InsertString(unIndex, strTemp);
-
-		if(strTemp.Find("上次使用") >=0 ) {
-			m_combo_profile.SetCurSel(unIndex);
-			LoadProfile();
-		}
-		unIndex ++;
-	}
-}
-////////////////////////////////////////////////////////////////////////////////
-//新建模板 
-void CPage_Base::NewBaseProfile()
-{
-	string strProfileName;
-	
-	//新建“彩色,单面,200dpi”模板
-	strProfileName = "UDS--彩色,单面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 2, 0)) {
-		return;
-	}
-
-	//新建“彩色,双面,200dpi”模板
-	strProfileName = "UDS--彩色,双面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 2, 1)) {
-		return;
-	}
-
-	//新建“黑白,单面,200dpi”模板
-	strProfileName = "UDS--黑白,单面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 0, 0)) {
-		return;
-	}
-
-	//新建“黑白,双面,200dpi”模板
-	strProfileName = "UDS--黑白,双面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 0, 1)) {
-		return;
-	}
-
-	//新建“灰度,单面,200dpi”模板
-	strProfileName = "UDS--灰度,单面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 1, 0)) {
-		return;
-	}
-
-	//新建“灰度,双面,200dpi”模板
-	strProfileName = "UDS--灰度,双面,200dpi";
-	if(false == CreateNewProfile(strProfileName, 1, 1)) {
-		return;
-	}
-
-	//新建“彩色,单面,300dpi”模板
-	strProfileName = "UDS--彩色,单面,300dpi";
-	if(false == CreateNewProfile(strProfileName, 2, 0, 300)) {
-		return;
-	}
-
-	//新建“彩色,双面,300dpi”模板
-	strProfileName = "UDS--彩色,双面,300dpi";
-	if(false == CreateNewProfile(strProfileName, 2, 1, 300)) {
-		return;
-	}
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void CPage_Base::LoadProfile()
-{
-	UpdateData(TRUE);  // 接收数据
-	int nIndex = m_combo_profile.GetCurSel();
-	if(0 == nIndex)  // 默认模板，重置驱动参数
-	{
-		m_pUI->ResetAllCaps();
-	}
-	else  // 其它模板
-	{	
-		CString strProfile; 
-		m_combo_profile.GetLBText( nIndex, strProfile);
-		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()); //会m_pDS->SetGustomDSData
-	}
-	
-	UpdateControls();
-	m_pAdPage->UpdateControls();//高级设置界面参数也更新(有分辨率共同存在)
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// 扫描参数同步为模板值 
-void CPage_Base::OnCbnSelchangeBase_Combo_Profile()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	LoadProfile();	
-	SetDelete();
-}
-
-
-void CPage_Base::SetDelete(void)
-{
-	int nIndex = m_combo_profile.GetCurSel();
-	CString strCBText; 
-	m_combo_profile.GetLBText( nIndex, strCBText);
-	if (strCBText.Find("UDS") >= 0 || strCBText.Find("默认模板") >= 0)
-	{
-		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(FALSE);
-	} 
-	else
-	{
-		GetDlgItem(IDC_BASE_BTN_DELETEPROFILE)->EnableWindow(TRUE);
-	}
-}
-
-//void CPage_Base::OnBase_Btn_Saveprofile()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	SetCapValue();
-//	m_pAdPage->SetCapValue();
-//
-//	int nIndex = m_combo_profile.GetCurSel();
-//	CString strCBText; 
-//	m_combo_profile.GetLBText( nIndex, strCBText);
-//
-//	if (strCBText.Find("默认模板") >= 0 || strCBText.Find("UDS") >= 0)//为默认模板或给定模板时，保存为上次使用模板
-//	{
-//		m_pUI->TW_SaveProfileToFile("上次使用模板"); 	
-//		//SetLastProfile(); //SetLastProfile会再遍历一次，插入所有
-//		
-//		lstString strFileNames;
-//		m_pUI->TW_GetAllProfiles(strFileNames);
-//
-//		unsigned int unIndex = 1;
-//		lstString::iterator iter = strFileNames.begin();
-//		for(;iter!=strFileNames.end(); iter++)
-//		{
-//			CString strTemp(iter->c_str());		
-//
-//			if(strTemp.Find("上次使用") >=0 ) 
-//			{
-//				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板
-//				m_combo_profile.SetCurSel(unIndex);
-//				LoadProfile();
-//				
-//			/*	int nIndexTemp = m_combo_profile.GetCurSel();
-//				CString strCBTextTemp; 
-//				m_combo_profile.GetLBText( nIndexTemp, strCBTextTemp);
-//
-//				m_combo_profile.InsertString(unIndex, strTemp); //与SetLastProfile不同，只插入上次使用模板*/
-//			}
-//			unIndex ++;
-//		}
-//	}
-//	else //其他用户新建的模板
-//	{
-//		string strProfile;
-//		strProfile = strCBText;
-//		m_pUI->TW_SaveProfileToFile(strProfile); 
-//		LoadProfile();
-//	}
-//}
-
-bool CPage_Base::CreateNewProfile(std::string profilename, int pixeltype, 
-	int duplexenabled, int resolution /*= 200*/)
-{
-	if(false == m_pUI->SetCapValueInt(ICAP_PIXELTYPE,pixeltype)) { 
-		return false;
-	}
-	if(false == m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,duplexenabled)) {
-		return false;
-	}
-	if(false == m_pUI->SetCapValueInt(ICAP_XRESOLUTION,resolution)) { 
-		return false;
-	}
-	if(false == m_pUI->SetCapValueInt(ICAP_YRESOLUTION,resolution)) {
-		return false;
-	}
-	if(false == m_pUI->TW_SaveProfileToFile(profilename)) {
-		return false;
-	}
-	return true;
-}
-
-
-void CPage_Base::OnBase_Btn_Help()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	ShellExecute(NULL,"open","C:\\Windows\\twain_32\\UDS General TWAIN DS\\UDS General TWAIN DS使用手册.chm",NULL,NULL,SW_SHOWNORMAL);
-}
-
-
 BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: 在此添加专用代码和/或调用基类
@@ -1070,4 +927,301 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 	}  
 
 	return __super::PreTranslateMessage(pMsg);
+}
+
+
+void CPage_Base::OnBase_RadioBtn_Scanmode()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+	
+	int index = m_radiobtn_scanmode;
+	if(0 == index){ //为1表示自动进纸器选中
+		SetFlat();
+	}
+
+	m_basemap[CAP_FEEDERENABLED] = (float)index;
+}
+
+
+void CPage_Base::OnBase_RadioBtn_Duplex()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+
+	switch(m_radiobtn_duplex)
+	{
+	case 0:
+	case 1:
+		scanside = m_radiobtn_duplex;
+		m_basemap[CAP_DUPLEXENABLED] = (float)m_radiobtn_duplex;
+
+		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
+		m_basemap[UDSCAP_MULTISTREAM] = 0.0f;
+
+		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); //亮度
+		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE); //对比度
+		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
+		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
+
+		break;
+	case 2:
+		m_basemap[UDSCAP_MULTISTREAM] = 1.0f;
+		break;
+	}
+	SetMultistream();
+}
+
+
+void CPage_Base::SetMultistream(void)
+{
+	if(m_radiobtn_duplex == 2) //多流选中
+	{
+		GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_FRONTBW)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_BACKCOLOR)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_BACKGRAY)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_BACKBW)->EnableWindow(TRUE);
+		
+		m_combo_colormode.EnableWindow(FALSE);
+
+		SetColorGrayImage();
+		SetBWImage();
+		//GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(FALSE); //图像拆分不可用
+
+		//((CButton*)GetDlgItem(IDC_CHECK_AUTOCROP))->SetCheck(FALSE); //自动裁切与校正不选中
+		//((CButton*)GetDlgItem(IDC_CHECK_REMOVEPUNCH))->SetCheck(FALSE); //去除穿孔不选中
+
+		//m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,TWRP_DISABLE);
+		//m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+		//GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(FALSE); //自动裁切与校正不可用
+		//GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(FALSE);//去除穿孔不可用
+	} 
+	else 
+	{
+		//多流输出未选中时，六个选项也均不要选中
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTCOLOR))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTGRAY))->SetCheck(FALSE);
+		((CButton*)GetDlgItem(IDC_CHECK_FRONTBW))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_BACKCOLOR))->SetCheck(FALSE);
+		((CButton*)GetDlgItem(IDC_CHECK_BACKGRAY))->SetCheck(FALSE); 
+		((CButton*)GetDlgItem(IDC_CHECK_BACKBW))->SetCheck(FALSE);
+
+		GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_FRONTBW)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_BACKCOLOR)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_BACKGRAY)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_BACKBW)->EnableWindow(FALSE);
+
+		m_combo_colormode.EnableWindow(TRUE);	
+		//GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(TRUE); //图像拆分可用
+		//GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(TRUE); //自动裁切与校正可用
+		//GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(TRUE); //去除穿孔可用			
+	}
+}
+
+
+void CPage_Base::SetColorGrayImage(void)
+{
+	if (m_check_frontgray.GetCheck() || m_check_frontcolor.GetCheck()
+		|| m_check_backcolor.GetCheck() || m_check_backgray.GetCheck())
+	{
+		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); //亮度
+		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE); //对比度
+		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
+		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
+	} 
+	else
+	{
+		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE); //亮度
+		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(FALSE); //对比度
+		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE); //亮度Edit
+		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(FALSE); //对比度Edit
+	}
+}
+
+
+void CPage_Base::SetBWImage(void)
+{
+	if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+	{
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE); //阈值	
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE); //阈值
+
+		//图像增强系列不可用
+		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(FALSE);*/
+	} 
+	else
+	{
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); //阈值	
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); //阈值
+		//图像增强系列可用
+		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(TRUE);*/
+	}
+	SetBinarization(); //设置“去除斑点”还是“阈值”
+}
+
+
+void CPage_Base::OnBase_Btn_Check_FrontColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetColorGrayImage();
+}
+
+
+void CPage_Base::OnBase_Btn_Check_FrontGray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetColorGrayImage();
+}
+
+
+void CPage_Base::OnBase_Btn_Check_FrontBw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetBWImage();
+}
+
+
+void CPage_Base::OnBase_Btn_Check_BackColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetColorGrayImage();
+}
+
+
+void CPage_Base::OnBase_Btn_Check_BackGray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetColorGrayImage();
+}
+
+
+void CPage_Base::OnBase_Btn_Check_BackBw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetBWImage();
+}
+
+
+BOOL CPage_Base::OnSetActive()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	m_pUI->PreViewStatus();
+	return __super::OnSetActive();
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_Binarization()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_binarization.GetCurSel();
+	CString strCBText; 
+	m_combo_binarization.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("动态阈值") >= 0)
+	{
+		nval = TWBZ_DYNATHRESHOLD;
+	}
+	else if(strCBText.Find("固定阈值") >= 0)
+	{
+		nval = TWBZ_FIXEDTHRESHOLD; 
+	}
+	else if(strCBText.Find("半色调1") >= 0)
+	{
+		nval = TWBZ_HALFTONE1; 
+	}
+	else if(strCBText.Find("半色调2") >= 0)
+	{
+		nval = TWBZ_HALFTONE2; 
+	}
+	else if(strCBText.Find("半色调3") >= 0)
+	{
+		nval = TWBZ_HALFTONE3; 
+	}
+	else if(strCBText.Find("半色调4") >= 0)
+	{
+		nval = TWBZ_HALFTONE4; 
+	}
+	else if(strCBText.Find("半色调5") >= 0)
+	{
+		nval = TWBZ_HALFTONE5; 
+	}
+	else if(strCBText.Find("误差扩散") >= 0)
+	{
+		nval = TWBZ_ERRORDIFF; 
+	}
+	else
+	{}
+	m_basemap[UDSCAP_BINARIZATION] = (float)nval;
+
+	SetBinarization();
+	m_combo_binarization.SetCurSel(nIndex);
+}
+
+void CPage_Base::SetBinarization(void)
+{
+	int nCapValue;
+	float fMin,fMax,fStep;
+	
+	if(m_radiobtn_duplex == 0 || m_radiobtn_duplex == 1 || m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+	{
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE); 
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE); 
+
+		CString strCBText;
+		GetDlgItemText(IDC_BASE_COMBO_BINARIZATION,strCBText);
+		if (strCBText.Find("动态阈值") >= 0)
+		{
+			SetDlgItemText(IDC_BASE_STATIC_THRESHOLD, TEXT("去除斑点:"));
+			m_pUI->GetCapRangeFloat(UDSCAP_REMOVESPOTS, fMin, fMax, fStep);
+			m_slider_threshold.SetRange((int)fMin, (int)fMax);
+			m_slider_threshold.SetTicFreq((int)fStep); 
+
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS));
+			m_slider_threshold.SetPos(nCapValue);
+
+			//设置此时亮度不可用
+			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE); 
+			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE);
+		} 
+		else if(strCBText.Find("固定阈值") >= 0)
+		{
+			SetDlgItemText(IDC_BASE_STATIC_THRESHOLD, TEXT("阈值:"));
+			m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+			m_slider_threshold.SetRange((int)fMin, (int)fMax);
+			m_slider_threshold.SetTicFreq((int)fStep); 
+
+			nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
+			m_slider_threshold.SetPos(nCapValue);
+
+			//设置此时亮度可用
+			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); 
+			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+		}
+		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
+		{
+			GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); 
+			GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); 
+
+			//设置此时亮度可用
+			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); 
+			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+		}
+	}
+	else
+	{
+		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); 
+		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); 
+	}
+
+	UpdateData(FALSE);
 }

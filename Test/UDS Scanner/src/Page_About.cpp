@@ -11,8 +11,8 @@
 
 IMPLEMENT_DYNAMIC(CPage_About, CPropertyPage)
 
-CPage_About::CPage_About()
-	: CPropertyPage(CPage_About::IDD)
+CPage_About::CPage_About(MFC_UI *pUI)
+	: m_pUI(pUI),CPropertyPage(CPage_About::IDD)
 {
 
 }
@@ -77,3 +77,11 @@ BOOL CPage_About::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	return CPropertyPage::OnSetCursor(pWnd, nHitTest, message);
 }
 
+
+
+BOOL CPage_About::OnSetActive()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	m_pUI->PreViewStatus();
+	return CPropertyPage::OnSetActive();
+}

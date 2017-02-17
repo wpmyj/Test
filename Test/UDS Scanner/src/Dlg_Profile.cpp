@@ -7,7 +7,7 @@
 #include "afxdialogex.h"
 
 // CDlg_Profile 对话框
-//BOOL CDlg_Profile::bRunned = FALSE;
+
 IMPLEMENT_DYNAMIC(CDlg_Profile, CDialog)
 
 CDlg_Profile::CDlg_Profile(CWnd* pParent /*=NULL*/)
@@ -28,7 +28,6 @@ void CDlg_Profile::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CDlg_Profile, CDialog)
-//	ON_BN_CLICKED(IDOK, &CDlg_Profile::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 CString CDlg_Profile::GetProfileName()
@@ -38,18 +37,6 @@ CString CDlg_Profile::GetProfileName()
 
 
 // CDlg_Profile 消息处理程序
-
-
-BOOL CDlg_Profile::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	// TODO:  在此添加额外的初始化
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// 异常: OCX 属性页应返回 FALSE
-}
-
 
 void CDlg_Profile::OnOK()
 {

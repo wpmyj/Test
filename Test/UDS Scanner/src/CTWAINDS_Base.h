@@ -617,6 +617,8 @@ protected:
   DWORD             m_nDestScanLine;          /**< Current Scanline used for memory transfer */
   TW_HANDLE         m_hImageData;             /**< Handle to Current Image Data */
 
+public:
+	PBITMAPINFOHEADER pDIBInfoHeader; //zhu DIB头
 };
 
 #endif // __CTWAINBASE_H__

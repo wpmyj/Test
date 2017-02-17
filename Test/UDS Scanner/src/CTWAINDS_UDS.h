@@ -252,7 +252,6 @@ protected:
   TW_IDENTITY m_AppID;
   bool                        m_bCanceled;
   CTWAIN_UI                  *m_pGUI;                   /**< This is the main  UI dialog */
-
 };
 
 

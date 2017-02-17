@@ -51,6 +51,14 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_nMaxDocCount        = settings.m_nMaxDocCount;
 	m_byteMultiValue      = settings.m_byteMultiValue;
 
+	m_fEdgeUp             = settings.m_fEdgeUp;
+	m_fEdgeDown           = settings.m_fEdgeDown;
+	m_fEdgeLeft           = settings.m_fEdgeLeft;
+	m_fEdgeRight          = settings.m_fEdgeRight;
+
+	m_fXPos               = settings.m_fXPos;
+	m_fYPos               = settings.m_fYPos;
+
 }
 
 CDevice_Base* CDevice_Base::getSetting() const

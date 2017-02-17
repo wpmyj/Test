@@ -15,7 +15,7 @@ extern HWND g_hwndDLG;
 #define kGETENV_XFERCOUNT "CAP_XFERCOUNT"
 
 #ifdef TWH_CMP_MSC
-extern HINSTANCE   g_hinstance;
+	extern HINSTANCE   g_hinstance;
 #endif 
 
 #define IMAGENAME_FRONT "Scanner_leaflet_front.jpg"
@@ -37,6 +37,7 @@ CScanner_OpenCV::CScanner_OpenCV(void) :
 
 #ifdef TWH_CMP_MSC
 	GetModuleFileName(g_hinstance, szTWAIN_DS_DIR, PATH_MAX);
+
 	// strip filename from path
 	size_t x = strlen(szTWAIN_DS_DIR);
 	while(x > 0)
@@ -140,7 +141,7 @@ void CScanner_OpenCV::setSetting(CDevice_Base settings)
 {
 	CDevice_Base::setSetting(settings);  // 调用父类的方法
 	m_nDocCount = m_nMaxDocCount;
-	if ( (false == m_bMultiStream) &&(true == m_bDuplex) )
+	if ( (false == m_bMultiStream) && (true == m_bDuplex) )
 	{
 		m_nDocCount = 2;
 	}
@@ -404,6 +405,7 @@ bool CScanner_OpenCV::preScanPrep()
 
 			GaussianBlur(matRemoveBack, matRemoveBack, Size(3,3), 0, 0, BORDER_DEFAULT);
 			Laplacian(matRemoveBack, matRemoveBack, index, 3, 1, 0, BORDER_DEFAULT);//必须是与输入图像的深度相同
+			matRemoveBack = m_mat_image + matRemoveBack;//直接相加，使拉普拉斯滤波后的图与原图有个对比
 			convertScaleAbs(matRemoveBack, matRemoveBack);
 
 			matRemoveBack.copyTo(m_mat_image);
@@ -460,6 +462,10 @@ bool CScanner_OpenCV::preScanPrep()
 		SpiltImage(m_mat_image,1,2);
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
+	}
+	else if(m_nSpiltImage == TWSI_DEFINED)
+	{
+
 	}
 
 	switch(m_nPixelType)
@@ -930,7 +936,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//-2 is 11111110 in binary system, operator & make sure width and height are always even
 	//dft()直接获得的结果中，低频部分位于四角，高频部分位于中间。
 	//习惯上会把图像做四等份，互相对调，使低频部分位于图像中心，也就是让频域原点位于中心。
-	magnitudeMat = magnitudeMat(Rect(0, 0, magnitudeMat.cols & -2, magnitudeMat.rows & -2));
+	//magnitudeMat = magnitudeMat(Rect(0, 0, magnitudeMat.cols & -2, magnitudeMat.rows & -2));
 
 	//Normalize the magnitude to [0,1], then to[0,255]
 	//虽然用log()缩小了数据范围，但仍然不能保证数值都落在[0,255]之内，
@@ -974,7 +980,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//Turn into binary image
 	Mat binaryMagnMat;
 	threshold(magnitudeMat, binaryMagnMat, 142, 255,CV_THRESH_BINARY);
-
+	
 	//霍夫变换
 	//Find lines with Hough Transformation
 	//这一部分用HoughLines()检测图像中可能存在的直线，
@@ -1004,7 +1010,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 		pt2.y = cvRound(y0 - 1000*(a));
 		line(houghMat, pt1, pt2, Scalar(0, 0, 255), 3, CV_AA);
 	}
-	
+
 	//Find the proper angel from the three found angels
 	//计算倾斜角
 	//上面得到了三个角度，一个是0度，一个是90度，另一个就是我们所需要的倾斜角。
@@ -1044,13 +1050,14 @@ Mat CScanner_OpenCV::AutoCorrect()
 	//再把这个矩阵输入warpAffine()，做一个单纯旋转的仿射变换。
 	//warpAffine()的最后一个参数Scalar(255,255,255)是把由于旋转产生的空白用白色填充。
 
-	//彩图
+	//彩图	
 	Point2f centerPoint = Point2f(img.cols/2, img.rows/2);
 	Mat warpMat = getRotationMatrix2D(centerPoint, theta, 1.0);
 	Mat resultImage = Mat::ones(img.size(), img.type());
 	warpAffine(img, resultImage, warpMat, resultImage.size(), 1, 0, Scalar(255,255,255));
-
+	//imwrite("C:\\Users\\Administrator\\Desktop\\a.jpg", resultImage);
 	//灰度、黑白图能够正常校正，但RemoveBlack崩溃
+
 	return resultImage;
 }
 

@@ -119,6 +119,9 @@ public:
 
   bool ResetAllCaps();
 
+	TW_MEMREF* PreView(); //add by zhu 新增预览，返回图像数据。
+	PBITMAPINFOHEADER GetDIBInfoHeader(); //返回DIB数据头
+
   CTWAINDS_UDS *m_pDS;
   TW_USERINTERFACE m_EnableDSdata;
   bool m_bScanning;

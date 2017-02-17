@@ -1,4 +1,5 @@
 #pragma once
+
 #include "MFC_UI.h"
 #include "afxwin.h"
 #include "Dlg_Profile.h"
@@ -23,11 +24,9 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
+	virtual BOOL OnSetActive();
 
 	DECLARE_MESSAGE_MAP()
-private:
-	virtual void OnOK();
-	virtual void OnCancel();
 
 private:
 	/**
@@ -36,20 +35,23 @@ private:
 	*/
 	MFC_UI  *m_pUI;  
 
-private:
+public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-	void InitComboProfile();  ///< 初始化模版Combo
-	void LoadProfile();  ///< 加载模版
-	void NewBaseProfile(); ///<新建常用模板
-	void SetLastProfile(); ///<遍历模板，设置模板中存在“上次使用模板”的情况
 	void InitComboPixType(void); ///<初始化图像类型编辑框
 	void SetCapValue(void);  ///<设置参数
-	void SetDelete(void); ///<设置删除按钮是否可用
-	void BaseStatus(void); ///<根据muiltstream变量，设置base界面图像模式,以及单双面是否可用
 	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
 	void SetFlat(void); ///< 设置扫描模式为平板时，只能为单面。
-	
+
+	void SetMultistream(void); ///<设置多流输出配套参数
+	void SetColorGrayImage(void); ///<设置彩色和灰度，亮度、对比度可用
+	void SetBWImage(void); ///<设置黑白图片时二值化可用
+	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
+
+	void PreView();  //预览按钮实际功能实现
+
+	void SetBinarization(void); ///<设置二值化分别选择不同值时，该显示“去除斑点”还是“底色保留”
+
 	//bool MyBrowseForSignalImage(PTCHAR strFilePath);
 	/**
 	* @brief 浏览并选择多个图片文件
@@ -57,39 +59,31 @@ private:
 	*/
 	vector<string> MyBrowseForMultiImages();
 
-	/**
-	*  @brief  新建指定参数模板
-	*  @param[in]  profilename 模板名
-	*  @param[in]  pixeltype 图像类型 
-	*  @param[in]  duplexenabled 单/双面 
-	*  @param[in]  resolution 分辨率(默认200dpi)  
-	*  @retval true 表示成功
-	*  @retval false 表示失败  
-	*/
-	bool CreateNewProfile(std::string profilename, int pixeltype, 
-		int duplexenabled, int resolution = 200);
 
 private:
-	CComboBox m_combo_source;   ///< 扫描方式:  ADF/Flatbed
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
 	CComboBox m_combo_resolution;  ///< 分辨率:  50/100/200/.../600
-	CComboBox m_combo_profile;  ///< 模版
-	/**
-	* @brief 单面/双面扫:  单面/双面  
-	* @see CTWAINDS_FreeIMage.cpp Line 675
-	*/
-	CComboBox m_combo_scanside;
+	CComboBox m_combo_binarization; ///<二值化：固定阈值。动态阈值、半色调
 
 	CSliderCtrl m_slider_contrast;  ///< 对比度:  -100~+100
 	CSliderCtrl m_slider_brightness;  ///< 亮度:  -100~+100
-	CSliderCtrl m_slider_threshold;
+	CSliderCtrl m_slider_threshold; ///<阈值/去除斑点 
 
 	CEdit m_edit_contrast;  ///< 用于同步显示m_slider_contrast值
 	CEdit m_edit_brightness;   ///< 用于同步显示m_slider_brightness值
-	CEdit m_edit_threshold;
+	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
 
-	CButton m_check_multifeeddetect; ///<"重张检测"
 	CButton m_btn_chooseimage; ///<"选择图片按钮"
+
+	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板
+	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
+
+	CButton m_check_frontcolor;
+	CButton m_check_frontgray;
+	CButton m_check_frontbw;
+	CButton m_check_backbw;
+	CButton m_check_backgray;
+	CButton m_check_backcolor;
 
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 	
@@ -101,24 +95,27 @@ private:
 	afx_msg void OnEnChangeBase_Edit_Brightness();
 	afx_msg void OnEnChangeBase_Edit_Threshold();
 
-	afx_msg void OnCbnSelchangeBase_Combo_Source();
 	afx_msg void OnCbnSelchangeBase_Combo_Colormode();
 	afx_msg void OnCbnSelchangeBase_Combo_Resolution();
-	afx_msg void OnCbnSelchangeBase_Combo_Profile();
-	afx_msg void OnCbnSelchangeBase_Combo_Scanside();
+	afx_msg void OnCbnSelchangeBase_Combo_Binarization();
 
 	afx_msg void OnBase_Btn_Newprofile();
-	afx_msg void OnBase_Btn_Deleteprofile();
-
-	afx_msg void OnClicked_Check_Multifeeddetect();
 
   /** 选择待扫图片 */
 	afx_msg void OnBase_Btn_Chooseimage();
-	/** 另存为模板 *//** 保存当前模板*/
-	afx_msg void OnBase_Btn_SaveAsprofile();
-	afx_msg void OnBase_Btn_Help();
+
+	afx_msg void OnBase_RadioBtn_Scanmode();
+	afx_msg void OnBase_RadioBtn_Duplex();
+
+	afx_msg void OnBase_Btn_Check_FrontColor();
+	afx_msg void OnBase_Btn_Check_FrontGray();
+	afx_msg void OnBase_Btn_Check_FrontBw();
+	afx_msg void OnBase_Btn_Check_BackColor();
+	afx_msg void OnBase_Btn_Check_BackGray();
+	afx_msg void OnBase_Btn_Check_BackBw();
 
 public:
 	/** 父类指针*/
-	CPage_Custom* m_pAdPage;
+	CPage_Custom* m_pAdPage;	
+
 };

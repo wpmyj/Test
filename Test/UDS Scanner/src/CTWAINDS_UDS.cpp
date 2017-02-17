@@ -383,7 +383,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKGRAY,0,TWON_ONEVALUE); //灰度背面
 	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKBW,0,TWON_ONEVALUE); //黑白背面
 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0,TWON_ONEVALUE); //去除斑点
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTS,0,TWON_ONEVALUE); //去除斑点
 	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //底色保留
 
 	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  去除空白页
@@ -397,6 +397,14 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_AUTOCROP,0,TWON_ONEVALUE); //zhu  自动裁切及校正 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DOCS_IN_ADF,0,TWON_ONEVALUE); // ADF纸张数 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM_VALUE,0,TWON_ONEVALUE); // 多流输出选项值
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_UP,0,TWON_ONEVALUE); // 边缘扩充
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_DOWN,0,TWON_ONEVALUE); // 边缘扩充
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_LEFT,0,TWON_ONEVALUE); // 边缘扩充
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_RIGHT,0,TWON_ONEVALUE); // 边缘扩充
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_XPOS,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_YPOS,0,TWON_ONEVALUE);
 	return bResult;
 }
 
@@ -437,7 +445,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKCOLOR,0); //彩色背面
 	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKGRAY,0); //灰度背面
 	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKBW,0); //黑白背面
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,0); //zhu 去除斑点
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTS,0); //zhu 去除斑点
 	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu 底色保留
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVEBLANK,0);
@@ -451,6 +459,14 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTIFEEDDETECT,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DOCS_IN_ADF,0); // ADF纸张数 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM_VALUE,0); // 多流输出选项值 
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_UP,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_DOWN,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_LEFT,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_RIGHT,0); 
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_XPOS,0); //X偏移量
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_YPOS,0); 
 
   return bResult;
 }
@@ -495,7 +511,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_PLANARCHUNKY)
    || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //纸张大小
 	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //多流输出
-	 || !pnCap->Add(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS)  //去除斑点
+	 || !pnCap->Add(UDSCAP_REMOVESPOTS)  //去除斑点
    || !pnCap->Add(ICAP_UNITS) //单位
    || !pnCap->Add(ICAP_XFERMECH)
    || !pnCap->Add(ICAP_XRESOLUTION) //分辨率
@@ -522,6 +538,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_AUTOCROP)
 	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT) //多张进纸检测
 	 || !pnCap->Add(UDSCAP_MULTISTREAM_VALUE) // 多流输出选项值
+	 || !pnCap->Add(UDSCAP_EDGE_UP)
+	 || !pnCap->Add(UDSCAP_EDGE_DOWN)
+	 || !pnCap->Add(UDSCAP_EDGE_LEFT)
+	 || !pnCap->Add(UDSCAP_EDGE_RIGHT)
+	 || !pnCap->Add(UDSCAP_XPOS)
+	 || !pnCap->Add(UDSCAP_YPOS)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -556,10 +578,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_UNITS]))
    || !pnCap->Add(TWUN_INCHES, true)
    || !pnCap->Add(TWUN_PIXELS)
-   || !pnCap->Add(TWUN_CENTIMETERS)
-   || !pnCap->Add(TWUN_PICAS)
-   || !pnCap->Add(TWUN_POINTS)
-   || !pnCap->Add(TWUN_TWIPS) )
+   || !pnCap->Add(TWUN_CENTIMETERS) )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_UNITS !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_UNITS" << endl;
@@ -729,7 +748,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_SPLITIMAGE]))
 		|| !pnCap->Add(TWSI_NONE, true)  
 		|| !pnCap->Add(TWSI_HORIZONTAL)
-		|| !pnCap->Add(TWSI_VERTICAL))  
+		|| !pnCap->Add(TWSI_VERTICAL)
+		|| !pnCap->Add(TWSI_DEFINED) )  
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SPLITIMAGE !"),MB_CAPTION,MB_OK);
 		//cerr<<"Could not create UDSCAP_SPLITIMAGE"<<endl;
@@ -790,7 +810,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[CAP_FEEDERENABLED] = new CTWAINContainerBool(CAP_FEEDERENABLED, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_FEEDERENABLED]))
    || !pbCap->Add(FALSE)
-   || !pbCap->Add(TRUE, true) )  //wan，扫描模式，默认自动进纸器
+	 || !pbCap->Add(TRUE, true) //wan，扫描模式，默认自动进纸器
+	  )  
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_FEEDERENABLED !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create CAP_FEEDERENABLED" << endl;
@@ -1062,8 +1083,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	fRange.fMaxValue = 30.0f;
 	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
-	m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS] = new CTWAINContainerFix32Range(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS]))
+	m_IndependantCapMap[UDSCAP_REMOVESPOTS] = new CTWAINContainerFix32Range(UDSCAP_REMOVESPOTS,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_REMOVESPOTS]))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS" << endl;
@@ -1162,6 +1183,55 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
+	//边缘扩展上下左右
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP] = new CTWAINContainerFix32(UDSCAP_EDGE_UP, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_UP !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_DOWN] = new CTWAINContainerFix32(UDSCAP_EDGE_DOWN, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_DOWN]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_DOWN !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_LEFT] = new CTWAINContainerFix32(UDSCAP_EDGE_LEFT, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_LEFT]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_LEFT !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_RIGHT] = new CTWAINContainerFix32(UDSCAP_EDGE_RIGHT, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_RIGHT]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_RIGHT !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_XPOS] = new CTWAINContainerFix32(UDSCAP_XPOS, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_XPOS]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_XPOS !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_YPOS] = new CTWAINContainerFix32(UDSCAP_YPOS, TWON_ONEVALUE, TWQC_ALL))
+		|| !m_ICAP_UNIT_Dependant[UDSCAP_YPOS]->Add(0.0, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_XPOS !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
   // setup the ICAP_FRAMES
   // expressed internally as 1000 pixels per inch ；1000像素没英寸
   // Currently only supports one frame see: ICAP_MAXFRAMES
@@ -1237,7 +1307,7 @@ void CTWAINDS_UDS::fillIdentityStructure(TW_IDENTITY& _idStruct)
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
-{//::MessageBox(g_hwndDLG,"getImageInfo",MB_CAPTION,MB_OK);
+{
   TW_INT16 twrc = TWRC_SUCCESS;
 
   memset(_pImageInfo, 0, sizeof(TW_IMAGEINFO));
@@ -1294,6 +1364,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 
 	_pImageInfo->Planar = FALSE;
 	_pImageInfo->Compression = TWCP_NONE;
+	
   return twrc;
 }
 
@@ -2034,7 +2105,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}
 
 	//去除斑点
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS))))
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_REMOVESPOTS))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS!"),MB_CAPTION,MB_OK);
     //cerr << "Could not get UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS" << endl;
@@ -2063,13 +2134,80 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_MULTISTREAM_VALUE))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_MULTISTREAM_VALUE!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_ROTATION" << endl;
 		bret = false;
 	}
 	else
 	{
 		pfCap->GetCurrent(fVal);
 		settings.m_byteMultiValue = (BYTE)fVal;
+	}
+
+	//边缘扩充
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_EDGE_UP))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_UP!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fEdgeUp = fVal;
+	}
+
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_EDGE_DOWN))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_DOWN!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fEdgeDown = fVal;
+	}
+
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_EDGE_LEFT))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_LEFT!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fEdgeLeft = fVal;
+	}
+
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_EDGE_RIGHT))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_RIGHT!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fEdgeRight = fVal;
+	}
+
+	//X偏移量
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_XPOS))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_XPOS!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fXPos = fVal;
+	}
+
+	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_YPOS))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_YPOS!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfCap->GetCurrent(fVal);
+		settings.m_fYPos = fVal;
 	}
 
 	// 图像切割
@@ -2084,7 +2222,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nSpiltImage = nVal;
 	}//zhu
-
+	
 
 	//去除空白页的checkbox
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_REMOVEBLANK))))
@@ -2315,6 +2453,12 @@ CTWAINContainer* CTWAINDS_UDS::findCapability(const TW_UINT16 _unCap)
     case ICAP_PHYSICALWIDTH:
     case ICAP_PHYSICALHEIGHT:
 		case UDSCAP_MULTISTREAM_VALUE:
+		case UDSCAP_EDGE_UP:
+		case UDSCAP_EDGE_DOWN:
+		case UDSCAP_EDGE_LEFT:
+		case UDSCAP_EDGE_RIGHT:
+		case UDSCAP_XPOS:
+		case UDSCAP_YPOS:
     {
       TWAINCapabilitiesMap_FIX32::iterator itCap = m_ICAP_UNIT_Dependant.find(_unCap);
 

@@ -6,33 +6,40 @@
 #include "Sheet_Scanner.h"
 
 // CSheet_Scanner
+extern HINSTANCE  g_hinstance;
 
 IMPLEMENT_DYNAMIC(CSheet_Scanner, CPropertySheet)
 
 CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:m_pUI(pUI),CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
 {
-	
 	// 在属性表单中添加属性页,添加顺序就是显示的顺序
+	m_p_page_profile = new CPage_Profile(pUI);
+	AddPage(m_p_page_profile);
+
 	m_p_page_base = new CPage_Base(pUI);
 	AddPage(m_p_page_base);
 
+	m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);
+
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
-
-	//m_p_page_paper = new CPage_Paper(pUI);
-	//AddPage(m_p_page_paper);
 
 	//m_p_page_muilstream = new CPage_Muiltstream(pUI);
 	//AddPage(m_p_page_muilstream);
 
 	//m_p_page_imageprocess = new CPage_ImageProcess(pUI);
 	//AddPage(m_p_page_imageprocess);
+	m_p_page_about = new CPage_About(pUI);
+	AddPage(m_p_page_about);
 
-	AddPage(&m_page_about);
-
-	m_p_page_base->m_pAdPage = m_p_page_advanced;
+	m_p_page_base->m_pAdPage = m_p_page_advanced; //用于基本与高级之间参数同步
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
+	
+	m_p_page_profile->m_pBasePage = m_p_page_base;
+	m_p_page_profile->m_pAdPage = m_p_page_advanced;
+	m_p_page_profile->m_pPaperPage = m_p_page_paper;
 }
 
 CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
@@ -40,14 +47,17 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 {
 
 	// 在属性表单中添加属性页,添加顺序就是显示的顺序
+	m_p_page_profile = new CPage_Profile(pUI);
+	AddPage(m_p_page_profile);
+
 	m_p_page_base = new CPage_Base(pUI);
 	AddPage(m_p_page_base);
 
+	m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);
+
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
-
-	//m_p_page_paper = new CPage_Paper(pUI);
-	//AddPage(m_p_page_paper);
 
 	//m_p_page_muilstream = new CPage_Muiltstream(pUI);
 	//AddPage(m_p_page_muilstream);
@@ -55,18 +65,35 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	//m_p_page_imageprocess = new CPage_ImageProcess(pUI);
 	//AddPage(m_p_page_imageprocess);
 
-	AddPage(&m_page_about);
+	m_p_page_about = new CPage_About(pUI);
+	AddPage(m_p_page_about);
 	
 	m_p_page_base->m_pAdPage = m_p_page_advanced;
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
+
+	m_p_page_profile->m_pBasePage = m_p_page_base;
+	m_p_page_profile->m_pAdPage = m_p_page_advanced;
+	m_p_page_profile->m_pPaperPage = m_p_page_paper;
 }
 
 CSheet_Scanner::~CSheet_Scanner()
 {
+	if (m_p_page_profile)
+	{
+		delete m_p_page_profile;
+		m_p_page_profile = NULL;
+	}
+
 	if (m_p_page_base)
 	{
 		delete m_p_page_base;
 		m_p_page_base = NULL;
+	}
+
+	if (m_p_page_paper)
+	{
+		delete m_p_page_paper;
+		m_p_page_paper = NULL;
 	}
 
 	if (m_p_page_advanced)
@@ -75,11 +102,11 @@ CSheet_Scanner::~CSheet_Scanner()
 		m_p_page_advanced = NULL;
 	}
 
-	//if (m_p_page_paper)
-	//{
-	//	delete m_p_page_paper;
-	//	m_p_page_paper = NULL;
-	//}
+	if (m_p_page_about)
+	{
+		delete m_p_page_about;
+		m_p_page_about = NULL;
+	}
 
 	//if (m_p_page_muilstream)
 	//{
@@ -99,6 +126,8 @@ CSheet_Scanner::~CSheet_Scanner()
 BEGIN_MESSAGE_MAP(CSheet_Scanner, CPropertySheet)
 	ON_WM_CLOSE()
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_SHEET_BUTTON_HELP, &CSheet_Scanner::OnButtonHelp) //add by zhu
+	ON_BN_CLICKED(IDC_SHEET_BUTTON_PREVIEW, &CSheet_Scanner::OnButtonPreView) 
 END_MESSAGE_MAP()
 
 
@@ -132,9 +161,11 @@ BOOL CSheet_Scanner::OnInitDialog()
 {
 	BOOL bResult = CPropertySheet::OnInitDialog();
 
-	// TODO:  在此添加您的专用代码
+	// TODO:  在此添加您的专用代码	
 	SetActivePage(m_p_page_advanced);
 	SetActivePage(m_p_page_base);
+	SetActivePage(m_p_page_profile);
+
 	if(m_pUI->m_bSetup)  // EnableDSUIOnly（只打开驱动界面），更改按钮名称为“保存”
 	{
 		GetDlgItem(IDOK)->SetWindowText("保存");
@@ -154,5 +185,72 @@ BOOL CSheet_Scanner::OnInitDialog()
 	//GetDlgItem(ID_APPLY_NOW)->EnableWindow(TRUE);
 	//GetDlgItem(ID_APPLY_NOW)->SetWindowText("帮助");//把“应用”改为“帮助”
 
+	//在属性页增加帮助按钮
+	CRect rect, tabrect, rect_cancel;
+	int width, stepwidth;
+	GetDlgItem(IDOK)->GetWindowRect(rect); //得到按钮的尺寸
+	GetTabControl()->GetWindowRect(tabrect);  //新按钮的位置
+	GetDlgItem(IDCANCEL)->GetWindowRect(rect_cancel); 
+	ScreenToClient(rect); //Screen(屏幕坐标) 到 Client(客户区坐标)的转换
+	ScreenToClient(tabrect);
+	ScreenToClient(rect_cancel);
+
+	width = rect.Width();
+	stepwidth = rect_cancel.left - rect.right; //确定与取消按钮之间的距离
+
+	rect.left = tabrect.left;
+	rect.right = tabrect.left + width;
+	m_btn_help.Create("帮助",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_HELP);
+	m_btn_help.SetFont(GetFont());
+	
+	rect.left = rect.right + stepwidth;
+	rect.right = rect.left + width;
+	m_btn_preview.Create("预览",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_PREVIEW);
+	m_btn_preview.SetFont(GetFont()); 
+	SetPreViewStatus();
+
 	return bResult;
+}
+
+
+void CSheet_Scanner::SetPreViewStatus()
+{
+	if(1 == GetTabControl()->GetCurFocus())
+	{
+		m_btn_preview.EnableWindow(TRUE);
+	}
+	else
+	{
+		m_btn_preview.EnableWindow(FALSE);
+	}
+}
+
+
+void CSheet_Scanner::OnButtonHelp()
+{
+	char path[PATH_MAX];
+	GetModuleFileName(g_hinstance, path, PATH_MAX);
+	// strip filename from path
+	size_t x = strlen(path);
+	while(x > 0)
+	{
+		if(PATH_SEPERATOR == path[x-1])
+		{
+			path[x-1] = 0;
+			break;
+		}
+		--x;
+	}
+
+	SSTRCPY(path, sizeof(path), path);
+	strcat(path,  "\\");
+	strcat(path, "UDS General TWAIN DS使用手册.chm");
+
+	ShellExecute(NULL,"open",path,NULL,NULL,SW_SHOWNORMAL);
+}
+
+
+void CSheet_Scanner::OnButtonPreView() 
+{
+	m_p_page_base->PreView();
 }

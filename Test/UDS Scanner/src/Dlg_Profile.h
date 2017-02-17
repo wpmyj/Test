@@ -23,14 +23,12 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	virtual void OnOK();
 
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CEdit m_edit_profile;
-
-//private:
-//	CDlg_Profile *m_ui;
 
 public:
 	CString GetProfileName();  ///< 获取模版名
@@ -38,9 +36,6 @@ public:
 
 private:
 	CString m_strProfileName;  ///< 当前模版名
-	virtual BOOL OnInitDialog();
 	
-	virtual void OnOK();
-public:
-//	afx_msg void OnBnClickedOk();
+	
 };

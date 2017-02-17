@@ -129,6 +129,15 @@
     <ClCompile Include="src\Dlg_Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Page_Profile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Rename.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page_Paper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -252,6 +261,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Paper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Profile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Rename.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -164,6 +164,7 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	return TWRC_SUCCESS;
 }
 
+
 void MFC_UI::DestroyTWAINGUI()
 {
 	CTWAIN_UI::DestroyTWAINGUI();
@@ -221,12 +222,29 @@ bool MFC_UI::processEvent(pTW_EVENT _pEvent)
 }
 
 
-//void MFC_UI::ShowDlg()     
-//{     
-//
-//	hwndDLG = CreateDialog(g_hinstance,MAKEINTRESOURCE(IDD_DLG_SHOW),     
-//		NULL,(DLGPROC)DlgProc);     
-//	ShowWindow(hwndDLG,   SW_SHOW);     
-//
-//}
+//重命名模板名  add by zhu
+bool MFC_UI::RenameProfile(string strOldName, string strNewName) 
+{
+	if(!strOldName.empty())
+	{
+		strOldName = m_strProfilesDirectory + strOldName + FILEEXTENTION;
+		strNewName = m_strProfilesDirectory + strNewName + FILEEXTENTION;
+		
+		return rename(strOldName.c_str(), strNewName.c_str())==0; // strOldName.c_str():string->CString
+		//rename成功返回0，失败返回-1
+	}
+	else
+	{	
+		return false;
+	}
+}
 
+string MFC_UI::GetProfileNamePath()
+{
+	return m_strProfilesDirectory;
+}
+
+void MFC_UI::PreViewStatus()
+{
+	m_pSheet->SetPreViewStatus();
+}

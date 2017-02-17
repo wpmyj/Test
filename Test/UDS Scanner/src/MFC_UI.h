@@ -44,9 +44,26 @@ public:
 	unsigned int MessageBox(string strMessage,string strTitle, unsigned int unIconID);
 	bool processEvent(pTW_EVENT _pEvent);
 
-public:
+	/**
+	* @brief 重命名模板名
+	*  @param[in]  strOldName 原模板名
+	*  @param[in]  strNewName 新模板名   
+	*  @retval true  表示成功
+	*  @retval false 表示失败  
+	*/
+	bool RenameProfile(string strOldName, string strNewName); //重命名模板名  add by zhu
 
-	//CDlg_UI *m_pDlg;  
+	/**
+	* @brief 返回模板存放路径   
+	*/
+	string GetProfileNamePath();
+	
+	/**
+	* @brief 判断“预览”按钮是否可见  
+	*/
+	void PreViewStatus();
+
+public:
   CSheet_Scanner* m_pSheet;  ///< 属性页对话框
 	CDlg_Camera*    m_pDlgCamera; ///< 摄像头对话框
 };
