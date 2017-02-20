@@ -277,9 +277,7 @@ date 17.01.17
 4.修复【基本】属性页与【高级】属性页中多流控件未同步的问题；
 解决方法：定义全局变量g_bMuiltStream用于保存多流控件状态;
 
-
-
-date 17.01.18
+date 17.01.19
 ------------------------------------------------------------
 @author wan
 1.删除NoUI扫描时，OpenDS()中先调用模板再响应APP的Capability的值；
@@ -287,3 +285,6 @@ date 17.01.18
 3.从项目中移除3个属性页类;
 4.更改类CCamera_DirectX名称为CCamera_CxImage;
 4.更改类CScanner_Base名称为CDevice_Base；
+
+
+
