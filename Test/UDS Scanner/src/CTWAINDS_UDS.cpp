@@ -48,7 +48,7 @@ TW_IDENTITY g_myIdentity_Chinese =
 		VERSION_MINORNUMBER,   // TW_UINT16  MinorNum;         Incremental revision number of the software
 		TWLG_CHINESE_PRC,      // TW_UINT16  Language;         e.g. TWLG_SWISSFRENCH
 		TWCY_CHINA,            // TW_UINT16  Country;          e.g. TWCY_SWITZERLAND
-		"3.2.0"                // TW_STR32   Info;             e.g. "1.0b3 Beta release"
+		"2.3.0"                // TW_STR32   Info;             e.g. "1.0b3 Beta release"
 #ifdef _DEBUG
 		" debug"
 #else
@@ -60,12 +60,12 @@ TW_IDENTITY g_myIdentity_Chinese =
 		" 64bit"
 #endif
 	},
-	3,                                  // TW_UINT16  ProtocolMajor;    Application and DS must set to TWON_PROTOCOLMAJOR
-	2,                                  // TW_UINT16  ProtocolMinor;    Application and DS must set to TWON_PROTOCOLMINOR
+	2,                                  // TW_UINT16  ProtocolMajor;    Application and DS must set to TWON_PROTOCOLMAJOR
+	1,                                  // TW_UINT16  ProtocolMinor;    Application and DS must set to TWON_PROTOCOLMINOR
 	DG_IMAGE | DG_CONTROL | DF_DS2,     // TW_UINT32  SupportedGroups;  Bit field OR combination of DG_ constants
-	MB_CAPTION,              // TW_STR32   Manufacturer;     Manufacturer name, e.g. "Hewlett-Packard"
-	"UDS Scanner",    // TW_STR32   ProductFamily;    Product family name, e.g. "ScanJet"
-	MB_CAPTION // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
+	"UDS",                              // TW_STR32   Manufacturer;     Manufacturer name, e.g. "Hewlett-Packard"
+	MB_CAPTION,                         // TW_STR32   ProductFamily;    Product family name, e.g. "ScanJet"
+	MB_CAPTION                          // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
 };
 
 // ‘≠∞Êidentity∂®“Â

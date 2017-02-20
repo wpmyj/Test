@@ -286,5 +286,8 @@ date 17.01.19
 4.更改类CCamera_DirectX名称为CCamera_CxImage;
 4.更改类CScanner_Base名称为CDevice_Base；
 
-
+date 17.02.20
+------------------------------------------------------------
+@author wan
+1.修改变量CTWIANDS_BASE::g_myIdentity_Chinese; 
 
