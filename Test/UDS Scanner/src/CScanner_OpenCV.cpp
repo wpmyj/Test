@@ -122,12 +122,25 @@ bool CScanner_OpenCV::resetScanner()
 	//其他图像处理
 	//默认不选中
 	m_fRemoveBlank        = TWBP_DISABLE; 
+	m_bRemoveBlank        = FALSE;
 	m_bRemovePunch        = TWRP_DISABLE;
 	m_bSharpen            = TWSP_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
 	m_bAutoCrop           = TWAC_DISABLE;
+
+	//2017新增
+	m_nMaxDocCount        = 1;
+	m_byteMultiValue      = 0.0;
+	m_fEdgeUp             = 0.0;
+	m_fEdgeDown           = 0.0;
+	m_fEdgeLeft           = 0.0;
+	m_fEdgeRight          = 0.0;
+	m_fXPos               = 0.0;
+	m_fYPos               = 0.0;
+	m_nCompress           = TRUE;
+	m_fCompressValue      = 0.0;
 
 	if (false == m_mat_image.empty())
 	{
@@ -339,7 +352,7 @@ bool CScanner_OpenCV::preScanPrep()
 				dstImage.create(m_mat_image.size(), m_mat_image.type());
 				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
 				dstImage.copyTo(m_mat_image);
-				threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
+				threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU); //THRESH_BINARY
 				break;
 										}		
 			case TWPT_GRAY: {			
@@ -695,7 +708,6 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
 		{	
 			m_nPixelType = TWPT_BW;
 			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			//src_img = SetThreshold(src_img, (int)m_fThreshold);
 			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
 			src_img.copyTo(dst_img);
 		}	
@@ -861,8 +873,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 {
 	ChangeImage(IMAGENAME_AUTOCORRECT);
 	Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	//Mat img = imread("c:\\windows\\twain_32\\UDS General TWAIN DS\\AutoCorrect.jpg", CV_LOAD_IMAGE_UNCHANGED);
-
+	
 	Point center(img.cols/2, img.rows/2);
 
 #ifdef DEGREE
@@ -1537,47 +1548,6 @@ bool CScanner_OpenCV::ContrastAndBright(Mat *pdstImage,Mat *psrcImage,
 	}  
 	
 	return true;
-}
-
-
-Mat CScanner_OpenCV::SetThreshold(Mat src_img, int value)
-{  	
-	Mat dst_img;
-
-	IplImage* pImage= new IplImage(src_img);  // Mat->IplImage*
-	char* pImageData = pImage->imageData;
-	int width = pImage->width;
-	int height = pImage->height;
-	int nChannels = pImage->nChannels;
-	int widthStep = pImage->widthStep;
-
-	char *RImageData,*GImageData,*BImageData ;
-
-	for(int i=0; i < height; i++)
-	{
-		for(int j =0 ; j < width; j++)
-		{
-			RImageData = pImageData + i*widthStep + j*nChannels + 2 ;//获得R通道数据
-			GImageData = pImageData + i*widthStep + j*nChannels + 1 ;//获得G通道数据
-			BImageData = pImageData + i*widthStep + j*nChannels + 0 ;//获得B通道数据
-
-			//对R通道的数据进行判断
-			if((uchar)*RImageData > value)
-			{
-				*RImageData = (uchar)255 ;
-				*GImageData = (uchar)255 ;
-				*BImageData = (uchar)255 ;
-			}
-			else
-			{
-				*RImageData = 0 ;
-				*GImageData = 0 ;
-				*BImageData = 0 ;
-			}
-		}
-	}
-	src_img.copyTo(dst_img);
-	return dst_img;
 }
 
 

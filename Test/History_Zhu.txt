@@ -107,3 +107,8 @@ date 17.02.21
 @author zhu
 1、完成新导入模板功能，界面更新以及参数生效（TW_LoadProfileFromFile）
 2、解决模板问题：选中新建的模板时，修改其他参数，参数未生效问题。OnOK（）时只保存了上次使用模板，应该针对列表选中模板再次保存（注：必须是新建的模板才需再次保存）。问题解决。
+3、多流Bug:上次多流正常扫描，再次打开驱动时直接退出
+解决：初始化加载模板，m_pBasePage->UpdateControls()时，在SetMultistream中，使用了GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(TRUE)的语句初始化界面。将初始化用到的所有使用GetDlgItem(ID)调用EnableWindow（）的地方全部改为成员变量调用。
+4、解决多流相关Bug：首次扫描时，只有先点击了双面，再点击多流，多流才生效
+方法：在Radio响应函数OnBase_RadioBtn_Duplex（）中，为scanside赋值要在scanside外，该变量与高级界面的SetCapValue()中的case UDSCAP_SPLITIMAGE（图像拆分）息息相关，当没有该变量赋值（默认为0）时，高级界面会把图像张数设为1。将scanside = m_radiobtn_duplex;放在UpdateControl();中，实时更新。
+5、总结CScanner_OpenCV类中所用opencv相关函数以及所需图像数据的每一行的字节数、行数、列数、图像深度、通道数等。

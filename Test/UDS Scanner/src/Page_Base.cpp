@@ -158,7 +158,7 @@ void CPage_Base::SetCapValue(void)
 				break;
 			}	
 	
-			case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
+		case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
 			{
 				BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
 				unsigned int doc_count = 0;
@@ -175,7 +175,7 @@ void CPage_Base::SetCapValue(void)
 				* 若未选中则'|'上对应bit为0的值.
 				************************************************************/
 				// 正面彩色
-			if (m_check_frontcolor.GetCheck()) {  
+				if (m_check_frontcolor.GetCheck()) {  
 					temp |= 0x01;
 					doc_count++;
 				} 
@@ -225,8 +225,9 @@ void CPage_Base::SetCapValue(void)
 
 				m_pUI->SetCapValueFloat(iter->first, (float)temp); // 保存多流选项值
 				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+
+				break;
 			}
-			break;
 
 		default:
 			{
@@ -244,6 +245,62 @@ void CPage_Base::UpdateControls(void)
 	const FloatVector* lstCapValuesFlt;
 	int nCapValue;
 	CString strText;
+
+	CString str;
+	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
+	if(str.Find("去除斑点") >= 0)
+	{
+		//多流输出-去除斑点 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
+		m_slider_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, strText);
+	}
+	else if(str.Find("底色保留") >= 0)
+	{
+		//多流输出-底色保留  与二值化阈值是同样的意义 
+		nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
+		m_slider_threshold.SetPos(nCapValue);
+		strText.Format("%d",nCapValue);
+		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
+	}
+	else{}//必须保留
+
+	// 扫描方式	
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
+	if(0 == nCapIndex) //平板
+	{
+		m_radiobtn_scanmode = 1;
+	}
+	else
+	{
+		m_radiobtn_scanmode = 0;
+	}
+	SetFlat();
+
+  // 图像类型 
+	m_combo_colormode.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
+	lstCapValues = m_pUI->GetValidCap(ICAP_PIXELTYPE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWPT_BW:
+			m_combo_colormode.InsertString(i,"黑白");
+			break;
+		case TWPT_GRAY:
+			m_combo_colormode.InsertString(i,"灰度");
+			break;
+		case TWPT_RGB:
+			m_combo_colormode.InsertString(i,"彩色");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_colormode.SetCurSel(nCapIndex);
+	InitComboPixType();
 
 	//二值化
 	m_combo_binarization.ResetContent(); //清空内容
@@ -282,63 +339,7 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_binarization.SetCurSel(nCapIndex);
-	//SetBinarization();
-
-	CString str;
-	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
-	if(str.Find("去除斑点") >= 0)
-	{
-		//多流输出-去除斑点 
-		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
-		m_slider_threshold.SetPos(nCapValue);
-		strText.Format("%d",nCapValue);
-		SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, strText);
-	}
-	else if(str.Find("底色保留") >= 0)
-	{
-		//多流输出-底色保留  与二值化阈值是同样的意义 
-		nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
-		m_slider_threshold.SetPos(nCapValue);
-		strText.Format("%d",nCapValue);
-		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
-	}
-	else{}//必须保留
-
-	// 扫描方式	
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
-	if(0 == nCapIndex) //平板
-	{
-		m_radiobtn_scanmode = 1;
-	}
-	else
-	{
-		m_radiobtn_scanmode = 0;
-	}
-	//SetFlat();
-
-  // 图像类型 
-	m_combo_colormode.ResetContent();
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
-	lstCapValues = m_pUI->GetValidCap(ICAP_PIXELTYPE);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWPT_BW:
-			m_combo_colormode.InsertString(i,"黑白");
-			break;
-		case TWPT_GRAY:
-			m_combo_colormode.InsertString(i,"灰度");
-			break;
-		case TWPT_RGB:
-			m_combo_colormode.InsertString(i,"彩色");
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_colormode.SetCurSel(nCapIndex);
-	InitComboPixType();
+	SetBinarization();
 
 	// 分辨率
 	m_combo_resolution.ResetContent();
@@ -454,8 +455,9 @@ void CPage_Base::UpdateControls(void)
 		nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
 		m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
 		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
-		//SetMultistream();
 	}
+	scanside = m_radiobtn_duplex; //初始化scanside，防止用户未点击下拉框改变单双面直接扫描时，scanside默认为0，高级界面仍会设置裁切
+	SetMultistream();
 }
 
 
@@ -465,7 +467,6 @@ void CPage_Base::InitBasemap(void)
 
 	int nCapIndex;
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
-	scanside = nCapIndex; //初始化scanside，防止用户未点击下拉框改变单双面直接扫描时，scanside默认为0，高级界面仍会设置裁切
 	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
 
 	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
@@ -686,7 +687,8 @@ void CPage_Base::SetFlat(void)
 	{
 		m_basemap[CAP_DUPLEXENABLED] = 0.0f;
 		m_radiobtn_duplex = 0; //平板时，只能是单面	
-	}		
+	}	
+	SetMultistream();
 }
 
 
@@ -935,11 +937,19 @@ void CPage_Base::OnBase_RadioBtn_Scanmode()
 	UpdateData(TRUE); //将radio的状态值更新给关联的变量
 	
 	int index = m_radiobtn_scanmode;
-	if(0 == index){ //为1表示自动进纸器选中
+	if(1 == index){ //为0表示自动进纸器选中
 		SetFlat();
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE); 
+	}
+	else
+	{
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE); 
 	}
 
 	m_basemap[CAP_FEEDERENABLED] = (float)index;
+	UpdateData(FALSE);
 }
 
 
@@ -947,28 +957,29 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-
+	scanside = m_radiobtn_duplex; 
 	switch(m_radiobtn_duplex)
 	{
 	case 0:
 	case 1:
-		scanside = m_radiobtn_duplex;
 		m_basemap[CAP_DUPLEXENABLED] = (float)m_radiobtn_duplex;
 
 		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
 		m_basemap[UDSCAP_MULTISTREAM] = 0.0f;
 
-		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); //亮度
-		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE); //对比度
-		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
-		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
+		m_slider_brightness.EnableWindow(TRUE); //亮度
+		m_slider_contrast.EnableWindow(TRUE); //对比度
+		m_edit_brightness.EnableWindow(TRUE); //亮度Edit
+		m_edit_contrast.EnableWindow(TRUE); //对比度Edit
 
 		break;
 	case 2:
 		m_basemap[UDSCAP_MULTISTREAM] = 1.0f;
 		break;
 	}
-	SetMultistream();
+	SetFlat();//内含SetMultiStream();
+
+	UpdateData(FALSE);
 }
 
 
@@ -976,12 +987,12 @@ void CPage_Base::SetMultistream(void)
 {
 	if(m_radiobtn_duplex == 2) //多流选中
 	{
-		GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_FRONTBW)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_BACKCOLOR)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_BACKGRAY)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_BACKBW)->EnableWindow(TRUE);
+		m_check_frontcolor.EnableWindow(TRUE);
+		m_check_frontgray.EnableWindow(TRUE);
+		m_check_frontbw.EnableWindow(TRUE);
+		m_check_backcolor.EnableWindow(TRUE);
+		m_check_backgray.EnableWindow(TRUE);
+		m_check_backbw.EnableWindow(TRUE);
 		
 		m_combo_colormode.EnableWindow(FALSE);
 
@@ -1000,19 +1011,19 @@ void CPage_Base::SetMultistream(void)
 	else 
 	{
 		//多流输出未选中时，六个选项也均不要选中
-		((CButton*)GetDlgItem(IDC_CHECK_FRONTCOLOR))->SetCheck(FALSE); 
-		((CButton*)GetDlgItem(IDC_CHECK_FRONTGRAY))->SetCheck(FALSE);
-		((CButton*)GetDlgItem(IDC_CHECK_FRONTBW))->SetCheck(FALSE); 
-		((CButton*)GetDlgItem(IDC_CHECK_BACKCOLOR))->SetCheck(FALSE);
-		((CButton*)GetDlgItem(IDC_CHECK_BACKGRAY))->SetCheck(FALSE); 
-		((CButton*)GetDlgItem(IDC_CHECK_BACKBW))->SetCheck(FALSE);
+		m_check_frontcolor.SetCheck(FALSE);
+		m_check_frontgray.SetCheck(FALSE);
+		m_check_frontbw.SetCheck(FALSE);
+		m_check_backcolor.SetCheck(FALSE);
+		m_check_backgray.SetCheck(FALSE);
+		m_check_backbw.SetCheck(FALSE);
 
-		GetDlgItem(IDC_CHECK_FRONTCOLOR)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_FRONTGRAY)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_FRONTBW)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_BACKCOLOR)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_BACKGRAY)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_BACKBW)->EnableWindow(FALSE);
+		m_check_frontcolor.EnableWindow(FALSE);
+		m_check_frontgray.EnableWindow(FALSE);
+		m_check_frontbw.EnableWindow(FALSE);
+		m_check_backcolor.EnableWindow(FALSE);
+		m_check_backgray.EnableWindow(FALSE);
+		m_check_backbw.EnableWindow(FALSE);
 
 		m_combo_colormode.EnableWindow(TRUE);	
 		//GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(TRUE); //图像拆分可用
@@ -1027,17 +1038,17 @@ void CPage_Base::SetColorGrayImage(void)
 	if (m_check_frontgray.GetCheck() || m_check_frontcolor.GetCheck()
 		|| m_check_backcolor.GetCheck() || m_check_backgray.GetCheck())
 	{
-		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); //亮度
-		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(TRUE); //对比度
-		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE); //亮度Edit
-		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(TRUE); //对比度Edit
+		m_slider_brightness.EnableWindow(TRUE); 
+		m_slider_contrast.EnableWindow(TRUE); 
+		m_edit_brightness.EnableWindow(TRUE); 
+		m_edit_contrast.EnableWindow(TRUE); 
 	} 
 	else
 	{
-		GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE); //亮度
-		GetDlgItem(IDC_BASE_SLIDER_CONTRAST)->EnableWindow(FALSE); //对比度
-		GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE); //亮度Edit
-		GetDlgItem(IDC_BASE_EDIT_CONTRAST)->EnableWindow(FALSE); //对比度Edit
+		m_slider_brightness.EnableWindow(FALSE); 
+		m_slider_contrast.EnableWindow(FALSE); 
+		m_edit_brightness.EnableWindow(FALSE); 
+		m_edit_contrast.EnableWindow(FALSE);
 	}
 }
 
@@ -1046,8 +1057,8 @@ void CPage_Base::SetBWImage(void)
 {
 	if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
 	{
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE); //阈值	
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE); //阈值
+		m_slider_threshold.EnableWindow(TRUE); 
+		m_edit_threshold.EnableWindow(TRUE); 
 
 		//图像增强系列不可用
 		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(FALSE);
@@ -1057,8 +1068,8 @@ void CPage_Base::SetBWImage(void)
 	} 
 	else
 	{
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); //阈值	
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); //阈值
+		m_slider_threshold.EnableWindow(FALSE); 
+		m_edit_threshold.EnableWindow(FALSE); 
 		//图像增强系列可用
 		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(TRUE);
 		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(TRUE);
@@ -1233,8 +1244,8 @@ void CPage_Base::SetBinarization(void)
 	
 	if(m_radiobtn_duplex == 0 || m_radiobtn_duplex == 1 || m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
 	{
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(TRUE); 
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(TRUE); 
+		m_slider_threshold.EnableWindow(TRUE);
+		m_edit_threshold.EnableWindow(TRUE); 
 
 		CString strCBText;
 		GetDlgItemText(IDC_BASE_COMBO_BINARIZATION,strCBText);
@@ -1249,8 +1260,9 @@ void CPage_Base::SetBinarization(void)
 			m_slider_threshold.SetPos(nCapValue);
 
 			//设置此时亮度不可用
-			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(FALSE); 
-			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(FALSE);
+			m_slider_brightness.EnableWindow(FALSE);
+			m_edit_brightness.EnableWindow(FALSE); 
+
 		} 
 		else if(strCBText.Find("固定阈值") >= 0)
 		{
@@ -1263,24 +1275,22 @@ void CPage_Base::SetBinarization(void)
 			m_slider_threshold.SetPos(nCapValue);
 
 			//设置此时亮度可用
-			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); 
-			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+			m_slider_brightness.EnableWindow(TRUE);
+			m_edit_brightness.EnableWindow(TRUE);
 		}
 		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
 		{
-			GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); 
-			GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); 
+			m_slider_threshold.EnableWindow(FALSE);
+			m_edit_threshold.EnableWindow(FALSE);
 
 			//设置此时亮度可用
-			GetDlgItem(IDC_BASE_SLIDER_BRIGHTNESS)->EnableWindow(TRUE); 
-			GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS)->EnableWindow(TRUE);
+			m_slider_brightness.EnableWindow(TRUE);
+			m_edit_brightness.EnableWindow(TRUE);
 		}
 	}
 	else
 	{
-		GetDlgItem(IDC_BASE_SLIDER_THRESHOLD)->EnableWindow(FALSE); 
-		GetDlgItem(IDC_BASE_EDIT_THRESHOLD)->EnableWindow(FALSE); 
-	}
-
-	UpdateData(FALSE);
+		m_slider_threshold.EnableWindow(FALSE);
+		m_edit_threshold.EnableWindow(FALSE);
+	} 
 }

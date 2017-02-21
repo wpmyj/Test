@@ -290,14 +290,6 @@ protected:
 	BYTE SwitchBYTE(const BYTE src);
 
 	/**
-	*  @brief  设置阈值
-	*  @param[in]  src 原图 
-	*  @param[in]  value  阈值
-	*  @param[out] dst 目标图像 
-	*/
-	Mat SetThreshold(Mat src_img, int value);
-
-	/**
 	*  @brief 求十进制n的二进制表示中1的个数
 	*  @param[in]  n  十进制数
 	*  @param[out] n 该十进制数的二进制表示中1的个数 
