@@ -35,6 +35,7 @@ private:
 	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
 	int FindUnit(int index); ///<寻找index对应的单位,返回index对应的单位
 	void SetScroll(void); ///<根据edit的值更新滚动条的值;以及根据单位设定宽、高滚动条的范围
+	void InitSliderCtrl();  ///< 初始化滑动条控件
 
 private:
 	MAP_CAP m_papermap;  ///<用于保存参数改变后的值
@@ -61,6 +62,10 @@ private:
 	CScrollBar m_scroll_right;
 	CScrollBar m_scroll_left;
 
+	CComboBox m_combo_compress;
+	CSliderCtrl m_slider_compressvalue;
+	CEdit m_edit_compressvalue;
+
 private:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnSetActive();
@@ -70,5 +75,9 @@ private:
 	afx_msg void OnCbnSelchangePaper_Combo_Standardsizes();
 	afx_msg void OnCbnSelchangePaper_Combo_Uints();
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+
+	afx_msg void OnCbnSelchangePaper_Combo_Compress();
+	afx_msg void OnEnChangeBase_Edit_Compressvalue();
+	afx_msg void OnNMCustomdrawPaper_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
 	
 };

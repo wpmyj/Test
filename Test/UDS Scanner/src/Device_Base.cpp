@@ -59,6 +59,8 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fXPos               = settings.m_fXPos;
 	m_fYPos               = settings.m_fYPos;
 
+	m_nCompress           = settings.m_nCompress;
+	m_fCompressValue      = settings.m_fCompressValue;
 }
 
 CDevice_Base* CDevice_Base::getSetting() const

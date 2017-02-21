@@ -41,6 +41,9 @@ void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_LEFT, m_scroll_left);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_HEIGHT, m_scroll_height);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_DOWN, m_scroll_down);
+	DDX_Control(pDX, IDC_PAPER_COMBO_COMPRESS, m_combo_compress);
+	DDX_Control(pDX, IDC_PAPER_SLIDER_COMPRESSION, m_slider_compressvalue);
+	DDX_Control(pDX, IDC_PAPER_EDIT_COMPRESSVALUE, m_edit_compressvalue);
 }
 
 
@@ -49,6 +52,9 @@ BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_UINTS, &CPage_Paper::OnCbnSelchangePaper_Combo_Uints)
 	ON_WM_VSCROLL()
 	ON_WM_PAINT()
+	ON_EN_CHANGE(IDC_PAPER_EDIT_COMPRESSVALUE, &CPage_Paper::OnEnChangeBase_Edit_Compressvalue)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_PAPER_SLIDER_COMPRESSION, &CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue)
+	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_COMPRESS, &CPage_Paper::OnCbnSelchangePaper_Combo_Compress)
 END_MESSAGE_MAP()
 
 
@@ -62,6 +68,7 @@ void CPage_Paper::SetCapValue(void)
 		{
 		case ICAP_SUPPORTEDSIZES:  //纸张大小
 		case ICAP_UNITS:  //单位
+		case ICAP_COMPRESSION: //压缩格式
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
 				break;
@@ -78,6 +85,14 @@ void CPage_Paper::SetCapValue(void)
 				break;
 			}
 
+		case UDSCAP_COMPRESSVALUE: //压缩比
+			{
+				if(m_slider_compressvalue.IsWindowEnabled())
+				{
+					m_pUI->SetCapValueFloat(iter->first,iter->second);
+				}	
+				break;
+			}
 		}
 	}
 }
@@ -88,8 +103,8 @@ void CPage_Paper::UpdateControls(void)
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	float fCapValue;
+	int nCapValue;
 	CString strText;
-	//const FloatVector* lstCapValuesFlt; //暂时未用到
 
 	//纸张设置-纸张大小
 	m_combo_standardsizes.ResetContent();  // 清空内容
@@ -258,6 +273,35 @@ void CPage_Paper::UpdateControls(void)
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
+
+	//压缩
+	m_combo_compress.ResetContent();  // 清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_COMPRESSION);
+	lstCapValues = m_pUI->GetValidCap(ICAP_COMPRESSION);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWCP_NONE:
+			m_combo_compress.InsertString(i,"自动"); //英寸
+			break;
+		case TWCP_JPEG:
+			m_combo_compress.InsertString(i,"JPEG"); //像素
+			break;
+		case TWCP_GROUP4:
+			m_combo_compress.InsertString(i,"G4"); //厘米
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_compress.SetCurSel(nCapIndex);
+
+	// 压缩比 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
+	m_slider_compressvalue.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE,strText);
 }
 
 
@@ -268,10 +312,21 @@ BOOL CPage_Paper::OnInitDialog()
 	// TODO:  在此添加额外的初始化
 	UpdateControls();
 	SetScroll();
+	InitSliderCtrl();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
+
+
+void CPage_Paper::InitSliderCtrl()
+{
+	float fMin,fMax,fStep;
+	m_pUI->GetCapRangeFloat(UDSCAP_COMPRESSVALUE, fMin, fMax, fStep);
+	m_slider_compressvalue.SetRange((int)fMin, (int)fMax);
+	m_slider_compressvalue.SetTicFreq((int)fStep);
+}
+
 
 void CPage_Paper::SetScroll(void)
 {
@@ -856,3 +911,66 @@ void CPage_Paper::OnPaint()
 	}  
 }
 
+
+void CPage_Paper::OnEnChangeBase_Edit_Compressvalue()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_compressvalue.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_compressvalue.SetPos(nval);
+	m_papermap[UDSCAP_COMPRESSVALUE] = (float)nval;
+
+	m_edit_compressvalue.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	//TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_compressvalue.GetPos();  // 获取滑块当前位置
+	m_papermap[UDSCAP_COMPRESSVALUE] = float(sldValue);
+	
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE, str);
+
+	*pResult = 0;
+}
+
+
+void CPage_Paper::OnCbnSelchangePaper_Combo_Compress()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_compress.GetCurSel();
+	CString strCBText; 
+	m_combo_compress.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("自动") >= 0)
+	{
+		nval = TWCP_NONE;
+	}
+	else if(strCBText.Find("JPEG") >= 0)
+	{
+		nval = TWCP_JPEG; 
+	}
+	else if(strCBText.Find("G4") >= 0)
+	{
+		nval = TWCP_GROUP4; 
+	} 
+	else
+	{}
+	m_papermap[ICAP_COMPRESSION] = nval;
+
+	m_combo_compress.SetCurSel(nIndex);
+}

@@ -353,6 +353,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_BITDEPTH,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_BITORDER,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_COMPRESSION,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSVALUE,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_FRAMES,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_IMAGEFILEFORMAT,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELFLAVOR,0,TWON_ONEVALUE); 
@@ -429,6 +430,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
   bResult = bResult && ReadCapFromStream(DsData,ICAP_THRESHOLD,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_IMAGEFILEFORMAT,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_COMPRESSION,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSVALUE,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_CONTRAST,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_BRIGHTNESS,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gamma校正 
@@ -483,6 +485,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   CTWAINContainerBool* pbCap = 0;
   CTWAINContainerString* pstrCap = 0;
   CTWAINContainerFix32* pfixCap = 0;
+	FLOAT_RANGE fRange;
 
   m_IndependantCapMap[CAP_SUPPORTEDCAPS] = new CTWAINContainerInt(CAP_SUPPORTEDCAPS, TWTY_UINT16, TWON_ARRAY, TWQC_GETS);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CAP_SUPPORTEDCAPS]))
@@ -501,6 +504,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_BITDEPTH)
    || !pnCap->Add(ICAP_BITORDER)
    || !pnCap->Add(ICAP_COMPRESSION)  //压缩
+	 || !pnCap->Add(UDSCAP_COMPRESSVALUE) //压缩比的值
    || !pnCap->Add(ICAP_FRAMES)
    || !pnCap->Add(ICAP_MAXFRAMES)
    || !pnCap->Add(ICAP_IMAGEFILEFORMAT)
@@ -944,7 +948,31 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 	
-	FLOAT_RANGE fRange;
+	//压缩
+	m_IndependantCapMap[ICAP_COMPRESSION] = new CTWAINContainerInt(ICAP_COMPRESSION, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
+		|| !pnCap->Add(TWCP_NONE, true)
+		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
+		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_COMPRESSION !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 0.0f; 
+	fRange.fMaxValue = 100.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	//压缩比的值
+	m_IndependantCapMap[UDSCAP_COMPRESSVALUE] = new CTWAINContainerFix32Range(UDSCAP_COMPRESSVALUE,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_COMPRESSVALUE]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSVALUE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
 	//Gamma校正范围
 	fRange.fCurrentValue = 100.0f; 
 	fRange.fMaxValue = 400.0f;
@@ -1927,6 +1955,31 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   CTWAINContainerFix32Range *pfRCap = 0;
 
 	CTWAINContainerBool* pbCap = 0; //zhu
+
+	//压缩
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	{
+		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompress = nVal;
+	}
+
+	//压缩比的值
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_COMPRESSVALUE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSVALUE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fCompressValue= fVal;
+	}
 
 	//纸张大小
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_SUPPORTEDSIZES))))

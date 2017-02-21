@@ -51,7 +51,16 @@ void CPage_Profile::OnOK()
 	m_pAdPage->SetCapValue();
 	m_pPaperPage->SetCapValue();
 
-	m_pUI->TW_SaveProfileToFile("上次使用模板");
+	int index = m_list_template.GetCurSel();
+	CString str;
+	m_list_template.GetText(index, str);
+	if (str.Find("UDS") <= 0 || str.Find("默认模板") <= 0 
+		|| str.Find("上次使用") <= 0)
+	{
+		m_pUI->TW_SaveProfileToFile(str.GetBuffer()); //不是上述类型模板时，保存当前选中模板
+	}
+	m_pUI->TW_SaveProfileToFile("上次使用模板");//再次保存“上次使用模板”
+
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();
@@ -370,9 +379,6 @@ void CPage_Profile::OnProfile_Btn_Rename()
 		strCombo.ReleaseBuffer();      
 	}
 
-	//保存修改的CapValue
-	//SetCapValue();
-
 	int index = m_list_template.GetCurSel();
 
 	CString strOldName;
@@ -411,6 +417,7 @@ void CPage_Profile::OnProfile_Btn_Delete()
 
 	m_list_template.SetCurSel(0);  // 切换到默认模板
 	LoadTemplate();
+	SetDelete();
 }
 
 
@@ -443,8 +450,22 @@ void CPage_Profile::OnProfile_Btn_Import()
 		if(CopyFile(strReadFilePath,strPath,TRUE))  
 		{
 			int num = m_list_template.GetCount(); 
-			m_list_template.InsertString(num,fileDlg.GetFileTitle()); //GetFileTitle得到完整的文件名，不包括目录名和扩展名
+			CString strProfile;
+			strProfile = fileDlg.GetFileTitle();
+			m_list_template.InsertString(num,strProfile); //GetFileTitle得到完整的文件名，不包括目录名和扩展名
 			m_list_template.SetCurSel(num);
+
+			//加载新模板
+			if(m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()))
+			{
+				m_pBasePage->UpdateControls();
+				m_pAdPage->UpdateControls();//高级设置界面参数也更新(有分辨率共同存在)
+			}
+			else
+			{
+				MessageBox("导入失败！文件格式错误！");
+			}
+			
 		}
 		else
 		{

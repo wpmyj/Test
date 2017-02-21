@@ -92,3 +92,18 @@ date 17.02.17
 2、CPage_Paper类中根据容器值在edit中显示对应值，并且扫描时SetCapValue()时保存edit中的值
 3、增加X、Y偏移量的Cap：UDSCAP_XPOS，UDSCAP_YPOS，及其相关功能。
 4、重载OnPaint（）函数，在图片控件上侧与左侧手动绘制两个标尺，用来实时显示纸张大小的尺寸。
+
+date 17.02.20
+------------------------------------------------------------
+@author zhu
+1、在纸张界面增加【压缩】Combox选项以及对应JPEG压缩比：滑动条与edit。combox显示压缩类型，对应Cap为TWAIN自带Cap--ICAP_COMPRESSION，选项为自动、JPEG、G4;滑动条范围为0--100，对应Cap为自定义Cap：UDSCAP_COMPRESSVALUE；完成两者对应参数更新与保存的功能。
+2、为基本界面多流的六个checkBox增加相应的按钮，使得点击按钮能够为每一张多流图像设置不同的参数。
+3、实现在点击checkBox时，对应的按钮选中：在设置按钮高亮时，仅仅设置m_btn_backbw.SetFocus();m_btn_backbw.SetState()不够，还需要m_btn_backbw.SetButtonStyle(BS_DEFPUSHBUTTON)手动设置按钮的"Default"属性。
+4、解决“多流”在不点击时，不输出多张图片的bug:在CPage_Base类的SetCapValue（）时，原来有根据int型变量m_radiobtn_duplex判断是否需要进行SetCapValueInt，实际上此处不需要再判断一次了，反而使得checkbox没有响应时，m_radiobtn_duplex变量不会重新赋值，不满足SetCapValueInt的条件。与control型radio变量不同，若是control型变量才需要判断GetCheck()。
+5、解决选中双面，也出两张图，但是第二次打开界面是单面的Bug:SetFlat()中变量判断错误，又将m_radiobtn_duplex设为0了。
+
+date 17.02.21
+------------------------------------------------------------
+@author zhu
+1、完成新导入模板功能，界面更新以及参数生效（TW_LoadProfileFromFile）
+2、解决模板问题：选中新建的模板时，修改其他参数，参数未生效问题。OnOK（）时只保存了上次使用模板，应该针对列表选中模板再次保存（注：必须是新建的模板才需再次保存）。问题解决。

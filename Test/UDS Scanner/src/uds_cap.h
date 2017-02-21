@@ -40,6 +40,8 @@
 #define UDSCAP_XPOS                     CAP_CUSTOMBASE+22  /**< X偏移量 */
 #define UDSCAP_YPOS                     CAP_CUSTOMBASE+23
 
+#define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+24  /**< 压缩比 */
+
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
 #define TWBZ_FIXEDTHRESHOLD        1

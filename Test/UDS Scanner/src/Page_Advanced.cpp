@@ -131,7 +131,7 @@ void CPage_Advanced::SetCapValue(void)
 					{
 						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1); //不拆分时又设回1
 					}	
-					else if((int)(iter->second) == TWSI_DEFINED)
+					/*else if((int)(iter->second) == TWSI_DEFINED)
 					{
 						if(m_edit_spilt.IsWindowEnabled())
 						{
@@ -141,7 +141,7 @@ void CPage_Advanced::SetCapValue(void)
 							m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, num); 
 						}
 						else{}
-					}
+					}*/
 					else{}
 				}
 				else

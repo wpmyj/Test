@@ -45,6 +45,12 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_BACKGRAY, m_check_backgray);
 	DDX_Control(pDX, IDC_CHECK_BACKCOLOR, m_check_backcolor);
 	DDX_Control(pDX, IDC_BASE_COMBO_BINARIZATION, m_combo_binarization);
+	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTCOLOR, m_btn_frontcolor);
+	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTGRAY, m_btn_frontgray);
+	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTBW, m_btn_frontbw);
+	DDX_Control(pDX, IDC_BASE_BUTTON_BACKCOLOR, m_btn_backcolor);
+	DDX_Control(pDX, IDC_BASE_BUTTON_BACKGRAY, m_btn_backgray);
+	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
 }
 
 
@@ -120,41 +126,35 @@ void CPage_Base::SetCapValue(void)
 
 		case CAP_DUPLEXENABLED:
 			{
-				if(0 == m_radiobtn_duplex || 1 == m_radiobtn_duplex) //单面或双面选中
-				{
-					m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
+				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
 
-					if(1 == ((int)iter->second)) //双面，单面该值为0
-					{
-						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
-					}	
-					else
-					{
-						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
-					}
+				if(1 == ((int)iter->second)) //双面，单面该值为0
+				{
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
+				}	
+				else
+				{
+					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
 				}
 				break;
 			}
 
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
-				if(m_radiobtn_duplex == 2) //选中多流
-				{
-					m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
+				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 
-					if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
-					{
-						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_BW);
-					}
-					if(m_check_frontgray.GetCheck() || m_check_backgray.GetCheck())
-					{
-						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
-					}
-					if(m_check_frontcolor.GetCheck() || m_check_backcolor.GetCheck())
-					{
-						m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_RGB);
-					}
-				}	
+				if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+				{
+					m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_BW);
+				}
+				if(m_check_frontgray.GetCheck() || m_check_backgray.GetCheck())
+				{
+					m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_GRAY);
+				}
+				if(m_check_frontcolor.GetCheck() || m_check_backcolor.GetCheck())
+				{
+					m_pUI->SetCapValueInt(ICAP_PIXELTYPE,TWPT_RGB);
+				}
 				break;
 			}	
 	
@@ -282,6 +282,7 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_binarization.SetCurSel(nCapIndex);
+	//SetBinarization();
 
 	CString str;
 	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
@@ -313,6 +314,7 @@ void CPage_Base::UpdateControls(void)
 	{
 		m_radiobtn_scanmode = 0;
 	}
+	SetFlat();
 
   // 图像类型 
 	m_combo_colormode.ResetContent();
@@ -336,6 +338,7 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_colormode.SetCurSel(nCapIndex);
+	InitComboPixType();
 
 	// 分辨率
 	m_combo_resolution.ResetContent();
@@ -368,24 +371,13 @@ void CPage_Base::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
 
-	// 单面/双面扫
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
-	m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
-	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
-
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	if(nCapValue == 1) //多流选中
 	{
 		m_radiobtn_duplex = 2;
-	}
-
-	// 获取多流选项值并更新控件状态
-	BYTE value = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
-
-	// 判断多流是否选中
-	if (2 == m_radiobtn_duplex) 
-	{
+		// 获取多流选项值并更新控件状态
+		BYTE value = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
 		// 循环判断每bit的值，并更新对应控件的状态
 		for (unsigned int i = 0; i < 7; i++)
 		{
@@ -455,8 +447,15 @@ void CPage_Base::UpdateControls(void)
 			}
 			value = value >> 1; // 始终比较最低位
 		} // for end
-	} // if end
-	
+	}//if end
+	else //单双面选中
+	{
+		// 单面/双面扫
+		nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+		m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
+		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
+		SetMultistream();
+	}
 }
 
 
@@ -567,8 +566,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pRes
 	str.Format("%d", sldValue);
 	SetDlgItemText(IDC_BASE_EDIT_CONTRAST, str);
 
-	contrast = sldValue;
-	m_pAdPage->UpdateControls();
+	//contrast = sldValue;
+	//m_pAdPage->UpdateControls();
 
 	UpdateData(FALSE);  // 更新控件
 
@@ -588,8 +587,8 @@ void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pR
 	str.Format("%d", sldValue);
 	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,str);
 
-	brightness = sldValue;
-	m_pAdPage->UpdateControls();
+	//brightness = sldValue;
+	//m_pAdPage->UpdateControls();
 
 	UpdateData(FALSE);  // 更新控件
 
@@ -633,8 +632,8 @@ void CPage_Base::OnEnChangeBase_Edit_Contrast()
 
 	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 	
-	contrast = nval;
-	m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
+	//contrast = nval;
+	//m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
 
 	UpdateData(FALSE);  // 更新控件
 }
@@ -656,8 +655,8 @@ void CPage_Base::OnEnChangeBase_Edit_Brightness()
 	m_basemap[ICAP_BRIGHTNESS] = (float)nval;
 	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 
-	brightness = nval;
-	m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
+	//brightness = nval;
+	//m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
 
 	UpdateData(FALSE);  // 更新控件
 }
@@ -683,7 +682,7 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 
 void CPage_Base::SetFlat(void)
 {
-	if(1 == m_radiobtn_duplex)
+	if(1 == m_radiobtn_scanmode)
 	{
 		m_basemap[CAP_DUPLEXENABLED] = 0.0f;
 		m_radiobtn_duplex = 0; //平板时，只能是单面	
@@ -1074,6 +1073,16 @@ void CPage_Base::OnBase_Btn_Check_FrontColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
+	if(m_check_frontcolor.GetCheck())
+	{
+		m_btn_frontcolor.SetFocus();
+		m_btn_frontcolor.SetState(TRUE);
+		m_btn_frontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontcolor.SetState(FALSE);
+	}
 }
 
 
@@ -1081,6 +1090,16 @@ void CPage_Base::OnBase_Btn_Check_FrontGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
+	if(m_check_frontgray.GetCheck())
+	{
+		m_btn_frontgray.SetFocus();
+		m_btn_frontgray.SetState(TRUE);
+		m_btn_frontgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontgray.SetState(FALSE);
+	}
 }
 
 
@@ -1088,6 +1107,16 @@ void CPage_Base::OnBase_Btn_Check_FrontBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetBWImage();
+	if(m_check_frontbw.GetCheck())
+	{
+		m_btn_frontbw.SetFocus();
+		m_btn_frontbw.SetState(TRUE);
+		m_btn_frontbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontbw.SetState(FALSE);
+	}
 }
 
 
@@ -1095,6 +1124,16 @@ void CPage_Base::OnBase_Btn_Check_BackColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
+	if(m_check_backcolor.GetCheck())
+	{
+		m_btn_backcolor.SetFocus();
+		m_btn_backcolor.SetState(TRUE);
+		m_btn_backcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backcolor.SetState(FALSE);
+	}
 }
 
 
@@ -1102,6 +1141,16 @@ void CPage_Base::OnBase_Btn_Check_BackGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetColorGrayImage();
+	if(m_check_backgray.GetCheck())
+	{
+		m_btn_backgray.SetFocus();
+		m_btn_backgray.SetState(TRUE);
+		m_btn_backgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backgray.SetState(FALSE);
+	}
 }
 
 
@@ -1109,6 +1158,16 @@ void CPage_Base::OnBase_Btn_Check_BackBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetBWImage();
+	if(m_check_backbw.GetCheck())
+	{
+		m_btn_backbw.SetFocus();
+		m_btn_backbw.SetState(TRUE);
+		m_btn_backbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backbw.SetState(FALSE);
+	}
 }
 
 

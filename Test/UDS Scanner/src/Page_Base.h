@@ -85,6 +85,13 @@ private:
 	CButton m_check_backgray;
 	CButton m_check_backcolor;
 
+	CButton m_btn_frontcolor;
+	CButton m_btn_frontgray;
+	CButton m_btn_frontbw;
+	CButton m_btn_backcolor;
+	CButton m_btn_backgray;
+	CButton m_btn_backbw;
+
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 	
 	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
@@ -117,5 +124,4 @@ private:
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;	
-
 };
