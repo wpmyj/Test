@@ -109,7 +109,6 @@ void CPage_Profile::OnCancel()
 BOOL CPage_Profile::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
-
 	// TODO:  在此添加额外的初始化
 	InitTemplate();
 	LoadTemplate(); 

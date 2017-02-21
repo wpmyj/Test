@@ -314,7 +314,7 @@ void CPage_Base::UpdateControls(void)
 	{
 		m_radiobtn_scanmode = 0;
 	}
-	SetFlat();
+	//SetFlat();
 
   // 图像类型 
 	m_combo_colormode.ResetContent();
@@ -454,7 +454,7 @@ void CPage_Base::UpdateControls(void)
 		nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
 		m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
 		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
-		SetMultistream();
+		//SetMultistream();
 	}
 }
 
