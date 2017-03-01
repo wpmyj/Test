@@ -5,6 +5,7 @@
 #include "UDS Scanner.h"
 
 #include "src/dllmain.h"
+#include "CDUDS_Video.h"
 extern HINSTANCE g_hinstance;
 extern HWND g_hwndDLG;
 #ifdef _DEBUG
@@ -63,6 +64,8 @@ BOOL CUDSScannerApp::InitInstance()
 {
 	//g_hinstance = (HINSTANCE)GetCurrentModule(); //获取DLL自身的句柄
 	CWinApp::InitInstance();
+	AfxEnableControlContainer();  // 调用ocx控件必须添加该函数
+	AfxInitRichEdit2(); // 调用RichEdit2控件必须添加该句该函数
 	//::MessageBox(hwndDLG,"Init",MB_CAPTION,MB_OK);
 
 	//该方法得到的是调用的exe的句柄

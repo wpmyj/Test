@@ -49,8 +49,8 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.ds</TargetExt>
     <GenerateManifest>true</GenerateManifest>
-    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;E:\dxsdk_feb2005_extras\DirectShow\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;E:\dxsdk_feb2005_extras\DirectShow\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
     <TargetName>UDS General TWAIN DS</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,7 +96,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -113,7 +113,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)UDS General TWAIN DS.ds</OutputFile>
       <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>FreeImage.lib;mfcs100.lib;mfc100.lib;strmiids.lib</AdditionalDependencies>
+      <AdditionalDependencies>mfcs100.lib;mfc100.lib;strmiids.lib;cximage.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -135,13 +135,20 @@ if NOT EXIST "c:\windows\twain_32\UDS General TWAIN DS" mkdir "c:\windows\twain_
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)"  "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\FreeImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_front.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\external\bin\AVSDK.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\AutoCorrect.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_back.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\RemovePunch.jpg" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_core249.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_highgui249.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_imgproc249.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\mfc100.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcp100.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcr100.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Camera1.WAV" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS.INI" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\cximage.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
@@ -157,27 +164,24 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\CTiffWriter.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp" />
+    <ClCompile Include="CDUDS_Video.cpp" />
     <ClCompile Include="src\Camera_CxImage.cpp" />
-    <ClCompile Include="src\Dlg_Camera.cpp" />
     <ClCompile Include="src\CommonDS.cpp" />
-    <ClCompile Include="src\CommonFunc.cpp" />
-    <ClCompile Include="src\CScanner_FreeImage.cpp" />
     <ClCompile Include="src\CScanner_OpenCV.cpp" />
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
     <ClCompile Include="src\CTWAINDS_UDS.cpp" />
     <ClCompile Include="src\Dlg_Profile.cpp" />
     <ClCompile Include="src\Dlg_Rename.cpp" />
+    <ClCompile Include="src\Dlg_Video.cpp" />
     <ClCompile Include="src\DSMInterface.cpp" />
     <ClCompile Include="src\MFC_UI.cpp" />
     <ClCompile Include="src\Page_About.cpp" />
     <ClCompile Include="src\Page_Advanced.cpp" />
     <ClCompile Include="src\Page_Base.cpp" />
     <ClCompile Include="src\Device_Base.cpp" />
-    <ClCompile Include="src\CScanner_G6400.cpp" />
     <ClCompile Include="src\Page_Custom.cpp" />
     <ClCompile Include="src\Page_Paper.cpp" />
     <ClCompile Include="src\Page_Profile.cpp" />
-    <ClCompile Include="src\SGCallBack.cpp" />
     <ClCompile Include="src\Sheet_Scanner.cpp" />
     <ClCompile Include="src\TWAINContainer.cpp" />
     <ClCompile Include="src\TWAINContainerBool.cpp" />
@@ -187,7 +191,6 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClCompile Include="src\TWAINContainerInt.cpp" />
     <ClCompile Include="src\TWAINContainerString.cpp" />
     <ClCompile Include="src\TWAIN_UI.cpp" />
-    <ClCompile Include="src\UDSCapture.cpp" />
     <ClCompile Include="src\Win32.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -201,18 +204,16 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClInclude Include="..\..\..\testfiles\common\CTiffWriter.h" />
     <ClInclude Include="..\..\..\testfiles\common\twain.h" />
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
-    <ClInclude Include="..\..\..\testfiles\pub\external\include\AVSDK.h" />
+    <ClInclude Include="CDUDS_Video.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Camera_CxImage.h" />
-    <ClInclude Include="src\Dlg_Camera.h" />
     <ClInclude Include="src\CommonDS.h" />
-    <ClInclude Include="src\CommonFunc.h" />
-    <ClInclude Include="src\CScanner_FreeImage.h" />
     <ClInclude Include="src\CScanner_OpenCV.h" />
     <ClInclude Include="src\CTWAINDS_Base.h" />
     <ClInclude Include="src\CTWAINDS_UDS.h" />
     <ClInclude Include="src\Dlg_Profile.h" />
     <ClInclude Include="src\Dlg_Rename.h" />
+    <ClInclude Include="src\Dlg_Video.h" />
     <ClInclude Include="src\dllmain.h" />
     <ClInclude Include="src\DSMInterface.h" />
     <ClInclude Include="src\MFC_UI.h" />
@@ -224,8 +225,6 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClInclude Include="src\Page_Profile.h" />
     <ClInclude Include="src\public.h" />
     <ClInclude Include="src\Device_Base.h" />
-    <ClInclude Include="src\CScanner_G6400.h" />
-    <ClInclude Include="src\SGCallBack.h" />
     <ClInclude Include="src\Sheet_Scanner.h" />
     <ClInclude Include="src\TWAINContainer.h" />
     <ClInclude Include="src\TWAINContainerBool.h" />
@@ -235,7 +234,6 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
     <ClInclude Include="src\TWAINContainerInt.h" />
     <ClInclude Include="src\TWAINContainerString.h" />
     <ClInclude Include="src\TWAIN_UI.h" />
-    <ClInclude Include="src\UDSCapture.h" />
     <ClInclude Include="src\uds_cap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -249,7 +247,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="" />
+      <UserProperties RESOURCE_FILE="" _x007B_CA859805-A3CE-4594-B019-BCBBE7F61D01_x007D_="CDUDS_Video" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

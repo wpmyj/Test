@@ -9,7 +9,7 @@
 
 #include "CTWAINDS_UDS.h"
 #include "TWAIN_UI.h"
-#include "FreeImage.h"
+//#include "FreeImage.h"
 #include <sstream>
 
 #include <iostream>
@@ -113,17 +113,17 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	//wan
 	switch (g_nDeviceNumber)
 	{
-	case DEVICE_FREEIMAGE:
+/*	case DEVICE_FREEIMAGE:
 		{
 			m_pScanner = new CScanner_FreeImage;
 			break;
-		}		
-	case DEVICE_G6400:
-		{
-			m_pScanner = new CScanner_G6400;
-			break;
-			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
-		}
+		}	*/	
+	//case DEVICE_G6400:
+	//	{
+	//		m_pScanner = new CScanner_G6400;
+	//		break;
+	//		//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
+	//	}
 	case DEVICE_OPENCV:
 		{
 			m_pScanner = new CScanner_OpenCV;
@@ -137,6 +137,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 		}
 	default:
 		{
+			m_pScanner = NULL;
 			::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
 			break;
 		}		
@@ -1447,7 +1448,6 @@ TW_INT16 CTWAINDS_UDS::closeDS()
     setConditionCode(TWCC_SEQERROR);
     return TWRC_FAILURE;
   }
-
   memset(&m_App, 0, sizeof(m_App));
   return TWRC_SUCCESS;
 }
@@ -1762,7 +1762,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		{
 		case DEVICE_CAMERA:
 		case DEVICE_OPENCV:  //CScanner_Opencv
-		case DEVICE_FREEIMAGE:  //CScanner_FreeImage
+		//case DEVICE_FREEIMAGE:  //CScanner_FreeImage
 			{				
 				do
 				{
@@ -1782,12 +1782,12 @@ TW_INT16 CTWAINDS_UDS::transfer()
 				
 			}
 			break;
-		case DEVICE_G6400:  // CScanner_G6400
-			{				
-				m_pScanner->GetImageData(pImageData,dwReceived);
-				pImageData += dwReceived;
-			}
-			break;
+		//case DEVICE_G6400:  // CScanner_G6400
+		//	{				
+		//		m_pScanner->GetImageData(pImageData,dwReceived);
+		//		pImageData += dwReceived;
+		//	}
+		//	break;
 		//case DEVICE_OPENCV:
 		//	{
 		//		m_pScanner->GetImageData(pImageData,dwReceived);

@@ -11,9 +11,9 @@
 
 extern HWND g_hwndDLG;
 //extern vector<CUST_IMAGEINFO> g_vecCust_ImageInfo;
-extern 	std::vector<std::string> g_vector_imagepath;
+//extern 	std::vector<std::string> g_vector_imagepath;
 //DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
-
+std::vector<std::string> g_vector_imagepath;
 CCamera_CxImage::CCamera_CxImage(void) :
 	m_nDocCount(0),
 	m_nSourceWidth(0),
@@ -93,12 +93,7 @@ bool CCamera_CxImage::resetScanner()
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
 	m_bAutoCrop           = TWAC_DISABLE;
-
 	m_nImageNumber = 0;
-	//if (false == m_mat_image.empty())
-	//{
-	//	m_mat_image.release();
-	//}
 
 	if (!m_pCxImage)
 	{
@@ -178,19 +173,17 @@ bool CCamera_CxImage::acquireImage()
 	//	return false ;
 	//}
 
+	//::MessageBox(g_hwndDLG,TEXT("acquireImage!"),MB_CAPTION,MB_OK);
+	//m_pCxImage->Destroy();//FreeMemory
 	if (!m_pCxImage)
 	{
+		//m_pCxImage->Destroy();
 		delete m_pCxImage;
 		m_pCxImage = NULL;
+		//::MessageBox(g_hwndDLG,TEXT("delete m_pCxImage!"),MB_CAPTION,MB_OK);
 	}
 	
 	m_pCxImage = new CxImage();
-	//if(false == m_pCxImage->CreateFromHANDLE(g_vector_imagepath[m_nImageNumber]))
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
-	//	return false ;
-	//}
-	//::MessageBox(g_hwndDLG,TEXT(g_vector_imagepath[m_nImageNumber].c_str()),"acquire",MB_OK);
 	if(false == m_pCxImage->Load(g_vector_imagepath[m_nImageNumber].c_str()))
 	{
 		::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
@@ -240,11 +233,9 @@ bool CCamera_CxImage::preScanPrep()
 		//m_pCxImage->Negative();
 		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 1);
 		break;
-
 	case TWPT_GRAY:
 		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 8);
 		break;
-
 	case TWPT_RGB:
 		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
 		break;

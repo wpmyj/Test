@@ -2,7 +2,8 @@
 //#include "UDS Scanner.h"
 #include "Sheet_Scanner.h"  // 必须放cpp文件中，因为重复包含
 #include "public.h"
-#include "Dlg_Camera.h"
+#include "Dlg_Video.h"
+//#include "Dlg_Camera.h"
 /**
 * @file   MFC_UI.cpp
 * @brief This is a brief description.
@@ -42,25 +43,26 @@ void DestroyUI(CTWAIN_UI* pUI)
 MFC_UI::MFC_UI(CTWAINDS_UDS *pDS):CTWAIN_UI(pDS)
 {
 	m_pSheet = NULL;
-	m_pDlgCamera = NULL;
+	m_pDlgVideo = NULL;
+	//m_pDlgCamera = NULL;
 }
 
 
 MFC_UI::~MFC_UI(void)
 {
-	if (DEVICE_G6400 == g_nDeviceNumber)
-	{
-		m_pSheet->DestroyWindow();
-	}
+	//if (DEVICE_G6400 == g_nDeviceNumber)
+	//{
+	//	m_pSheet->DestroyWindow();
+	//}
 
 	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		if (m_pDlgCamera)
+		if (m_pDlgVideo)
 		{
 			//::MessageBox(g_hwndDLG,TEXT(":~MFC_UI()!"),MB_CAPTION,MB_OK);
-			m_pDlgCamera->DestroyWindow();
-			delete m_pDlgCamera;
-			m_pDlgCamera = NULL;
+			m_pDlgVideo->DestroyWindow();
+			delete m_pDlgVideo;
+			m_pDlgVideo = NULL;
 		}
 	}
 	else
@@ -104,25 +106,25 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	
 	if (DEVICE_CAMERA == g_nDeviceNumber)  // 进入Camera界面
 	{
-		m_pDlgCamera = new CDlg_Camera(this);
-		if (m_pDlgCamera)
+		m_pDlgVideo = new CDlg_Video(this);
+		if (m_pDlgVideo)
 		{
-			m_pDlgCamera->Create(CDlg_Camera::IDD,pMainWnd);
-			m_pDlgCamera->ShowWindow(SW_SHOW);
+			m_pDlgVideo->Create(CDlg_Video::IDD,pMainWnd);
+			m_pDlgVideo->ShowWindow(SW_SHOW);
 		} 
 		else
 		{
 			return TWRC_FAILURE;
 		}
 	}
-	else // 其它界面: FREEIMAGE \ OPENCV \ G6400
+	else // 其它界面: OPENCV 
 	{
 		if(Data.ShowUI)
 		{
 			switch (g_nDeviceNumber)
 			{
 			case DEVICE_OPENCV:
-			case DEVICE_FREEIMAGE:
+			//case DEVICE_FREEIMAGE:
 				{
 					m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
 					if (m_pSheet)
@@ -135,21 +137,21 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 					}
 					break;
 				}			
-			case DEVICE_G6400:
-				{
-					m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
-					if (m_pSheet) 
-					{
-						m_pSheet->Create(pMainWnd);
-						m_pSheet->ShowWindow(SW_SHOW);
-						g_hwndSheet = m_pSheet->GetSafeHwnd();
-					} 
-					else 
-					{
-						return TWRC_FAILURE;
-					}
-					break;
-				}
+			//case DEVICE_G6400:
+			//	{
+			//		m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
+			//		if (m_pSheet) 
+			//		{
+			//			m_pSheet->Create(pMainWnd);
+			//			m_pSheet->ShowWindow(SW_SHOW);
+			//			g_hwndSheet = m_pSheet->GetSafeHwnd();
+			//		} 
+			//		else 
+			//		{
+			//			return TWRC_FAILURE;
+			//		}
+			//		break;
+			//	}
 			default:
 				{
 					::MessageBox(g_hwndDLG,TEXT("不支持的设备！"),MB_CAPTION,MB_OK);
@@ -172,17 +174,18 @@ void MFC_UI::DestroyTWAINGUI()
 	
 	if (DEVICE_CAMERA == g_nDeviceNumber)
 	{
-		if (m_pDlgCamera)
+		if (m_pDlgVideo)
 		{
-			//m_pDlgCamera->DestroyWindow();
-			delete m_pDlgCamera;
-			m_pDlgCamera = NULL;
+			m_pDlgVideo->DestroyWindow();
+			delete m_pDlgVideo;
+			m_pDlgVideo = NULL;
 		}
 	}
 	else  // 其它设备
 	{
 		if (m_pSheet)
 		{
+			m_pSheet->DestroyWindow();
 			delete m_pSheet;
 			m_pSheet = NULL;	
 			//::MessageBox(g_hwndDLG,TEXT("delete m_pSheet!"),MB_CAPTION,MB_OK);

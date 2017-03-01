@@ -3,6 +3,8 @@
 #include "Device_Base.h"
 //#include "opencv.hpp"
 #include "ximage.h"  // CXImage
+#pragma comment(lib,"cximage.lib")
+
 /**
 * The FreeImage scanner define for PaperSource is ADF
 */

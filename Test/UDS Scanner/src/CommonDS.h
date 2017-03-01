@@ -42,7 +42,7 @@
 
 
 #include "Common.h"
-#include "FreeImage.h"
+//#include "FreeImage.h"
 #include "CommonTWAIN.h"
 
 #include "public.h"
@@ -64,6 +64,14 @@
 
 #include <map>
 using namespace std;
+
+
+// FreeImage.h中定义，移除FreeImage.h后添加
+#define FI_RGBA_RED				2
+#define FI_RGBA_GREEN			1
+#define FI_RGBA_BLUE			0
+#define FI_RGBA_ALPHA			3
+
 
 /**
 Base、Advanced保存参数容器

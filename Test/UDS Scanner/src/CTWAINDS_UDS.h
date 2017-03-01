@@ -10,9 +10,9 @@
 #ifndef __CTWAINDS_UDS_H__
 #define __CTWAINDS_UDS_H__
 
-#include "CScanner_G6400.h"  // 一定要放在最前面
+//#include "CScanner_G6400.h"  // 一定要放在最前面
 #include "CTWAINDS_Base.h"
-#include "CScanner_FreeImage.h"
+//#include "CScanner_FreeImage.h"
 #include "CScanner_OpenCV.h"
 #include "Camera_CxImage.h"
 

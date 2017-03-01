@@ -21,25 +21,12 @@
 
 /** INI键(Key)常量 */
 #define INI_KEY_DEVICENUMBER                 TEXT("DeviceNumber")
-#define INI_KEY_CAMERA                       TEXT("Camera")
-#define INI_KEY_CAMTEMPPATH                  TEXT("ImagePath")
-#define INI_KEY_CAMFRAMESIZE                 TEXT("CamFrameSize")
-#define INI_KEY_CAMEXPOSURE                  TEXT("CamExposure")
-#define INI_KEY_CAMBRIGHTNESS                TEXT("CamBrightness")
-#define INI_KEY_CAMIMAGETYPE                 TEXT("CamImageType")
-#define INI_KEY_CAMDOCSIZE                   TEXT("CamDocSize")
-#define INI_KEY_CAMDOCWIDTH                  TEXT("CamDocWidth")
-#define INI_KEY_CAMDOCHEIGHT                 TEXT("CamDocHeight")
-#define INI_KEY_CAMORIENTATION               TEXT("CamOrientation")
-#define INI_KEY_JPEGQUALITY                  TEXT("JpegQuality ")
-#define INI_KEY_CAMAUTOCLIP                  TEXT("CamAutoClip")
-#define INI_KEY_CAMAUTOENHANCE               TEXT("CamAutoEnhance")
-#define INI_KEY_CAMAUTOROTATE                TEXT("CamAutoRotate")
-#define INI_KEY_UPLOADFILEONEBYONE           TEXT("UploadFileOnebyOne")
-#define INI_KEY_SHOWTHUMBNAIL                TEXT("ShowThumbnail")
-#define INI_KEY_THRESHOLD                    TEXT("Threshold")
-#define INI_KEY_DPINUMBER                    TEXT("DpiNumber")
-#define INI_KEY_SAVEAS                       TEXT("SaveAs")
+//#define INI_KEY_CAMERAINDEX                  TEXT("CameraIndex")
+#define INI_KEY_DPIINDEX                     TEXT("DpiIndex")
+#define INI_KEY_AUTOCROP                     TEXT("AutoCrop")
+#define INI_KEY_SHOWINFO                     TEXT("ShowInfo")
+#define INI_KEY_PIXELTYPE                    TEXT("PixelType")
+#define INI_KEY_CAMERANAME                   TEXT("CameraName")
 
 /** 消息框标题或驱动名称 */    
 #define MB_CAPTION TEXT("UDS General TWAIN DS")
@@ -53,10 +40,10 @@
 /** 设备编号 */
 typedef enum DEVICE_NUMBER
 {
-	DEVICE_FREEIMAGE	= 1,   /**< 基于FreeIamge的虚拟扫描仪 */
-	DEVICE_G6400      = 2,   /**< 扫描仪G6400 */
-	DEVICE_OPENCV     = 3,   /**< 基于OpenCV的虚拟扫描仪 */
-	DEVICE_CAMERA     = 4,   /**< 摄像头 */
+	DEVICE_OPENCV     = 1,   /**< 基于OpenCV的虚拟扫描仪 */
+	DEVICE_CAMERA     = 2,   /**< 摄像头 */
+	//DEVICE_G6400      = 3,   /**< 扫描仪G6400 */
+	//DEVICE_FREEIMAGE	= 1,   /**< 基于FreeIamge的虚拟扫描仪 */
 };
 
 #endif //__PUBLIC_H__

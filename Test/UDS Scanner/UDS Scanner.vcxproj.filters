@@ -36,9 +36,6 @@
     <ClCompile Include="src\CommonDS.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\CScanner_FreeImage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\CTWAINDS_Base.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -93,9 +90,6 @@
     <ClCompile Include="src\CTWAINDS_UDS.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\CommonFunc.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -105,28 +99,16 @@
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\CScanner_G6400.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\CScanner_OpenCV.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Page_Custom.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\UDSCapture.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SGCallBack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\Camera_CxImage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Device_Base.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Dlg_Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Page_Profile.cpp">
@@ -136,6 +118,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Page_Paper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dlg_Video.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDUDS_Video.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -153,9 +141,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\CommonDS.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CScanner_FreeImage.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\CTWAINDS_Base.h">
@@ -215,9 +200,6 @@
     <ClInclude Include="src\public.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\CommonFunc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\testfiles\common\Common.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -233,22 +215,10 @@
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\testfiles\pub\external\include\AVSDK.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CScanner_G6400.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\CScanner_OpenCV.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Page_Custom.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UDSCapture.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SGCallBack.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\uds_cap.h">
@@ -260,9 +230,6 @@
     <ClInclude Include="src\Device_Base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Dlg_Camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\Page_Paper.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -270,6 +237,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Rename.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Video.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDUDS_Video.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,9 +6,10 @@
 #define __MFC_UI_H__
 
 #include "TWAIN_UI.h"
-//#include "Dlg_Camera.h"
 class CSheet_Scanner;
-class CDlg_Camera;
+class CDlg_Video;
+//class CDlg_Camera;
+
 /**
 * @file   MFC_UI.h
 * @brief This is a brief description.
@@ -17,13 +18,10 @@ class CDlg_Camera;
 *         All Rights Reserved.
 * @date   2016/9/12 
 * @note   matters needing attention
-* @version <version  number>
 */ 
 class MFC_UI : public CTWAIN_UI
 {
 public:
-
-
 	MFC_UI(CTWAINDS_UDS *pDS);
 	~MFC_UI(void);
 
@@ -65,7 +63,8 @@ public:
 
 public:
   CSheet_Scanner* m_pSheet;  ///< 属性页对话框
-	CDlg_Camera*    m_pDlgCamera; ///< 摄像头对话框
+	CDlg_Video*     m_pDlgVideo;  ///< 基于UDS_Video.ocx控件的摄像头对话框
+	//CDlg_Camera*    m_pDlgCamera; ///< 摄像头对话框
 };
 
 #endif // __MFC_UI_H__
