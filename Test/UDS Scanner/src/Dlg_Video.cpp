@@ -7,6 +7,8 @@
 #include "afxdialogex.h"
 
 #include "public.h"
+#include <MMSystem.h>
+#pragma comment(lib, "Winmm.lib")  // 播放音声音需要
 // CDlg_Video 对话框
 extern 	std::vector<std::string> g_vector_imagepath;
 extern void GetFilePath( char* szFileName, char* szFilePath);
@@ -27,6 +29,7 @@ CDlg_Video::CDlg_Video(MFC_UI *pUI,CWnd* pParent /*= NULL*/)
   , m_nDPIIndex(0)
 	, m_bAutoCrop(false)
 	, m_bShowInfo(false)
+	, m_bPlaySound(false)
 {
 
 }
@@ -54,6 +57,7 @@ void CDlg_Video::DoDataExchange(CDataExchange* pDX)
 	//DDX_Control(pDX, IDC_VIDEO_EDIT_URL, m_editURL);
 	DDX_Control(pDX, IDC_VIDEO_STATIC_CAPTURECOUNT, m_sCaptureCount);
 	DDX_Control(pDX, IDC_VIDEO_BUTTON_DPI, m_btnDPI);
+	DDX_Control(pDX, IDC_VIDEO_CHECK_PLAYSOUND, m_checkPlaySound);
 }
 
 
@@ -80,6 +84,7 @@ BEGIN_MESSAGE_MAP(CDlg_Video, CDialogEx)
 
 	ON_BN_CLICKED(IDOK, &CDlg_Video::OnOk)
 	ON_BN_CLICKED(IDC_VIDEO_BUTTON_DPI, &CDlg_Video::OnBnClickedButton_Dpi)
+	ON_BN_CLICKED(IDC_VIDEO_CHECK_PLAYSOUND, &CDlg_Video::OnBnClickedCheck_Playsound)
 END_MESSAGE_MAP()
 
 
@@ -205,6 +210,7 @@ BOOL CDlg_Video::OcxInit()
   //自动裁切
 	m_CheckAC.SetCheck(m_bAutoCrop);
 	m_CheckMSG.SetCheck(m_bShowInfo);
+	m_checkPlaySound.SetCheck(m_bPlaySound);
 	OnBnClickedCheck_Autocrop();
 	OnBnClickedCheck_Showinfo();
 	
@@ -477,6 +483,11 @@ void CDlg_Video::OnBnClickedButton_Capture()
 	m_sCaptureName = m_strTempPath + TEXT("\\") + tt.Format("%Y_%m_%d_%H_%M_%S_") 
 		+ str + _subfix;
 	m_ocx.CaptureImage(m_sCaptureName);
+	if (m_checkPlaySound.GetCheck())
+	{
+		MyPlaySound(FILENAME_WAV_CAMERA1);
+	}
+
 	m_nFileCount ++;
 	CString msg;
 	msg.Format("已拍摄: %d张", m_nFileCount);
@@ -532,6 +543,11 @@ void CDlg_Video::OnClickedButton_Barcodecap()
 	}
 
 	m_ocx.CaptureBarcode(m_strTempPath, m_nFileType);
+	if (m_checkPlaySound.GetCheck())
+	{
+		MyPlaySound(FILENAME_WAV_CAMERA1);
+	}
+
 	m_nFileCount ++;
 	CString msg;
 	msg.Format("已拍摄: %d张", m_nFileCount);
@@ -582,7 +598,10 @@ void CDlg_Video::OnClickedButton_Sercap()
 		m_bAutoCrop = true;
 	}
 	m_ocx.AutomaticCapture(m_strTempPath,m_nFileType);
-
+	if (m_checkPlaySound.GetCheck())
+	{
+		MyPlaySound(FILENAME_WAV_CAMERA1);
+	}
 }
 
 
@@ -787,7 +806,6 @@ void CDlg_Video::ReadSetting()
 	INI_VIDEO tempINI;
 
 	//int
-	//tempINI.CameraIndex  = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_CAMERAINDEX, 0, szINIPath);
 	tempINI.DpiIndex     = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPIINDEX,    0, szINIPath);
 	tempINI.PixelType    = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_PIXELTYPE,  0, szINIPath);
 
@@ -811,6 +829,13 @@ void CDlg_Video::ReadSetting()
 		tempINI.ShowInfo = false;
 	}
 
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_PLAYSOUND,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.playSound = true;
+	} 
+	else {
+		tempINI.playSound = false;
+	}
 
 	//CString
 	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERANAME,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
@@ -821,6 +846,7 @@ void CDlg_Video::ReadSetting()
 	m_nPixelType = tempINI.PixelType;
 	m_bAutoCrop  = tempINI.AutoCrop;
 	m_bShowInfo  = tempINI.ShowInfo;
+	m_bPlaySound = tempINI.playSound;
 
 	strTemp.ReleaseBuffer(nMaxLength);
 }
@@ -863,4 +889,25 @@ void CDlg_Video::WriteSetting()
 	}
 	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_SHOWINFO,strTemp,szINIPath);
 
+	if (m_bPlaySound) {
+		strTemp = TEXT("Y");
+	} 
+	else {
+		strTemp = TEXT("N");
+	}
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_PLAYSOUND,strTemp,szINIPath);
+
+}
+
+void CDlg_Video::OnBnClickedCheck_Playsound()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_checkPlaySound.GetCheck() > 0 ? m_bPlaySound = true:m_bPlaySound = false;
+}
+
+void CDlg_Video::MyPlaySound(TCHAR* _szFileName)
+{
+	TCHAR szFilePath[MAX_PATH];
+	GetFilePath(_szFileName, szFilePath);
+	sndPlaySound(szFilePath, SND_ASYNC);
 }

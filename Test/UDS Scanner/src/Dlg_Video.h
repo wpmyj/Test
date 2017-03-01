@@ -16,11 +16,11 @@
 /** INI文件中的Camera配置 */
 struct INI_VIDEO
 {
-	//int  CameraIndex;         /**< 摄像头编号*/
 	int  DpiIndex;            /**< DPI编号 */
 	int  PixelType;           /**< 颜色编号 */
 	bool AutoCrop;            /**< 是否自动裁切 */ 
 	bool ShowInfo;            /**< 是否显示视频信息 */
+	bool playSound;           /**< 是否播放声音 */
 	CString CameraName;       /**< 摄像头名称 */
 };
 
@@ -57,6 +57,7 @@ private:
 	bool m_bIsDPI;            ///< 是否显示DPI（否则为分辨率）
 	bool m_bAutoCrop;         ///< 是否自动裁切
 	bool m_bShowInfo;         ///< 是否显示视频信息
+	bool m_bPlaySound;        ///< 是否播放声音
 
 	CString m_sCaptureName;   ///< 照片名称
 	CStatic m_sCaptureCount;  ///< 显示已拍照照片数
@@ -74,6 +75,7 @@ public:
 	CButton m_CheckAC;
 	CButton m_CheckMSG;
 	CButton m_checkManual;
+	CButton m_checkPlaySound;
 	CButton m_btnDPI;
 
 	CEdit m_editExp;
@@ -82,8 +84,7 @@ public:
 
 	CSliderCtrl m_sliderExp;
 	CRichEditCtrl m_richeditMSG;
-
-
+	int b;
 protected:
 	/**
 	*  @brief  初始化控件 
@@ -113,6 +114,11 @@ protected:
 	*/
 	void WriteSetting();
 
+	/**
+	*  @brief  播放声音
+	*/
+	void MyPlaySound(TCHAR* _szFileName);
+
 public:
 	virtual BOOL OnInitDialog();
 
@@ -137,10 +143,11 @@ public:
 	afx_msg void OnNMCustomdrawSlider_Exp(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnOk();
 	afx_msg void OnBnClickedButton_Dpi();
+	afx_msg void OnBnClickedCheck_Playsound();
 
 	DECLARE_EVENTSINK_MAP()
 	void GetBarcodeString_VideoUdsVideoctrl(LPCTSTR Barcode);
 	void GetAutoCapFileName_VideoUdsVideoctrl(LPCTSTR fileName);
 	void DeviceChanged_VideoUdsVideoctrl(LPCTSTR changeType, LPCTSTR deviceName);
-	
+
 };
