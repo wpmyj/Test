@@ -112,3 +112,46 @@ date 17.02.21
 4、解决多流相关Bug：首次扫描时，只有先点击了双面，再点击多流，多流才生效
 方法：在Radio响应函数OnBase_RadioBtn_Duplex（）中，为scanside赋值要在scanside外，该变量与高级界面的SetCapValue()中的case UDSCAP_SPLITIMAGE（图像拆分）息息相关，当没有该变量赋值（默认为0）时，高级界面会把图像张数设为1。将scanside = m_radiobtn_duplex;放在UpdateControl();中，实时更新。
 5、总结CScanner_OpenCV类中所用opencv相关函数以及所需图像数据的每一行的字节数、行数、列数、图像深度、通道数等。
+
+date 17.02.22
+------------------------------------------------------------
+@author zhu
+1、为模板导出功能由SHBrowseForFolder改为CFileDialog实现，导出的同时增加重命名的功能。
+
+date 17.02.23
+------------------------------------------------------------
+@author zhu
+1、删除之前增加的CTWAINDS_Base类的getUDSDIBImage（），重写CTWAIN_UI::PreView()函数，为图片数据手动增加文件头，信息头，调色板等，增加FillZero（）函数为数据补零，实现4字节对齐。
+2、在CPage_Base::PreView()中通过m_pUI->PreView()得到数据，通过CFile类依次将文件头，信息头，调色板，以及图像数据，以此来测试数据是否正确。最终得到正确的图像数据。
+3、利用CDC以及StretchDIBits（）在图片控件绘图，但保存的图片正确，图片控件却没有显示图片。改为CreateDIBitmap()与StretchBlt()实现图片显示，但是只能显示彩色图片，不能显示灰度图，黑白图的图像区域随机出现不同彩色，但是保存下来的图像正确。
+
+date 17.02.24
+------------------------------------------------------------
+@author zhu
+1、放弃直接绘图的方式，采用CFile读图的形式显示图片，仍然存在昨天的问题。最终采用opencv实现，仿照opencv的CvvImage类的DrawToHDC（），为CPage_Base类增加四个成员函数：NormalizeRect（）用来标准化处理rect区域，使其高度和宽度均为正值,当左侧坐标大于右侧坐标，上侧坐标大于下侧坐标时使用,互换；FillBitmapInfo用来写入信息头和调色板；RectToCvRect将坐标类型由Rect转为opencv能用的CvRect；Show（）使用DIB位图和颜色数据对dc上的指定矩形中的像素进行设置；最终使用DrawToHDC（）在指定dDCDst根据pDstRect绘图。完成黑白、灰度、彩色图片的预览功能。
+2、解决“预览”后不能直接扫描，并且只能预览一次的Bug:在CTWAINDS_Base::DoXferReadyEvent()中，getImageInfo（）之前把m_CurrentState状态设为了dsState_XferReady了，所以当下次再次判断dsState_Enabled != m_CurrentState时，条件为真，使得DoXferReadyEvent（）返回false，没有后续的getImageInfo与_DSM_Entry（）。
+解决方法：在CTWAIN_UI::PreView()函数的末尾将状态设回5：m_pDS->m_CurrentState = dsState_Enabled;但同时需要将CTWAINDS_Base类的成员m_CurrentState由protected改为public。问题解决。
+3、防止图片显示在控件中失真，增加自适应图片控件的操作。
+4、利用CRectTracker，响应OnLButtonDown实现在CPage_Paper的图片控件上画矩形。
+
+date 17.02.27
+------------------------------------------------------------
+@author zhu
+1、解决未扫描、直接从基本界面预览，图像下侧有部分数据丢失的Bug。在预览时，未响应CPage_Paper的SetCapValue，没有设置纸张大小。
+2、完成OnPaint（）中，根据单位选值，分别画不同的标尺的功能。
+
+date 17.02.28
+------------------------------------------------------------
+@author zhu
+1、为CPage_Paper类增加两个成员m_standarindex，m_unitindex分别用来保存最开始纸张大小、单位选中项的索引值
+2、在成员函数UpdatePicRectangle（int index, int unitindex）中，首先设置SetCapValueInt单位、纸张大小，再通过GetCurrentFrame得到当前纸张大小，并根据单位索引值对应的单位值计算该纸张大小值在图片控件下的大小。最后使用CDC->Rectangle与CPen绘红色矩形框.。
+3、解决绘图时图像只绘制，不删除上次矩形图的Bug:在UpdatePicRectangle开始时InvalidateRect(NULL);再UpdateWindow();问题解决。
+4、遗留一个问题：在界面初始打开时，响应UpdatePicRectangle（）函数，并不会画图，调试未找见问题。
+5、调整CScanner_OpenCV类的图像锐化操作的代码：将Laplacian换为Sobel算子，但是不直接计算，而是分别计算x方向和y方向的导数，最后用两个方向的倒数去模拟梯度，最后将得到的grad与原图融合，得到的图像没有过去锐化，效果比直接使用Sobel算子要好。
+
+date 17.03.1
+------------------------------------------------------------
+@author zhu
+1、结合G系列驱动，删除纸张大小：A3、ISOB4、JISB4三个选项
+2、调整单位选项为像素时，需要根据基本界面的分辨率调节对应的标尺，不同的分辨率，像素范围不同。
+3、完善了纸张界面改变纸张大小，宽、高根据单位随之的变化以及图片控件上矩形框的变化。

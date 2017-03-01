@@ -59,6 +59,12 @@ public:
 	*/
 	vector<string> MyBrowseForMultiImages();
 
+	//DrawToHdc系列函数
+	void DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img); //在指定dDCDst根据pDstRect绘图。
+	void FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin); ///<为bmi写入信息头和调色板。
+	void Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y);	 ///<使用DIB位图和颜色数据对与目标设备环境相关的设备在dc上的指定矩形中的像素进行设置
+	CvRect RectToCvRect(RECT sr); ///<将Rect类型转为CvRect类型
+	RECT NormalizeRect(RECT r); ///<标准化处理输入rect，防止左侧坐标大于右侧坐标，上侧坐标大于下侧坐标
 
 private:
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
@@ -73,7 +79,8 @@ private:
 	CEdit m_edit_brightness;   ///< 用于同步显示m_slider_brightness值
 	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
 
-	CButton m_btn_chooseimage; ///<"选择图片按钮"
+//	CButton m_btn_chooseimage;
+	///<"选择图片按钮"
 
 	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板
 	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
@@ -92,6 +99,8 @@ private:
 	CButton m_btn_backgray;
 	CButton m_btn_backbw;
 
+	CStatic m_base_picture;
+
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 	
 	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
@@ -109,7 +118,7 @@ private:
 	afx_msg void OnBase_Btn_Newprofile();
 
   /** 选择待扫图片 */
-	afx_msg void OnBase_Btn_Chooseimage();
+//	afx_msg void OnBase_Btn_Chooseimage();
 
 	afx_msg void OnBase_RadioBtn_Scanmode();
 	afx_msg void OnBase_RadioBtn_Duplex();
@@ -124,4 +133,5 @@ private:
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;	
+	CPage_Custom* m_pPaperPage;	
 };

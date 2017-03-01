@@ -35,6 +35,8 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	AddPage(m_p_page_about);
 
 	m_p_page_base->m_pAdPage = m_p_page_advanced; //用于基本与高级之间参数同步
+	m_p_page_base->m_pPaperPage = m_p_page_paper;
+
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
 	
 	m_p_page_profile->m_pBasePage = m_p_page_base;
@@ -69,6 +71,8 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	AddPage(m_p_page_about);
 	
 	m_p_page_base->m_pAdPage = m_p_page_advanced;
+	m_p_page_base->m_pPaperPage = m_p_page_paper;
+
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
 
 	m_p_page_profile->m_pBasePage = m_p_page_base;

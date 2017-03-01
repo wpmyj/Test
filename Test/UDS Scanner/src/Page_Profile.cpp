@@ -436,7 +436,7 @@ void CPage_Profile::OnProfile_Btn_Import()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CString strReadFilePath;  
-	CFileDialog fileDlg(true, _T("dsp"), _T("*.dsp"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T(".dsp"), NULL);  
+	CFileDialog fileDlg(true, _T("dsp"), _T("*.dsp"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("模板文件(*.dsp)|*.dsp||"), NULL);  
 	if (fileDlg.DoModal() == IDOK)    //弹出对话框  
 	{  
 		strReadFilePath = fileDlg.GetPathName();//得到完整的文件名和目录名拓展名  
@@ -478,6 +478,7 @@ void CPage_Profile::OnProfile_Btn_Import()
 void CPage_Profile::OnProfile_Btn_Export()
 {
 	// TODO: 在此添加控件通知处理程序代码  
+	/*
 	// 配置对话框  
 	BROWSEINFO bi; 
 	CString szString = TEXT("请选择一个文件夹存放DSP文件");
@@ -516,7 +517,7 @@ void CPage_Profile::OnProfile_Btn_Export()
 	}
 	else
 	{
-		AfxMessageBox("导出成功！");
+		//AfxMessageBox("导出成功！");
 	}
 
 	//防止内存泄漏，要使用IMalloc接口释放指针 
@@ -531,7 +532,30 @@ void CPage_Profile::OnProfile_Btn_Export()
 	}  
 	pMalloc->Free(targetLocation);  //释放指针
 	if(pMalloc)  
-		pMalloc->Release();    
+		pMalloc->Release();   
+	*/
+
+	int index = m_list_template.GetCurSel();
+	CString strTemplate;
+	m_list_template.GetText(index, strTemplate);
+
+	string str = m_pUI->GetProfileNamePath(); 
+	CString strPath = str.c_str() + strTemplate + ".dsp"; //strPath为模板原存放路径
+
+	CFileDialog dlg(FALSE, _T("dsp"), strTemplate + ".dsp", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T(".dsp"), NULL);//FALSE表示为“另存为”对话框，否则为“打开”对话框
+	if(dlg.DoModal() == IDOK)
+	{
+		CString strDirPath = dlg.GetPathName();//得到完整的文件名和目录名拓展名 
+	
+		if(!CopyFile(strPath, strDirPath, TRUE))  
+		{
+			AfxMessageBox("文件已经存在，导出失败！");
+		}
+		else
+		{
+			AfxMessageBox("导出成功！");
+		}
+	}
 }
 
 

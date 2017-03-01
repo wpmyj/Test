@@ -154,7 +154,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SoftekBarcode.dll" "c:\windows\tw
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\tbb.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoDevice.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoOperate.dll" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
@@ -170,8 +171,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_3
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\CTiffWriter.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp" />
-    <ClCompile Include="CDUDS_Video.cpp" />
     <ClCompile Include="src\Camera_CxImage.cpp" />
+    <ClCompile Include="src\CDUDS_Video.cpp" />
     <ClCompile Include="src\CommonDS.cpp" />
     <ClCompile Include="src\CScanner_OpenCV.cpp" />
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
@@ -210,9 +211,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_3
     <ClInclude Include="..\..\..\testfiles\common\CTiffWriter.h" />
     <ClInclude Include="..\..\..\testfiles\common\twain.h" />
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
-    <ClInclude Include="CDUDS_Video.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Camera_CxImage.h" />
+    <ClInclude Include="src\CDUDS_Video.h" />
     <ClInclude Include="src\CommonDS.h" />
     <ClInclude Include="src\CScanner_OpenCV.h" />
     <ClInclude Include="src\CTWAINDS_Base.h" />

@@ -11,6 +11,7 @@
 
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
+extern HINSTANCE  g_hinstance;
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
@@ -35,7 +36,7 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_BASE_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_BASE_EDIT_THRESHOLD, m_edit_threshold);
-	DDX_Control(pDX, IDC_BASE_BTN_CHOOSEIMAGE, m_btn_chooseimage);
+	//  DDX_Control(pDX, IDC_BASE_BTN_CHOOSEIMAGE, m_btn_chooseimage);
 	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
 	DDX_Radio(pDX, IDC_BASE_RADIO_DUPLEX_DAN, m_radiobtn_duplex);
 	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
@@ -51,6 +52,7 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKCOLOR, m_btn_backcolor);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKGRAY, m_btn_backgray);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
+	DDX_Control(pDX, IDC_BASE_PREPICTURE, m_base_picture);
 }
 
 
@@ -63,7 +65,7 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_EN_CHANGE(IDC_BASE_EDIT_THRESHOLD, &CPage_Base::OnEnChangeBase_Edit_Threshold)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORMODE, &CPage_Base::OnCbnSelchangeBase_Combo_Colormode)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_RESOLUTION, &CPage_Base::OnCbnSelchangeBase_Combo_Resolution)
-	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)	
+//	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_DAN, &CPage_Base::OnBase_RadioBtn_Duplex)
@@ -489,7 +491,7 @@ BOOL CPage_Base::OnInitDialog()
 
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 
-	m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
+	//m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -498,41 +500,216 @@ BOOL CPage_Base::OnInitDialog()
 
 void CPage_Base::PreView()
 {
+	UpdateData(TRUE);
+
 	SetCapValue();
 	m_pAdPage->SetCapValue();
+	m_pPaperPage->SetCapValue();
 	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
-	TW_MEMREF *data = m_pUI->PreView(); //m_pUI->Scan();
-	PBITMAPINFOHEADER BitmapInfoHeader = m_pUI->GetDIBInfoHeader();
-	
-	BITMAPINFO *bitmapinfo = NULL; //位图信息结构
-	bitmapinfo = (BITMAPINFO*)new char[sizeof(BITMAPINFOHEADER)];
-	/*把BMP位图信息头中的数据读取到位图信息结构中去.*/
-	memcpy(bitmapinfo, &BitmapInfoHeader, sizeof(BITMAPINFOHEADER));
+	BYTE *data = NULL; //图像数据
+	data = m_pUI->PreView();  
 
-	CClientDC dc(this);
-	CStatic *pstatic = (CStatic*)GetDlgItem(IDC_BASE_PREPICTURE);
-	CRect lprect;
-	pstatic->GetClientRect(lprect);
-	//StretchDIBits(pstatic->GetDC()->GetSafeHdc(), lprect.left, lprect.top, lprect.Width(), lprect.Height(), 
-		//0,0, BitmapInfoHeader->biWidth, BitmapInfoHeader->biHeight, data, bitmapinfo, DIB_RGB_COLORS, SRCCOPY);
-	
-	HBITMAP m_hPhotoBitmap = CreateDIBitmap(pstatic->GetDC()->m_hDC, BitmapInfoHeader,
-		CBM_INIT, (VOID*)data, bitmapinfo, DIB_RGB_COLORS);
-	CBitmap bmp;                            //定义位图变量
-	bmp.Attach(m_hPhotoBitmap);    
-	BITMAP bm;                                //定义一个位图结构
-	bmp.GetBitmap(&bm);        
-	CDC dcMem; 
-	dcMem.CreateCompatibleDC(GetDC());        //创建一个兼容的DC
-	CBitmap *poldBitmap=(CBitmap*)dcMem.SelectObject(bmp); //将位图选入设备环境类
-	CRect lRect;                            //定义一个区域
-	pstatic->GetClientRect(&lRect);            //获取控件的客户区域
-	lRect.NormalizeRect(); 
-	pstatic->GetDC()->StretchBlt(lRect.left, lRect.top, lRect.Width(), lRect.Height(), 
-		&dcMem, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY); //显示位图 
-	dcMem.SelectObject(&poldBitmap); //将原有的句柄选入设备环境	
+	if(data != NULL)
+	{
+		// 保存图片
+		char bmpFilePath[PATH_MAX];;	
+		GetModuleFileName(g_hinstance, bmpFilePath, PATH_MAX);
+		// strip filename from path
+		size_t x = strlen(bmpFilePath);
+		while(x > 0)
+		{
+			if(PATH_SEPERATOR == bmpFilePath[x-1])
+			{
+				bmpFilePath[x-1] = 0;
+				break;
+			}
+			--x;
+		}
+
+		SSTRCPY(bmpFilePath, sizeof(bmpFilePath), bmpFilePath);
+		strcat(bmpFilePath,  "\\");
+		strcat(bmpFilePath, "preview.bmp");
+
+		CFile file;
+		try
+		{
+			if(file.Open(bmpFilePath, CFile::modeWrite | CFile::modeCreate))
+			{
+				//写入文件
+				file.Write((LPSTR)&(m_pUI->m_bmpFileHeader), sizeof(BITMAPFILEHEADER)); // 写文件头
+				file.Write((LPSTR)&(m_pUI->m_bmpInfoHeader), sizeof(BITMAPINFOHEADER)); // 写信息头
+				if (m_pUI->m_nBpp < 16)
+				{			
+					DWORD dwColors = 0;
+					if (true == m_pUI->GetColorsUsed(m_pUI->m_nBpp, dwColors))
+					{
+						file.Write((LPSTR)(m_pUI->m_bmpLpRGB),sizeof(RGBQUAD) * dwColors); // 写调色板
+					}	
+
+					if (m_pUI->m_bmpLpRGB)
+					{
+						delete []m_pUI->m_bmpLpRGB;
+						m_pUI->m_bmpLpRGB = NULL;
+					}
+				}
+				file.Write(data, m_pUI->m_nDIBSize); // 写数据
+				file.Close();
+				if (data)
+				{
+					delete []data;
+					data = NULL;
+				}	
+			}
+		}
+		catch (...) 
+		{
+			AfxMessageBox("SaveDIB2Bmp Error!");
+		}
+
+		//显示图片
+		IplImage* img = cvLoadImage((CT2CA)bmpFilePath, 1);
+		CWnd *pWnd = GetDlgItem(IDC_BASE_PREPICTURE); 
+		CDC* pDC = pWnd->GetDC();
+		HDC hDC = pDC->GetSafeHdc();
+		CRect rect;
+		pWnd->GetClientRect(&rect);
+		SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);
+		
+		//调整长宽比例因子，使图像显示不失真
+		CRect newRect;
+		int width = img->width;
+		int height = img->height;
+
+		if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
+		{
+			newRect = CRect(rect.TopLeft(), CSize(width,height));
+		}
+		else
+		{
+			float xScale = (float)rect.Width() / (float)width;
+			float yScale = (float)rect.Height() / (float)height;
+			float scale = xScale>=yScale?yScale:xScale; 
+			newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
+		}
+
+		DrawToHDC(hDC, &newRect, img);
+		ReleaseDC(pDC);
+	}
 }
+
+//DrawToHdc系列函数
+RECT CPage_Base::NormalizeRect(RECT r)  
+{  
+	int t;  
+
+	if( r.left > r.right )  
+	{  
+		t = r.left;  
+		r.left = r.right;  
+		r.right = t;  
+	}  
+
+	if( r.top > r.bottom )  
+	{  
+		t = r.top;  
+		r.top = r.bottom;  
+		r.bottom = t;  
+	}  
+
+	return r;  
+}  
+CvRect CPage_Base::RectToCvRect(RECT sr)  
+{  
+	sr = NormalizeRect( sr );  
+	return cvRect( sr.left, sr.top, sr.right - sr.left, sr.bottom - sr.top );  
+} 
+void  CPage_Base::FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin)  
+{  
+	assert( bmi && width >= 0 && height >= 0 && (bpp == 8 || bpp == 24 || bpp == 32));  
+
+	BITMAPINFOHEADER* bmih = &(bmi->bmiHeader);  
+
+	memset(bmih, 0, sizeof(*bmih));  
+	bmih->biSize = sizeof(BITMAPINFOHEADER);  
+	bmih->biWidth = width;  
+	bmih->biHeight = origin ? abs(height) : -abs(height);  
+	bmih->biPlanes = 1;  
+	bmih->biBitCount = (unsigned short)bpp;  
+	bmih->biCompression = BI_RGB;  
+
+	if(bpp == 8)  
+	{  
+		RGBQUAD* palette = bmi->bmiColors;  
+		int i;  
+		for( i = 0; i < 256; i++ )  
+		{  
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;  
+			palette[i].rgbReserved = 0;  
+		}  
+	}  
+}  
+void  CPage_Base::Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y)  
+{  
+	if( img && img->depth == IPL_DEPTH_8U )  
+	{  
+		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
+		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
+		int bmp_w = img->width, bmp_h = img->height;  
+
+		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
+		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
+
+		from_x = MIN(MAX( from_x, 0 ), bmp_w - 1);  
+		from_y = MIN(MAX( from_y, 0 ), bmp_h - 1);  
+
+		int sw = MAX(MIN( bmp_w - from_x, w ), 0);  
+		int sh = MAX(MIN( bmp_h - from_y, h ), 0);  
+
+		SetDIBitsToDevice(  
+			dc, x, y, sw, sh, from_x, from_y, from_y, sh,  
+			img->imageData + from_y*img->widthStep,  
+			bmi, DIB_RGB_COLORS);  
+	}  
+}  
+void  CPage_Base::DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img )  
+{  
+	if(pDstRect && img && img->depth == IPL_DEPTH_8U && img->imageData )  
+	{  
+		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
+		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
+		int bmp_w = img->width, bmp_h = img->height;  
+
+		CvRect roi = cvGetImageROI(img);
+		CvRect dst = RectToCvRect(*pDstRect);  
+
+		if( roi.width == dst.width && roi.height == dst.height )  
+		{  
+			Show(img, hDCDst, dst.x, dst.y, dst.width, dst.height, roi.x, roi.y);  
+			return;  
+		}  
+
+		if(roi.width > dst.width)  
+		{  
+			SetStretchBltMode(hDCDst, // handle to device context  
+				HALFTONE );  
+		}  
+		else  
+		{  
+			SetStretchBltMode(hDCDst, // handle to device context  
+				COLORONCOLOR );  
+		}  
+
+		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
+		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
+		::StretchDIBits(
+			hDCDst,  
+			dst.x, dst.y, dst.width, dst.height,  
+			roi.x, roi.y, roi.width, roi.height,  
+			img->imageData, bmi, DIB_RGB_COLORS, SRCCOPY);  
+	}  
+}  
+
 
 void CPage_Base::InitSliderCtrl()
 {
@@ -747,61 +924,6 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Resolution()
 	
 	m_combo_resolution.SetCurSel(nIndex);
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-void CPage_Base::OnBase_Btn_Chooseimage()
-{
-	// TODO: 在此添加控件通知处理程序代码
-
-	//// 单张图片
-	//CHAR szFilePath[MAX_PATH] = {0};
-	//if (true == MyBrowseForSignalImage(szFilePath))
-	//{
-	//	m_pUI->m_pDS->SetScannerImagePath_Signal(szFilePath);
-	//	//m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,2);  
-	//}
-	
-
-	// 多张图片
-	vector<string> vector_string_imagepath;
-	vector_string_imagepath = MyBrowseForMultiImages();
-
-	unsigned int nCount = vector_string_imagepath.size();
-
-	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,nCount);	
-	m_pUI->m_pDS->SetScannerImagePath_Multi(vector_string_imagepath); // 传递多张图片路径
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//bool CPage_Base::MyBrowseForSignalImage(PTCHAR strFilePath)
-//{
-//	OPENFILENAME ofn = { 0 };
-//	TCHAR szFilename[MAX_PATH] = { 0 };  // 用于接收文件名  
-//
-//	ofn.lStructSize = sizeof(OPENFILENAME); // 结构体大小  
-//	ofn.hwndOwner = NULL;  // 拥有着窗口句柄，为NULL表示对话框是非模态的，实际应用中一般都要有这个句柄  
-//	ofn.lpstrFilter = TEXT("所有文件\0*.*\0\0");  // 设置过滤  
-//	ofn.nFilterIndex = 1;  // 过滤器索引  
-//	ofn.lpstrFile = szFilename;  // 接收返回的文件名，注意第一个字符需要为NULL  
-//	ofn.nMaxFile = sizeof(szFilename);  // 缓冲区长度  
-//	ofn.lpstrInitialDir = NULL;  // 初始目录为默认  
-//	ofn.lpstrTitle = TEXT("请选择一个图片文件");  // 使用系统默认标题留空即可  
-//	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;  // 文件、目录必须存在，
-//	if (GetOpenFileName(&ofn))  
-//	{  
-//		SSTRCPY(strFilePath,sizeof(szFilename),szFilename);
-//		//::MessageBox(NULL, strFilePath, "选择的图片文件", 0);  
-//		return true;
-//	}  
-//	else
-//	{  
-//		::MessageBox(NULL, TEXT("请选择一个图片文件"), NULL, MB_ICONERROR);  
-//		return false;
-//	}  
-//
-//}
 
 
 vector<string> CPage_Base::MyBrowseForMultiImages()

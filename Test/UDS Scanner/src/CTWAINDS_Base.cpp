@@ -61,8 +61,7 @@ CTWAINDS_Base::CTWAINDS_Base() :
   m_hImageData = 0;
   m_DocumentNumber = 0;
   m_PageNumber = 0;
-	pDIBInfoHeader = NULL;
-
+	
   return;
 }
 
@@ -782,7 +781,6 @@ bool CTWAINDS_Base::DoXferReadyEvent()
 
   if( dsState_Enabled != m_CurrentState )
   {
-		//::MessageBox(g_hwndDLG,"dsState_Enabled != m_CurrentState","UDS",MB_OK);
     setConditionCode(TWCC_SEQERROR);
     return bRC;
   }
@@ -1782,7 +1780,7 @@ TW_INT16 CTWAINDS_Base::getDIBImage(TW_MEMREF* _pImage)
   BYTE           *pSrc                = NULL;
   BYTE           *pDst                = NULL;
 	//::MessageBox(g_hwndDLG,TEXT("1!"),MB_CAPTION,MB_OK);
-  //PBITMAPINFOHEADER pDIBInfoHeader    = NULL;
+  PBITMAPINFOHEADER pDIBInfoHeader    = NULL;
 	
   /*const*/ WORD      bpp                 = m_ImageInfo.BitsPerPixel;
   /*const*/ DWORD     SrcWidth            = m_ImageInfo.ImageWidth;
@@ -2242,7 +2240,6 @@ TW_INT16 CTWAINDS_Base::transferNativeImage(TW_MEMREF* _pData)
 
   return twrc;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_Base::GetGustomDSData(pTW_CUSTOMDSDATA _pDSData)

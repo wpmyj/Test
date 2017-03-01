@@ -606,19 +606,19 @@ protected:
 
   TW_INT16          m_DSConditionCode;        /**< Current global condition. */
   TW_IDENTITY       m_MyIdentity;             /**< Detail information of our information.*/
-  TW_IDENTITY       m_App;                    /**< Detail information of the application source. */
-  DS_State          m_CurrentState;           /**< Current state of the Data Source. */
+  TW_IDENTITY       m_App;                    /**< Detail information of the application source. */  
   TW_STR255         m_CurFileExferName;       /**< Current File Transfer Name. */
   TW_STR255         m_DefFileExferName;       /**< Default File Transfer Name. */
-  TW_IMAGEINFO      m_ImageInfo;              /**< Current Image Info data. */
+  
   TW_UINT32         m_DocumentNumber;         /**< Current Document Number */
   TW_UINT32         m_PageNumber;             /**< Current Page Number */
   TW_PENDINGXFERS   m_Xfers;                  /**< Number of Transfers remianing in this batch */
   DWORD             m_nDestScanLine;          /**< Current Scanline used for memory transfer */
-  TW_HANDLE         m_hImageData;             /**< Handle to Current Image Data */
 
 public:
-	PBITMAPINFOHEADER pDIBInfoHeader; //zhu DIB头
+	TW_HANDLE         m_hImageData;             /**< Handle to Current Image Data */
+	TW_IMAGEINFO      m_ImageInfo;              /**< Current Image Info data. */
+	DS_State          m_CurrentState;           /**< Current state of the Data Source. */
 };
 
 #endif // __CTWAINBASE_H__

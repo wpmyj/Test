@@ -5,7 +5,7 @@
 #include "UDS Scanner.h"
 
 #include "src/dllmain.h"
-#include "CDUDS_Video.h"
+#include "src/CDUDS_Video.h"
 extern HINSTANCE g_hinstance;
 extern HWND g_hwndDLG;
 #ifdef _DEBUG

@@ -72,7 +72,7 @@ public:
 
 public:	
 	CListBox m_list_template;
-
+	
 public:
 	/** ∏∏¿‡÷∏’Î*/
 	CPage_Custom* m_pBasePage;

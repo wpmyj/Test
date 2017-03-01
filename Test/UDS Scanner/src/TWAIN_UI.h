@@ -119,15 +119,44 @@ public:
 
   bool ResetAllCaps();
 
-	TW_MEMREF* PreView(); //add by zhu 新增预览，返回图像数据。
-	PBITMAPINFOHEADER GetDIBInfoHeader(); //返回DIB数据头
+	
+	BYTE* PreView(); //add by zhu 新增预览，返回图像数据。
+	
+	/**
+	*  @brief  4字节对齐，不足补0
+	*  @param[in]  pIn 输入的图片数据
+	*  @param[out]  pOut 输出的图片数据 
+	*  @param[in] nWidth 图片宽，以像素为单位 
+	*  @param[in] nHeight 图片高，以像素为单位 
+	*  @param[in] nBpp 每像素占用的位数
+	*/
+	void FillZero(BYTE *pIn, BYTE* pOut, int nWidth, int nHeight,  int nBpp);
+	/**
+	*  @brief  根据BPP获取使用的颜色数
+	*  @param[in]  nBpp 每像素占用的位数 
+	*  @param[out] dwColors 使用的颜色数
+	*  @see ConstructBih()
+	*  @retval true 表示成功
+	*  @retval false 表示失败 
+	*/
+	bool GetColorsUsed(int nBpp, DWORD& dwColors);
 
+public:
   CTWAINDS_UDS *m_pDS;
   TW_USERINTERFACE m_EnableDSdata;
   bool m_bScanning;
   bool m_bSetup;
   bool m_bIndicators;
   string m_strProfilesDirectory;
+
+	//构建BMP文件信息头
+	BITMAPINFOHEADER m_bmpInfoHeader;
+	//构建BMP位图文件头
+	BITMAPFILEHEADER m_bmpFileHeader;
+	//调色板
+	LPRGBQUAD m_bmpLpRGB;
+	int m_nDIBSize; //图像buffer的大小 （字节为单位）
+	int m_nBpp; //每个像素所占的字节数
 };
 
 #endif // __TWAIN_UI_H__

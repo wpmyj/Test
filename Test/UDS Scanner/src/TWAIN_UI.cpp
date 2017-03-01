@@ -199,29 +199,196 @@ void CTWAIN_UI::Scan()
 	}
 }
 
-TW_MEMREF* CTWAIN_UI::PreView()
+bool CTWAIN_UI::GetColorsUsed(int nBpp, DWORD& dwColors)
 {
-	TW_MEMREF *pdata = NULL;
+	switch(nBpp)
+	{
+	case 1:
+		dwColors = 2;
+		break;
+	case 4:
+		dwColors = 16;
+		break;
+	case 8:
+		dwColors = 256;
+		break;
+	case 24:
+		dwColors = 0;//对于真彩色图，没用到调色板
+		break;
+	default:
+		//不处理其它的颜色数，认为出错。
+		MessageBox("Invalidcolornumbers!","ErrorMessage",
+			MB_OK|MB_ICONEXCLAMATION);
+		break;
+		return false;
+	}
+	return true;
+}
+
+void CTWAIN_UI::FillZero(BYTE* pIn, BYTE* pOut, int nWidth, int nHeight, int nBpp)
+{
+	if (NULL == pIn)
+	{
+		return;
+	}
+
+	int bytesPerRow = (nWidth * nBpp) >> 3;  // 原图每行占用的字节数
+	int widthStep = (((nWidth * nBpp) + 31) >> 5) << 2; //每行实际占用的大小（每行都被填充到一个4字节边界）
+
+	for(int y=0; y < nHeight; y++)
+	{
+		for(int x=0; x < widthStep; x++)
+		{
+			if(x >= bytesPerRow)
+			{
+				pOut[y*widthStep+x] = 0;
+				continue;
+			}
+			pOut[y*widthStep+x] = *pIn;
+			pIn ++;
+		}
+	}
+}
+
+
+BYTE* CTWAIN_UI::PreView()
+{
+	BYTE *pSourceBuff = NULL;
+	BYTE *pTemp = NULL;
+	TW_INT16 twrc = TWRC_FAILURE;
+
 	if(m_pDS->StartScanning())
 	{
-		m_bScanning = m_pDS->DoXferReadyEvent();
-		//m_pDS->saveImageFile();
-		//m_pDS->transfer();
-		if(m_pDS->transferNativeImage(pdata))
+		m_bScanning = m_pDS->DoXferReadyEvent();	
+		// Get the image that should be waiting for us.
+		twrc = m_pDS->transfer();
+		pSourceBuff = (BYTE*)_DSM_LockMemory(m_pDS->m_hImageData);
+		
+		m_nBpp = m_pDS->m_ImageInfo.BitsPerPixel;
+		int SrcWidth  = m_pDS->m_ImageInfo.ImageWidth;
+		int SrcLength = m_pDS->m_ImageInfo.ImageLength;
+
+		//构建BMP文件信息头
+		int widthStep = (((SrcWidth * m_nBpp) + 31) >> 5) << 2; //每行实际占用的大小（每行都被填充到一个4字节边界）
+		m_bmpInfoHeader.biSize = 40;       // header size
+		m_bmpInfoHeader.biWidth = SrcWidth;
+		m_bmpInfoHeader.biHeight = -SrcLength; //BMP图片从最后一个点开始扫描，显示时图片是倒着的，所以用-height，这样图片就正了
+		m_bmpInfoHeader.biPlanes = 1;
+		m_bmpInfoHeader.biBitCount = m_nBpp;     // RGB encoded, 24 bits
+		m_bmpInfoHeader.biCompression = BI_RGB;   // no compression 非压缩
+		m_bmpInfoHeader.biSizeImage = widthStep * SrcLength/**3*/;
+		m_bmpInfoHeader.biXPelsPerMeter = static_cast<LONG>(FIX32ToFloat(m_pDS->m_ImageInfo.XResolution) * 39.37F + 0.5);//像素每米;
+		m_bmpInfoHeader.biYPelsPerMeter = static_cast<LONG>(FIX32ToFloat(m_pDS->m_ImageInfo.YResolution) * 39.37F + 0.5);//像素每米;
+		m_bmpInfoHeader.biClrImportant = 0; 
+		GetColorsUsed(m_nBpp, m_bmpInfoHeader.biClrUsed);  // bpp==1?2:bpp==8?256:0;// B&W = 2,  Grey = 256,  Color = 0
+
+		//构建BMP位图文件头 
+		widthStep = (((SrcWidth * m_nBpp) + 31) >> 5) << 2; //每行实际占用的大小（每行都被填充到一个4字节边界）
+		m_bmpFileHeader.bfType = ((WORD) ('M' << 8) | 'B');  //'BM'
+		m_bmpFileHeader.bfSize = (DWORD)sizeof(BITMAPFILEHEADER)
+			+ (DWORD)sizeof(BITMAPINFOHEADER)
+			+ widthStep * SrcLength;
+		m_bmpFileHeader.bfReserved1 = 0;
+		m_bmpFileHeader.bfReserved2 = 0;
+		m_bmpFileHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER)	+ (DWORD)sizeof(BITMAPINFOHEADER);
+		
+		DWORD dwColors = 0;
+		GetColorsUsed(m_nBpp, dwColors);
+		if (m_nBpp < 16)
 		{
-			return pdata;
-		}	
+			m_bmpFileHeader.bfSize    += sizeof(RGBQUAD) * dwColors;
+			m_bmpFileHeader.bfOffBits += sizeof(RGBQUAD) * dwColors;
+		} 
+
+		//调色板
+		m_bmpLpRGB = NULL;
+		switch(m_nBpp)
+		{
+		case 1:
+			m_bmpLpRGB = new RGBQUAD[2]; //申请颜色表需要的空间
+			break;
+		case 4:
+			m_bmpLpRGB = new RGBQUAD[16]; //申请颜色表需要的空间
+			break;
+		case 8:
+			m_bmpLpRGB = new RGBQUAD[256]; //申请颜色表需要的空间
+			break;
+		default:
+			break;
+		}
+
+		dwColors = 0;
+		if(GetColorsUsed(m_nBpp, dwColors))
+		{
+			switch(m_nBpp)
+			{
+			case 1:
+				{
+					m_bmpLpRGB[0].rgbBlue=0;
+					m_bmpLpRGB[0].rgbGreen=0;
+					m_bmpLpRGB[0].rgbRed=0;
+					m_bmpLpRGB[0].rgbReserved=0;
+
+					m_bmpLpRGB[1].rgbBlue=255;
+					m_bmpLpRGB[1].rgbGreen=255;
+					m_bmpLpRGB[1].rgbRed=255;
+					m_bmpLpRGB[1].rgbReserved=0;
+				}
+				break;
+			case 4:
+				{
+					for(unsigned int i=0; i < 16; i++) //对于256个灰度等级调色板索引进行赋值
+					{
+						unsigned int nTemp  = i * 17;
+						m_bmpLpRGB[i].rgbBlue     = nTemp;
+						m_bmpLpRGB[i].rgbGreen    = nTemp;
+						m_bmpLpRGB[i].rgbRed      = nTemp;
+						m_bmpLpRGB[i].rgbReserved = 0;
+					}
+				}
+				break;
+			case 8:
+				{
+					for(unsigned int i=0; i < 256; i++) //对于256个灰度等级调色板索引进行赋值
+					{
+						m_bmpLpRGB[i].rgbBlue     = i;
+						m_bmpLpRGB[i].rgbGreen    = i;
+						m_bmpLpRGB[i].rgbRed      = i;
+						m_bmpLpRGB[i].rgbReserved = 0;				
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+
+		//补零
+		//每行实际占用的大小（每行都被填充到一个4字节边界）
+		m_nDIBSize = widthStep * SrcLength;  //buffer的大小 （字节为单位）
+
+		pTemp = new BYTE[m_nDIBSize];
+		memset(pTemp, 0, m_nDIBSize);
+		FillZero(pSourceBuff, pTemp, SrcWidth, SrcLength, m_nBpp);
+
+		m_pDS->m_CurrentState = dsState_Enabled;  //预览必须把状态设回5,否则预览后不能扫描
+		// cleanup
+		if(pSourceBuff)
+		{
+			_DSM_UnlockMemory(m_pDS->m_hImageData);
+		}
+
+		if(pTemp != NULL)
+		{
+			return pTemp;
+		}		
 	}
 	else
 	{
 		Cancel();
-	}
+	}	
 }
 
-PBITMAPINFOHEADER CTWAIN_UI::GetDIBInfoHeader()
-{
-	return m_pDS->pDIBInfoHeader;
-}
 
 void CTWAIN_UI::Cancel()
 {

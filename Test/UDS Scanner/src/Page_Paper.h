@@ -36,12 +36,18 @@ private:
 	int FindUnit(int index); ///<寻找index对应的单位,返回index对应的单位
 	void SetScroll(void); ///<根据edit的值更新滚动条的值;以及根据单位设定宽、高滚动条的范围
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-
+	void UpdatePicRectangle(int index , int unitindex); ///<根据选择的纸张对应序号，更新图片控件上的矩形区域。
+	
 private:
 	MAP_CAP m_papermap;  ///<用于保存参数改变后的值
 
+	CRectTracker m_rectTracker; ///<橡皮筋类
+	CRect m_tRect; ///<定义、保存橡皮筋框的矩形
+
 	CComboBox m_combo_standardsizes; ///<纸张大小: US Letter/US Legal/A4/A5
 	CComboBox m_combo_uints; ///<单位：英尺，像素，毫米
+	int m_standarindex; ///<存最开始纸张大小选中项的索引值
+	int m_unitindex; ///<存最开始单位选中项的索引值
 
 	CEdit m_edit_width;
 	CEdit m_edit_height;
@@ -70,6 +76,7 @@ private:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnSetActive();
 	afx_msg void OnPaint();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
 private:
 	afx_msg void OnCbnSelchangePaper_Combo_Standardsizes();

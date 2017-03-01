@@ -55,6 +55,7 @@ BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_COMPRESSVALUE, &CPage_Paper::OnEnChangeBase_Edit_Compressvalue)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_PAPER_SLIDER_COMPRESSION, &CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue)
 	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_COMPRESS, &CPage_Paper::OnCbnSelchangePaper_Combo_Compress)
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -175,7 +176,7 @@ void CPage_Paper::UpdateControls(void)
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
 	int nval = FindPaperSize(nCapIndex);
 	m_papermap[ICAP_SUPPORTEDSIZES] = (float)nval;//不能只更新容器，还要更新CAP
-
+	
 	//SetStandardsizes();
 	if(TWSS_NONE == lstCapValues->at(nCapIndex))  ///<　纸张大小：自定义。
 	{
@@ -314,6 +315,16 @@ BOOL CPage_Paper::OnInitDialog()
 	SetScroll();
 	InitSliderCtrl();
 
+	//橡皮筋类初始化
+	m_rectTracker.m_nStyle = CRectTracker::solidLine;//设置RectTracker样式,实线CRectTracker::resizeOutside|
+	m_rectTracker.m_nHandleSize = 5; //控制柄的像素大小
+
+	m_standarindex = m_combo_standardsizes.GetCurSel();
+	int nval = FindPaperSize(m_standarindex);
+	m_unitindex = m_combo_uints.GetCurSel();
+	int unitnval = FindUnit(m_unitindex);	 
+	UpdatePicRectangle(nval, unitnval); //初始画矩形
+	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -423,9 +434,7 @@ void CPage_Paper::SetScroll(void)
 
 			break;
 		}		
-	}//switch
-
-	
+	}//switch	
 }
 
 
@@ -436,6 +445,87 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Standardsizes()
 	int nval = FindPaperSize(nIndex);
 	m_papermap[ICAP_SUPPORTEDSIZES] = (float)nval;
 	m_combo_standardsizes.SetCurSel(nIndex);
+
+	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, nval); //能够直接响应
+	UpdateControls(); //更新宽、高
+
+	int unitIndex = m_combo_uints.GetCurSel();
+	int unitnval = FindUnit(unitIndex);	//寻找最开始的单位，设置回去
+	
+	UpdatePicRectangle(nval, unitnval);
+
+	nval = FindPaperSize(m_standarindex); //寻找最开始的纸张大小，设置回去
+	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, nval);
+	unitnval = FindUnit(m_unitindex); //寻找最开始的单位，设置回去
+	m_pUI->SetCapValueInt(ICAP_UNITS, unitnval);
+}
+
+
+void CPage_Paper::UpdatePicRectangle(int index, int unitindex)
+{
+	InvalidateRect(NULL);
+	UpdateWindow();
+
+	//设置当前Combo对应单位、纸张大小生效
+	m_pUI->SetCapValueInt(ICAP_UNITS, unitindex);
+	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, index);	
+
+	//纸张大小尺寸：单位不同，值不同
+  TW_FRAME frame;
+	frame = m_pUI->GetCurrentFrame();
+	float right = FIX32ToFloat(frame.Right); //A4: 8.27英寸; 1653.40像素; 21.00厘米
+	float bottom = FIX32ToFloat(frame.Bottom);
+
+	/*CString str;
+	str.Format("%0.2f", right);
+	AfxMessageBox(str);
+	str.Format("%0.2f", bottom);
+	AfxMessageBox(str);*/
+
+	//图片控件的宽、高
+	CRect picrect;
+	GetDlgItem(IDC_PAPER_PREPICTURE)->GetWindowRect(picrect);
+	float width = (float)picrect.Width(); //257
+	float height = (float)picrect.Height(); //392
+
+	CRect endrect;
+	float widthscale;
+	float heightscale;
+	//根据英寸的值，设置比例，最终得到需要画出区域的大小
+	if(unitindex == TWUN_INCHES)//英寸
+	{
+		widthscale = 100.00f * width / 900.00f;//width/900=x/(right*100)算x
+		heightscale = 100.00f * height / 1400.00f;
+	}
+	else if(unitindex == TWUN_PIXELS)//像素
+	{
+		int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
+		const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
+		int reso = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
+		float fscale = (float)reso/200.00; //200dpi对应1800 不同分辨率下，横坐标的最大值
+
+		widthscale = width / (1800.00f * fscale);//width/1800=x/right算x
+		heightscale = height / (2800.00f * fscale);
+	}
+	else if(unitindex == TWUN_CENTIMETERS)//厘米
+	{
+		widthscale = width / 27.00f;//width/27=x/right算x
+		heightscale = height / 42.00f;
+	}
+	else{}
+	endrect.right = (int)(right * widthscale);
+	endrect.bottom = (int)(bottom * heightscale);
+	
+	//画图
+	CDC *pDC = GetDlgItem(IDC_PAPER_PREPICTURE)->GetDC();
+	CPen pen(PS_SOLID, 1, RGB(255,0,0));  
+	CPen *pOldPen = pDC->SelectObject(&pen);  
+	CBrush *pOldBr = (CBrush *)pDC->SelectStockObject(NULL_BRUSH); 
+	pDC->Rectangle(0, 0, endrect.right, endrect.bottom);
+	pDC->SelectObject(pOldBr);  
+	pDC->SelectObject(pOldPen);
+
+	Invalidate(FALSE);
 }
 
 
@@ -443,12 +533,16 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Uints()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	
+	int nval = FindUnit(nIndex);	
 	m_papermap[ICAP_UNITS] = (float)nval;
 	m_combo_uints.SetCurSel(nIndex);
-	//m_pUI->SetCapValueInt(ICAP_UNITS,nval); //能够直接响应
-	//UpdateControls();
+
+	m_pUI->SetCapValueInt(ICAP_UNITS,nval); //界面能够直接响应
+	UpdateControls();
+
+	Invalidate(); //刷新标尺
+	nval = FindPaperSize(m_unitindex);
+	m_pUI->SetCapValueInt(ICAP_UNITS, nval); //设置回去
 }
 
 
@@ -844,7 +938,7 @@ BOOL CPage_Paper::OnSetActive()
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
 	return CPropertyPage::OnSetActive();
-}
+} 
 
 
 void CPage_Paper::OnPaint()
@@ -852,63 +946,182 @@ void CPage_Paper::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// TODO: 在此处添加消息处理程序代码
 	// 不为绘图消息调用 __super::OnPaint()
+	m_rectTracker.Draw(&dc); //橡皮筋类画好矩形框
+
+	//画标尺
 	//获得控件位置
 	CRect rect;
 	GetDlgItem(IDC_PAPER_PREPICTURE)->GetWindowRect(rect);
 	ScreenToClient(rect);
 
-	//指定标尺宽度
-	int width = rect.Width(); //14英寸
-	//指定起点横坐标偏移
-	CPoint beginpoint;
-	beginpoint.x = rect.left;
-	beginpoint.y = rect.top-2; //画在图片上方
-
+	CPoint beginpoint;	//指定起点横坐标偏移
+	int width = rect.Width();; //指定标尺宽度
+	int height = rect.Height();; //指定标尺长度
 	//画刻度线
 	int degree;
 	dc.SetTextAlign(TA_CENTER | TA_BOTTOM);//将刻度线数字标注在刻度线的上方
 	dc.SetBkMode(TRANSPARENT);//消除白色背景
-	//画大刻度
-	for(degree = 0; degree <= 900; degree += 100)
-	{
-		dc.MoveTo(beginpoint.x + degree*width/900, beginpoint.y-width/9/3);
-		dc.LineTo(beginpoint.x + degree*width/900, beginpoint.y);
-		CString str;
-		str.Format(_T("%d"), (degree/100));
-		dc.TextOut(beginpoint.x + degree*width/900, beginpoint.y-width/9/3, str);
-	}
-	//画小刻度
-	for(degree = 20; degree <= 900; degree += 20)  
-	{  
-		dc.MoveTo(beginpoint.x + degree*width/900, beginpoint.y - width/9/5);  
-		dc.LineTo(beginpoint.x + degree*width/900, beginpoint.y);  
-	}  
 
-	//画左侧标尺
-	//指定标尺长度
-	int height = rect.Height(); //14英寸
-	//指定起点横坐标偏移
-	beginpoint.x = rect.left-2;//画在图片左侧
-	beginpoint.y = rect.top; 
-
-	//画刻度线
-	dc.SetTextAlign(TA_CENTER | TA_LEFT);//将刻度线数字标注在刻度线的左侧
-	dc.SetBkMode(TRANSPARENT);//消除白色背景
-	//画大刻度
-	for(degree = 0; degree <= 1400; degree += 100)
+	int nIndex = m_combo_uints.GetCurSel();
+	int nval = FindUnit(nIndex);
+	if(nval == TWUN_INCHES)//英寸
 	{
-		dc.MoveTo(beginpoint.x - height/14/3, beginpoint.y + degree*height/1400);
-		dc.LineTo(beginpoint.x, beginpoint.y + degree*height/1400);
-		CString str;
-		str.Format(_T("%d"), (degree/100));
-		dc.TextOut(beginpoint.x - height/14/3-10, beginpoint.y + degree*height/1400-7, str); //使数字与线居中
+		beginpoint.x = rect.left;
+		beginpoint.y = rect.top-2; //画在图片上方
+		//画大刻度
+		for(degree = 0; degree <= 900; degree += 100)
+		{
+			dc.MoveTo(beginpoint.x + degree*width/900, beginpoint.y-width/9/3);
+			dc.LineTo(beginpoint.x + degree*width/900, beginpoint.y);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			dc.TextOut(beginpoint.x + degree*width/900, beginpoint.y-width/9/3, str);
+		}
+		//画小刻度
+		for(degree = 20; degree <= 900; degree += 20)  
+		{  
+			dc.MoveTo(beginpoint.x + degree*width/900, beginpoint.y - width/9/5);  
+			dc.LineTo(beginpoint.x + degree*width/900, beginpoint.y);  
+		}  
+
+		//画左侧标尺
+		//指定起点横坐标偏移
+		beginpoint.x = rect.left-2;//画在图片左侧
+		beginpoint.y = rect.top; 
+		//画刻度线
+		dc.SetTextAlign(TA_CENTER | TA_LEFT);//将刻度线数字标注在刻度线的左侧
+		dc.SetBkMode(TRANSPARENT);//消除白色背景
+		//画大刻度
+		for(degree = 0; degree <= 1400; degree += 100)
+		{
+			dc.MoveTo(beginpoint.x - height/14/3, beginpoint.y + degree*height/1400);
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/1400);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			dc.TextOut(beginpoint.x - height/14/3-10, beginpoint.y + degree*height/1400-7, str); //使数字与线居中
+		}
+		//画小刻度
+		for(degree = 20; degree <= 1400; degree += 20)  
+		{  
+			dc.MoveTo(beginpoint.x - height/14/5, beginpoint.y + degree*height/1400);  
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/1400);  
+		} 
 	}
-	//画小刻度
-	for(degree = 20; degree <= 1400; degree += 20)  
-	{  
-		dc.MoveTo(beginpoint.x - height/14/5, beginpoint.y + degree*height/1400);  
-		dc.LineTo(beginpoint.x, beginpoint.y + degree*height/1400);  
-	}  
+	else if(nval == TWUN_PIXELS)//像素
+	{
+		int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
+		const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
+		int reso = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
+		float fscale = (float)reso/200.00; //200dpi对应1800
+		int xmax = (int)(1800.00 * fscale);//不同分辨率下，横坐标的最大值
+		int ymax = (int)(2800.00 * fscale);//不同分辨率下，纵坐标的最大值
+		/*CString str;
+		str.Format("%d",xreso);
+		AfxMessageBox(str);
+		str.Format("%d",yreso);
+		AfxMessageBox(str);
+*/
+		int xpos = 0;
+		beginpoint.x = rect.left;
+		beginpoint.y = rect.top-2; //画在图片上方
+
+		int xMax = xmax * 100;
+		int yMax = ymax * 100;
+		int step = (int)(fscale * 20000.00f);
+		//画大刻度
+		for(degree = 0; degree <= xMax; degree += step)
+		{
+			dc.MoveTo(beginpoint.x + degree*width/xMax, beginpoint.y-width/9/3);
+			dc.LineTo(beginpoint.x + degree*width/xMax, beginpoint.y);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			
+			if(degree <= (int)(40000 * fscale))
+			{
+				dc.TextOut(beginpoint.x + degree*width/xMax - 3, beginpoint.y-width/9/3, str);
+			}
+			else
+			{
+				xpos += 1;
+				dc.TextOut(beginpoint.x + degree*width/xMax + xpos - 2, beginpoint.y-width/9/3, str);
+			}
+		}
+		//画小刻度
+		for(degree = step/5; degree <= xMax; degree += step/5)  
+		{  
+			dc.MoveTo(beginpoint.x + degree*width/xMax, beginpoint.y - width/9/5);  
+			dc.LineTo(beginpoint.x + degree*width/xMax, beginpoint.y);  
+		}  
+
+		//画左侧标尺
+		//指定起点横坐标偏移
+		beginpoint.x = rect.left-2;//画在图片左侧
+		beginpoint.y = rect.top; 
+
+		//画刻度线
+		dc.SetTextAlign(TA_CENTER | TA_LEFT);//将刻度线数字标注在刻度线的左侧
+		dc.SetBkMode(TRANSPARENT);//消除白色背景
+		//画大刻度
+		for(degree = 0; degree <= yMax; degree += step)
+		{
+			dc.MoveTo(beginpoint.x - height/14/3, beginpoint.y + degree*height/yMax);
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/yMax);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			dc.TextOut(beginpoint.x - height/14/3-17, beginpoint.y + degree*height/yMax-7, str); //使数字与线居中
+		}
+		//画小刻度
+		for(degree = step/5; degree <= yMax; degree += step/5)  
+		{  
+			dc.MoveTo(beginpoint.x - height/14/5, beginpoint.y + degree*height/yMax);  
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/yMax);  
+		} 
+	}
+	else if(nval == TWUN_CENTIMETERS)//厘米
+	{
+		beginpoint.x = rect.left;
+		beginpoint.y = rect.top-2; //画在图片上方
+		//画大刻度
+		for(degree = 0; degree <= 2700; degree += 300)
+		{
+			dc.MoveTo(beginpoint.x + degree*width/2700, beginpoint.y-width/9/3);
+			dc.LineTo(beginpoint.x + degree*width/2700, beginpoint.y);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			dc.TextOut(beginpoint.x + degree*width/2700, beginpoint.y-width/9/3, str);
+		}
+		//画小刻度
+		for(degree = 60; degree <= 2700; degree += 60)  
+		{  
+			dc.MoveTo(beginpoint.x + degree*width/2700, beginpoint.y - width/9/5);  
+			dc.LineTo(beginpoint.x + degree*width/2700, beginpoint.y);  
+		}  
+
+		//画左侧标尺
+		//指定起点横坐标偏移
+		beginpoint.x = rect.left-2;//画在图片左侧
+		beginpoint.y = rect.top; 
+		//画刻度线
+		dc.SetTextAlign(TA_CENTER | TA_LEFT);//将刻度线数字标注在刻度线的左侧
+		dc.SetBkMode(TRANSPARENT);//消除白色背景
+
+		//画大刻度
+		for(degree = 0; degree <= 4200; degree += 300)
+		{
+			dc.MoveTo(beginpoint.x - height/14/3, beginpoint.y + degree*height/4200);
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/4200);
+			CString str;
+			str.Format(_T("%d"), (degree/100));
+			dc.TextOut(beginpoint.x - height/14/3-10, beginpoint.y + degree*height/4200-7, str); //使数字与线居中
+		}
+		//画小刻度
+		for(degree = 60; degree <= 4200; degree += 60)  
+		{  
+			dc.MoveTo(beginpoint.x - height/14/5, beginpoint.y + degree*height/4200);  
+			dc.LineTo(beginpoint.x, beginpoint.y + degree*height/4200);  
+		} 
+	}
+	else{}
 }
 
 
@@ -973,4 +1186,67 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Compress()
 	m_papermap[ICAP_COMPRESSION] = nval;
 
 	m_combo_compress.SetCurSel(nIndex);
+}
+
+
+void CPage_Paper::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CRect rect;
+	GetDlgItem(IDC_PAPER_PREPICTURE)->GetWindowRect(&rect);//获取窗体中控件的区域
+	ScreenToClient(&rect); //转换为相对区域CRect
+
+	//判断是否在图片框内，不处理不在图片框内的点击
+	if (point.x < rect.left || point.x > rect.right || point.y < rect.top || point.y > rect.bottom)
+		return;
+
+	if(point.x > rect.left && point.y > rect.top)
+	{
+		if(m_rectTracker.HitTest(point) < 0) //如果未集中矩形选择框，则重新画选择框
+		{
+			m_rectTracker.TrackRubberBand(this, point, TRUE); //TRUE表示可以往任意方向画虚线框，若为FALSE，只能往右下画虚线框
+			m_rectTracker.m_rect.NormalizeRect(); //正规化矩形
+			m_tRect = m_rectTracker.m_rect;   //得到画好的橡皮筋框
+			m_rectTracker.m_rect.SetRect(m_tRect.left,m_tRect.top,m_tRect.right,m_tRect.bottom); //画出调整好的矩形框
+		}
+		else //如果击中矩形选择框
+		{
+			m_rectTracker.SetCursor(this, nFlags); //改变鼠标的形状
+			
+			m_rectTracker.Track(this, point, TRUE);
+			m_rectTracker.m_rect.NormalizeRect(); //正规化矩形
+
+			m_tRect = m_rectTracker.m_rect; //得到画好的橡皮筋框
+
+			//调整矩形框的位置
+			if(m_tRect.top < rect.top)
+			{//超出图片框顶部的位置
+				m_tRect.bottom = rect.top - m_tRect.top + m_tRect.bottom;
+				m_tRect.top = rect.top;
+			}
+			if(m_tRect.bottom > rect.bottom)
+			{//超出底部的位置
+				m_tRect.top = rect.bottom - m_tRect.bottom + m_tRect.top;
+				m_tRect.bottom = rect.bottom;
+			}
+			if (m_tRect.right > rect.right)
+			{//超出右边
+				m_tRect.left = rect.right - m_tRect.right + m_tRect.left;
+				m_tRect.right = rect.right;
+			}
+			if (m_tRect.left < rect.left)
+			{//超出左边
+				m_tRect.right= rect.left - m_tRect.left + m_tRect.right;
+				m_tRect.left = rect.left;
+			}
+			m_rectTracker.m_rect.SetRect(m_tRect.left, m_tRect.top, m_tRect.right, m_tRect.bottom);
+		}
+		Invalidate(); //刷新窗口区域，是的CRectTracker对象重绘到窗口上 
+
+		/*CPaintDC dc(this);
+		CPen pen;
+		pen.CreatePen(PS_SOLID,1,RGB(255,0,0));
+		Draw(&dc,&pen);*/
+	}
+	__super::OnLButtonDown(nFlags, point);
 }

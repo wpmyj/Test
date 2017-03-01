@@ -399,10 +399,23 @@ bool CScanner_OpenCV::preScanPrep()
 	{	
 		if(m_nPixelType != TWPT_BW)
 		{
-			Mat matSharpen;	
-			Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
+			Mat matSharpen;
+			/*Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
+			convertScaleAbs( matSharpen, matSharpen );
 			matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
-			matSharpen.copyTo(m_mat_image);
+			matSharpen.copyTo(m_mat_image);*/
+			m_mat_image.copyTo(matSharpen);
+			GaussianBlur(matSharpen, matSharpen, Size(3,3), 0, 0, BORDER_DEFAULT);
+			Mat grad_x, grad_y;
+			Mat abs_grad_x, abs_grad_y;	
+			Sobel(matSharpen, grad_x, index, 1, 0, 3, 1, 0, BORDER_DEFAULT); //分别计算x方向和y方向的导数，index为图像的深度
+			Sobel(matSharpen, grad_y, index, 0, 1, 3, 1, 0, BORDER_DEFAULT);		
+			convertScaleAbs(grad_x, abs_grad_x); //将其转成CV_8U 
+			convertScaleAbs(grad_y, abs_grad_y);
+			Mat grad;
+			addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad); //用两个方向的倒数去模拟梯度 
+			grad = matSharpen + grad;
+			grad.copyTo(m_mat_image);
 		}	
 	}
 
@@ -1371,7 +1384,7 @@ void CScanner_OpenCV::MedianSmooth(const Mat &src) //中值滤波
 	IplImage in = IplImage(src); /*Mat -> IplImage*/
 	IplImage *out = cvCreateImage(cvGetSize(&in),IPL_DEPTH_8U,in.nChannels); 
 
-	cvSmooth(&in,out,CV_MEDIAN,3,in.nChannels);  //  中值滤波 medianBlur(src,dst,3);
+	cvSmooth(&in, out, CV_MEDIAN, 3, in.nChannels);  //  中值滤波 medianBlur(src,dst,3);
 	m_mat_image = out; //IplImage -> Mat
 }
 
