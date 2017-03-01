@@ -148,7 +148,13 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcp100.dll" "c:\windows\twain_3
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcr100.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Camera1.WAV" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS.INI" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\cximage.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\cximage.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\pdflib.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SoftekBarcode.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\tbb.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoDevice.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoOperate.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
