@@ -291,6 +291,11 @@ BOOL CPage_Advanced::OnInitDialog()
 	SetBlank();
 	SetSpiltimage();
 
+	//暂时隐藏多份拆分
+	GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_EDIT_SPILT)->ShowWindow(FALSE);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }

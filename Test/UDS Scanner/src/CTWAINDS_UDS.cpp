@@ -754,7 +754,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !pnCap->Add(TWSI_NONE, true)  
 		|| !pnCap->Add(TWSI_HORIZONTAL)
 		|| !pnCap->Add(TWSI_VERTICAL)
-		|| !pnCap->Add(TWSI_DEFINED) )  
+		//|| !pnCap->Add(TWSI_DEFINED)  ÔÝÊ±Òþ²Ø
+		)  
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SPLITIMAGE !"),MB_CAPTION,MB_OK);
 		//cerr<<"Could not create UDSCAP_SPLITIMAGE"<<endl;

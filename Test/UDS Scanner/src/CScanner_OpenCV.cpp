@@ -400,14 +400,17 @@ bool CScanner_OpenCV::preScanPrep()
 		if(m_nPixelType != TWPT_BW)
 		{
 			Mat matSharpen;
-			/*Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
+			/* //拉普拉斯锐化
+			Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
 			convertScaleAbs( matSharpen, matSharpen );
-			matSharpen = m_mat_image + matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
+			matSharpen = m_mat_image - matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
 			matSharpen.copyTo(m_mat_image);*/
+			/*//sobel锐化
 			m_mat_image.copyTo(matSharpen);
 			GaussianBlur(matSharpen, matSharpen, Size(3,3), 0, 0, BORDER_DEFAULT);
 			Mat grad_x, grad_y;
 			Mat abs_grad_x, abs_grad_y;	
+			//Sobel参数为：源图像，结果图像，图像深度，x方向阶数，y方向阶数，核的大小，尺度因子，增加的值
 			Sobel(matSharpen, grad_x, index, 1, 0, 3, 1, 0, BORDER_DEFAULT); //分别计算x方向和y方向的导数，index为图像的深度
 			Sobel(matSharpen, grad_y, index, 0, 1, 3, 1, 0, BORDER_DEFAULT);		
 			convertScaleAbs(grad_x, abs_grad_x); //将其转成CV_8U 
@@ -415,7 +418,19 @@ bool CScanner_OpenCV::preScanPrep()
 			Mat grad;
 			addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad); //用两个方向的倒数去模拟梯度 
 			grad = matSharpen + grad;
-			grad.copyTo(m_mat_image);
+			grad.copyTo(m_mat_image);*/
+
+			//USM 锐化
+			float amount = 1;  
+			m_mat_image.copyTo(matSharpen);
+			Mat imgblur;
+			Mat imgdst;
+			Mat lowContrastMask;
+			GaussianBlur(matSharpen, imgblur, Size(), 3, 3);  
+			lowContrastMask = abs(matSharpen - imgblur)<0;  
+			imgdst  = matSharpen*(1+amount) + imgblur*(-amount);  
+			matSharpen.copyTo(imgdst, lowContrastMask); 
+			imgdst.copyTo(m_mat_image);
 		}	
 	}
 
