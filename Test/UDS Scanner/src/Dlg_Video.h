@@ -16,8 +16,8 @@
 /** INI文件中的Camera配置 */
 struct INI_VIDEO
 {
-	int  DpiIndex;            /**< DPI编号 */
-	int  PixelType;           /**< 颜色编号 */
+	//int  DpiIndex;            /**< DPI编号 */
+	//int  PixelType;           /**< 颜色编号 */
 	bool AutoCrop;            /**< 是否自动裁切 */ 
 	bool ShowInfo;            /**< 是否显示视频信息 */
 	bool playSound;           /**< 是否播放声音 */
@@ -51,8 +51,8 @@ private:
 	int m_nFileType;          ///< 保存图片类型：0-jpg 1-bmp 2-png 3-tif
 	int m_nPixelType;         ///< 图像类型： 0-彩色 1-灰度 2-黑白
 	int m_nFileCount;         ///< 已拍照片数量
-	//int m_nDPI;               ///< DPI
-	int m_nDPIIndex;          ///< DPI编号
+	int m_nDPI;               ///< DPI
+	//int m_nDPIIndex;          ///< DPI编号
 	bool m_bInitialend;       ///< 是否初始化成功
 	bool m_bIsDPI;            ///< 是否显示DPI（否则为分辨率）
 	bool m_bAutoCrop;         ///< 是否自动裁切

@@ -1450,6 +1450,10 @@ TW_INT16 CTWAINDS_UDS::closeDS()
     return TWRC_FAILURE;
   }
   memset(&m_App, 0, sizeof(m_App));
+
+	// 释放最后一张纸占用内存
+	m_pScanner->Release();
+
   return TWRC_SUCCESS;
 }
 

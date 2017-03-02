@@ -135,6 +135,7 @@ public:
 	char* GetINIPath(){return m_szIniPath;};
 
 
+	void Release();
 protected:
   /**
   * Return the number of documents sitting in the feeder.

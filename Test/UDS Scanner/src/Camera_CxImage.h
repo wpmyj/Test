@@ -62,6 +62,7 @@ public:
   */
   void setSetting(CDevice_Base settings);
 
+	void Release();
 protected:
 	/**
 	*  @brief  获取图片数据.

@@ -26,7 +26,7 @@ CDlg_Video::CDlg_Video(MFC_UI *pUI,CWnd* pParent /*= NULL*/)
 	, m_nPixelType(0)
 	, m_strTempPath(TEXT("C:\\test"))
 	, m_bIsDPI(true)
-  , m_nDPIIndex(0)
+  //, m_nDPIIndex(0)
 	, m_bAutoCrop(false)
 	, m_bShowInfo(false)
 	, m_bPlaySound(false)
@@ -180,7 +180,7 @@ BOOL CDlg_Video::OcxInit()
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
 	m_CombColor.ResetContent();
-	//nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
 	lstCapValues = m_pUI->GetValidCap(ICAP_PIXELTYPE);
 	for(unsigned int i=0; i<lstCapValues->size();i++)
 	{
@@ -199,7 +199,7 @@ BOOL CDlg_Video::OcxInit()
 			continue;
 		}
 	}
-	//m_nPixelType = 2 - nCapIndex;
+	m_nPixelType = 2 - nCapIndex;
 	m_CombColor.SetCurSel(2 - m_nPixelType); // 0-黑白 1-灰度 2-彩色（与TWAIN相同）
 	m_ocx.SetColorMode(m_nPixelType);    // 0-彩色 1-灰度 2-黑白
 
@@ -294,10 +294,10 @@ void CDlg_Video::OnCbnSelchangeCombo_Reso()
 	int idx = m_CombReso.GetCurSel();
 	if (true == m_bIsDPI)
 	{
-		m_nDPIIndex = idx;
-		//CString strCBText; 
-		//m_CombReso.GetLBText(idx, strCBText);
-		//m_nDPI = _ttoi(strCBText);  // CString 转 int
+		//m_nDPIIndex = idx;
+		CString strCBText; 
+		m_CombReso.GetLBText(idx, strCBText);
+		m_nDPI = _ttoi(strCBText);  // CString 转 int
 	} 
 	else
 	{	
@@ -709,13 +709,16 @@ void CDlg_Video::SetCapValue(void)
 {
 	m_pUI->SetCapValueFloat(UDSCAP_DOCS_IN_ADF, (float)m_nFileCount);  // 设置待传图片数量
 	m_pUI->SetCapValueInt(ICAP_PIXELTYPE, (2 - m_nPixelType));  // 设置图片类型 
+	m_pUI->SetCapValueInt(ICAP_XRESOLUTION, m_nDPI);  // 设置水平方向DPI
+	m_pUI->SetCapValueInt(ICAP_YRESOLUTION, m_nDPI);  // 设置垂直方向DPI
 
-	CString strCBText; 
-	m_CombReso.GetLBText(m_nDPIIndex, strCBText);
-	int nDPI = _ttoi(strCBText);  // CString 转 int
+	//CString strCBText; 
+	//m_CombReso.GetLBText(m_nDPIIndex, strCBText);
+	//int nDPI = _ttoi(strCBText);  // CString 转 int
+	//m_pUI->SetCapValueInt(ICAP_XRESOLUTION, nDPI);  // 设置水平方向DPI
+	//m_pUI->SetCapValueInt(ICAP_YRESOLUTION, nDPI);  // 设置垂直方向DPI
 
-	m_pUI->SetCapValueInt(ICAP_XRESOLUTION, nDPI);  // 设置水平方向DPI
-	m_pUI->SetCapValueInt(ICAP_YRESOLUTION, nDPI);  // 设置垂直方向DPI
+
 }
 
 
@@ -780,7 +783,7 @@ void CDlg_Video::SwitchToDPIorRes(bool bisDPI)
 		const FloatVector* lstCapValuesFlt;
 		// 分辨率
 		m_CombReso.ResetContent();
-		//nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
+		nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
 		lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
 		for(unsigned int i=0; i<lstCapValuesFlt->size();i++)
 		{
@@ -788,11 +791,12 @@ void CDlg_Video::SwitchToDPIorRes(bool bisDPI)
 			strTemp.Format(TEXT("%d"), (int)lstCapValuesFlt->at(i));
 			m_CombReso.InsertString(i,strTemp);
 		}
-		m_CombReso.SetCurSel(m_nDPIIndex);
-		//m_nDPIIndex = nCapIndex; 
-		//CString strCBText; 
-		//m_CombReso.GetLBText(nCapIndex, strCBText);
-		//m_nDPI = _ttoi(strCBText);  // CString 转 int
+		m_CombReso.SetCurSel(nCapIndex);
+		//m_CombReso.SetCurSel(m_nDPIIndex);
+
+		CString strCBText; 
+		m_CombReso.GetLBText(nCapIndex, strCBText);
+		m_nDPI = _ttoi(strCBText);  // CString 转 int
 	}
 }
 
@@ -806,8 +810,8 @@ void CDlg_Video::ReadSetting()
 	INI_VIDEO tempINI;
 
 	//int
-	tempINI.DpiIndex     = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPIINDEX,    0, szINIPath);
-	tempINI.PixelType    = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_PIXELTYPE,  0, szINIPath);
+	//tempINI.DpiIndex     = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_DPIINDEX,    0, szINIPath);
+	//tempINI.PixelType    = GetPrivateProfileInt(INI_APP_CAMERASETTING, INI_KEY_PIXELTYPE,  0, szINIPath);
 
 	CString strTemp;
 	int nMaxLength = 512;
@@ -842,8 +846,8 @@ void CDlg_Video::ReadSetting()
  
 	//m_nDevIndex  = tempINI.CameraIndex;
 	m_sCameraName = strTemp;
-	m_nDPIIndex  = tempINI.DpiIndex;
-	m_nPixelType = tempINI.PixelType;
+	//m_nDPIIndex  = tempINI.DpiIndex;
+	//m_nPixelType = tempINI.PixelType;
 	m_bAutoCrop  = tempINI.AutoCrop;
 	m_bShowInfo  = tempINI.ShowInfo;
 	m_bPlaySound = tempINI.playSound;
@@ -866,11 +870,11 @@ void CDlg_Video::WriteSetting()
 	//strTemp.Format(TEXT("%d"), m_nDevIndex);
 	//WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERAINDEX,strTemp,szINIPath);
 
-	strTemp.Format(TEXT("%d"), m_nDPIIndex);
-	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_DPIINDEX,strTemp,szINIPath);
+	//strTemp.Format(TEXT("%d"), m_nDPIIndex);
+	//WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_DPIINDEX,strTemp,szINIPath);
 
-	strTemp.Format(TEXT("%d"), m_nPixelType);
-	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_PIXELTYPE,strTemp,szINIPath);
+	//strTemp.Format(TEXT("%d"), m_nPixelType);
+	//WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_PIXELTYPE,strTemp,szINIPath);
 
 	//bool->CString
 	if (m_bAutoCrop) {

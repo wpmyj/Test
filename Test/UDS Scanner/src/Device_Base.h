@@ -103,6 +103,12 @@ public:
 	*/
 	virtual void GetImageData(BYTE *buffer, DWORD &dwReceived) {}
 
+	/**
+	*  @brief  用于释放最后一张纸占用的内存
+  *  @see CTWAINDS_UDS::CloseDs 
+	*/
+	virtual void Release(){};
+
 public:
 	WORD              m_nPaperSource;           /**< the current paper source ADF or Flatbed*/
 	bool              m_bDuplex;                /**< True to use duplex false for simplex, ignored if flatbed*/

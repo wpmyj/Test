@@ -14,36 +14,26 @@ extern HWND g_hwndDLG;
 //extern 	std::vector<std::string> g_vector_imagepath;
 //DWORD  g_dwImageSize;     // 全局变量，用于保存图片大小
 std::vector<std::string> g_vector_imagepath;
-CCamera_CxImage::CCamera_CxImage(void) :
-	m_nDocCount(0),
-	m_nSourceWidth(0),
-	m_nSourceHeight(0),
-	m_nImageNumber(0),
-	m_nScanLine(0),
-	m_nDestBytesPerRow(0),
-	m_pCxImage(NULL)
+CCamera_CxImage::CCamera_CxImage(void) 
+	: m_nDocCount(0)
+	, m_nSourceWidth(0)
+	, m_nSourceHeight(0)
+	, m_nImageNumber(0)
+	, m_nScanLine(0)
+	, m_nDestBytesPerRow(0)
+	, m_pCxImage(NULL)
 {
-	// set default ca
+	// set default cap value
 	resetScanner();
 }
 
 
 CCamera_CxImage::~CCamera_CxImage(void)
 {
-	//if (m_pImageBuffer)
-	//{
-	//	delete [] m_pImageBuffer;
-	//	m_pImageBuffer = NULL;
-	//}
-	//
-	//if (false == m_mat_image.empty())
-	//{
-	//	m_mat_image.release();
-	//}
-
-
-	if (!m_pCxImage)
+	//::MessageBox(g_hwndDLG,TEXT("IN ~CCamera_CxImage()!"),MB_CAPTION,MB_OK);
+	if (m_pCxImage)
 	{
+		m_pCxImage->Destroy();
 		::delete m_pCxImage;
 		m_pCxImage = NULL;
 	}
@@ -52,6 +42,7 @@ CCamera_CxImage::~CCamera_CxImage(void)
 
 bool CCamera_CxImage::resetScanner()
 {
+	//::MessageBox(g_hwndDLG,TEXT("IN resetScanner()!"),MB_CAPTION,MB_OK);
 	// Unlock the scanner 
 	Unlock();
 
@@ -95,11 +86,7 @@ bool CCamera_CxImage::resetScanner()
 	m_bAutoCrop           = TWAC_DISABLE;
 	m_nImageNumber = 0;
 
-	if (!m_pCxImage)
-	{
-		::delete m_pCxImage;
-		m_pCxImage = NULL;
-	}
+	m_pCxImage = NULL;
 
 	return true;
 }
@@ -162,25 +149,12 @@ short CCamera_CxImage::getDocumentCount() const
 
 bool CCamera_CxImage::acquireImage()
 {
-	//string filename = g_vecCust_ImageInfo[m_nImageNumber].imagePath;
-	//
-	//::MessageBox(g_hwndDLG,TEXT(filename.c_str()),MB_CAPTION,MB_OK);
-	//m_mat_image = cv::imread(filename);
-	//if(true == m_mat_image.empty())
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("ds: Failed - could not acquire image!"),MB_CAPTION,MB_OK);
-	//	//cout << "ds: Failed - could not acquire image" << endl;
-	//	return false ;
-	//}
-
 	//::MessageBox(g_hwndDLG,TEXT("acquireImage!"),MB_CAPTION,MB_OK);
-	//m_pCxImage->Destroy();//FreeMemory
-	if (!m_pCxImage)
+	if (m_pCxImage)
 	{
-		//m_pCxImage->Destroy();
-		delete m_pCxImage;
+		m_pCxImage->Destroy();
+		::delete m_pCxImage;
 		m_pCxImage = NULL;
-		//::MessageBox(g_hwndDLG,TEXT("delete m_pCxImage!"),MB_CAPTION,MB_OK);
 	}
 	
 	m_pCxImage = new CxImage();
@@ -320,5 +294,16 @@ bool CCamera_CxImage::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &d
 	}
 
 	return true;
+}
+
+void CCamera_CxImage::Release()
+{
+	//::MessageBox(g_hwndDLG,TEXT("IN CCamera_CxImage::Release()!"),MB_CAPTION,MB_OK);
+	if (m_pCxImage)
+	{
+		m_pCxImage->Destroy();
+		::delete m_pCxImage;
+		m_pCxImage = NULL;
+	}
 }
 

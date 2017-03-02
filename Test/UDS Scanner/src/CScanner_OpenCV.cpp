@@ -142,6 +142,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_nCompress           = TRUE;
 	m_fCompressValue      = 0.0;
 
+	m_byte_image = NULL;
 	if (false == m_mat_image.empty())
 	{
 		m_mat_image.release();
@@ -166,9 +167,10 @@ bool CScanner_OpenCV::acquireImage()
 	{
 		m_mat_image.release();
 	}
-	if(m_byte_image != NULL)
+	if(m_byte_image)
 	{
 		free(m_byte_image);
+		m_byte_image = NULL;
 	}	
 	
 	if(m_bMultiStream)
@@ -266,11 +268,14 @@ bool CScanner_OpenCV::preScanPrep()
 	m_nSourceHeight  = img.height;
 	WORD res = 0;
 
-	CxImage *pImage = new CxImage();
-	pImage->Load(m_szSourceImagePath);
-	long lXDPI = pImage->GetXDPI(); //获得图像x轴分辨率
-	long lYDPI = pImage->GetYDPI();
-	::delete pImage;
+	//CxImage *pImage = new CxImage();
+	//pImage->Load(m_szSourceImagePath);
+	//long lXDPI = pImage->GetXDPI(); //获得图像x轴分辨率
+	//long lYDPI = pImage->GetYDPI();
+	//::delete pImage;
+
+	long lXDPI = 200; //获得图像x轴分辨率
+	long lYDPI = 200;
 
 	double dFx = (double)m_fXResolution/lXDPI;
 	double dFy = (double)m_fYResolution/lYDPI;
@@ -1584,5 +1589,15 @@ void CScanner_OpenCV::ChangeImage(const TCHAR* imageName)
 	SSTRCPY(m_szSourceImagePath, sizeof(szTWAIN_DS_DIR), szTWAIN_DS_DIR);
 	strcat(m_szSourceImagePath,  "\\");
 	strcat(m_szSourceImagePath, imageName);
+}
+
+void CScanner_OpenCV::Release()
+{
+	m_mat_image.release();
+	if(m_byte_image)
+	{
+		free(m_byte_image);
+		m_byte_image = NULL;
+	}	
 }
 
