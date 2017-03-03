@@ -519,6 +519,13 @@ bool CScanner_OpenCV::preScanPrep()
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect();//先自动校正	
+
+		//int width = matAutoCrop.cols;
+		//int height = matAutoCrop.rows;
+		//Mat img;
+		//resize(matAutoCrop, img, Size(width*width/height, width), 0, 0, 3); //等比例缩放
+		//imwrite("C:\\Users\\Administrator\\Desktop\\a.jpg", img);
+
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		
@@ -1036,7 +1043,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 {
 	ChangeImage(IMAGENAME_AUTOCORRECT);
 	Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	
+
 	Point center(img.cols/2, img.rows/2);
 
 #ifdef DEGREE
@@ -1247,38 +1254,55 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	if(src_img_ipl.nChannels == 3)
 	{
 		//【3】转为灰度图，进行图像平滑  
-		cvtColor(src_img,midImage, CV_BGR2GRAY); 
-		GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 ); 
+		cvtColor(src_img, midImage, CV_BGR2GRAY); 
+		GaussianBlur(midImage, midImage, Size(9, 9), 2, 2 ); 
 	}
 	else
 	{
 		midImage = src_img; //不变为灰度图
+		GaussianBlur(midImage, midImage, Size(9, 9), 2, 2 ); 	
 	}
 	
 	//【4】进行霍夫圆变换  
-	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆
+	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆;圆心横坐标，圆心纵坐标和圆半径
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
 	minDist = midImage.rows/15;
-	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100 
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 
 
 	//【5】依次在图中绘制出圆  
-	for( size_t i = 0; i < circles.size(); i++ )  
-	{  
-		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));  
+	for(size_t i = 0; i < circles.size(); i++)  
+	{ 
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1])); 
 		int radius = cvRound(circles[i][2]);  
-		int temp = 1;
-		scalar = cvGet2D(&src_img_ipl, center.y+radius, center.x+radius); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
-		
+	
+		int tempcentery = center.y+radius;
+		int tempcenterx = center.x+radius;
+		if(tempcentery >= midImage.rows)
+		{
+			tempcentery = midImage.rows-1; //防止cvGet2D崩溃
+		}
+		if(tempcenterx >= midImage.cols)
+		{
+			tempcenterx = midImage.cols-1;
+		}
+		/*
+		char buf[60];
+		itoa(tempcenterx, buf, 10);
+		::MessageBox(g_hwndDLG, TEXT(buf),"tempcenterx",MB_OK);
+		itoa(tempcentery, buf, 10);
+		::MessageBox(g_hwndDLG, TEXT(buf),"tempcentery",MB_OK);*/
+
+		scalar = cvGet2D(&src_img_ipl, tempcentery, tempcenterx); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
 		if(radius < threshold2) //新增，半径小于阈值2时才填充
 		{
-			circle( src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
+			circle(src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
 		}
 		else //大于时，只画圆
 		{
 			//绘制圆心
 			//circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 ); //-1表示填充，为正数表示线条粗细
 			//绘制圆轮廓 
-			//circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
+			//circle(src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
 		}
 	}  
 	
@@ -1289,6 +1313,7 @@ Mat CScanner_OpenCV::RemovePunch(double threshold1, double threshold2)
 {
 	ChangeImage(IMAGENAME_REMOVEPUNCH);
 	Mat src_img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
+	
 	vector<Rect> rects;
 	Rect rectTemp(0, 0, 3*src_img.cols/30, 3*src_img.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
 	rects.push_back(Rect(0, 0, src_img.cols, rectTemp.height)); //上侧
