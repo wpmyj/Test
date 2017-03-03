@@ -1,4 +1,4 @@
-
+Ôªø
 /**
 * @file CTWAINDS_FreeImage.cpp
 * The main Data Source class.
@@ -25,7 +25,7 @@
 #include "public.h"
 
 extern HWND g_hwndDLG;
-extern int g_nDeviceNumber;  // …Ë±∏±‡∫≈
+extern int g_nDeviceNumber;  // ËÆæÂ§áÁºñÂè∑
 extern DWORD  g_dwImageSize; 
 // I found that compiling using the sunfreeware.com stuff on Solaris 9
 // required this typedef. This is related to the inclusion of signal.h
@@ -39,7 +39,7 @@ typedef union {
 using namespace std;
 
 
-// ÷–Œƒ∞Êidentity∂®“Â
+// ‰∏≠ÊñáÁâàidentityÂÆö‰πâ
 TW_IDENTITY g_myIdentity_Chinese =
 {
 	0,                       // TW_UINT32  Id;               Unique number.  In Windows, application hWnd
@@ -68,7 +68,7 @@ TW_IDENTITY g_myIdentity_Chinese =
 	MB_CAPTION                          // TW_STR32   ProductName;      Product name, e.g. "ScanJet Plus"
 };
 
-// ‘≠∞Êidentity∂®“Â
+// ÂéüÁâàidentityÂÆö‰πâ
 TW_IDENTITY g_myIdentity_Original =
 {
 	0,                                  // TW_UINT32  Id;               Unique number.  In Windows, application hWnd
@@ -132,13 +132,13 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	case DEVICE_CAMERA:
 		{
 			m_pScanner = new CCamera_CxImage;
-			//::MessageBox(g_hwndDLG,TEXT("Œ¥ µœ÷!"),MB_CAPTION,MB_OK);
+			//::MessageBox(g_hwndDLG,TEXT("Êú™ÂÆûÁé∞!"),MB_CAPTION,MB_OK);
 			break;
 		}
 	default:
 		{
 			m_pScanner = NULL;
-			::MessageBox(g_hwndDLG,TEXT("≤ª÷ß≥÷µƒ…Ë±∏!"),MB_CAPTION,MB_OK);
+			::MessageBox(g_hwndDLG,TEXT("‰∏çÊîØÊåÅÁöÑËÆæÂ§á!"),MB_CAPTION,MB_OK);
 			break;
 		}		
 	}
@@ -348,8 +348,8 @@ bool CTWAINDS_UDS::ReadCapFromStream(stringstream &_DsData, TW_UINT16 _unCapID, 
 bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 {//::MessageBox(g_hwndDLG,TEXT("StoreCustomDSdata"),MB_CAPTION,MB_OK);
   bool bResult = true;
-  bResult = bResult && StoreCapInStream(DsData,CAP_FEEDERENABLED,0,TWON_ONEVALUE); //…®√Ëƒ£ Ω
-  bResult = bResult && StoreCapInStream(DsData,CAP_DUPLEXENABLED,0,TWON_ONEVALUE); //µ•À´√Ê
+  bResult = bResult && StoreCapInStream(DsData,CAP_FEEDERENABLED,0,TWON_ONEVALUE); //Êâ´ÊèèÊ®°Âºè
+  bResult = bResult && StoreCapInStream(DsData,CAP_DUPLEXENABLED,0,TWON_ONEVALUE); //ÂçïÂèåÈù¢
   bResult = bResult && StoreCapInStream(DsData,CAP_AUTOFEED,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_BITDEPTH,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_BITORDER,0,TWON_ONEVALUE);
@@ -358,55 +358,63 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_FRAMES,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_IMAGEFILEFORMAT,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELFLAVOR,0,TWON_ONEVALUE); 
-  bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELTYPE,0,TWON_ONEVALUE); //Õº–Œ¿‡–Õ
+  bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELTYPE,0,TWON_ONEVALUE); //ÂõæÂΩ¢Á±ªÂûã
   bResult = bResult && StoreCapInStream(DsData,ICAP_PLANARCHUNKY,0,TWON_ONEVALUE);
-  bResult = bResult && StoreCapInStream(DsData,ICAP_SUPPORTEDSIZES,0,TWON_ONEVALUE); //÷Ω’≈¥Û–°
-  //bResult = bResult && StoreCapInStream(DsData,ICAP_ORIENTATION,0,TWON_ONEVALUE); //÷Ω’≈∑ΩœÚ
-  bResult = bResult && StoreCapInStream(DsData,ICAP_UNITS,0,TWON_ONEVALUE); //µ•Œª
+  bResult = bResult && StoreCapInStream(DsData,ICAP_SUPPORTEDSIZES,0,TWON_ONEVALUE); //Á∫∏Âº†Â§ßÂ∞è
+  //bResult = bResult && StoreCapInStream(DsData,ICAP_ORIENTATION,0,TWON_ONEVALUE); //Á∫∏Âº†ÊñπÂêë
+  bResult = bResult && StoreCapInStream(DsData,ICAP_UNITS,0,TWON_ONEVALUE); //Âçï‰Ωç
   bResult = bResult && StoreCapInStream(DsData,ICAP_XRESOLUTION,0,TWON_ONEVALUE);
-  bResult = bResult && StoreCapInStream(DsData,ICAP_YRESOLUTION,0,TWON_ONEVALUE); //∑÷±Ê¬ 
-  bResult = bResult && StoreCapInStream(DsData,ICAP_THRESHOLD,0,TWON_ONEVALUE); //„–÷µ
-  bResult = bResult && StoreCapInStream(DsData,ICAP_CONTRAST,0,TWON_ONEVALUE); //∂‘±»∂»
-  bResult = bResult && StoreCapInStream(DsData,ICAP_BRIGHTNESS,0,TWON_ONEVALUE); //¡¡∂»
-  bResult = bResult && StoreCapInStream(DsData,ICAP_GAMMA,0,TWON_ONEVALUE); //GammaÕºœÒ–£’˝
-  bResult = bResult && StoreCapInStream(DsData,UDSCAP_LONGDOCUMENT,0,TWON_ONEVALUE); //≥§÷Ω–Õ
+  bResult = bResult && StoreCapInStream(DsData,ICAP_YRESOLUTION,0,TWON_ONEVALUE); //ÂàÜËæ®Áéá
+  bResult = bResult && StoreCapInStream(DsData,ICAP_THRESHOLD,0,TWON_ONEVALUE); //ÈòàÂÄº
+  bResult = bResult && StoreCapInStream(DsData,ICAP_CONTRAST,0,TWON_ONEVALUE); //ÂØπÊØîÂ∫¶
+  bResult = bResult && StoreCapInStream(DsData,ICAP_BRIGHTNESS,0,TWON_ONEVALUE); //‰∫ÆÂ∫¶
+  bResult = bResult && StoreCapInStream(DsData,ICAP_GAMMA,0,TWON_ONEVALUE); //GammaÂõæÂÉèÊ†°Ê≠£
+  bResult = bResult && StoreCapInStream(DsData,UDSCAP_LONGDOCUMENT,0,TWON_ONEVALUE); //ÈïøÁ∫∏Âûã
 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTIFEEDDETECT,0,TWON_ONEVALUE); //zhu  ÷ÿ’≈Ω¯÷ΩºÏ≤‚
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTIFEEDDETECT,0,TWON_ONEVALUE); //zhu  ÈáçÂº†ËøõÁ∫∏Ê£ÄÊµã
 
-	bResult = bResult && StoreCapInStream(DsData,ICAP_ROTATION,0,TWON_ONEVALUE); //zhu –˝◊™
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BINARIZATION,0,TWON_ONEVALUE); //zhu ∂˛÷µªØ
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  ∑÷∏ÓÕºœÒ
+	bResult = bResult && StoreCapInStream(DsData,ICAP_ROTATION,0,TWON_ONEVALUE); //zhu ÊóãËΩ¨
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BINARIZATION,0,TWON_ONEVALUE); //zhu ‰∫åÂÄºÂåñ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  ÂàÜÂâ≤ÂõæÂÉè
 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM,0,TWON_ONEVALUE); //∂‡¡˜ ‰≥ˆ
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTCOLOR,0,TWON_ONEVALUE); //≤ …´’˝√Ê
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTGRAY,0,TWON_ONEVALUE); //ª“∂»’˝√Ê
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTBW,0,TWON_ONEVALUE); //∫⁄∞◊’˝√Ê
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKCOLOR,0,TWON_ONEVALUE); //≤ …´±≥√Ê
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKGRAY,0,TWON_ONEVALUE); //ª“∂»±≥√Ê
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKBW,0,TWON_ONEVALUE); //∫⁄∞◊±≥√Ê
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM,0,TWON_ONEVALUE); //Â§öÊµÅËæìÂá∫
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTCOLOR,0,TWON_ONEVALUE); //ÂΩ©Ëâ≤Ê≠£Èù¢
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTGRAY,0,TWON_ONEVALUE); //ÁÅ∞Â∫¶Ê≠£Èù¢
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTBW,0,TWON_ONEVALUE); //ÈªëÁôΩÊ≠£Èù¢
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKCOLOR,0,TWON_ONEVALUE); //ÂΩ©Ëâ≤ËÉåÈù¢
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKGRAY,0,TWON_ONEVALUE); //ÁÅ∞Â∫¶ËÉåÈù¢
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKBW,0,TWON_ONEVALUE); //ÈªëÁôΩËÉåÈù¢
 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTS,0,TWON_ONEVALUE); //»•≥˝∞ﬂµ„
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //µ◊…´±£¡Ù
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTS,0,TWON_ONEVALUE); //ÂéªÈô§ÊñëÁÇπ
+	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //Â∫ïËâ≤‰øùÁïô
 
-	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  »•≥˝ø’∞◊“≥
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBLANK,0,TWON_ONEVALUE); //zhu  »•≥˝ø’∞◊“≥µƒcheckBox
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  »•≥˝¥©ø◊
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SHARPEN,0,TWON_ONEVALUE); //zhu  »ÒªØÕºœÒ
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MIRROR,0,TWON_ONEVALUE); //zhu  ÕºœÒæµœÒ¥¶¿Ì
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBACKGROUND,0,TWON_ONEVALUE); //zhu  »•≥˝±≥æ∞
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DESCREEN,0,TWON_ONEVALUE); //zhu  »•≥˝Õ¯Œ∆
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DENOISE,0,TWON_ONEVALUE); //zhu  »•≥˝‘Î…˘
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_AUTOCROP,0,TWON_ONEVALUE); //zhu  ◊‘∂Ø≤√«–º∞–£’˝ 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DOCS_IN_ADF,0,TWON_ONEVALUE); // ADF÷Ω’≈ ˝ 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM_VALUE,0,TWON_ONEVALUE); // ∂‡¡˜ ‰≥ˆ—°œÓ÷µ
+	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  ÂéªÈô§Á©∫ÁôΩÈ°µ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBLANK,0,TWON_ONEVALUE); //zhu  ÂéªÈô§Á©∫ÁôΩÈ°µÁöÑcheckBox
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  ÂéªÈô§Á©øÂ≠î
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SHARPEN,0,TWON_ONEVALUE); //zhu  ÈîêÂåñÂõæÂÉè
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MIRROR,0,TWON_ONEVALUE); //zhu  ÂõæÂÉèÈïúÂÉèÂ§ÑÁêÜ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBACKGROUND,0,TWON_ONEVALUE); //zhu  ÂéªÈô§ËÉåÊôØ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DESCREEN,0,TWON_ONEVALUE); //zhu  ÂéªÈô§ÁΩëÁ∫π
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DENOISE,0,TWON_ONEVALUE); //zhu  ÂéªÈô§Âô™Â£∞
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_AUTOCROP,0,TWON_ONEVALUE); //zhu  Ëá™Âä®Ë£ÅÂàáÂèäÊ†°Ê≠£ 
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_DOCS_IN_ADF,0,TWON_ONEVALUE); // ADFÁ∫∏Âº†Êï∞ 
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM_VALUE,0,TWON_ONEVALUE); // Â§öÊµÅËæìÂá∫ÈÄâÈ°πÂÄº
 
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_UP,0,TWON_ONEVALUE); // ±ﬂ‘µ¿©≥‰
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_DOWN,0,TWON_ONEVALUE); // ±ﬂ‘µ¿©≥‰
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_LEFT,0,TWON_ONEVALUE); // ±ﬂ‘µ¿©≥‰
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_RIGHT,0,TWON_ONEVALUE); // ±ﬂ‘µ¿©≥‰
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_UP,0,TWON_ONEVALUE); // ËæπÁºòÊâ©ÂÖÖ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_DOWN,0,TWON_ONEVALUE); // ËæπÁºòÊâ©ÂÖÖ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_LEFT,0,TWON_ONEVALUE); // ËæπÁºòÊâ©ÂÖÖ
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_RIGHT,0,TWON_ONEVALUE); // ËæπÁºòÊâ©ÂÖÖ
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_XPOS,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_YPOS,0,TWON_ONEVALUE);
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COLORFLIP,0,TWON_ONEVALUE); //Ëâ≤ÂΩ©ÁøªËΩ¨
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_AUTO,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0,TWON_ONEVALUE);
+
 	return bResult;
 }
 
@@ -434,22 +442,22 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSVALUE,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_CONTRAST,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_BRIGHTNESS,0);
-  bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gamma–£’˝ 
+  bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gammaÊ†°Ê≠£ 
   bResult = bResult && ReadCapFromStream(DsData,ICAP_SUPPORTEDSIZES,0);
   //bResult = bResult && ReadCapFromStream(DsData,ICAP_ORIENTATION,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_FRAMES,0);
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_ROTATION,0); //zhu
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BINARIZATION,0); //zhu 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SPLITIMAGE,0); //zhu
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM,0); //zhu ∂‡¡˜ ‰≥ˆ
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTCOLOR,0); //≤ …´’˝√Ê
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTGRAY,0); //ª“∂»’˝√Ê
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTBW,0); //∫⁄∞◊’˝√Ê
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKCOLOR,0); //≤ …´±≥√Ê
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKGRAY,0); //ª“∂»±≥√Ê
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKBW,0); //∫⁄∞◊±≥√Ê
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTS,0); //zhu »•≥˝∞ﬂµ„
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu µ◊…´±£¡Ù
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM,0); //zhu Â§öÊµÅËæìÂá∫
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTCOLOR,0); //ÂΩ©Ëâ≤Ê≠£Èù¢
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTGRAY,0); //ÁÅ∞Â∫¶Ê≠£Èù¢
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTBW,0); //ÈªëÁôΩÊ≠£Èù¢
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKCOLOR,0); //ÂΩ©Ëâ≤ËÉåÈù¢
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKGRAY,0); //ÁÅ∞Â∫¶ËÉåÈù¢
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKBW,0); //ÈªëÁôΩËÉåÈù¢
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTS,0); //zhu ÂéªÈô§ÊñëÁÇπ
+	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu Â∫ïËâ≤‰øùÁïô
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVEBLANK,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0);
@@ -460,16 +468,23 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DENOISE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_AUTOCROP,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTIFEEDDETECT,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DOCS_IN_ADF,0); // ADF÷Ω’≈ ˝ 
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM_VALUE,0); // ∂‡¡˜ ‰≥ˆ—°œÓ÷µ 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DOCS_IN_ADF,0); // ADFÁ∫∏Âº†Êï∞ 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM_VALUE,0); // Â§öÊµÅËæìÂá∫ÈÄâÈ°πÂÄº 
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_UP,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_DOWN,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_LEFT,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_RIGHT,0); 
 
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_XPOS,0); //X∆´“∆¡ø
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_XPOS,0); //XÂÅèÁßªÈáè
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_YPOS,0); 
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COLORFLIP,0);  //Ëâ≤ÂΩ©ÁøªËΩ¨
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_AUTO,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0); 
 
   return bResult;
 }
@@ -491,48 +506,48 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[CAP_SUPPORTEDCAPS] = new CTWAINContainerInt(CAP_SUPPORTEDCAPS, TWTY_UINT16, TWON_ARRAY, TWQC_GETS);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[CAP_SUPPORTEDCAPS]))
    || !pnCap->Add(CAP_DEVICEONLINE)   //
-   || !pnCap->Add(CAP_INDICATORS)  //÷∏ æµ∆
-   || !pnCap->Add(CAP_ENABLEDSUIONLY)  //¥Úø™«˝∂ØΩÁ√Ê
-   || !pnCap->Add(CAP_PAPERDETECTABLE)  //÷Ω’≈ºÏ≤‚
-   || !pnCap->Add(CAP_FEEDERENABLED)  //∆Ù∂ØΩ¯÷Ω£¨…®√Ëƒ£ Ω
-   || !pnCap->Add(CAP_FEEDERLOADED)  //º”‘ÿΩ¯÷Ω
-   || !pnCap->Add(CAP_DUPLEX)  //µ•À´√Ê
-   || !pnCap->Add(CAP_DUPLEXENABLED) //∆Ù∂Øµ•À´√Ê
-   || !pnCap->Add(CAP_AUTOFEED)  //◊‘∂Øª˙÷∆
+   || !pnCap->Add(CAP_INDICATORS)  //ÊåáÁ§∫ÁÅØ
+   || !pnCap->Add(CAP_ENABLEDSUIONLY)  //ÊâìÂºÄÈ©±Âä®ÁïåÈù¢
+   || !pnCap->Add(CAP_PAPERDETECTABLE)  //Á∫∏Âº†Ê£ÄÊµã
+   || !pnCap->Add(CAP_FEEDERENABLED)  //ÂêØÂä®ËøõÁ∫∏ÔºåÊâ´ÊèèÊ®°Âºè
+   || !pnCap->Add(CAP_FEEDERLOADED)  //Âä†ËΩΩËøõÁ∫∏
+   || !pnCap->Add(CAP_DUPLEX)  //ÂçïÂèåÈù¢
+   || !pnCap->Add(CAP_DUPLEXENABLED) //ÂêØÂä®ÂçïÂèåÈù¢
+   || !pnCap->Add(CAP_AUTOFEED)  //Ëá™Âä®Êú∫Âà∂
    || !pnCap->Add(CAP_SUPPORTEDCAPS)
    || !pnCap->Add(CAP_UICONTROLLABLE)
    || !pnCap->Add(CAP_XFERCOUNT)
    || !pnCap->Add(ICAP_BITDEPTH)
    || !pnCap->Add(ICAP_BITORDER)
-   || !pnCap->Add(ICAP_COMPRESSION)  //—πÀı
-	 || !pnCap->Add(UDSCAP_COMPRESSVALUE) //—πÀı±»µƒ÷µ
+   || !pnCap->Add(ICAP_COMPRESSION)  //ÂéãÁº©
+	 || !pnCap->Add(UDSCAP_COMPRESSVALUE) //ÂéãÁº©ÊØîÁöÑÂÄº
    || !pnCap->Add(ICAP_FRAMES)
    || !pnCap->Add(ICAP_MAXFRAMES)
    || !pnCap->Add(ICAP_IMAGEFILEFORMAT)
    || !pnCap->Add(ICAP_PHYSICALHEIGHT)
    || !pnCap->Add(ICAP_PHYSICALWIDTH)
    || !pnCap->Add(ICAP_PIXELFLAVOR)
-   || !pnCap->Add(ICAP_PIXELTYPE)    //Õº–Œ¿‡–Õ
+   || !pnCap->Add(ICAP_PIXELTYPE)    //ÂõæÂΩ¢Á±ªÂûã
    || !pnCap->Add(ICAP_PLANARCHUNKY)
-   || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //÷Ω’≈¥Û–°
-	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //∂‡¡˜ ‰≥ˆ
-	 || !pnCap->Add(UDSCAP_REMOVESPOTS)  //»•≥˝∞ﬂµ„
-   || !pnCap->Add(ICAP_UNITS) //µ•Œª
+   || !pnCap->Add(ICAP_SUPPORTEDSIZES)  //Á∫∏Âº†Â§ßÂ∞è
+	 || !pnCap->Add(UDSCAP_MULTISTREAM)  //Â§öÊµÅËæìÂá∫
+	 || !pnCap->Add(UDSCAP_REMOVESPOTS)  //ÂéªÈô§ÊñëÁÇπ
+   || !pnCap->Add(ICAP_UNITS) //Âçï‰Ωç
    || !pnCap->Add(ICAP_XFERMECH)
-   || !pnCap->Add(ICAP_XRESOLUTION) //∑÷±Ê¬ 
+   || !pnCap->Add(ICAP_XRESOLUTION) //ÂàÜËæ®Áéá
    || !pnCap->Add(ICAP_YRESOLUTION) 
-   || !pnCap->Add(ICAP_THRESHOLD) //„–÷µ 
-   || !pnCap->Add(ICAP_CONTRAST)  //∂‘±»∂»
-   || !pnCap->Add(ICAP_BRIGHTNESS)  //¡¡∂»
-   || !pnCap->Add(ICAP_GAMMA) //Gamma–£’˝
+   || !pnCap->Add(ICAP_THRESHOLD) //ÈòàÂÄº 
+   || !pnCap->Add(ICAP_CONTRAST)  //ÂØπÊØîÂ∫¶
+   || !pnCap->Add(ICAP_BRIGHTNESS)  //‰∫ÆÂ∫¶
+   || !pnCap->Add(ICAP_GAMMA) //GammaÊ†°Ê≠£
    || !pnCap->Add(CAP_CUSTOMINTERFACEGUID)
-   || !pnCap->Add(UDSCAP_LONGDOCUMENT)  //≥§÷Ω
+   || !pnCap->Add(UDSCAP_LONGDOCUMENT)  //ÈïøÁ∫∏
    || !pnCap->Add(UDSCAP_DOCS_IN_ADF) 
    || !pnCap->Add(CAP_CUSTOMDSDATA) 
-	 || !pnCap->Add(ICAP_ROTATION) //ÕºœÒ–˝◊™ zhu
-	 || !pnCap->Add(UDSCAP_BINARIZATION) // ∂˛÷µªØzhu
-	 || !pnCap->Add(UDSCAP_SPLITIMAGE) //∑÷∏ÓÕºœÒzhu
-	 || !pnCap->Add(ICAP_AUTODISCARDBLANKPAGES) //»•≥˝ø’∞◊“≥
+	 || !pnCap->Add(ICAP_ROTATION) //ÂõæÂÉèÊóãËΩ¨ zhu
+	 || !pnCap->Add(UDSCAP_BINARIZATION) // ‰∫åÂÄºÂåñzhu
+	 || !pnCap->Add(UDSCAP_SPLITIMAGE) //ÂàÜÂâ≤ÂõæÂÉèzhu
+	 || !pnCap->Add(ICAP_AUTODISCARDBLANKPAGES) //ÂéªÈô§Á©∫ÁôΩÈ°µ
 	 || !pnCap->Add(UDSCAP_REMOVEBLANK)
 	 || !pnCap->Add(UDSCAP_PUNCHHOLEREMOVEL)
 	 || !pnCap->Add(UDSCAP_SHARPEN)
@@ -541,14 +556,19 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_DESCREEN)
 	 || !pnCap->Add(UDSCAP_DENOISE)
 	 || !pnCap->Add(UDSCAP_AUTOCROP)
-	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT) //∂‡’≈Ω¯÷ΩºÏ≤‚
-	 || !pnCap->Add(UDSCAP_MULTISTREAM_VALUE) // ∂‡¡˜ ‰≥ˆ—°œÓ÷µ
+	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT) //Â§öÂº†ËøõÁ∫∏Ê£ÄÊµã
+	 || !pnCap->Add(UDSCAP_MULTISTREAM_VALUE) // Â§öÊµÅËæìÂá∫ÈÄâÈ°πÂÄº
 	 || !pnCap->Add(UDSCAP_EDGE_UP)
 	 || !pnCap->Add(UDSCAP_EDGE_DOWN)
 	 || !pnCap->Add(UDSCAP_EDGE_LEFT)
 	 || !pnCap->Add(UDSCAP_EDGE_RIGHT)
 	 || !pnCap->Add(UDSCAP_XPOS)
 	 || !pnCap->Add(UDSCAP_YPOS)
+	 || !pnCap->Add(UDSCAP_COLORFLIP)
+	 || !pnCap->Add(UDSCAP_CACHEMODE)
+	 || !pnCap->Add(UDSCAP_CACHEMODE_AUTO)
+	 || !pnCap->Add(UDSCAP_CACHEMODE_PAPERNUM)
+	 || !pnCap->Add(UDSCAP_CACHEMODE_MEMORYSIZE)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -566,6 +586,58 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
+
+	//ÁºìÂ≠òÊ®°Âºè
+	m_IndependantCapMap[UDSCAP_CACHEMODE] = new CTWAINContainerInt(UDSCAP_CACHEMODE, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_CACHEMODE]))
+		|| !pnCap->Add(TWCM_NONE, true) 
+		|| !pnCap->Add(TWCM_PAPERNUM)
+		|| !pnCap->Add(TWCM_MEMORYSIZE)
+		)
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COLORFLIP !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 0.0f; 
+	fRange.fMaxValue = 100.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	//ÁºìÂ≠òÊ®°Âºè-Ëá™Âä®
+	m_IndependantCapMap[UDSCAP_CACHEMODE_AUTO] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_AUTO,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_AUTO]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_AUTO !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 1.0f; 
+	fRange.fMaxValue = 25.0f;
+	fRange.fMinValue = 1.0;
+	fRange.fStepSize = 1.0f;
+	//ÁºìÂ≠òÊ®°Âºè--Á∫∏Âº†Êï∞Èáè
+	m_IndependantCapMap[UDSCAP_CACHEMODE_PAPERNUM] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_PAPERNUM,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_PAPERNUM]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_PAPERNUM !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 0.0f; 
+	fRange.fMaxValue = 1024.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	//ÁºìÂ≠òÊ®°Âºè-ÂÜÖÂ≠òÂ§ßÂ∞è
+	m_IndependantCapMap[UDSCAP_CACHEMODE_MEMORYSIZE] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_MEMORYSIZE,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_MEMORYSIZE]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_MEMORYSIZE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
   m_IndependantCapMap[ICAP_PLANARCHUNKY] = new CTWAINContainerInt(ICAP_PLANARCHUNKY, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_PLANARCHUNKY]))
@@ -608,7 +680,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_PIXELTYPE]))
    || !pnCap->Add(TWPT_BW)
    || !pnCap->Add(TWPT_GRAY)
-   || !pnCap->Add(TWPT_RGB, true)  //Õº–Œ¿‡–Õ£¨ƒ¨»œ≤ …´
+   || !pnCap->Add(TWPT_RGB, true)  //ÂõæÂΩ¢Á±ªÂûãÔºåÈªòËÆ§ÂΩ©Ëâ≤
    ) 
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_PIXELTYPE !"),MB_CAPTION,MB_OK);
@@ -681,7 +753,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 
-	//zhu ÷ÿ’≈ºÏ≤‚
+	//zhu ÈáçÂº†Ê£ÄÊµã
 	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT]))
 		|| !pbCap->Add(FALSE)
@@ -693,7 +765,19 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//∂‡¡˜ ‰≥ˆ
+	//Ëâ≤ÂΩ©ÁøªËΩ¨
+	m_IndependantCapMap[UDSCAP_COLORFLIP] = new CTWAINContainerBool(UDSCAP_COLORFLIP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_COLORFLIP]))
+		|| !pbCap->Add(FALSE, true)
+		|| !pbCap->Add(TRUE) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COLORFLIP !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+
+	//Â§öÊµÅËæìÂá∫
 	m_IndependantCapMap[UDSCAP_MULTISTREAM] = new CTWAINContainerBool(UDSCAP_MULTISTREAM, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTISTREAM]))
 		|| !pbCap->Add(TRUE) 
@@ -705,11 +789,11 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//÷Ω’≈¥Û–°
+	//Á∫∏Âº†Â§ßÂ∞è
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
    //|| !pnCap->Add(TWSS_NONE) //zhu
-	 || !pnCap->Add(TWSS_USLETTER)  //÷Ω’≈¥Û–°£¨ƒ¨»œUSLETTER
+	 || !pnCap->Add(TWSS_USLETTER)  //Á∫∏Âº†Â§ßÂ∞èÔºåÈªòËÆ§USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
 	 || !pnCap->Add(TWSS_A4, true) 
@@ -724,7 +808,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(TWSS_JISB5)  //wan
 	 || !pnCap->Add(TWSS_JISB6)  //wan
 	 || !pnCap->Add(TWSS_JISB7)  //wan
-	 || !pnCap->Add(UDSCAP_LONGDOCUMENT) //zhu ≥§÷Ωƒ£ Ω
+	 || !pnCap->Add(UDSCAP_LONGDOCUMENT) //zhu ÈïøÁ∫∏Ê®°Âºè
 	 || !pnCap->Add(TWSS_MAXSIZE)  //zhu
 	 )
   {
@@ -734,7 +818,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 
-	//zhu–˝◊™
+	//zhuÊóãËΩ¨
 	m_IndependantCapMap[ICAP_ROTATION] = new CTWAINContainerFix32(ICAP_ROTATION,TWON_ENUMERATION, TWQC_ALL);
 	if( NULL == (pfixCap = dynamic_cast<CTWAINContainerFix32*>(m_IndependantCapMap[ICAP_ROTATION]))
 		|| !pfixCap->Add(TWOR_ROT0, true)
@@ -748,13 +832,13 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 		
-	//zhu ∑÷∏Ó
+	//zhu ÂàÜÂâ≤
 	m_IndependantCapMap[UDSCAP_SPLITIMAGE] = new CTWAINContainerInt(UDSCAP_SPLITIMAGE, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_SPLITIMAGE]))
 		|| !pnCap->Add(TWSI_NONE, true)  
 		|| !pnCap->Add(TWSI_HORIZONTAL)
 		|| !pnCap->Add(TWSI_VERTICAL)
-		//|| !pnCap->Add(TWSI_DEFINED)  ‘› ±“˛≤ÿ
+		//|| !pnCap->Add(TWSI_DEFINED)  ÊöÇÊó∂ÈöêËóè
 		)  
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SPLITIMAGE !"),MB_CAPTION,MB_OK);
@@ -763,10 +847,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	} //zhu
 
-	//zhu ∂˛÷µªØ
+	//zhu ‰∫åÂÄºÂåñ
 	m_IndependantCapMap[UDSCAP_BINARIZATION] = new CTWAINContainerInt(UDSCAP_BINARIZATION, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_BINARIZATION]))
-		|| !pnCap->Add(TWBZ_DYNATHRESHOLD) //ƒ¨»œ∂ØÃ¨„–÷µ
+		|| !pnCap->Add(TWBZ_DYNATHRESHOLD) //ÈªòËÆ§Âä®ÊÄÅÈòàÂÄº
 		|| !pnCap->Add(TWBZ_FIXEDTHRESHOLD, true)
 		|| !pnCap->Add(TWBZ_HALFTONE1)
 		|| !pnCap->Add(TWBZ_HALFTONE2)
@@ -816,7 +900,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[CAP_FEEDERENABLED] = new CTWAINContainerBool(CAP_FEEDERENABLED, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_FEEDERENABLED]))
    || !pbCap->Add(FALSE)
-	 || !pbCap->Add(TRUE, true) //wan£¨…®√Ëƒ£ Ω£¨ƒ¨»œ◊‘∂ØΩ¯÷Ω∆˜
+	 || !pbCap->Add(TRUE, true) //wanÔºåÊâ´ÊèèÊ®°ÂºèÔºåÈªòËÆ§Ëá™Âä®ËøõÁ∫∏Âô®
 	  )  
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_FEEDERENABLED !"),MB_CAPTION,MB_OK);
@@ -839,8 +923,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
   m_IndependantCapMap[CAP_DUPLEXENABLED] = new CTWAINContainerBool(CAP_DUPLEXENABLED, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
   if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_DUPLEXENABLED]))
-   || !pbCap->Add(FALSE, true)  // wan,µ•√Ê/À´√Ê£¨ƒ¨»œµ•√Ê…®
-	 || !pbCap->Add(TRUE)   //TRUEŒ™À´√Ê
+   || !pbCap->Add(FALSE, true)  // wan,ÂçïÈù¢/ÂèåÈù¢ÔºåÈªòËÆ§ÂçïÈù¢Êâ´
+	 || !pbCap->Add(TRUE)   //TRUE‰∏∫ÂèåÈù¢
 	 )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_DUPLEXENABLED !"),MB_CAPTION,MB_OK);
@@ -950,12 +1034,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 	
-	//—πÀı
+	//ÂéãÁº©
 	m_IndependantCapMap[ICAP_COMPRESSION] = new CTWAINContainerInt(ICAP_COMPRESSION, TWTY_UINT16, TWON_ENUMERATION);
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
 		|| !pnCap->Add(TWCP_NONE, true)
-		|| !pnCap->Add(TWCP_JPEG) //JPEG—πÀı
-		|| !pnCap->Add(TWCP_GROUP4)) //G4—πÀı
+		|| !pnCap->Add(TWCP_JPEG) //JPEGÂéãÁº©
+		|| !pnCap->Add(TWCP_GROUP4)) //G4ÂéãÁº©
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_COMPRESSION !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
@@ -966,7 +1050,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	fRange.fMaxValue = 100.0f;
 	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
-	//—πÀı±»µƒ÷µ
+	//ÂéãÁº©ÊØîÁöÑÂÄº
 	m_IndependantCapMap[UDSCAP_COMPRESSVALUE] = new CTWAINContainerFix32Range(UDSCAP_COMPRESSVALUE,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_COMPRESSVALUE]))
 	{
@@ -975,12 +1059,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//Gamma–£’˝∑∂Œß
+	//GammaÊ†°Ê≠£ËåÉÂõ¥
 	fRange.fCurrentValue = 100.0f; 
 	fRange.fMaxValue = 400.0f;
 	fRange.fMinValue = 1.0f;
 	fRange.fStepSize = 1.0f;
-	//Gamma–£’˝
+	//GammaÊ†°Ê≠£
 	m_IndependantCapMap[ICAP_GAMMA] = new CTWAINContainerFix32Range(ICAP_GAMMA,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_GAMMA]))
 	{
@@ -990,7 +1074,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//»•≥˝ø’∞◊“≥µƒcheckbox◊¥Ã¨
+	//ÂéªÈô§Á©∫ÁôΩÈ°µÁöÑcheckboxÁä∂ÊÄÅ
 	m_IndependantCapMap[UDSCAP_REMOVEBLANK] = new CTWAINContainerBool(UDSCAP_REMOVEBLANK, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_REMOVEBLANK]))
 		|| !pbCap->Add(TRUE)
@@ -1002,12 +1086,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	// »•≥˝ø’∞◊“≥µ»
+	// ÂéªÈô§Á©∫ÁôΩÈ°µÁ≠â
 	fRange.fCurrentValue = 10.0f; 
 	fRange.fMaxValue = 100.0f;
 	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
-	// »•≥˝ø’∞◊“≥µ»
+	// ÂéªÈô§Á©∫ÁôΩÈ°µÁ≠â
 	m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES] = new CTWAINContainerFix32Range(ICAP_AUTODISCARDBLANKPAGES,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_AUTODISCARDBLANKPAGES]))
 	{
@@ -1097,7 +1181,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 //FLOAT_RANGE fRange;
   fRange.fCurrentValue = 128.0f; 
   fRange.fMaxValue = 255.0f;
-  fRange.fMinValue = 0.0f;
+  fRange.fMinValue = 1.0f;
   fRange.fStepSize = 1.0f;
   m_IndependantCapMap[ICAP_THRESHOLD] = new CTWAINContainerFix32Range(ICAP_THRESHOLD,fRange, TWQC_ALL);
   if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[ICAP_THRESHOLD]))
@@ -1108,10 +1192,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
 	}
 
-	//»•≥˝∞ﬂµ„
-	fRange.fCurrentValue = 0.0f; 
+	//ÂéªÈô§ÊñëÁÇπ
+	fRange.fCurrentValue = 20.0f; 
 	fRange.fMaxValue = 30.0f;
-	fRange.fMinValue = 0.0f;
+	fRange.fMinValue = 1.0f;
 	fRange.fStepSize = 1.0f;
 	m_IndependantCapMap[UDSCAP_REMOVESPOTS] = new CTWAINContainerFix32Range(UDSCAP_REMOVESPOTS,fRange, TWQC_ALL);
 	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_REMOVESPOTS]))
@@ -1150,7 +1234,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(75)
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(100)
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(150)
-   || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(200, true)  //∑÷±Ê¬ £¨ƒ¨»œ200
+   || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(200, true)  //ÂàÜËæ®ÁéáÔºåÈªòËÆ§200
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(300)
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(400)
    || !m_ICAP_UNIT_Dependant[ICAP_XRESOLUTION]->Add(500)
@@ -1168,7 +1252,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(75)
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(100)
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(150)
-   || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(200, true) //∑÷±Ê¬ ,ƒ¨»œ200
+   || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(200, true) //ÂàÜËæ®Áéá,ÈªòËÆ§200
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(300)
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(400)
    || !m_ICAP_UNIT_Dependant[ICAP_YRESOLUTION]->Add(500)
@@ -1204,7 +1288,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 	
-	// ∂‡¡˜ ‰≥ˆœÎ—°œÓ÷µ
+	// Â§öÊµÅËæìÂá∫ÊÉ≥ÈÄâÈ°πÂÄº
 	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_MULTISTREAM_VALUE] = new CTWAINContainerFix32(UDSCAP_MULTISTREAM_VALUE, TWON_ONEVALUE, TWQC_ALL))
 		|| !m_ICAP_UNIT_Dependant[UDSCAP_MULTISTREAM_VALUE]->Add(0.0, true) )
 	{
@@ -1213,7 +1297,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	//±ﬂ‘µ¿©’π…œœ¬◊Û”“
+	//ËæπÁºòÊâ©Â±ï‰∏ä‰∏ãÂ∑¶Âè≥
 	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP] = new CTWAINContainerFix32(UDSCAP_EDGE_UP, TWON_ONEVALUE, TWQC_ALL))
 		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP]->Add(0.0, true) )
 	{
@@ -1263,10 +1347,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	}
 
   // setup the ICAP_FRAMES
-  // expressed internally as 1000 pixels per inch £ª1000œÒÀÿ√ª”¢¥Á
+  // expressed internally as 1000 pixels per inch Ôºõ1000ÂÉèÁ¥†Ê≤°Ëã±ÂØ∏
   // Currently only supports one frame see: ICAP_MAXFRAMES
   if( NULL == (m_pICAP_FRAMES = new CTWAINContainerFrame(ICAP_FRAMES, TWON_ENUMERATION, TWQC_ALL))
-   || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) //8.5*11 ”¢¥Á US Letter
+   || !m_pICAP_FRAMES->Add(0, 0, 8500, 11000, true) //8.5*11 Ëã±ÂØ∏ US Letter
 	 )   	
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_FRAMES !"),MB_CAPTION,MB_OK);
@@ -1319,7 +1403,7 @@ CTWAINDS_UDS::~CTWAINDS_UDS()
   }
   m_pICAP_FRAMES = 0;
 
-	//  Õ∑≈÷∏’Î
+	// ÈáäÊîæÊåáÈíà
 	if (m_pScanner)
 	{
 		delete m_pScanner;
@@ -1434,7 +1518,7 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
     m_CurrentState = dsState_Open;
   }
 
-	//m_pGUI->TW_LoadProfileFromFile("…œ¥Œ π”√ƒ£∞Â");
+	//m_pGUI->TW_LoadProfileFromFile("‰∏äÊ¨°‰ΩøÁî®Ê®°Êùø");
 
   return ret;
 }
@@ -1451,7 +1535,7 @@ TW_INT16 CTWAINDS_UDS::closeDS()
   }
   memset(&m_App, 0, sizeof(m_App));
 
-	//  Õ∑≈◊Ó∫Û“ª’≈÷Ω’º”√ƒ⁄¥Ê
+	// ÈáäÊîæÊúÄÂêé‰∏ÄÂº†Á∫∏Âç†Áî®ÂÜÖÂ≠ò
 	m_pScanner->Release();
 
   return TWRC_SUCCESS;
@@ -1470,7 +1554,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   m_CurrentState = dsState_Enabled;
   m_bCanceled = false;
 
-	// ∑¿÷π”––©APP‘Ÿ¥Œ…®√Ë£¨Œ¥OpenDS,÷±Ω”EnableDS£¨–Ë“™÷ÿ÷√≤Œ ˝
+	// Èò≤Ê≠¢Êúâ‰∫õAPPÂÜçÊ¨°Êâ´ÊèèÔºåÊú™OpenDS,Áõ¥Êé•EnableDSÔºåÈúÄË¶ÅÈáçÁΩÆÂèÇÊï∞
 	if(!m_pScanner->resetScanner())
 	{	
 		setConditionCode(TWCC_BUMMER);
@@ -1495,12 +1579,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
 
-	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera º÷’œ‘ æΩÁ√Ê
+	if (DEVICE_CAMERA != g_nDeviceNumber)  // CameraÂßãÁªàÊòæÁ§∫ÁïåÈù¢
 	{
 		if(FALSE == _pData->ShowUI)
 		{   
 			// Update the scanner with the latest negotiated caps
-			//m_pGUI->TW_LoadProfileFromFile("…œ¥Œ π”√ƒ£∞Â");
+			//m_pGUI->TW_LoadProfileFromFile("‰∏äÊ¨°‰ΩøÁî®Ê®°Êùø");
 			if(!updateScannerFromCaps())
 			{
 				::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
@@ -1716,7 +1800,7 @@ TW_INT16 CTWAINDS_UDS::processEvent(pTW_EVENT _pEvent)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::transfer()
 {//::MessageBox(g_hwndDLG,"transfer",MB_CAPTION,MB_OK);
-	getImageInfo(&m_ImageInfo); // ±ÿ–Îµ˜”√
+	getImageInfo(&m_ImageInfo); // ÂøÖÈ°ªË∞ÉÁî®
   TW_INT16 twrc = TWRC_SUCCESS;
   if(m_bCanceled)
   {
@@ -1801,7 +1885,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		//	break;
 		default:
 			{
-				::MessageBox(g_hwndDLG,TEXT("≤ª÷ß≥÷µƒ…Ë±∏!"),MB_CAPTION,MB_OK);
+				::MessageBox(g_hwndDLG,TEXT("‰∏çÊîØÊåÅÁöÑËÆæÂ§á!"),MB_CAPTION,MB_OK);
 			}
 			break;
 		}
@@ -1961,7 +2045,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
 	CTWAINContainerBool* pbCap = 0; //zhu
 
-	//—πÀı
+	//ÂéãÁº©
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
@@ -1974,7 +2058,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nCompress = nVal;
 	}
 
-	//—πÀı±»µƒ÷µ
+	//ÂéãÁº©ÊØîÁöÑÂÄº
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_COMPRESSVALUE))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSVALUE!"),MB_CAPTION,MB_OK);
@@ -1986,7 +2070,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fCompressValue= fVal;
 	}
 
-	//÷Ω’≈¥Û–°
+	//Á∫∏Âº†Â§ßÂ∞è
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_SUPPORTEDSIZES))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
@@ -1999,7 +2083,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nStandardsizes = nVal;
 	}
 
-	//µ•Œª
+	//Âçï‰Ωç
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_UNITS))))
 	{
 		//cerr << "Could not get ICAP_UNITS" << endl;
@@ -2012,7 +2096,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nUnits = nVal;
 	}
 
-	//zhu ÷ÿ’≈ºÏ≤‚
+	//zhu ÈáçÂº†Ê£ÄÊµã
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_MULTIFEEDDETECT))))
 	{
 		//cerr << "Could not get ICAP_PIXELTYPE" << endl;
@@ -2025,7 +2109,19 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bMultifeedDetection = bVal;
 	}
 
-	//zhu ∂‡¡˜ ‰≥ˆ
+	//Ëâ≤ÂΩ©ÁøªËΩ¨
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_COLORFLIP))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COLORFLIP!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bColorFlip = bVal;
+	}
+
+	//zhu Â§öÊµÅËæìÂá∫
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_MULTISTREAM))))
 	{
 		//cerr << "Could not get ICAP_PIXELTYPE" << endl;
@@ -2038,7 +2134,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bMultiStream = bVal;
 	}
 
-	// ÕºœÒ¿‡–Õ
+	// ÂõæÂÉèÁ±ªÂûã
   if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_PIXELTYPE))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_PIXELTYPE!"),MB_CAPTION,MB_OK);
@@ -2050,7 +2146,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_nPixelType = nVal;
   }
 
-	// …®√Ëƒ£ Ω
+	// Êâ´ÊèèÊ®°Âºè
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_FEEDERENABLED))))
 	{
 		//cerr << "Could not get ICAP_PIXELTYPE" << endl;
@@ -2063,7 +2159,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nPaperSource = bVal;
 	}
 
-	// µ•À´√Ê
+	// ÂçïÂèåÈù¢
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_DUPLEXENABLED))))
 	{
 		//cerr << "Could not get ICAP_PIXELTYPE" << endl;
@@ -2102,7 +2198,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fYResolution = fVal;
   }
 
-  // set the image dimensions…Ë÷√ÕºœÒ≥ﬂ¥Á
+  // set the image dimensionsËÆæÁΩÆÂõæÂÉèÂ∞∫ÂØ∏
   InternalFrame frame;
   if(!m_pICAP_FRAMES->GetCurrent(frame))
   {
@@ -2136,7 +2232,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fThreshold = fVal;
   }
 
-	// ∂‘±»∂»
+	// ÂØπÊØîÂ∫¶
   if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_CONTRAST))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_CONTRAST!"),MB_CAPTION,MB_OK);
@@ -2149,7 +2245,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fContrast = fVal;
   }
 
-	// ¡¡∂»
+	// ‰∫ÆÂ∫¶
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_BRIGHTNESS))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_BRIGHTNESS!"),MB_CAPTION,MB_OK);
@@ -2162,7 +2258,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fBrightness = fVal;
 	}
 
-	//»•≥˝∞ﬂµ„
+	//ÂéªÈô§ÊñëÁÇπ
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_REMOVESPOTS))))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SENSITIVETHRESHOLD_REMOVESPOTS!"),MB_CAPTION,MB_OK);
@@ -2175,7 +2271,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
     settings.m_fSensitiveThreshold_removespots = fVal;
   }
 
-	// ÕºœÒ–˝◊™
+	// ÂõæÂÉèÊóãËΩ¨
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(ICAP_ROTATION))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_ROTATION!"),MB_CAPTION,MB_OK);
@@ -2188,7 +2284,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fRotation = fVal;
 	}
 
-	// ∂‡¡˜—°œÓ÷µ
+	// Â§öÊµÅÈÄâÈ°πÂÄº
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_MULTISTREAM_VALUE))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_MULTISTREAM_VALUE!"),MB_CAPTION,MB_OK);
@@ -2200,7 +2296,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_byteMultiValue = (BYTE)fVal;
 	}
 
-	//±ﬂ‘µ¿©≥‰
+	//ËæπÁºòÊâ©ÂÖÖ
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_EDGE_UP))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_UP!"),MB_CAPTION,MB_OK);
@@ -2245,7 +2341,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fEdgeRight = fVal;
 	}
 
-	//X∆´“∆¡ø
+	//XÂÅèÁßªÈáè
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_XPOS))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_XPOS!"),MB_CAPTION,MB_OK);
@@ -2268,7 +2364,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fYPos = fVal;
 	}
 
-	// ÕºœÒ«–∏Ó
+	// ÂõæÂÉèÂàáÂâ≤
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_SPLITIMAGE))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SPLITIMAGE!"),MB_CAPTION,MB_OK);
@@ -2282,7 +2378,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}//zhu
 	
 
-	//»•≥˝ø’∞◊“≥µƒcheckbox
+	//ÂéªÈô§Á©∫ÁôΩÈ°µÁöÑcheckbox
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_REMOVEBLANK))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_REMOVEBLANK!"),MB_CAPTION,MB_OK);
@@ -2294,7 +2390,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bRemoveBlank = bVal; 
 	}
 
-	//»•≥˝ø’∞◊“≥µ»8œÓ
+	//ÂéªÈô§Á©∫ÁôΩÈ°µÁ≠â8È°π
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
@@ -2379,7 +2475,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bDenoise = bVal;
 	}
 
-	// ÕºœÒ≤√«–
+	// ÂõæÂÉèË£ÅÂàá
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_AUTOCROP))))
 	{
 		//cerr << "Could not get UDSCAP_AUTOCROP" << endl;
@@ -2404,7 +2500,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nBinarization = nVal;
 	}//zhu
 
-	// ÷Ω’≈ ˝
+	// Á∫∏Âº†Êï∞
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_DOCS_IN_ADF))))
 	{
 		cerr << "Could not get UDSCAP_DOCS_IN_ADF" << endl;
@@ -2849,12 +2945,12 @@ void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagep
 
 //void CTWAINDS_UDS::GetImagePathFromINI()
 //{
-//	char  szIniPath[PATH_MAX];    // INI≈‰÷√Œƒº˛¬∑æ∂  
+//	char  szIniPath[PATH_MAX];    // INIÈÖçÁΩÆÊñá‰ª∂Ë∑ØÂæÑ  
 //	vector<string> vector_string_imagepath;
 //	strncpy_s(szIniPath,m_pScanner->GetINIPath(),MAX_PATH);
 //
 //	unsigned int unCount = GetPrivateProfileInt(INI_SECTION_IMAGE,
-//	INI_KEY_IMAGECOUNT,0,szIniPath);  // ªÒ»°Õº∆¨◊‹ ˝
+//	INI_KEY_IMAGECOUNT,0,szIniPath);  // Ëé∑ÂèñÂõæÁâáÊÄªÊï∞
 //
 //	for (unsigned int i=1;i <= unCount; i++)
 //	{

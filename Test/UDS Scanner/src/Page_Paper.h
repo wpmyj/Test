@@ -87,4 +87,12 @@ private:
 	afx_msg void OnEnChangeBase_Edit_Compressvalue();
 	afx_msg void OnNMCustomdrawPaper_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
 	
+public:
+//	afx_msg void OnEnChangeBase_Edit_Edgeup();
+	afx_msg void OnEnChangeBase_Edit_EdgeRight();
+	afx_msg void OnEnChangeBase_Edit_EdgeUp();
+	afx_msg void OnEnChangeBase_Edit_EdgeLeft();
+	afx_msg void OnEnChangeBase_Edit_EdgeDown();
+	afx_msg void OnEnChangeBase_Edit_EdgeXpos();
+	afx_msg void OnEnChangeBase_Edit_EdgeYpos();
 };

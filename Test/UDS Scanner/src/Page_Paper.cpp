@@ -56,6 +56,13 @@ BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_PAPER_SLIDER_COMPRESSION, &CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue)
 	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_COMPRESS, &CPage_Paper::OnCbnSelchangePaper_Combo_Compress)
 	ON_WM_LBUTTONDOWN()
+//	ON_EN_CHANGE(IDC_PAPER_EDIT_UP, &CPage_Paper::OnEnChangeBase_Edit_Edgeup)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_RIGHT, &CPage_Paper::OnEnChangeBase_Edit_EdgeRight)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_UP, &CPage_Paper::OnEnChangeBase_Edit_EdgeUp)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_LEFT, &CPage_Paper::OnEnChangeBase_Edit_EdgeLeft)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_DOWN, &CPage_Paper::OnEnChangeBase_Edit_EdgeDown)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_XPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeXpos)
+	ON_EN_CHANGE(IDC_PAPER_EDIT_YPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeYpos)
 END_MESSAGE_MAP()
 
 
@@ -218,37 +225,112 @@ void CPage_Paper::UpdateControls(void)
 
 	// 自定义宽与高
 	TW_FRAME frame;
-	CString strTemp;
-
+	
 	int nIndex = m_combo_uints.GetCurSel();
+	int org = FindUnit(nIndex); //当前界面的单位
+	/*
+	int old = FindUnit(m_unitindex); //界面最开始的单位
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
+	const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
+	int reso = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
+	SetScroll(); */
 	//单位为inches、centi时edit显示两位小数，其他直接显示整数
-	switch(FindUnit(nIndex))
+	switch(org)
 	{
 	case TWUN_INCHES:
 	case TWUN_CENTIMETERS:
 		{
 			frame = m_pUI->GetCurrentFrame();
-			strTemp.Format("%0.2f",FIX32ToFloat(frame.Right));
-			m_edit_width.SetWindowText(strTemp);
+			strText.Format("%0.2f",FIX32ToFloat(frame.Right));
+			m_edit_width.SetWindowText(strText);
 
 			frame = m_pUI->GetCurrentFrame();
-			strTemp.Format("%0.2f",FIX32ToFloat(frame.Bottom));
-			m_edit_height.SetWindowText(strTemp);
+			strText.Format("%0.2f",FIX32ToFloat(frame.Bottom));
+			m_edit_height.SetWindowText(strText);
+			/*
+			//边缘扩充 上下左右
+			int nvalue;
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			//AfxMessageBox(strText);
+			SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
+			
+			//XY偏移量
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%0.2f",(float)nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
+			*/
 			break;
 		}
 	case TWUN_PIXELS:
 		{
 			frame = m_pUI->GetCurrentFrame();
-			strTemp.Format("%d",(int)FIX32ToFloat(frame.Right));
-			m_edit_width.SetWindowText(strTemp);
+			strText.Format("%d",(int)FIX32ToFloat(frame.Right));
+			m_edit_width.SetWindowText(strText);
 
 			frame = m_pUI->GetCurrentFrame();
-			strTemp.Format("%d",(int)FIX32ToFloat(frame.Bottom));
-			m_edit_height.SetWindowText(strTemp);
+			strText.Format("%d",(int)FIX32ToFloat(frame.Bottom));
+			m_edit_height.SetWindowText(strText);
+
+			/*
+			//边缘扩充 上下左右
+			int nvalue;
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
+
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
+			nvalue = ConvertUnits(fCapValue, old, org, reso);
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
+			*/
 			break;
 		}
 	}
-
+		
 	//边缘扩充 上下左右
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
 	strText.Format("%0.2f",fCapValue);
@@ -324,6 +406,10 @@ BOOL CPage_Paper::OnInitDialog()
 	m_unitindex = m_combo_uints.GetCurSel();
 	int unitnval = FindUnit(m_unitindex);	 
 	UpdatePicRectangle(nval, unitnval); //初始画矩形
+
+	GetDlgItem(IDC_PAPER_COMBO_COMPRESS)->ShowWindow(FALSE); //暂时隐藏
+	GetDlgItem(IDC_PAPER_SLIDER_COMPRESSION)->ShowWindow(FALSE); //暂时隐藏
+	GetDlgItem(IDC_PAPER_EDIT_COMPRESSVALUE)->ShowWindow(FALSE); //暂时隐藏
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -608,6 +694,7 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -669,16 +756,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_EDGE_UP] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos; 
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_EDGE_UP] = (float)scrollpos;
 				break;
 			}	
-		}		
+		}	
+		m_papermap[UDSCAP_EDGE_UP] = editvalue;
 		SetDlgItemText(IDC_PAPER_EDIT_UP, str); //设置edit的值
 		break;
 	case IDC_PAPER_SCROLLBAR_DOWN:
@@ -700,16 +787,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_EDGE_DOWN] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_EDGE_DOWN] = (float)scrollpos;
 				break;
 			}	
 		}	
+		m_papermap[UDSCAP_EDGE_DOWN] = editvalue; 
 		SetDlgItemText(IDC_PAPER_EDIT_DOWN, str); //设置edit的值
 		break;
 
@@ -732,16 +819,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_EDGE_LEFT] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_EDGE_LEFT] = (float)scrollpos;
 				break;
 			}	
 		}
+		m_papermap[UDSCAP_EDGE_LEFT] = editvalue; 
 		SetDlgItemText(IDC_PAPER_EDIT_LEFT, str); //设置edit的值
 		break;
 	case IDC_PAPER_SCROLLBAR_RIGHT:
@@ -763,16 +850,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_EDGE_RIGHT] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_EDGE_RIGHT] = (float)scrollpos;
 				break;
 			}	
 		}	
+		m_papermap[UDSCAP_EDGE_RIGHT] = editvalue;
 		SetDlgItemText(IDC_PAPER_EDIT_RIGHT, str); //设置edit的值
 		break;
 
@@ -796,16 +883,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_XPOS] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = scrollpos;
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_XPOS] = (float)scrollpos;
 				break;
 			}	
-		}		
+		}	
+		m_papermap[UDSCAP_XPOS] = editvalue; //存入Map
 		SetDlgItemText(IDC_PAPER_EDIT_XPOS, str); //设置edit的值
 		break;
 	case IDC_PAPER_SCROLLBAR_YPOS:
@@ -827,16 +914,16 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			{
 				editvalue = (float)scrollpos/100;  //需要除以100.
 				str.Format("%0.2f", editvalue);
-				m_papermap[UDSCAP_YPOS] = editvalue;
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
-				m_papermap[UDSCAP_YPOS] = (float)scrollpos;
 				break;
 			}	
-		}		
+		}	
+		m_papermap[UDSCAP_YPOS] = editvalue; //存入Map
 		SetDlgItemText(IDC_PAPER_EDIT_YPOS, str); //设置edit的值
 		break;
 
@@ -1249,4 +1336,232 @@ void CPage_Paper::OnLButtonDown(UINT nFlags, CPoint point)
 		Draw(&dc,&pen);*/
 	}
 	__super::OnLButtonDown(nFlags, point);
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeRight()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_right.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_right.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_EDGE_RIGHT] = nval;
+
+	m_edit_right.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeUp()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_up.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_up.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_EDGE_UP] = nval;
+
+	m_edit_up.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeLeft()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_left.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_left.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_EDGE_LEFT] = nval;
+
+	m_edit_left.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeDown()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_down.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_down.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_EDGE_DOWN] = nval;
+
+	m_edit_down.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeXpos()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_xpos.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_xpos.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_XPOS] = nval;
+
+	m_edit_xpos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Paper::OnEnChangeBase_Edit_EdgeYpos()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_ypos.GetWindowText(str);
+	float nval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	float editvalue;
+	switch(FindUnit(nIndex))
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = nval * 100;  //需要除以100.		
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = nval; 
+			break;
+		}
+	}
+	m_scroll_ypos.SetScrollPos(editvalue);
+	m_papermap[UDSCAP_YPOS] = nval;
+
+	m_edit_ypos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
 }

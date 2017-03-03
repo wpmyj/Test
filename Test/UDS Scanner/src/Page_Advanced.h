@@ -43,8 +43,12 @@ private:
 	CEdit m_edit_removeblank; ///<去除空白页
 	CEdit m_edit_spilt;
 
+	CComboBox m_combo_cachemode; ///<缓存模式
+	CEdit m_edit_cachemode;
+	CSliderCtrl m_slider_cachemode;
+
 	CSliderCtrl m_slider_gamma;
-	CSliderCtrl m_slider_removeblank;
+	CSliderCtrl m_slider_removeblank;		
 	
 	CButton m_check_removeblank;
 	CButton m_check_removepunch;
@@ -54,7 +58,8 @@ private:
 	CButton m_check_removedescreen;
 	CButton m_check_removedenoise;
 	CButton m_check_autocrop;
-	
+	CButton m_check_colorflip;
+
 	CButton m_check_multifeeddetect;
 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
@@ -67,7 +72,8 @@ public:
 //void SetStandardsizes(void); ///<设置纸张大小选择“自定义”时，宽、高的连动
 	void InitAdvancedmap(void); ///<初始化Map值，主要是为分割Map插入默认值
 	void SetBlank(void); ///<判断并设置去除空白页checkBox的初始状态
-	void SetSpiltimage(void); ///设置拆分图像为自定义时，旁边的edit可用。
+	void SetSpiltimage(void); ///<设置拆分图像为自定义时，旁边的edit可用。
+	void SetColorMode(int nIndex); ///根据缓存模式的选择，设置对应滑动条的范围以及static的值
 	
 private:
 	virtual BOOL OnInitDialog();
@@ -93,9 +99,13 @@ private:
 
 	afx_msg void OnClicked_Check_Multifeeddetect();
 
+	afx_msg void OnAdvanced_Btn_Check_Colorflip();
 
 public:
 	/** Base界面的父类指针*/
 	CPage_Custom* m_pBasePage;
-
+	
+	afx_msg void OnCbnSelchangeAdvanced_Combo_Cachemode();
+	afx_msg void OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeAdvanced_Edit_Cachemode();
 };

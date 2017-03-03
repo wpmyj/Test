@@ -61,6 +61,13 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 
 	m_nCompress           = settings.m_nCompress;
 	m_fCompressValue      = settings.m_fCompressValue;
+
+	m_bColorFlip          = settings.m_bColorFlip;
+
+	m_nCacheMode          = settings.m_nCacheMode;
+	m_fCMAuto             = settings.m_fCMAuto;
+	m_fCMPaperNum         = settings.m_fCMPaperNum;
+	m_fCMMemorySize       = settings.m_fCMMemorySize;
 }
 
 CDevice_Base* CDevice_Base::getSetting() const
