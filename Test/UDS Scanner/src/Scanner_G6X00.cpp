@@ -185,7 +185,7 @@ bool CScanner_G6X00::acquireImage()
 
 		m_pTempBuffer = new BYTE[m_dwTotal];    
 		memset(m_pTempBuffer,0,m_dwTotal);
-		m_pFrontBuffer = m_pTempBuffer;
+		m_pSaveBuffer = m_pTempBuffer;
 
 		//CString str2,str3;
 		//char* str1 = "C:\\image\\";
@@ -201,11 +201,11 @@ bool CScanner_G6X00::acquireImage()
 			m_ioStatus.pBuffer = m_pTempBuffer;
 			m_ioStatus.dwRequestedBytes = m_dwTotal;
 			ReadScanEx(&m_ioStatus);
-			//fwrite(m_pFrontBuffer,m_dwTotal,1,fptr_RAW);
+			//fwrite(m_pSaveBuffer,m_dwTotal,1,fptr_RAW);
 		}
 		StopScan();
-		m_pTempBuffer = m_pFrontBuffer; 
-		//fwrite(m_pFrontBuffer,m_dwTotal,1,fptr_RAW);
+		m_pTempBuffer = m_pSaveBuffer; 
+		//fwrite(m_pSaveBuffer,m_dwTotal,1,fptr_RAW);
 		//fclose(fptr_RAW);
 
 		GetADFStatus(&m_byteADFStatus);
@@ -220,11 +220,11 @@ bool CScanner_G6X00::acquireImage()
 	//}			
 	//EndScanJob ();//Please see scan flow issue 1		
 
-	//if(m_pFrontBuffer)                                 
+	//if(m_pSaveBuffer)                                 
 	//{
-	//	delete []m_pFrontBuffer;     
+	//	delete []m_pSaveBuffer;     
 	//	m_pTempBuffer = NULL;
-	//	m_pFrontBuffer = NULL;
+	//	m_pSaveBuffer = NULL;
 	//}
 
 	if (m_pGammaTable)
@@ -232,6 +232,7 @@ bool CScanner_G6X00::acquireImage()
 		delete []m_pGammaTable;
 		m_pGammaTable = NULL;
 	}
+
 
 	//Document scanned, remove it from simulated intray
 	//m_nDocCount--;
@@ -242,7 +243,6 @@ bool CScanner_G6X00::acquireImage()
 	{
 		return false;
 	}
-
 
 	return true;
 }
@@ -262,10 +262,10 @@ bool CScanner_G6X00::preScanPrep()
 		switch(m_scanParameter.BitsPerPixel)
 		{
 		case 1:							
-			Invert(m_pFrontBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
+			Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
 			break;
 		case 24:
-			RGB2BGR(m_pFrontBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
+			RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
 			break;
 		default:
 			break;
@@ -275,8 +275,8 @@ bool CScanner_G6X00::preScanPrep()
 	{
 		if ( 24 == m_scanParameter.BitsPerPixel)
 		{
-			RGB2BGR(m_pFrontBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
-			Invert(m_pFrontBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);	
+			RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
+			Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);	
 		}	
 	}
 
@@ -297,6 +297,10 @@ bool CScanner_G6X00::preScanPrep()
 		m_nSourceWidth   = m_scanParameter.PixelNum;
 		m_nSourceHeight  = m_scanParameter.LineNum;
 	}
+
+
+	//Mat iMat(m_nSourceHeight, m_nSourceWidth, CV_8UC3, m_pSaveBuffer, m_dwBytesPerRow);  
+	//imwrite( "C:\\a.bmp", iMat);
 
 	switch(m_nPixelType)
 	{
@@ -334,7 +338,7 @@ bool CScanner_G6X00::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dw
 	WORD    nRow      = 0;
 	WORD    nMaxRows  = (WORD)(dwRead / m_nDestBytesPerRow); //number of rows–– to be transfered during this call (function of buffer size and line size)
 
-	if( m_nScanLine < MIN(m_nSourceHeight, m_nHeight) ) //0<min(2250,2200)
+	if( m_nScanLine < MIN(m_nSourceHeight, (WORD)m_nHeight) ) //0<min(2250,2200)
 	{
 		//fill the buffer line by line to take care of alignment differences
 		for(nRow = 0; nRow < nMaxRows; nRow++) //nMaxRows = 12
@@ -384,18 +388,17 @@ bool CScanner_G6X00::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dw
 
 void CScanner_G6X00::Release()
 {
-	if(m_pFrontBuffer)                                 
+	if(m_pSaveBuffer)                                 
 	{
-		delete []m_pFrontBuffer;     
-		m_pFrontBuffer = NULL;
+		delete []m_pSaveBuffer;     
+		m_pSaveBuffer = NULL;
 	}
 }
 
 void CScanner_G6X00::InitDriverParamter()
 {
 	m_pGammaTable = NULL;
-	m_pFrontBuffer= NULL;
-	m_pRearBuffer= NULL;
+	m_pSaveBuffer= NULL;
 	m_pTempBuffer = NULL;
 	m_hDLL = NULL;
 	m_dwTotal = 0;
@@ -905,7 +908,7 @@ void CScanner_G6X00::GetCurrentScanRange(const int& _nSize, float& _fWeight, flo
 BYTE* CScanner_G6X00::MyGetScanLine(int _nLine)
 {
 	BYTE *ps;
-	ps = m_pFrontBuffer + m_dwBytesPerRow * _nLine;  
+	ps = m_pSaveBuffer + m_dwBytesPerRow * _nLine;  
 	return ps;
 }
 

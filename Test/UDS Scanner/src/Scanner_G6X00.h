@@ -8,6 +8,11 @@
 #pragma once
 #include "Device_Base.h"
 #include "GL1.h"
+//#include "opencv.hpp"
+//#include "CommonDS.h"
+//
+//using namespace std;
+//using namespace cv;
 
 #define  FILENAME_DLL_GL1   TEXT("GL1.dll")
 
@@ -214,10 +219,17 @@ protected:
 	DWORD             m_nDestBytesPerRow;       /**< number of bytes needed for a row of data */
 
 
+	//cv::Mat           m_mat_image;              /**< 存储图像数据的Mat */
+	//double            m_dRat;                   /**< 宽/高 */
+	//Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
+
+	//char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
+	//uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
+	//int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
+
 private:
 	BYTE* m_pGammaTable;
-	BYTE* m_pFrontBuffer;
-	BYTE* m_pRearBuffer;
+	BYTE* m_pSaveBuffer;
 	BYTE* m_pTempBuffer;
 	BYTE  m_byteADFStatus;
 	DWORD m_dwTotal;
