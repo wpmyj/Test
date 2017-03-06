@@ -8,11 +8,11 @@
 #pragma once
 #include "Device_Base.h"
 #include "GL1.h"
-//#include "opencv.hpp"
-//#include "CommonDS.h"
-//
-//using namespace std;
-//using namespace cv;
+#include "opencv.hpp"
+#include "CommonDS.h"
+
+using namespace std;
+using namespace cv;
 
 #define  FILENAME_DLL_GL1   TEXT("GL1.dll")
 
@@ -177,6 +177,79 @@ protected:
 	*/
 	void Invert(BYTE* pBuffer, int length, int BitsPerPixel);
 
+////////////////////////////////////////////////////////////////////////////////
+/// 利用OpenCV进行图像处理函数
+	/**
+	*  @brief  逆时针旋转图像（原尺寸）
+	*  @param[in]  angle 旋转角度 
+	*/
+	void RotateImage(double angle);
+
+	/**
+	*  @brief  水平镜像
+	*  @param[in]  src 原图 
+	*  @param[out] dst 目标图像 
+	*/
+	void hMirrorTrans(const Mat &src, Mat &dst);
+
+  /**
+	*  @brief  mat转换为uchar格式
+	*  @param[in]  src_img 输入，mat格式的图像数据
+	*  @param[out] 输出 uchar数据
+	*/
+	void Mat2uchar(Mat src_img);
+
+	/**
+	*  @brief  得到scanline行的数据
+	*  @param[in]  src_img 输入，mat格式的图像数据
+	*  @param[out] 输出 uchar数据
+	*/
+	BYTE *GetScanLine(int scanline);
+
+	/**
+	*  @brief  自动校正
+	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
+	*  @param[out]  输出校正后的图像
+	*/
+	Mat AutoCorrect(Mat src_img); 
+
+	/**
+	*  @brief  去除黑边
+	*  @param[in]  src ：输入图像
+	*  @param[out]  输出去黑边后的图像
+	*/
+	Mat RemoveBlack(Mat src_img);
+
+	/**
+	*  @brief  色彩翻转
+	*  @param[in]  src 原图 
+	*  @param[out] dst 目标图像 
+	*/
+	void ColorFlip(const Mat &src, Mat &dst);
+
+  /**
+	*  @brief  中值滤波
+	*/
+	void MedianSmooth(const Mat &src/*, IplImage *out*/);
+
+	/**
+	*  @brief  霍夫圆变换
+	*  @param[in]  src ：输入图像 (灰度图)
+	*  @param[in]  dp ：检测圆心的累加器图像的分辨率与输入图像之比的倒数，即累加器图像的反比分辨率	
+	*  @param[in]  threshold1 ：第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
+	*  @param[in]  threshold2 ：表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
+	*  @param[out]  输出变换后图像
+	*/
+	Mat HoughCirclesTransfer(Mat src_img ,double dp, double threshold1, double threshold2);
+
+	/**
+	*  @brief  去除穿孔
+	*  @param[in]  threshold1 ：霍夫变换的第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
+	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
+	*  @param[out]  输出变换后图像
+	*/
+	Mat RemovePunch(const Mat &src, double threshold1, double threshold2);
+
 protected:
 	InitializeDriverProc               InitializeDriver;
 	InitializeScannerProc              InitializeScanner;
@@ -219,13 +292,13 @@ protected:
 	DWORD             m_nDestBytesPerRow;       /**< number of bytes needed for a row of data */
 
 
-	//cv::Mat           m_mat_image;              /**< 存储图像数据的Mat */
-	//double            m_dRat;                   /**< 宽/高 */
-	//Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
+	cv::Mat           m_mat_image;              /**< 存储图像数据的Mat */
+	double            m_dRat;                   /**< 宽/高 */
+	Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
 
-	//char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
-	//uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
-	//int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
+	char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
+	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
+	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 
 private:
 	BYTE* m_pGammaTable;
