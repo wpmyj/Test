@@ -124,8 +124,11 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 			switch (g_nDeviceNumber)
 			{
 			case DEVICE_OPENCV:
+			case DEVICE_G6400:
+			case DEVICE_G6600:
 			//case DEVICE_FREEIMAGE:
 				{
+					//::MessageBox(g_hwndDLG,TEXT("new CSheet_Scanner!"),MB_CAPTION,MB_OK);
 					m_pSheet = new CSheet_Scanner(this,IDS_DS_CAPTION);
 					if (m_pSheet)
 					{

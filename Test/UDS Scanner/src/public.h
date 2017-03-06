@@ -42,8 +42,8 @@ typedef enum DEVICE_NUMBER
 {
 	DEVICE_OPENCV     = 1,   /**< »ùÓÚOpenCVµÄÐéÄâÉ¨ÃèÒÇ */
 	DEVICE_CAMERA     = 2,   /**< ÉãÏñÍ· */
-	//DEVICE_G6400      = 3,   /**< É¨ÃèÒÇG6400 */
-	//DEVICE_FREEIMAGE	= 1,   /**< »ùÓÚFreeIamgeµÄÐéÄâÉ¨ÃèÒÇ */
+	DEVICE_G6400      = 3,   /**< É¨ÃèÒÇG6400 */
+	DEVICE_G6600	    = 4,   /**< É¨ÃèÒÇG6600 */
 };
 
 #endif //__PUBLIC_H__

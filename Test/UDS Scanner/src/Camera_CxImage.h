@@ -70,7 +70,7 @@ protected:
 	*  @param[out] buffer 接收图片数据的buffer.
 	*  @param[out] dwReceived 传输的实际大小（以字节为单位）
 	*/
-	void GetImageData(BYTE *buffer, DWORD &dwReceived);
+	//void GetImageData(BYTE *buffer, DWORD &dwReceived);
 
 	/**
   * Return the number of documents sitting in the feeder.

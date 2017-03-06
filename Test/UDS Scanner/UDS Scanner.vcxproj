@@ -155,7 +155,10 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\tbb.dll" "c:\windows\twain_32\UDS
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoDevice.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_VideoOperate.dll" "c:\windows\twain_32\UDS General TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\_install.bat" "c:\windows\twain_32\UDS General TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL1.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL2.dll" "c:\windows\twain_32\UDS General TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SmartImage.dll" "c:\windows\twain_32\UDS General TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
@@ -189,6 +192,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_
     <ClCompile Include="src\Page_Custom.cpp" />
     <ClCompile Include="src\Page_Paper.cpp" />
     <ClCompile Include="src\Page_Profile.cpp" />
+    <ClCompile Include="src\Scanner_G6X00.cpp" />
     <ClCompile Include="src\Sheet_Scanner.cpp" />
     <ClCompile Include="src\TWAINContainer.cpp" />
     <ClCompile Include="src\TWAINContainerBool.cpp" />
@@ -209,6 +213,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_
     <ClInclude Include="..\..\..\testfiles\common\Common.h" />
     <ClInclude Include="..\..\..\testfiles\common\CommonTWAIN.h" />
     <ClInclude Include="..\..\..\testfiles\common\CTiffWriter.h" />
+    <ClInclude Include="..\..\..\testfiles\common\GL1.h" />
     <ClInclude Include="..\..\..\testfiles\common\twain.h" />
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
     <ClInclude Include="Resource.h" />
@@ -232,6 +237,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_
     <ClInclude Include="src\Page_Profile.h" />
     <ClInclude Include="src\public.h" />
     <ClInclude Include="src\Device_Base.h" />
+    <ClInclude Include="src\Scanner_G6X00.h" />
     <ClInclude Include="src\Sheet_Scanner.h" />
     <ClInclude Include="src\TWAINContainer.h" />
     <ClInclude Include="src\TWAINContainerBool.h" />

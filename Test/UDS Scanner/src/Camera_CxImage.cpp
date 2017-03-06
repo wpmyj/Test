@@ -103,21 +103,6 @@ bool CCamera_CxImage::isFeederLoaded()
 	return rtn;
 }
 
-void CCamera_CxImage::GetImageData(BYTE *buffer, DWORD &dwReceived)
-{
-	//memcpy(buffer, m_pImageBuffer, m_dwSize * sizeof(BYTE));
-	//::MessageBox(g_hwndDLG,TEXT("CCamera_DirectX::GetImageData()"),MB_CAPTION,MB_OK);
-
-
-	//long size = m_mat_image.total() * m_mat_image.elemSize();
-	//char buf[60];
-	//itoa(size, buf, 10);
-	//::MessageBox(g_hwndDLG, TEXT(buf),"GetImageData::size",MB_OK);
-	//std::memcpy(buffer, m_mat_image.data, size * sizeof(BYTE));
-	//::MessageBox(g_hwndDLG,TEXT("After memcpy!"),MB_CAPTION,MB_OK);
-
-
-}
 
 short CCamera_CxImage::getDocumentCount() const
 {

@@ -101,7 +101,7 @@ public:
 	*  @param[out] buffer 保存图片数据buffer.
 	*  @param[out] dwReceived 传输的实际大小（以字节为单位）
 	*/
-	virtual void GetImageData(BYTE *buffer, DWORD &dwReceived) {}
+	//virtual void GetImageData(BYTE *buffer, DWORD &dwReceived) {}
 
 	/**
 	*  @brief  用于释放最后一张纸占用的内存

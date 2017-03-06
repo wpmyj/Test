@@ -118,12 +118,13 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 			m_pScanner = new CScanner_FreeImage;
 			break;
 		}	*/	
-	//case DEVICE_G6400:
-	//	{
-	//		m_pScanner = new CScanner_G6400;
-	//		break;
-	//		//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
-	//	}
+	case DEVICE_G6400:
+	case DEVICE_G6600:
+		{
+			m_pScanner = new CScanner_G6X00;
+			break;
+			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
+		}
 	case DEVICE_OPENCV:
 		{
 			m_pScanner = new CScanner_OpenCV;
@@ -1503,7 +1504,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			//m_pGUI->TW_LoadProfileFromFile("上次使用模板");
 			if(!updateScannerFromCaps())
 			{
-				::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
+				::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
 				//cerr << "ds: There was an error while prepping the image for scanning" << endl;
 				setConditionCode(TWCC_BADVALUE);
 				return TWRC_FAILURE;
@@ -1519,7 +1520,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 
 			if(!m_pScanner->acquireImage())
 			{
-				::MessageBox(g_hwndDLG,TEXT("There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
+				::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
 				//cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
 				m_CurrentState = dsState_Open;
 				setConditionCode(TWCC_SEQERROR);
@@ -1766,7 +1767,9 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		switch (g_nDeviceNumber)
 		{
 		case DEVICE_CAMERA:
-		case DEVICE_OPENCV:  //CScanner_Opencv
+		case DEVICE_OPENCV:  //CScanner_OpencV
+		case DEVICE_G6400:
+		case DEVICE_G6600:
 		//case DEVICE_FREEIMAGE:  //CScanner_FreeImage
 			{				
 				do
@@ -1844,6 +1847,7 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
   
   if(!m_pScanner->isFeederLoaded())
   {
+		//::MessageBox(g_hwndDLG,TEXT("m_Xfers.Count = 0!"),MB_CAPTION,MB_OK);
     m_Xfers.Count = 0;
   }
   if(m_bCanceled)
@@ -1867,7 +1871,7 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
 			//::MessageBox(g_hwndDLG," endXfer: acquireImage()! ",MB_CAPTION,MB_OK);
       if(!m_pScanner->acquireImage())
       {
-				::MessageBox(g_hwndDLG,TEXT("ds: There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
+				::MessageBox(g_hwndDLG,TEXT("endXfer: There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
         //cerr << "ds: There was an error while prepping the image for scanning" << endl;
         setConditionCode(TWCC_BUMMER);
         twrc = TWRC_FAILURE;
@@ -2272,7 +2276,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_SPLITIMAGE))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SPLITIMAGE!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get UDSCAP_SPLITIMAGE" << endl;
 		bret = false;
 	}
 	else
@@ -2298,7 +2301,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_AUTODISCARDBLANKPAGES))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_AUTODISCARDBLANKPAGES!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_AUTODISCARDBLANKPAGES" << endl;
 		bret = false;
 	}
 	else
@@ -2309,7 +2311,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_PUNCHHOLEREMOVEL))))
 	{
-		//cerr << "Could not get UDSCAP_PUNCHHOLEREMOVEL" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_PUNCHHOLEREMOVEL!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
@@ -2382,7 +2383,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	// 图像裁切
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_AUTOCROP))))
 	{
-		//cerr << "Could not get UDSCAP_AUTOCROP" << endl;
 		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_AUTOCROP!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
@@ -2395,7 +2395,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_BINARIZATION))))
 	{
-		cerr << "Could not get UDSCAP_BINARIZATION" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_BINARIZATION!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2407,7 +2407,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	// 纸张数
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_DOCS_IN_ADF))))
 	{
-		cerr << "Could not get UDSCAP_DOCS_IN_ADF" << endl;
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_DOCS_IN_ADF!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2420,7 +2420,6 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(ICAP_GAMMA))))
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_GAMMA!"),MB_CAPTION,MB_OK);
-		//cerr << "Could not get ICAP_GAMMA" << endl;
 		bret = false;
 	}
 	else
@@ -2832,7 +2831,7 @@ bool CTWAINDS_UDS::StartScanning()
   // Update the scanner with the latest negotiated caps
   if(!updateScannerFromCaps())
   {
-		::MessageBox(g_hwndDLG,TEXT("There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("StartScanning::There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
     //cerr << "ds: There was an error while prepping the image for scanning" << endl;
     setConditionCode(TWCC_BADVALUE);
     return false;
