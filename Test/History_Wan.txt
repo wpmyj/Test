@@ -351,3 +351,4 @@ date 17.03.06
 @author wan
 1.类CScanner_G6X00中删除变量m_pRearBuffer,并将变量m_pFrontBuffer更名为m_pSaveBuffer;
 2.将内存中数据转为Mat，利用OpenCV进行图像处理；
+3.图像处理添加旋转、镜像、自动裁切与矫正、色彩翻转、去除噪声等；

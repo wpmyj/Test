@@ -262,28 +262,17 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 bool CScanner_G6X00::preScanPrep()
 {
 
-	// 反转判断
-	if (0 == m_scanParameter.Invert)  // 原始数据是黑白反转的
+
+	switch(m_scanParameter.BitsPerPixel)
 	{
-		switch(m_scanParameter.BitsPerPixel)
-		{
-		case 1:							
-			Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
-			break;
-		case 24:
-			RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
-			break;
-		default:
-			break;
-		}
-	}
-	else
-	{
-		if ( 24 == m_scanParameter.BitsPerPixel)
-		{
-			RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
-			Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);	
-		}	
+	case 1:							
+		Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
+		break;
+	case 24:
+		RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
+		break;
+	default:
+		break;
 	}
 
 
@@ -304,6 +293,8 @@ bool CScanner_G6X00::preScanPrep()
 		m_nSourceHeight  = m_scanParameter.LineNum;
 	}
 
+	m_dRat = (double)m_nSourceWidth/m_nSourceHeight;
+
 	int nType = CV_8UC3;
 	switch(m_nPixelType)
 	{
@@ -321,30 +312,31 @@ bool CScanner_G6X00::preScanPrep()
 		break;
 	}
 
-	Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow);  
-	iMat.copyTo(m_mat_image);
-	imwrite( "C:\\a.bmp", iMat);
-
+	{
+		Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow);  
+		iMat.copyTo(m_mat_image);
+	}
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
-		RotateImage(90);
+
+		RotateImage(m_mat_image, m_mat_image, 90);
 	}
 
 	// 旋转
 	switch((int)m_fRotation)
 	{
 	case TWOR_ROT0: 
-		RotateImage(0);
+		RotateImage(m_mat_image, m_mat_image, 0);
 		break;								
 	case TWOR_ROT90: 
-		RotateImage(-90);
+		RotateImage(m_mat_image, m_mat_image, -90);
 		break;										
 	case TWOR_ROT180: 
-		RotateImage(-180);
+		RotateImage(m_mat_image, m_mat_image, -180);
 		break;										
 	case TWOR_ROT270: 
-		RotateImage(-270);
+		RotateImage(m_mat_image, m_mat_image, -270);
 		break;									
 	default: 
 		break;					 
@@ -415,6 +407,28 @@ bool CScanner_G6X00::preScanPrep()
 		m_nHeight = m_mat_image.rows;
 	}
 
+
+	//锐化
+	int index = FindDepth(m_mat_image); //index为图像的深度
+	//锐化图像
+	if(m_bSharpen == TWSP_AUTO) 
+	{	
+		if(m_nPixelType != TWPT_BW)
+		{
+			Mat matSharpen;
+			//USM 锐化
+			float amount = 1;  
+			m_mat_image.copyTo(matSharpen);
+			Mat imgblur;
+			Mat imgdst;
+			Mat lowContrastMask;
+			GaussianBlur(matSharpen, imgblur, Size(), 3, 3);  
+			lowContrastMask = abs(matSharpen - imgblur)<0;  
+			imgdst  = matSharpen*(1+amount) + imgblur*(-amount);  
+			matSharpen.copyTo(imgdst, lowContrastMask); 
+			imgdst.copyTo(m_mat_image);
+		}	
+	}
 
 	switch(m_nPixelType)
 	{
@@ -1066,24 +1080,24 @@ void CScanner_G6X00::RGB2BGR(BYTE *buffer, int length, int BitsPerPixel)
 	}
 }
 
-void CScanner_G6X00::RotateImage(double angle)
+void CScanner_G6X00::RotateImage(const Mat &_src, Mat &_dst, double angle)
 {
 	double scale = 1; // 缩放尺度 
-
+	cv::Mat src(_src);
 	if (90 == angle || 270 == angle || -90 == angle || -270 == angle)
 	{
 		scale = m_dRat;
 	}
-	cv::Point2f center = cv::Point2f((float)m_mat_image.cols / 2, 
-		(float)m_mat_image.rows / 2);  // 旋转中心   	 
+	cv::Point2f center = cv::Point2f((float)src.cols / 2, 
+		(float)src.rows / 2);  // 旋转中心   	 
 
 	cv::Mat rotateMat;   
 	rotateMat = cv::getRotationMatrix2D(center, angle, scale);  
 
 	cv::Mat rotateImg;  
-	cv::warpAffine(m_mat_image, rotateImg, rotateMat, m_mat_image.size());  
+	cv::warpAffine(src, rotateImg, rotateMat, src.size());  
 
-	m_mat_image = rotateImg;
+	_dst = rotateImg;
 }
 
 void CScanner_G6X00::hMirrorTrans(const Mat &src, Mat &dst)
@@ -1461,17 +1475,18 @@ cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
 	return imageSave;
 }
 
-void CScanner_G6X00::ColorFlip(const Mat &src, Mat &dst)
+void CScanner_G6X00::ColorFlip(const Mat& src, Mat& dst)
 {
+
 	CV_Assert(src.depth() == CV_8U); //若括号中的表达式值为false，则返回一个错误信息
 	dst.create(src.rows, src.cols, src.type());
 
 	int width = src.rows;
 	int height = src.cols;
 
-	for(int j = 0; j < width; j++)
+	for(int j = 0; j < height; j++)
 	{
-		for(int i = 0; i < height; i++)
+		for(int i = 0; i < width; i++)
 		{
 			switch (src.channels())
 			{
@@ -1486,6 +1501,7 @@ void CScanner_G6X00::ColorFlip(const Mat &src, Mat &dst)
 			}
 		}
 	}
+
 }
 
 void CScanner_G6X00::MedianSmooth(const Mat &src/*, IplImage *out*/)
@@ -1595,6 +1611,43 @@ cv::Mat CScanner_G6X00::HoughCirclesTransfer(Mat src_img ,double dp, double thre
 	}  
 	
 	return src_img;
+}
+
+int CScanner_G6X00::FindDepth(const Mat &src_img)
+{
+	int Index,Outdex;
+	Index = src_img.depth(); //图像深度
+	switch(Index)
+	{
+	case 0:
+		Outdex = CV_8U;
+		break;
+	case 1:
+		Outdex = CV_8S;
+		break;
+	case 2:
+		Outdex = CV_16U;
+		break;
+	case 3:
+		Outdex = CV_16S;
+		break;
+	case 4:
+		Outdex = CV_32S;
+		break;
+	case 5:
+		Outdex = CV_32F;
+		break;
+	case 6:
+		Outdex = CV_64F;
+		break;
+	case 7:
+		Outdex = CV_USRTYPE1;
+		break;
+	default:
+		Outdex = CV_8U;
+		break;
+	}
+	return Outdex;
 }
 
 

@@ -181,9 +181,11 @@ protected:
 /// 利用OpenCV进行图像处理函数
 	/**
 	*  @brief  逆时针旋转图像（原尺寸）
+	*  @param[in]  _src 原图 
+	*  @param[out] _dst 目标图像 
 	*  @param[in]  angle 旋转角度 
 	*/
-	void RotateImage(double angle);
+	void RotateImage(const Mat &_src, Mat &_dst, double angle);
 
 	/**
 	*  @brief  水平镜像
@@ -225,7 +227,7 @@ protected:
 	*  @param[in]  src 原图 
 	*  @param[out] dst 目标图像 
 	*/
-	void ColorFlip(const Mat &src, Mat &dst);
+	void ColorFlip(const Mat& _src, Mat& _dst);
 
   /**
 	*  @brief  中值滤波
@@ -244,11 +246,19 @@ protected:
 
 	/**
 	*  @brief  去除穿孔
+	*  @param[in] src 原图
 	*  @param[in]  threshold1 ：霍夫变换的第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
 	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
 	*  @param[out]  输出变换后图像
 	*/
 	Mat RemovePunch(const Mat &src, double threshold1, double threshold2);
+
+	/**
+	*  @brief  判断输入图像深度
+	*  @param[in]  src 输入图像
+	*  @param[out]  输出图像深度
+	*/
+	int FindDepth(const Mat &src_img);
 
 protected:
 	InitializeDriverProc               InitializeDriver;
