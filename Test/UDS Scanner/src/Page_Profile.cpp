@@ -54,13 +54,12 @@ void CPage_Profile::OnOK()
 	int index = m_list_template.GetCurSel();
 	CString str;
 	m_list_template.GetText(index, str);
-	if (str.Find("UDS") >= 0 || str.Find("默认模板") >= 0 
-		|| str.Find("上次使用") >= 0){}
+	if (str.Find("UDS") >= 0 || str.Find("默认模板") >= 0 || str.Find("上次使用") >= 0){}
 	else{
 		m_pUI->TW_SaveProfileToFile(str.GetBuffer()); //不是上述类型模板时，保存当前选中模板
 	}
 	m_pUI->TW_SaveProfileToFile("上次使用模板");//再次保存“上次使用模板”
-
+	
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();

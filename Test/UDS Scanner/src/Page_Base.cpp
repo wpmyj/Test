@@ -247,6 +247,7 @@ void CPage_Base::UpdateControls(void)
 	const FloatVector* lstCapValuesFlt;
 	int nCapValue;
 	CString strText;
+	int nval;
 
 	CString str;
 	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
@@ -257,6 +258,7 @@ void CPage_Base::UpdateControls(void)
 		m_slider_threshold.SetPos(nCapValue);
 		strText.Format("%d",nCapValue);
 		SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, strText);
+		m_basemap[UDSCAP_REMOVESPOTS] = (float)nCapIndex;
 	}
 	else if(str.Find("底色保留") >= 0)
 	{
@@ -265,6 +267,7 @@ void CPage_Base::UpdateControls(void)
 		m_slider_threshold.SetPos(nCapValue);
 		strText.Format("%d",nCapValue);
 		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
+		m_basemap[ICAP_THRESHOLD] = (float)nCapIndex;
 	}
 	else{}//必须保留
 
@@ -279,6 +282,7 @@ void CPage_Base::UpdateControls(void)
 		m_radiobtn_scanmode = 0;
 	}
 	SetFlat();
+	m_basemap[CAP_FEEDERENABLED] = (float)m_radiobtn_scanmode;
 
   // 图像类型 
 	m_combo_colormode.ResetContent();
@@ -302,6 +306,7 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_colormode.SetCurSel(nCapIndex);
+	m_basemap[ICAP_PIXELTYPE] = (float)nCapIndex;
 	InitComboPixType();
 
 	//二值化
@@ -341,6 +346,7 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_binarization.SetCurSel(nCapIndex);
+	m_basemap[UDSCAP_BINARIZATION] = (float)nCapIndex;
 	SetBinarization();
 
 	// 分辨率
@@ -355,24 +361,30 @@ void CPage_Base::UpdateControls(void)
 		m_combo_resolution.InsertString(i,strTemp);
 	}
 	m_combo_resolution.SetCurSel(nCapIndex);
+	nval = (int)lstCapValuesFlt->at(nCapIndex);
+	m_basemap[ICAP_XRESOLUTION] = (float)nval;
+	m_basemap[ICAP_YRESOLUTION] = (float)nval;
 
 	// 对比度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
 	m_slider_contrast.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_CONTRAST,strText);
+	m_basemap[ICAP_CONTRAST] = float(nCapValue);
 
 	// 亮度 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS));
 	m_slider_brightness.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,strText);
+	m_basemap[ICAP_BRIGHTNESS] = float(nCapValue);
 
 	// 阈值 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 	m_slider_threshold.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
+	m_basemap[ICAP_THRESHOLD] = float(nCapValue);
 
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
@@ -860,11 +872,19 @@ void CPage_Base::OnEnChangeBase_Edit_Threshold()
 
 void CPage_Base::SetFlat(void)
 {
-	if(1 == m_radiobtn_scanmode)
+	if(1 == m_radiobtn_scanmode)//为1表示平板
 	{
 		m_basemap[CAP_DUPLEXENABLED] = 0.0f;
-		m_radiobtn_duplex = 0; //平板时，只能是单面	
+		m_radiobtn_duplex = 0; //平板时，只能是单面
+		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
+	//	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
 	}	
+	else //为0表示自动进纸器选中
+	{
+		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
+		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE); 
+	}
+	
 	SetMultistream();
 }
 
@@ -1057,17 +1077,19 @@ void CPage_Base::OnBase_RadioBtn_Scanmode()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-	
-	int index = m_radiobtn_scanmode;
-	if(1 == index){ //为0表示自动进纸器选中
-		SetFlat();
+	int index;
+	SetFlat();
+	if(1 == m_radiobtn_scanmode)
+	{ //为0表示自动进纸器选中
+		index = 0;
 		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
 	}
 	else
 	{
+		index = 1;
 		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
 	}
 
 	m_basemap[CAP_FEEDERENABLED] = (float)index;

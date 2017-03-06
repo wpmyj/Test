@@ -198,6 +198,7 @@ void CPage_Advanced::UpdateControls(void)
 	const FloatVector* lstCapValuesFlt;
 	int nCapValue;
 	CString strText;
+	int nval;
 
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
@@ -228,6 +229,8 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_rotate.SetCurSel(nCapIndex);
+	nval = (int)lstCapValuesFlt->at(nCapIndex);
+	m_advancedmap[ICAP_ROTATION] = (float)nval;
 
 	//图像设置-图像分割
 	m_combo_splitimage.ResetContent(); //清空内容
@@ -254,7 +257,8 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_splitimage.SetCurSel(nCapIndex);
-	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nCapIndex;//不能只更新容器，还要更新CAP
+	nval = (int)lstCapValuesFlt->at(nCapIndex);
+	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nval;//不能只更新容器，还要更新CAP
 	
 	//Gamma校正 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型
@@ -262,40 +266,51 @@ void CPage_Advanced::UpdateControls(void)
 	float valueTemp = ((float)nCapValue)/100;
 	strText.Format("%.2f", valueTemp);
 	SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_GAMMA, strText);
+	m_advancedmap[ICAP_GAMMA] = float(nCapValue);
 
 	//去除空白页checkbox
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBLANK));
 	m_check_removeblank.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_REMOVEBLANK] = (float)nCapValue;
 	//去除空白页 -1自动;-2不可用:改为滑动条 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES)); 
 	m_slider_removeblank.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_ADVANCED_EDIT_REMOVEBLANK, strText);
+	m_advancedmap[ICAP_AUTODISCARDBLANKPAGES] = float(nCapValue);
 	
 	//去除穿孔等
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PUNCHHOLEREMOVEL));
 	m_check_removepunch.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_PUNCHHOLEREMOVEL] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_SHARPEN));
 	m_check_sharpen.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_SHARPEN] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MIRROR));
 	m_check_mirror.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_MIRROR] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBACKGROUND));
 	m_check_removeback.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_REMOVEBACKGROUND] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DESCREEN));
 	m_check_removedescreen.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_DESCREEN] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DENOISE));
 	m_check_removedenoise.SetCheck(nCapValue); 
+	m_advancedmap[UDSCAP_DENOISE] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_AUTOCROP));
 	m_check_autocrop.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_AUTOCROP] = (float)nCapValue;
 
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_COLORFLIP));
 	m_check_colorflip.SetCheck(nCapValue);
+	m_advancedmap[UDSCAP_COLORFLIP] = (float)nCapValue;
 
 	//缓存模式
 	m_combo_cachemode.ResetContent(); //清空内容
@@ -320,7 +335,8 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_cachemode.SetCurSel(nCapIndex);
-	m_advancedmap[UDSCAP_CACHEMODE] = (float)nCapIndex;//不能只更新容器，还要更新CAP
+	nval = lstCapValues->at(nCapIndex);
+	m_advancedmap[UDSCAP_CACHEMODE] = (float)nval;//不能只更新容器，还要更新CAP
  
 }
 
@@ -381,7 +397,7 @@ void CPage_Advanced::SetColorMode(int nIndex)
 		m_slider_cachemode.SetPos(value);	
 		if(value == 0)
 		{
-			str = "默认值";
+			str = "默认";
 		}
 		else
 		{

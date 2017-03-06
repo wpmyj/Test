@@ -113,6 +113,7 @@ void CPage_Paper::UpdateControls(void)
 	float fCapValue;
 	int nCapValue;
 	CString strText;
+	int nval;
 
 	//纸张设置-纸张大小
 	m_combo_standardsizes.ResetContent();  // 清空内容
@@ -181,7 +182,7 @@ void CPage_Paper::UpdateControls(void)
 		}
 	}
 	m_combo_standardsizes.SetCurSel(nCapIndex);  // 显示默认值
-	int nval = FindPaperSize(nCapIndex);
+	nval = FindPaperSize(nCapIndex);
 	m_papermap[ICAP_SUPPORTEDSIZES] = (float)nval;//不能只更新容器，还要更新CAP
 	
 	//SetStandardsizes();
@@ -222,10 +223,11 @@ void CPage_Paper::UpdateControls(void)
 		}
 	}
 	m_combo_uints.SetCurSel(nCapIndex);
+	nval = FindUnit(nCapIndex);
+	m_papermap[ICAP_UNITS] = (float)nval;
 
 	// 自定义宽与高
-	TW_FRAME frame;
-	
+	TW_FRAME frame;	
 	int nIndex = m_combo_uints.GetCurSel();
 	int org = FindUnit(nIndex); //当前界面的单位
 	/*
@@ -335,27 +337,33 @@ void CPage_Paper::UpdateControls(void)
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
+	m_papermap[IDC_PAPER_EDIT_UP] = fCapValue;
 
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
+	m_papermap[UDSCAP_EDGE_DOWN] = fCapValue;
 
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
+	m_papermap[UDSCAP_EDGE_LEFT] = fCapValue;
 
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
+	m_papermap[UDSCAP_EDGE_RIGHT] = fCapValue;
 
 	//X偏移量
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
+	m_papermap[UDSCAP_XPOS] = fCapValue;
 
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
 	strText.Format("%0.2f",fCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
+	m_papermap[UDSCAP_YPOS] = fCapValue;
 
 	//压缩
 	m_combo_compress.ResetContent();  // 清空内容
@@ -379,12 +387,14 @@ void CPage_Paper::UpdateControls(void)
 		}
 	}
 	m_combo_compress.SetCurSel(nCapIndex);
+	//m_papermap[ICAP_COMPRESSION] = fCapValue;
 
 	// 压缩比 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
 	m_slider_compressvalue.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE,strText);
+	//m_papermap[UDSCAP_COMPRESSVALUE] = fCapValue;
 }
 
 

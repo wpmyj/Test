@@ -1519,7 +1519,7 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
     m_CurrentState = dsState_Open;
   }
 
-	//m_pGUI->TW_LoadProfileFromFile("上次使用模板");
+	m_pGUI->TW_LoadProfileFromFile("上次使用模板");
 
   return ret;
 }

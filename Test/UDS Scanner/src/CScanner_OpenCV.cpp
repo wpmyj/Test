@@ -339,6 +339,7 @@ bool CScanner_OpenCV::preScanPrep()
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
 	}
+
 	//色彩翻转
 	if(m_bColorFlip == TWCF_AUTO)
 	{ 
@@ -391,6 +392,7 @@ bool CScanner_OpenCV::preScanPrep()
 		GammaCorrection(m_mat_image, matGamma, m_fGamma/100);
 		m_mat_image = matGamma;
 	}
+
 	//去除噪声
 	if(m_bDenoise == TWDN_AUTO) 
 	{	
@@ -420,7 +422,6 @@ bool CScanner_OpenCV::preScanPrep()
 		dst.copyTo(m_mat_image);*/
 		
 	}
-
 
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
