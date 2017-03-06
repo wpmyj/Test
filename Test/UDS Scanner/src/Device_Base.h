@@ -166,6 +166,12 @@ public:
 	int               m_nCompress;              /**< 压缩格式*/
 	float             m_fCompressValue;         /**< 压缩比的值*/
 
+	bool              m_bColorFlip;             /**< 色彩翻转 */
+
+	int               m_nCacheMode;             /**< 缓存模式 */
+	float             m_fCMAuto;                /**< 缓存模式选项-自动 */
+	float             m_fCMPaperNum;            /**< 缓存模式选项-纸张数量 */
+	float             m_fCMMemorySize;          /**< 缓存模式选项-内存大小 */
 
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0

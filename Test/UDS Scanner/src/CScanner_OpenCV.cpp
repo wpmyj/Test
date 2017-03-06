@@ -142,6 +142,13 @@ bool CScanner_OpenCV::resetScanner()
 	m_nCompress           = TRUE;
 	m_fCompressValue      = 0.0;
 
+	m_bColorFlip          = FALSE;
+
+	m_nCacheMode          = TWCM_NONE; //自动
+	m_fCMAuto             = 1.0;
+	m_fCMPaperNum         = 1.0;
+	m_fCMMemorySize       = 1.0;
+	
 	m_byte_image = NULL;
 	if (false == m_mat_image.empty())
 	{
@@ -332,6 +339,13 @@ bool CScanner_OpenCV::preScanPrep()
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
 	}
+	//色彩翻转
+	if(m_bColorFlip == TWCF_AUTO)
+	{ 
+		Mat mat_hColorflip;
+		ColorFlip(m_mat_image, mat_hColorflip);
+		mat_hColorflip.copyTo(m_mat_image);
+	}
 	
 	//多流输出
 	if(m_bMultiStream)
@@ -370,6 +384,13 @@ bool CScanner_OpenCV::preScanPrep()
 		}
 	}
 
+	//Gamma校正
+	if(m_fGamma != 100.0) //zhu
+	{
+		Mat matGamma;//Mat& matGamma = m_mat_image;
+		GammaCorrection(m_mat_image, matGamma, m_fGamma/100);
+		m_mat_image = matGamma;
+	}
 	//去除噪声
 	if(m_bDenoise == TWDN_AUTO) 
 	{	
@@ -387,15 +408,19 @@ bool CScanner_OpenCV::preScanPrep()
 		//Y方向方差
 		GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
 		matDescreen.copyTo(m_mat_image);
+		
+		/*
+		//开运算
+		Mat dst;
+		//内核矩阵
+		Mat element = getStructuringElement(MORPH_RECT, Size(10, 10)); //getStructuringElement函数会返回指定形状和尺寸的结构元素（内核矩阵）。
+		//进行腐蚀操作
+		erode(matDescreen, dst, element); //腐蚀处理  element表示的kernel为NULL时，表示的是使用参考点位于中心3x3的核。 
+		dilate(dst, dst, element);//对腐蚀过的图像再膨胀
+		dst.copyTo(m_mat_image);*/
+		
 	}
 
-	//Gamma校正
-	if(m_fGamma != 100.0) //zhu
-	{
-		Mat matGamma;//Mat& matGamma = m_mat_image;
-		GammaCorrection(m_mat_image, matGamma, m_fGamma/100);
-		m_mat_image = matGamma;
-	}
 
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
@@ -405,11 +430,7 @@ bool CScanner_OpenCV::preScanPrep()
 		if(m_nPixelType != TWPT_BW)
 		{
 			Mat matSharpen;
-			/* //拉普拉斯锐化
-			Laplacian( m_mat_image, matSharpen, index, 3, 1, 0, BORDER_DEFAULT); //必须是与输入图像的深度相同
-			convertScaleAbs( matSharpen, matSharpen );
-			matSharpen = m_mat_image - matSharpen;//直接相加，使拉普拉斯滤波后的图与原图有个对比
-			matSharpen.copyTo(m_mat_image);*/
+		
 			/*//sobel锐化
 			m_mat_image.copyTo(matSharpen);
 			GaussianBlur(matSharpen, matSharpen, Size(3,3), 0, 0, BORDER_DEFAULT);
@@ -446,16 +467,40 @@ bool CScanner_OpenCV::preScanPrep()
 		//LOG高斯拉拉普拉斯算子：先对图像做高斯模糊抑制噪声，再滤波
 		if(m_nPixelType != TWPT_BW)
 		{	
-			Mat matRemoveBack;
+			Mat matRemoveBack;	
 			m_mat_image.copyTo(matRemoveBack);
+		
+			Mat bwMat;
+			cvtColor(matRemoveBack, bwMat, CV_BGR2GRAY);
+			int thresoldvalue = otsu(bwMat); //171	
+			threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
+	
+			/*char buf[60];
+			itoa(thresoldvalue, buf, 10);
+			::MessageBox(g_hwndDLG, TEXT(buf),"thresoldvalue",MB_OK);*/
 
-			GaussianBlur(matRemoveBack, matRemoveBack, Size(3,3), 0, 0, BORDER_DEFAULT);
-			Laplacian(matRemoveBack, matRemoveBack, index, 3, 1, 0, BORDER_DEFAULT);//必须是与输入图像的深度相同
-			matRemoveBack = m_mat_image + matRemoveBack;//直接相加，使拉普拉斯滤波后的图与原图有个对比
-			convertScaleAbs(matRemoveBack, matRemoveBack);
-
-			matRemoveBack.copyTo(m_mat_image);
-		}
+			Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
+			//将黑白图中的黑色像素点还原为原图中的像素点
+			for(int j = 0; j < bwMat.rows; j++)
+			{
+				for(int i = 0; i < bwMat.cols; i++)
+				{
+					if((int)(bwMat.at<uchar>(j,i)) == 0)
+					{
+						dstMat.at<Vec3b>(j,i)[0] = matRemoveBack.at<Vec3b>(j,i)[0];
+						dstMat.at<Vec3b>(j,i)[1] = matRemoveBack.at<Vec3b>(j,i)[1];
+						dstMat.at<Vec3b>(j,i)[2] = matRemoveBack.at<Vec3b>(j,i)[2];
+					}
+					else
+					{
+						dstMat.at<Vec3b>(j,i)[0] = 255;
+						dstMat.at<Vec3b>(j,i)[1] = 255;
+						dstMat.at<Vec3b>(j,i)[2] = 255;
+					}
+				} //i for end
+			} //j for end		
+			dstMat.copyTo(m_mat_image);
+		}//if end
 	}
 
 	//去除穿孔
@@ -474,6 +519,13 @@ bool CScanner_OpenCV::preScanPrep()
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect();//先自动校正	
+
+		//int width = matAutoCrop.cols;
+		//int height = matAutoCrop.rows;
+		//Mat img;
+		//resize(matAutoCrop, img, Size(width*width/height, width), 0, 0, 3); //等比例缩放
+		//imwrite("C:\\Users\\Administrator\\Desktop\\a.jpg", img);
+
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		
@@ -493,10 +545,24 @@ bool CScanner_OpenCV::preScanPrep()
 		m_nSourceHeight = m_mat_image.rows;
 	}
 
+	//偏移量以及边缘扩充
+	float temp[10]; 
+	temp[0] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素		
+	temp[1] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[2] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	m_nHeight = m_nHeight + (int)temp[0] + (int)temp[1] + (int)temp[2];
+
+	temp[3] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[4] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[5] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	m_nWidth = m_nWidth + (int)temp[3] + (int)temp[4] + (int)temp[5];
+
+	Mat borderMat;
+	copyMakeBorder(m_mat_image, borderMat, (int)temp[1]+(int)temp[3], (int)temp[2], (int)temp[4]+(int)temp[0], (int)temp[5], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+	borderMat.copyTo(m_mat_image);
 	//图像分割
 	if(m_nSpiltImage == TWSI_NONE)
-	{
-	}
+	{}
 	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
 	{
 		SpiltImage(m_mat_image,2,1);
@@ -510,9 +576,7 @@ bool CScanner_OpenCV::preScanPrep()
 		m_nHeight = m_mat_image.rows;
 	}
 	else if(m_nSpiltImage == TWSI_DEFINED)
-	{
-
-	}
+	{}
 
 	switch(m_nPixelType)
 	{
@@ -545,7 +609,7 @@ bool CScanner_OpenCV::preScanPrep()
 	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
 	Mat tempmat;
 	m_mat_image.copyTo(tempmat);
-	BYTE *temp = NULL;
+	//BYTE *temp = NULL;
 	Mat2uchar(tempmat);
 
 	if(status) //若为真，表示是空白页
@@ -558,6 +622,79 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 }
 
+//OTSU最大类间方差算法
+int CScanner_OpenCV::otsu(Mat image) 
+{
+	int width = image.cols;
+	int height = image.rows;
+	int pixelCount[256]; //每个像素在整幅图像中的个数 
+	float pixelPro[256]; //每个像素在整幅图像中的比例
+	int i, j;
+	int pixelSum = width * height;
+	int threshold = 0;
+
+	uchar* data = (uchar*)image.data;
+
+	//初始化  
+	for(i = 0; i < 256; i++)
+	{
+		pixelCount[i] = 0;
+		pixelPro[i] = 0;
+	}
+
+	//统计灰度级中每个像素在整幅图像中的个数  
+	for(i = 0; i < height; i++)
+	{
+		for (j = 0; j < width; j++)
+		{
+			pixelCount[data[i * image.step+ j]]++;
+		}
+	}
+
+	//计算每个像素在整幅图像中的比例  
+	for (i = 0; i < 256; i++)
+	{
+		pixelPro[i] = (float)(pixelCount[i]) / (float)(pixelSum);
+	}
+
+	//经典ostu算法,得到前景和背景的分割  
+	//遍历灰度级[0,255],计算出方差最大的灰度值,为最佳阈值  
+	float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
+	for (i = 0; i < 256; i++)
+	{
+		w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
+
+		for (j = 0; j < 256; j++)
+		{
+			if (j <= i) //背景部分  
+			{
+				//以i为阈值分类，第一类总的概率  
+				w0 += pixelPro[j];
+				u0tmp += j * pixelPro[j];
+			}
+			else       //前景部分  
+			{
+				//以i为阈值分类，第二类总的概率  
+				w1 += pixelPro[j];
+				u1tmp += j * pixelPro[j];
+			}
+		}
+
+		u0 = u0tmp / w0;        //第一类的平均灰度  
+		u1 = u1tmp / w1;        //第二类的平均灰度  
+		u = u0tmp + u1tmp;      //整幅图像的平均灰度  
+		//计算类间方差  
+		deltaTmp = w0 * (u0 - u)*(u0 - u) + w1 * (u1 - u)*(u1 - u);
+		//找出最大类间方差以及对应的阈值  
+		if (deltaTmp > deltaMax)
+		{
+			deltaMax = deltaTmp;
+			threshold = i;
+		}
+	}
+	//返回最佳阈值;  
+	return threshold;
+}
 
 bool CScanner_OpenCV::RemoveBlank(Mat src_img, float fValue)
 {
@@ -906,7 +1043,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 {
 	ChangeImage(IMAGENAME_AUTOCORRECT);
 	Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	
+
 	Point center(img.cols/2, img.rows/2);
 
 #ifdef DEGREE
@@ -1117,38 +1254,55 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	if(src_img_ipl.nChannels == 3)
 	{
 		//【3】转为灰度图，进行图像平滑  
-		cvtColor(src_img,midImage, CV_BGR2GRAY); 
-		GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 ); 
+		cvtColor(src_img, midImage, CV_BGR2GRAY); 
+		GaussianBlur(midImage, midImage, Size(9, 9), 2, 2 ); 
 	}
 	else
 	{
 		midImage = src_img; //不变为灰度图
+		GaussianBlur(midImage, midImage, Size(9, 9), 2, 2 ); 	
 	}
 	
 	//【4】进行霍夫圆变换  
-	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆
+	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆;圆心横坐标，圆心纵坐标和圆半径
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
 	minDist = midImage.rows/15;
-	HoughCircles( midImage, circles, CV_HOUGH_GRADIENT,dp, minDist, threshold1, threshold2, 0, 0 );  //200,100 
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 
 
 	//【5】依次在图中绘制出圆  
-	for( size_t i = 0; i < circles.size(); i++ )  
-	{  
-		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));  
+	for(size_t i = 0; i < circles.size(); i++)  
+	{ 
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1])); 
 		int radius = cvRound(circles[i][2]);  
-		int temp = 1;
-		scalar = cvGet2D(&src_img_ipl, center.y+radius, center.x+radius); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
-		
+	
+		int tempcentery = center.y+radius;
+		int tempcenterx = center.x+radius;
+		if(tempcentery >= midImage.rows)
+		{
+			tempcentery = midImage.rows-1; //防止cvGet2D崩溃
+		}
+		if(tempcenterx >= midImage.cols)
+		{
+			tempcenterx = midImage.cols-1;
+		}
+		/*
+		char buf[60];
+		itoa(tempcenterx, buf, 10);
+		::MessageBox(g_hwndDLG, TEXT(buf),"tempcenterx",MB_OK);
+		itoa(tempcentery, buf, 10);
+		::MessageBox(g_hwndDLG, TEXT(buf),"tempcentery",MB_OK);*/
+
+		scalar = cvGet2D(&src_img_ipl, tempcentery, tempcenterx); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
 		if(radius < threshold2) //新增，半径小于阈值2时才填充
 		{
-			circle( src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
+			circle(src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
 		}
 		else //大于时，只画圆
 		{
 			//绘制圆心
 			//circle( src_img, center, 3, Scalar(0,255,0), -1, 8, 0 ); //-1表示填充，为正数表示线条粗细
 			//绘制圆轮廓 
-			//circle( src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
+			//circle(src_img, center, radius, Scalar(155,50,255), 3, 8, 0 ); 
 		}
 	}  
 	
@@ -1159,6 +1313,7 @@ Mat CScanner_OpenCV::RemovePunch(double threshold1, double threshold2)
 {
 	ChangeImage(IMAGENAME_REMOVEPUNCH);
 	Mat src_img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
+	
 	vector<Rect> rects;
 	Rect rectTemp(0, 0, 3*src_img.cols/30, 3*src_img.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
 	rects.push_back(Rect(0, 0, src_img.cols, rectTemp.height)); //上侧
@@ -1377,7 +1532,33 @@ bool CScanner_OpenCV::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &d
 	return true;
 }
 
+//色彩翻转
+void CScanner_OpenCV::ColorFlip(const Mat &src, Mat &dst)
+{
+	CV_Assert(src.depth() == CV_8U); //若括号中的表达式值为false，则返回一个错误信息
+	dst.create(src.rows, src.cols, src.type());
 
+	int width = src.rows;
+	int height = src.cols;
+
+	for(int j = 0; j < width; j++)
+	{
+		for(int i = 0; i < height; i++)
+		{
+			switch (src.channels())
+			{
+			case 1:
+				dst.at<uchar>(i,j) = 255 - (int)src.at<uchar>(i,j);
+				break;
+			case 3:
+				dst.at<Vec3b>(i,j)[0] = 255 - (int)(src.at<Vec3b>(i,j)[0]);
+				dst.at<Vec3b>(i,j)[1] = 255 - (int)(src.at<Vec3b>(i,j)[1]);
+				dst.at<Vec3b>(i,j)[2] = 255 - (int)(src.at<Vec3b>(i,j)[2]);
+				break;			
+			}
+		}
+	}
+}
 void CScanner_OpenCV::RotateImage(double angle)
 {
 	double scale = 1; // 缩放尺度 

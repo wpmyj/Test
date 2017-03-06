@@ -15,6 +15,7 @@
 #include "Device_Base.h"
 #include <vector>
 #include "opencv.hpp"
+#include "CommonDS.h"
 
 using namespace std;
 using namespace cv;
@@ -303,6 +304,18 @@ protected:
 	*/
 	void ChangeImage(const TCHAR* imageName);
 
+	/**
+	*  @brief  OTSU算法
+	*  @param[in]  阈值   
+	*/
+	int otsu(Mat image);//返回阈值
+
+	/**
+	*  @brief  色彩翻转
+	*  @param[in]  src 原图 
+	*  @param[out] dst 目标图像 
+	*/
+	void ColorFlip(const Mat &src, Mat &dst);
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 
   WORD              m_nScanLine;              /**< Current scan line of image in FreeImage */

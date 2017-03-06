@@ -41,6 +41,12 @@
 #define UDSCAP_YPOS                     CAP_CUSTOMBASE+23
 
 #define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+24  /**< 压缩比 */
+#define UDSCAP_COLORFLIP                CAP_CUSTOMBASE+25  /**< 色彩翻转 */
+
+#define UDSCAP_CACHEMODE                CAP_CUSTOMBASE+26  /**< 缓存模式 */
+#define UDSCAP_CACHEMODE_AUTO           CAP_CUSTOMBASE+27  /**< 缓存模式选项-自动 */
+#define UDSCAP_CACHEMODE_PAPERNUM       CAP_CUSTOMBASE+28  /**< 缓存模式选项-纸张数量 */
+#define UDSCAP_CACHEMODE_MEMORYSIZE     CAP_CUSTOMBASE+29  /**< 缓存模式选项-内存大小 */
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -117,3 +123,13 @@
 /* UDSCAP_BACKBW values (BB_ means BACKBW)黑白背面。*/
 #define TWBB_DISABLE              FALSE 
 #define TWBB_AUTO                 TRUE 
+
+/* UDSCAP_COLORFLIP values (CF_ means COLORFLIP)去除背景。*/
+#define TWCF_DISABLE              FALSE
+#define TWCF_AUTO                 TRUE
+
+/* UDSCAP_CACHEMODE values (CM_ means CACHEMODE) 缓存模式对应取值 */
+#define TWCM_NONE                  0 //自动
+#define TWCM_PAPERNUM              1 //纸张数量
+#define TWCM_MEMORYSIZE            2 //缓存大小
+
