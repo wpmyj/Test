@@ -167,7 +167,8 @@ void CPage_Profile::LoadTemplate()
 	}
 
 	m_pBasePage->UpdateControls();
-	m_pAdPage->UpdateControls();//高级设置界面参数也更新(有分辨率共同存在)
+	m_pAdPage->UpdateControls();//高级设置界面参数也更新
+	m_pPaperPage->UpdateControls();
 }
 
 
@@ -423,7 +424,7 @@ void CPage_Profile::OnProfile_Btn_Delete()
 void CPage_Profile::OnProfile_Btn_Reset()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	m_pUI->ResetAllCaps();
+	//m_pUI->ResetAllCaps();
 	m_list_template.SetCurSel(0);
 
 	LoadTemplate();

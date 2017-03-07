@@ -18,6 +18,7 @@ IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 CPage_Base::CPage_Base(MFC_UI *pUI)
 	: m_pUI(pUI),CPropertyPage(CPage_Base::IDD)
 {
+	//m_radiobtn_scanmode = 0;
 }
 
 
@@ -37,7 +38,6 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_BASE_EDIT_THRESHOLD, m_edit_threshold);
 	//  DDX_Control(pDX, IDC_BASE_BTN_CHOOSEIMAGE, m_btn_chooseimage);
-	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
 	DDX_Radio(pDX, IDC_BASE_RADIO_DUPLEX_DAN, m_radiobtn_duplex);
 	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
 	DDX_Control(pDX, IDC_CHECK_FRONTGRAY, m_check_frontgray);
@@ -53,6 +53,7 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKGRAY, m_btn_backgray);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
 	DDX_Control(pDX, IDC_BASE_PREPICTURE, m_base_picture);
+	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
 }
 
 
@@ -66,8 +67,6 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORMODE, &CPage_Base::OnCbnSelchangeBase_Combo_Colormode)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_RESOLUTION, &CPage_Base::OnCbnSelchangeBase_Combo_Resolution)
 //	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)
-	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode)
-	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_DAN, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_SHUANG, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM, &CPage_Base::OnBase_RadioBtn_Duplex)
@@ -78,6 +77,8 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_BACKGRAY, &CPage_Base::OnBase_Btn_Check_BackGray)
 	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Base::OnBase_Btn_Check_BackBw)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BINARIZATION, &CPage_Base::OnCbnSelchangeBase_Combo_Binarization)
+	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode_Auto)
+	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed)
 END_MESSAGE_MAP()
 
 
@@ -275,9 +276,9 @@ void CPage_Base::UpdateControls(void)
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
 	if(0 == nCapIndex) //平板
 	{
-		m_radiobtn_scanmode = 1;
+		m_radiobtn_scanmode = 1;	
 	}
-	else
+	else //1为自动进纸器
 	{
 		m_radiobtn_scanmode = 0;
 	}
@@ -498,13 +499,23 @@ BOOL CPage_Base::OnInitDialog()
 	
 	SetMultistream();
 	SetFlat();
+	if(m_radiobtn_scanmode == 0)
+	{
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
+		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
+	}
+	
 	SetBinarization();
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用,需在SetBinarization后
 
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
-
-	//m_btn_chooseimage.ShowWindow(FALSE); //选择图片按钮暂时不启用
-
+	
+	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -876,14 +887,9 @@ void CPage_Base::SetFlat(void)
 	{
 		m_basemap[CAP_DUPLEXENABLED] = 0.0f;
 		m_radiobtn_duplex = 0; //平板时，只能是单面
-		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
-	//	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
 	}	
 	else //为0表示自动进纸器选中
-	{
-		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
-		//GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE); 
-	}
+	{}
 	
 	SetMultistream();
 }
@@ -1073,28 +1079,28 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 }
 
 
-void CPage_Base::OnBase_RadioBtn_Scanmode()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-	int index;
-	SetFlat();
-	if(1 == m_radiobtn_scanmode)
-	{ //为0表示自动进纸器选中
-		index = 0;
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
-	}
-	else
-	{
-		index = 1;
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
-	}
-
-	m_basemap[CAP_FEEDERENABLED] = (float)index;
-	UpdateData(FALSE);
-}
+//void CPage_Base::OnBase_RadioBtn_Scanmode()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+//	int index;
+//	SetFlat();
+//	if(1 == m_radiobtn_scanmode)
+//	{
+//		index = 0;
+//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
+//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
+//	}
+//	else //为0表示自动进纸器选中
+//	{
+//		index = 1;
+//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
+//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
+//	}
+//
+//	m_basemap[CAP_FEEDERENABLED] = (float)index;
+//	UpdateData(FALSE);
+//}
 
 
 void CPage_Base::OnBase_RadioBtn_Duplex()
@@ -1437,4 +1443,38 @@ void CPage_Base::SetBinarization(void)
 		m_slider_threshold.EnableWindow(FALSE);
 		m_edit_threshold.EnableWindow(FALSE);
 	} 
+}
+
+
+void CPage_Base::OnBase_RadioBtn_Scanmode_Auto()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+	
+	m_radiobtn_scanmode = 0;
+	int index = 1;	
+	SetFlat();
+	
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
+	
+	m_basemap[CAP_FEEDERENABLED] = (float)index;
+	UpdateData(FALSE);
+}
+
+
+void CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+
+	m_radiobtn_scanmode = 1;
+	int index = 0;	
+	SetFlat();
+
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
+
+	m_basemap[CAP_FEEDERENABLED] = (float)index;
+	UpdateData(FALSE);
 }

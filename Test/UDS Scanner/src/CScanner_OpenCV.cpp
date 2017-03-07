@@ -91,7 +91,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_nDocCount           = m_nMaxDocCount = getDocumentCount();// Reloaded the scanner with paper
 
 	//Base界面
-	m_nPaperSource        = SFI_PAPERSOURCE_ADF;  //扫描模式-自动进纸器
+	m_nPaperSource        = TRUE;  //扫描模式-自动进纸器
 	m_nPixelType          = TWPT_RGB; //图形类型-彩色 zhu
 	m_fXResolution        = 200.0;
 	m_fYResolution        = 200.0; //分辨率-200.0
@@ -946,10 +946,11 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt)
 }
 
 
-const int black = 10;
-const int white = 250;
 Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 {
+	const int black = 10;
+	const int white = 250;
+
 	Mat inputImg = src_img;
 	Mat tmpMat = inputImg.clone();
 
@@ -1539,12 +1540,18 @@ void CScanner_OpenCV::ColorFlip(const Mat &src, Mat &dst)
 	CV_Assert(src.depth() == CV_8U); //若括号中的表达式值为false，则返回一个错误信息
 	dst.create(src.rows, src.cols, src.type());
 
-	int width = src.rows;
-	int height = src.cols;
-
-	for(int j = 0; j < width; j++)
+	int width = src.cols; //1652
+	int height = src.rows; //2250
+	int i,j;
+	/*char buf[60];
+	itoa(width, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"width",MB_OK);
+	itoa(height, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"height",MB_OK);
+	*/
+	for(j = 0; j < width; j++)
 	{
-		for(int i = 0; i < height; i++)
+		for(i = 0; i < height; i++)
 		{
 			switch (src.channels())
 			{
@@ -1560,6 +1567,8 @@ void CScanner_OpenCV::ColorFlip(const Mat &src, Mat &dst)
 		}
 	}
 }
+
+
 void CScanner_OpenCV::RotateImage(double angle)
 {
 	double scale = 1; // 缩放尺度 

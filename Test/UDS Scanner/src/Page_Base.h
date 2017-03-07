@@ -79,9 +79,7 @@ private:
 	CEdit m_edit_brightness;   ///< 用于同步显示m_slider_brightness值
 	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
 
-//	CButton m_btn_chooseimage;
-	///<"选择图片按钮"
-
+//	CButton m_btn_chooseimage;///<"选择图片按钮"
 	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板
 	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
 
@@ -120,7 +118,9 @@ private:
   /** 选择待扫图片 */
 //	afx_msg void OnBase_Btn_Chooseimage();
 
-	afx_msg void OnBase_RadioBtn_Scanmode();
+	afx_msg void OnBase_RadioBtn_Scanmode_Auto();
+	afx_msg void OnBase_RadioBtn_Scanmode_Flatbed();
+
 	afx_msg void OnBase_RadioBtn_Duplex();
 
 	afx_msg void OnBase_Btn_Check_FrontColor();

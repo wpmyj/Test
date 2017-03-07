@@ -114,7 +114,7 @@ void CPage_Paper::UpdateControls(void)
 	int nCapValue;
 	CString strText;
 	int nval;
-
+	
 	//纸张设置-纸张大小
 	m_combo_standardsizes.ResetContent();  // 清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_SUPPORTEDSIZES);
@@ -200,7 +200,7 @@ void CPage_Paper::UpdateControls(void)
 		m_scroll_width.EnableWindow(FALSE);
 		m_scroll_height.EnableWindow(FALSE);
 	}
-
+	
 	//纸张设置-单位
 	m_combo_uints.ResetContent();  // 清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_UNITS);
@@ -225,18 +225,19 @@ void CPage_Paper::UpdateControls(void)
 	m_combo_uints.SetCurSel(nCapIndex);
 	nval = FindUnit(nCapIndex);
 	m_papermap[ICAP_UNITS] = (float)nval;
-
+	
 	// 自定义宽与高
 	TW_FRAME frame;	
 	int nIndex = m_combo_uints.GetCurSel();
 	int org = FindUnit(nIndex); //当前界面的单位
-	/*
+	
 	int old = FindUnit(m_unitindex); //界面最开始的单位
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
 	const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
 	int reso = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
-	SetScroll(); */
+	SetScroll(); 
 	//单位为inches、centi时edit显示两位小数，其他直接显示整数
+
 	switch(org)
 	{
 	case TWUN_INCHES:
@@ -244,11 +245,14 @@ void CPage_Paper::UpdateControls(void)
 		{
 			frame = m_pUI->GetCurrentFrame();
 			strText.Format("%0.2f",FIX32ToFloat(frame.Right));
-			m_edit_width.SetWindowText(strText);
+			//m_edit_width.SetWindowText(strText);
+			SetDlgItemText(IDC_PAPER_EDIT_WIDTH, strText);
 
 			frame = m_pUI->GetCurrentFrame();
 			strText.Format("%0.2f",FIX32ToFloat(frame.Bottom));
-			m_edit_height.SetWindowText(strText);
+			//m_edit_height.SetWindowText(strText);
+			SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, strText);
+			
 			/*
 			//边缘扩充 上下左右
 			int nvalue;
@@ -290,12 +294,13 @@ void CPage_Paper::UpdateControls(void)
 		{
 			frame = m_pUI->GetCurrentFrame();
 			strText.Format("%d",(int)FIX32ToFloat(frame.Right));
-			m_edit_width.SetWindowText(strText);
+			//m_edit_width.SetWindowText(strText);
+			SetDlgItemText(IDC_PAPER_EDIT_WIDTH, strText);
 
 			frame = m_pUI->GetCurrentFrame();
 			strText.Format("%d",(int)FIX32ToFloat(frame.Bottom));
-			m_edit_height.SetWindowText(strText);
-
+			//m_edit_height.SetWindowText(strText);
+			SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, strText);
 			/*
 			//边缘扩充 上下左右
 			int nvalue;
@@ -332,7 +337,7 @@ void CPage_Paper::UpdateControls(void)
 			break;
 		}
 	}
-		
+	
 	//边缘扩充 上下左右
 	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
 	strText.Format("%0.2f",fCapValue);
@@ -387,14 +392,15 @@ void CPage_Paper::UpdateControls(void)
 		}
 	}
 	m_combo_compress.SetCurSel(nCapIndex);
-	//m_papermap[ICAP_COMPRESSION] = fCapValue;
+	nval = (int)lstCapValues->at(nCapIndex);
+	m_papermap[ICAP_COMPRESSION] = (float)nval;
 
 	// 压缩比 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
 	m_slider_compressvalue.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE,strText);
-	//m_papermap[UDSCAP_COMPRESSVALUE] = fCapValue;
+	m_papermap[UDSCAP_COMPRESSVALUE] = (float)nCapValue;
 }
 
 
