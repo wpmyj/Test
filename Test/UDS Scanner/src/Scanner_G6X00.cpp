@@ -277,17 +277,17 @@ bool CScanner_G6X00::preScanPrep()
 	//int	nHeight = m_scanParameter.LineNum;
 	//int	nHeight = ios1.dwEffectiveLines;
 
-	if(m_nWidth <= 0 || m_nHeight <= 0)
+	//if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
 		m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 		m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
 	}
-	else
-	{
-		// 获取影像的宽高，都以像素为单位 
-		m_nSourceWidth   = m_scanParameter.PixelNum;
-		m_nSourceHeight  = m_scanParameter.LineNum;
-	}
+	//else
+	//{
+	//	// 获取影像的宽高，都以像素为单位 
+	//	m_nSourceWidth   = m_scanParameter.PixelNum;
+	//	m_nSourceHeight  = m_scanParameter.LineNum;
+	//}
 
 	m_dRat = (double)m_nSourceWidth/m_nSourceHeight;
 
@@ -1042,6 +1042,7 @@ void CScanner_G6X00::AdjustParameter()
 
 	float fWeight = 0.0f;
 	float fHeight = 0.0f;
+
 	GetCurrentScanRange(m_nStandardsizes, fWeight, fHeight);	
 
 	// Max: 8.5'*14'
