@@ -27,6 +27,7 @@ CScanner_G6X00::CScanner_G6X00(void)
 	, m_nImageNumber(0)
 	, m_nScanLine(0)
 	, m_nDestBytesPerRow(0)
+	, m_bSkip(false)
 {
 	// set default cap value
 	resetScanner();
@@ -96,6 +97,7 @@ bool CScanner_G6X00::resetScanner()
 	m_nImageNumber        = 0;
 
 	m_byte_image = NULL;
+	//m_bSkip = false;
 	if (false == m_mat_image.empty())
 	{
 		m_mat_image.release();
@@ -163,25 +165,26 @@ short CScanner_G6X00::getDocumentCount() const
 bool CScanner_G6X00::acquireImage()
 {
 	//::MessageBox(g_hwndDLG,TEXT("CScanner_G6X00::acquireImage!"),MB_CAPTION,MB_OK);
-	GetADFStatus(&m_byteADFStatus);
-	if ( (m_byteADFStatus & 0x1 ) != 1)
-	{
-		::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
-		return false;
-	}
-
-	static bool bFlag = false;
-
-	if (!bFlag)
-	{
-		StartScanJob();
-		AdjustParameter();
-		SetParameter();
-		bFlag = true;
-	}
-
-	//while(1)
+	//GetADFStatus(&m_byteADFStatus);
+	//if ( (m_byteADFStatus & 0x1 ) != 1)
 	//{
+	//	::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
+	//	return false;
+	//}
+
+	
+
+	if(!m_bSkip)
+	{
+		static bool bFlag = false;
+
+		if (!bFlag)
+		{
+			StartScanJob();
+			AdjustParameter();
+			SetParameter();
+			bFlag = true;
+		}
 
 		if(m_pTempBuffer)                                 
 		{
@@ -193,13 +196,6 @@ bool CScanner_G6X00::acquireImage()
 		memset(m_pTempBuffer,0,m_dwTotal);
 		m_pSaveBuffer = m_pTempBuffer;
 
-		//CString str2,str3;
-		//char* str1 = "C:\\image\\";
-		//str2 = NameFile(TEXT("raw"));
-		//str3.Format("%s%s",str1,str2);
-
-		//FILE *fptr_RAW=fopen("C:\\test.raw","wb");
-
 		StartScan();
 		// 方法2：ReadScanEx
 		{
@@ -207,31 +203,46 @@ bool CScanner_G6X00::acquireImage()
 			m_ioStatus.pBuffer = m_pTempBuffer;
 			m_ioStatus.dwRequestedBytes = m_dwTotal;
 			ReadScanEx(&m_ioStatus);
-			//fwrite(m_pSaveBuffer,m_dwTotal,1,fptr_RAW);
 		}
 		StopScan();
 		m_pTempBuffer = m_pSaveBuffer; 
-		//fwrite(m_pSaveBuffer,m_dwTotal,1,fptr_RAW);
-		//fclose(fptr_RAW);
 
-		GetADFStatus(&m_byteADFStatus);
-		if ( (m_byteADFStatus & 0x1) != 1)
+
 		{
-			m_nDocCount = 0;
-			EndScanJob ();
-			//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
-		}		
-		//break;	
-	
-	//}			
-	//EndScanJob ();//Please see scan flow issue 1		
+			switch(m_scanParameter.BitsPerPixel)
+			{
+			case 1:							
+				Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
+				break;
+			case 24:
+				RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
+				break;
+			default:
+				break;
+			}
+		}
 
-	//if(m_pSaveBuffer)                                 
-	//{
-	//	delete []m_pSaveBuffer;     
-	//	m_pTempBuffer = NULL;
-	//	m_pSaveBuffer = NULL;
-	//}
+
+		if (m_nSpiltImage  == TWSI_NONE )
+		{
+			GetADFStatus(&m_byteADFStatus);
+			if ( (m_byteADFStatus & 0x1) != 1)
+			{
+				m_nDocCount = 0;
+				EndScanJob ();
+				//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
+			}	
+		}
+		//GetADFStatus(&m_byteADFStatus);
+		//if ( (m_byteADFStatus & 0x1) != 1)
+		//{
+		//	m_nDocCount = 0;
+		//	EndScanJob ();
+		//	//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
+		//}			
+	}
+
+
 
 	if (m_pGammaTable)
 	{
@@ -241,14 +252,15 @@ bool CScanner_G6X00::acquireImage()
 
 
 	//Document scanned, remove it from simulated intray
-	//m_nDocCount--;
+	//m_nDocCount --;
 
 	// do whatever tranforms to the scanned image that was requested by the app
-	// before the image is sent to the app.
+	// before the image is sent to the app.	
 	if(false == preScanPrep())
 	{
 		return false;
 	}
+
 
 	return true;
 }
@@ -261,25 +273,9 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 
 bool CScanner_G6X00::preScanPrep()
 {
-
-
-	switch(m_scanParameter.BitsPerPixel)
-	{
-	case 1:							
-		Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
-		break;
-	case 24:
-		RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
-		break;
-	default:
-		break;
-	}
-
-
 	//int nWidth = m_scanParameter.PixelNum; 
 	//int	nHeight = m_scanParameter.LineNum;
 	//int	nHeight = ios1.dwEffectiveLines;
-
 
 	if(m_nWidth <= 0 || m_nHeight <= 0)
 	{
@@ -319,7 +315,6 @@ bool CScanner_G6X00::preScanPrep()
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
-
 		RotateImage(m_mat_image, m_mat_image, 90);
 	}
 
@@ -362,7 +357,7 @@ bool CScanner_G6X00::preScanPrep()
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 	}
-	//imwrite("C:\\b.bmp", m_mat_image);
+
 
 	//色彩翻转
 	if(m_bColorFlip == TWCF_AUTO)
@@ -429,6 +424,104 @@ bool CScanner_G6X00::preScanPrep()
 			imgdst.copyTo(m_mat_image);
 		}	
 	}
+
+
+	//去除背景
+	if(m_bRemoveBack == TWRB_AUTO) 
+	{
+		//LOG高斯拉拉普拉斯算子：先对图像做高斯模糊抑制噪声，再滤波
+		if(m_nPixelType != TWPT_BW)
+		{	
+			Mat matRemoveBack;	
+			m_mat_image.copyTo(matRemoveBack);
+		
+			Mat bwMat;
+			cvtColor(matRemoveBack, bwMat, CV_BGR2GRAY);
+			int thresoldvalue = otsu(bwMat); //171	
+			threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
+	
+			/*char buf[60];
+			itoa(thresoldvalue, buf, 10);
+			::MessageBox(g_hwndDLG, TEXT(buf),"thresoldvalue",MB_OK);*/
+
+			Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
+			//将黑白图中的黑色像素点还原为原图中的像素点
+			for(int j = 0; j < bwMat.rows; j++)
+			{
+				for(int i = 0; i < bwMat.cols; i++)
+				{
+					if((int)(bwMat.at<uchar>(j,i)) == 0)
+					{
+						dstMat.at<Vec3b>(j,i)[0] = matRemoveBack.at<Vec3b>(j,i)[0];
+						dstMat.at<Vec3b>(j,i)[1] = matRemoveBack.at<Vec3b>(j,i)[1];
+						dstMat.at<Vec3b>(j,i)[2] = matRemoveBack.at<Vec3b>(j,i)[2];
+					}
+					else
+					{
+						dstMat.at<Vec3b>(j,i)[0] = 255;
+						dstMat.at<Vec3b>(j,i)[1] = 255;
+						dstMat.at<Vec3b>(j,i)[2] = 255;
+					}
+				} //i for end
+			} //j for end		
+			dstMat.copyTo(m_mat_image);
+		}//if end
+	}
+
+
+	//偏移量以及边缘扩充
+	float temp[10]; 
+	temp[0] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素		
+	temp[1] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[2] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	m_nHeight = m_nHeight + (int)temp[0] + (int)temp[1] + (int)temp[2];
+
+	temp[3] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[4] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[5] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	m_nWidth = m_nWidth + (int)temp[3] + (int)temp[4] + (int)temp[5];
+
+	Mat borderMat;
+	copyMakeBorder(m_mat_image, borderMat, (int)temp[1]+(int)temp[3], (int)temp[2], (int)temp[4]+(int)temp[0], (int)temp[5], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+	borderMat.copyTo(m_mat_image);
+
+
+	//图像分割
+	if(m_nSpiltImage == TWSI_NONE)
+	{}
+	else if(m_nSpiltImage == TWSI_HORIZONTAL) //水平分割
+	{
+		SpiltImage(m_mat_image,2,1);
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
+
+		
+	}
+	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
+	{
+		SpiltImage(m_mat_image,1,2);
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
+
+	}
+	else if(m_nSpiltImage == TWSI_DEFINED)
+	{}
+
+
+	//去除空白页
+	bool bEmpty = false; //默认不是空白页
+	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
+	{
+		Mat matRemoveBlank;
+		m_mat_image.copyTo(matRemoveBlank);
+		bEmpty = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+	}
+
+  if (bEmpty)
+  {
+		return false;
+  }
+
 
 	switch(m_nPixelType)
 	{
@@ -892,7 +985,16 @@ void CScanner_G6X00::AdjustParameter()
 	m_scanParameter.Shadow = 0;                   //always keep 0 for newer model
 	m_scanParameter.ColorFilter = 0;	
 	m_scanParameter.Invert = 0;                   //always keep 0 for newer model
-	m_scanParameter.ExtScanParam = 0x9000 ;       //Enable extended scan parameter and set XRes and YRes for newer model
+
+	if (m_bMultifeedDetection)
+	{
+		m_scanParameter.ExtScanParam = 0x9018;  //开启重张检测，暂停扫描 
+	}
+	else
+	{
+		m_scanParameter.ExtScanParam = 0x9410;  //开启重张检测，继续扫描
+	}
+	//m_scanParameter.ExtScanParam = 0x9000 ;       //Enable extended scan parameter and set XRes and YRes for newer model
 	//m_scanParameter.ExtScanParam2 |= 0x01000000;
 	m_scanParameter.RExposure = 0;                //Keep original exposure time ,Not all scanner model can support exposure time control
 	m_scanParameter.GExposure = 0;
@@ -1481,12 +1583,12 @@ void CScanner_G6X00::ColorFlip(const Mat& src, Mat& dst)
 	CV_Assert(src.depth() == CV_8U); //若括号中的表达式值为false，则返回一个错误信息
 	dst.create(src.rows, src.cols, src.type());
 
-	int width = src.rows;
-	int height = src.cols;
+	int width = src.cols;
+	int height = src.rows;
 
-	for(int j = 0; j < height; j++)
+	for(int j = 0; j < width; j++)
 	{
-		for(int i = 0; i < width; i++)
+		for(int i = 0; i < height; i++)
 		{
 			switch (src.channels())
 			{
@@ -1648,6 +1750,200 @@ int CScanner_G6X00::FindDepth(const Mat &src_img)
 		break;
 	}
 	return Outdex;
+}
+
+int CScanner_G6X00::otsu(Mat image)
+{
+	int width = image.cols;
+	int height = image.rows;
+	int pixelCount[256]; //每个像素在整幅图像中的个数 
+	float pixelPro[256]; //每个像素在整幅图像中的比例
+	int i, j;
+	int pixelSum = width * height;
+	int threshold = 0;
+
+	uchar* data = (uchar*)image.data;
+
+	//初始化  
+	for(i = 0; i < 256; i++)
+	{
+		pixelCount[i] = 0;
+		pixelPro[i] = 0;
+	}
+
+	//统计灰度级中每个像素在整幅图像中的个数  
+	for(i = 0; i < height; i++)
+	{
+		for (j = 0; j < width; j++)
+		{
+			pixelCount[data[i * image.step+ j]]++;
+		}
+	}
+
+	//计算每个像素在整幅图像中的比例  
+	for (i = 0; i < 256; i++)
+	{
+		pixelPro[i] = (float)(pixelCount[i]) / (float)(pixelSum);
+	}
+
+	//经典ostu算法,得到前景和背景的分割  
+	//遍历灰度级[0,255],计算出方差最大的灰度值,为最佳阈值  
+	float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
+	for (i = 0; i < 256; i++)
+	{
+		w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
+
+		for (j = 0; j < 256; j++)
+		{
+			if (j <= i) //背景部分  
+			{
+				//以i为阈值分类，第一类总的概率  
+				w0 += pixelPro[j];
+				u0tmp += j * pixelPro[j];
+			}
+			else       //前景部分  
+			{
+				//以i为阈值分类，第二类总的概率  
+				w1 += pixelPro[j];
+				u1tmp += j * pixelPro[j];
+			}
+		}
+
+		u0 = u0tmp / w0;        //第一类的平均灰度  
+		u1 = u1tmp / w1;        //第二类的平均灰度  
+		u = u0tmp + u1tmp;      //整幅图像的平均灰度  
+		//计算类间方差  
+		deltaTmp = w0 * (u0 - u)*(u0 - u) + w1 * (u1 - u)*(u1 - u);
+		//找出最大类间方差以及对应的阈值  
+		if (deltaTmp > deltaMax)
+		{
+			deltaMax = deltaTmp;
+			threshold = i;
+		}
+	}
+	//返回最佳阈值;  
+	return threshold;
+}
+
+void CScanner_G6X00::SpiltImage(const Mat &src_img, int m, int n)
+{
+	int ceil_width  = src_img.cols/n; //列  
+	int ceil_height = src_img.rows/m;   //行/m
+
+	IplImage Iplsrc = IplImage(src_img);
+	IplImage *Ipldst;
+	Mat matTemp;
+
+
+	if( false == m_bSkip) //拆分的第一张
+	{
+		cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
+		Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+		cvCopy(&Iplsrc,Ipldst,0); 
+		cvResetImageROI(&Iplsrc); 
+
+		matTemp = Ipldst; //IplImage->Mat
+
+		matTemp.copyTo(m_mat_image);
+		cvReleaseImage(&Ipldst);  
+
+		m_bSkip = true;  // 告诉Acquire跳过一次扫描
+	}
+	else
+	{
+		if(m_nSpiltImage == TWSI_HORIZONTAL)
+		{
+			cvSetImageROI(&Iplsrc,cvRect(0, ceil_height, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}
+		else //垂直
+		{
+			cvSetImageROI(&Iplsrc,cvRect(ceil_width, 0, ceil_width, ceil_height)); 
+			Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
+
+			cvCopy(&Iplsrc,Ipldst,0); 
+			cvResetImageROI(&Iplsrc); 
+
+			matTemp = Ipldst; //IplImage->Mat
+
+			matTemp.copyTo(m_mat_image);
+			cvReleaseImage(&Ipldst); 
+		}	
+
+		m_bSkip = false;
+		GetADFStatus(&m_byteADFStatus);
+		if ( (m_byteADFStatus & 0x1) != 1)
+		{
+			m_nDocCount = 0;
+			EndScanJob ();
+			//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
+		}	
+	}
+	
+}
+
+bool CScanner_G6X00::RemoveBlank(Mat src_img, float fValue)
+{
+	Mat dst_img = src_img;
+	int width = dst_img.cols; //列
+	int height = dst_img.rows; //行
+
+	int count = 0; //记录黑点的个数
+	const float range = fValue/100; //当整个图中黑点占总像素的比例小于range时，就认为是空白页
+
+	if(m_nPixelType == TWPT_RGB)
+	{
+		cvtColor(dst_img, dst_img, CV_BGR2GRAY);
+		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); 	
+	}
+	else if(m_nPixelType == TWPT_GRAY)
+	{
+		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); //通过 Otsu 算法自行选择阈值，此时对于threshold的设定不在起作用
+	}
+	else{}
+
+	for(int j = 0; j < width; j++)
+	{
+		for(int i = 0; i < height; i++)
+		{
+			if(dst_img.channels() == 3)
+			{
+				if( (int)(dst_img.at<Vec3b>(i,j)[0]) == 0  
+					&& (int)(dst_img.at<Vec3b>(i,j)[1]) == 0
+					&& (int)(dst_img.at<Vec3b>(i,j)[2]) == 0 )
+				{
+					count++;
+				}
+			}
+			else if(dst_img.channels() == 1)
+			{
+				if( (int)(dst_img.at<uchar>(i,j)) == 0)
+				{
+					count++;
+				}
+			}
+		}
+	}
+
+	float per = (float)count / (float)(width * height); //224170/(1770*2291)=0.05528 < 0.10000
+
+	if(per > range)  
+	{ 
+		return false;
+	}  
+	else  
+	{  
+		return true;
+	}  
 }
 
 

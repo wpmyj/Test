@@ -561,6 +561,7 @@ bool CScanner_OpenCV::preScanPrep()
 	Mat borderMat;
 	copyMakeBorder(m_mat_image, borderMat, (int)temp[1]+(int)temp[3], (int)temp[2], (int)temp[4]+(int)temp[0], (int)temp[5], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
 	borderMat.copyTo(m_mat_image);
+
 	//图像分割
 	if(m_nSpiltImage == TWSI_NONE)
 	{}

@@ -260,6 +260,27 @@ protected:
 	*/
 	int FindDepth(const Mat &src_img);
 
+	/**
+	*  @brief  OTSU算法
+	*  @param[in]  阈值   
+	*/
+	int otsu(Mat image);//返回阈值
+
+	/**
+	*  @brief  图像分割-裁切
+	*  @param[in]  src 输入图像
+	*  @param[in]  width 分割后的图像的宽
+	*  @param[in]  height 分割后的图像的高
+	*/
+	void SpiltImage(const Mat &src_img, int m, int n);
+
+	/**
+	*  @brief  去除空白页
+	*  @param[in]  src ：输入图像
+	*  @param[out]  是否是空白页
+	*/
+	bool RemoveBlank(Mat src_img, float fValue);
+
 protected:
 	InitializeDriverProc               InitializeDriver;
 	InitializeScannerProc              InitializeScanner;
@@ -310,6 +331,7 @@ protected:
 	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 
+	bool              m_bSkip;                  /**< 是否跳过下次扫描 */
 private:
 	BYTE* m_pGammaTable;
 	BYTE* m_pSaveBuffer;
