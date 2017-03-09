@@ -48,8 +48,8 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_ADVANCED_RADIO_VERTICAL, m_radiobtn_spilt_vert);
 	DDX_Control(pDX, IDC_ADVANCED_CHECK_COLORFLIP, m_check_colorflip);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_CACHEMODE, m_combo_cachemode);
-	DDX_Control(pDX, IDC_ADVANCED_EDIT_CACHEMODE, m_edit_cachemode);
 	DDX_Control(pDX, IDC_ADVANCED_SLIDER_CACHEMODE, m_slider_cachemode);
+	DDX_Control(pDX, IDC_CHECK_MULTIFEEDDETECT_VALUE, m_check_mdvalue);
 }
 
 
@@ -73,7 +73,7 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_ADVANCED_CHECK_COLORFLIP, &CPage_Advanced::OnAdvanced_Btn_Check_Colorflip)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CACHEMODE, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cachemode)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_ADVANCED_SLIDER_CACHEMODE, &CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Cachemode)
-	ON_EN_CHANGE(IDC_ADVANCED_EDIT_CACHEMODE, &CPage_Advanced::OnEnChangeAdvanced_Edit_Cachemode)
+	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT_VALUE, &CPage_Advanced::OnClicked_Check_MdValue)
 END_MESSAGE_MAP()
 
 
@@ -96,6 +96,7 @@ void CPage_Advanced::SetCapValue(void)
 		case UDSCAP_REMOVEBLANK: //去除空白页的checkbox
 		case UDSCAP_MIRROR: //镜像处理
 		case UDSCAP_MULTIFEEDDETECT: //重张检测
+		case UDSCAP_MULTIFEEDDETECT_VALUE: //重张检测故障值
 		case UDSCAP_COLORFLIP: //色彩翻转
 		case UDSCAP_CACHEMODE: //缓存模式
 			{
@@ -203,6 +204,17 @@ void CPage_Advanced::UpdateControls(void)
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
 	m_check_multifeeddetect.SetCheck(nCapValue);
+	if(nCapValue == 1)
+	{
+		m_check_mdvalue.EnableWindow(TRUE);
+	}
+	else
+	{
+		m_check_mdvalue.EnableWindow(FALSE);
+	}
+	//重张检测故障值
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT_VALUE));
+	m_check_mdvalue.SetCheck(nCapValue);
 
 	//图像设置-图像旋转
 	m_combo_rotate.ResetContent(); //清空内容
@@ -349,7 +361,6 @@ void CPage_Advanced::SetColorMode(int nIndex)
 	{
 	case 0:
 		SetDlgItemText(IDC_ADVANCED_SLIDERSTATIC_CACHEMODE, TEXT("图像张数:"));
-		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODEUNIT, TEXT("页"));
 		
 		m_pUI->GetCapRangeFloat(UDSCAP_CACHEMODE_AUTO, fMin, fMax, fStep);
 		//设置滑动条范围
@@ -364,15 +375,14 @@ void CPage_Advanced::SetColorMode(int nIndex)
 		}
 		else
 		{
-			str.Format("%d",value);
+			str.Format("%d页",value);
 		}
-		SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);
+		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);
 
 		break;
 	case 1:
 		SetDlgItemText(IDC_ADVANCED_SLIDERSTATIC_CACHEMODE, TEXT("纸张数量:"));
-		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODEUNIT, TEXT("页"));
-
+	
 		m_pUI->GetCapRangeFloat(UDSCAP_CACHEMODE_PAPERNUM, fMin, fMax, fStep);
 		//设置滑动条范围
 		m_slider_cachemode.SetRange((int)fMin, (int)fMax); //设置范围
@@ -380,14 +390,13 @@ void CPage_Advanced::SetColorMode(int nIndex)
 
 		value = (int)(m_pUI->GetCapValueFloat(UDSCAP_CACHEMODE_PAPERNUM));	
 		m_slider_cachemode.SetPos(value);
-		str.Format("%d",value);
-		SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);
+		str.Format("%d页",value);
+		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);
 
 		break;
 	case 2:
 		SetDlgItemText(IDC_ADVANCED_SLIDERSTATIC_CACHEMODE, TEXT("内存大小:"));
-		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODEUNIT, TEXT("MB"));
-
+		
 		m_pUI->GetCapRangeFloat(UDSCAP_CACHEMODE_MEMORYSIZE, fMin, fMax, fStep);
 		//设置滑动条范围
 		m_slider_cachemode.SetRange((int)fMin, (int)fMax); //设置范围
@@ -397,13 +406,13 @@ void CPage_Advanced::SetColorMode(int nIndex)
 		m_slider_cachemode.SetPos(value);	
 		if(value == 0)
 		{
-			str = "默认";
+			str = "默认值";
 		}
 		else
 		{
-			str.Format("%d",value);
+			str.Format("%dMB",value);
 		}
-		SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);
+		SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);
 
 		break;
 	}
@@ -951,10 +960,28 @@ void CPage_Advanced::OnClicked_Check_Multifeeddetect()
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
 		m_advancedmap[UDSCAP_MULTIFEEDDETECT] = TRUE;
+		m_check_mdvalue.EnableWindow(TRUE);
 	} 
 	else
 	{
 		m_advancedmap[UDSCAP_MULTIFEEDDETECT] = FALSE;
+		m_check_mdvalue.SetCheck(FALSE);
+		m_advancedmap[UDSCAP_MULTIFEEDDETECT_VALUE] = FALSE;
+		m_check_mdvalue.EnableWindow(FALSE);
+	}
+}
+
+
+void CPage_Advanced::OnClicked_Check_MdValue()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (m_check_mdvalue.GetCheck()) //点中
+	{
+		m_advancedmap[UDSCAP_MULTIFEEDDETECT_VALUE] = TRUE;		
+	} 
+	else
+	{
+		m_advancedmap[UDSCAP_MULTIFEEDDETECT_VALUE] = FALSE;	
 	}
 }
 
@@ -1065,9 +1092,9 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRES
 				str = "无限";
 			}
 			else{
-				str.Format("%d",sldValue);
+				str.Format("%d页",sldValue);
 			}
-			SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);
+			SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);
 		}		
 		break;
 	case 1:
@@ -1075,8 +1102,8 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRES
 			m_advancedmap[UDSCAP_CACHEMODE_PAPERNUM] = (float)sldValue;
 
 			m_slider_cachemode.SetPos(sldValue);
-			str.Format("%d",sldValue);
-			SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);	
+			str.Format("%d页",sldValue);
+			SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);	
 		}		
 		break;
 	case 2:
@@ -1084,12 +1111,12 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRES
 			m_advancedmap[UDSCAP_CACHEMODE_MEMORYSIZE] = (float)sldValue;
 
 			if(sldValue == 0){
-				str = "默认";
+				str = "默认值";
 			}
 			else{
-				str.Format("%d",sldValue);
+				str.Format("%dMB",sldValue);
 			}
-			SetDlgItemText(IDC_ADVANCED_EDIT_CACHEMODE, str);
+			SetDlgItemText(IDC_ADVANCED_STATIC_CACHEMODE_VALUE, str);
 		}	
 		break;
 	}
@@ -1099,60 +1126,3 @@ void CPage_Advanced::OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRES
 }
 
 
-void CPage_Advanced::OnEnChangeAdvanced_Edit_Cachemode()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	m_edit_cachemode.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_cachemode.SetPos(nval);
-
-	int nIndex = m_combo_cachemode.GetCurSel();
-	switch(nIndex)
-	{
-	case 0:
-		if(nval > 100)
-		{
-			nval = 100;
-		}
-		else if(nval < 0)
-		{
-			nval = 0;
-		}
-		else{}
-		m_advancedmap[UDSCAP_CACHEMODE_AUTO] = (float)nval;	
-		break;
-	case 1:
-		if(nval > 25)
-		{
-			nval = 25;
-		}
-		else if(nval < 0)
-		{
-			nval = 0;
-		}
-		else{}
-		m_advancedmap[UDSCAP_CACHEMODE_PAPERNUM] = (float)nval;		
-		break;
-	case 2:
-		if(nval > 1024)
-		{
-			nval = 1024;
-		}
-		else if(nval < 0)
-		{
-			nval = 0;
-		}
-		else{}
-		m_advancedmap[UDSCAP_CACHEMODE_MEMORYSIZE] = (float)nval;
-		break;
-	}
-	m_edit_cachemode.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置edit光标位置
-	UpdateData(FALSE);  // 更新控件
-}

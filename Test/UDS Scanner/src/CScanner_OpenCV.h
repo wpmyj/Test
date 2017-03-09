@@ -316,6 +316,8 @@ protected:
 	*  @param[out] dst 目标图像 
 	*/
 	void ColorFlip(const Mat &src, Mat &dst);
+
+	Mat applyLookUp(const Mat &src, const Mat &lookup);
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 
   WORD              m_nScanLine;              /**< Current scan line of image in FreeImage */

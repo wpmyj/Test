@@ -371,8 +371,11 @@ bool CScanner_G6X00::preScanPrep()
 	//去除噪声
 	if(m_bDenoise == TWDN_AUTO) 
 	{	
+		Mat matDenoise;
+		medianBlur(m_mat_image, matDenoise, 3);
+		matDenoise.copyTo(m_mat_image);
 		//IplImage *out;
-		MedianSmooth(m_mat_image/*, out*/);
+	//	MedianSmooth(m_mat_image/*, out*/);
 		//Mat mTemp(out,0);
 		//mTemp.copyTo(m_mat_image);
 	}
@@ -387,8 +390,7 @@ bool CScanner_G6X00::preScanPrep()
 		//x方向方差
 		//Y方向方差
 		GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
-		matDescreen.copyTo(m_mat_image);
-		
+		matDescreen.copyTo(m_mat_image);		
 	}
 
 	//去除穿孔
@@ -429,7 +431,6 @@ bool CScanner_G6X00::preScanPrep()
 	//去除背景
 	if(m_bRemoveBack == TWRB_AUTO) 
 	{
-		//LOG高斯拉拉普拉斯算子：先对图像做高斯模糊抑制噪声，再滤波
 		if(m_nPixelType != TWPT_BW)
 		{	
 			Mat matRemoveBack;	
@@ -439,10 +440,6 @@ bool CScanner_G6X00::preScanPrep()
 			cvtColor(matRemoveBack, bwMat, CV_BGR2GRAY);
 			int thresoldvalue = otsu(bwMat); //171	
 			threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
-	
-			/*char buf[60];
-			itoa(thresoldvalue, buf, 10);
-			::MessageBox(g_hwndDLG, TEXT(buf),"thresoldvalue",MB_OK);*/
 
 			Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
 			//将黑白图中的黑色像素点还原为原图中的像素点

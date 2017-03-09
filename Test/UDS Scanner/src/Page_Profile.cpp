@@ -59,6 +59,7 @@ void CPage_Profile::OnOK()
 		m_pUI->TW_SaveProfileToFile(str.GetBuffer()); //不是上述类型模板时，保存当前选中模板
 	}
 	m_pUI->TW_SaveProfileToFile("上次使用模板");//再次保存“上次使用模板”
+	m_pUI->TW_SaveProfileToFile("模板备份");//保存一份备份
 	
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
@@ -101,6 +102,7 @@ void CPage_Profile::OnCancel()
 	}
 
 	m_pUI->Cancel();
+	m_pUI->TW_LoadProfileFromFile("模板备份");
 
 	CPropertyPage::OnCancel();
 }
@@ -139,14 +141,18 @@ void CPage_Profile::SetLastTemplate()
 	lstString::iterator iter = strFileNames.begin();
 	for(;iter!=strFileNames.end(); iter++)
 	{
-		CString strTemp(iter->c_str());		
-		m_list_template.InsertString(unIndex, strTemp);
+		CString strTemp(iter->c_str());	
+		if(strTemp.Find("模板备份") >= 0){}
+		else
+		{
+			m_list_template.InsertString(unIndex, strTemp);
 
-		if(strTemp.Find("上次使用") >=0 ) {
-			m_list_template.SetCurSel(unIndex);
-			LoadTemplate();
+			if(strTemp.Find("上次使用") >=0 ) {
+				m_list_template.SetCurSel(unIndex);
+				LoadTemplate();
+			}
+			unIndex ++;
 		}
-		unIndex ++;
 	}
 }
 
@@ -162,13 +168,15 @@ void CPage_Profile::LoadTemplate()
 	else  // 其它模板
 	{	
 		CString strProfile; 
-		m_list_template.GetText( nIndex, strProfile);
+		m_list_template.GetText(nIndex, strProfile);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()); //会m_pDS->SetGustomDSData
 	}
 
 	m_pBasePage->UpdateControls();
 	m_pAdPage->UpdateControls();//高级设置界面参数也更新
 	m_pPaperPage->UpdateControls();
+
+	UpdateData(FALSE);
 }
 
 

@@ -18,7 +18,6 @@ IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 CPage_Base::CPage_Base(MFC_UI *pUI)
 	: m_pUI(pUI),CPropertyPage(CPage_Base::IDD)
 {
-	//m_radiobtn_scanmode = 0;
 }
 
 
@@ -54,6 +53,8 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
 	DDX_Control(pDX, IDC_BASE_PREPICTURE, m_base_picture);
 	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
+//	DDX_Control(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode_auto);
+//	DDX_Control(pDX, IDC_BASE_RADIO_SCANMODE_Flatbed, m_radiobtn_scanmode_flat);
 }
 
 
@@ -110,13 +111,25 @@ void CPage_Base::SetCapValue(void)
 			}
 
 		case UDSCAP_BINARIZATION: //二值化
-		case CAP_FEEDERENABLED:
 		case ICAP_XRESOLUTION:
 		case ICAP_YRESOLUTION:
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
 				break;
 			}	
+
+		case CAP_FEEDERENABLED:
+			{
+				if(m_radiobtn_scanmode==0)//自动进纸器
+				{
+					m_pUI->SetCapValueInt(iter->first,TRUE); 
+				}
+				else //平板
+				{
+					m_pUI->SetCapValueInt(iter->first,FALSE); 
+				}
+				break;
+			}
 
 		case UDSCAP_REMOVESPOTS: //去除斑点
 			{
@@ -276,7 +289,7 @@ void CPage_Base::UpdateControls(void)
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
 	if(0 == nCapIndex) //平板
 	{
-		m_radiobtn_scanmode = 1;	
+		m_radiobtn_scanmode = 1;
 	}
 	else //1为自动进纸器
 	{
@@ -890,7 +903,6 @@ void CPage_Base::SetFlat(void)
 	}	
 	else //为0表示自动进纸器选中
 	{}
-	
 	SetMultistream();
 }
 

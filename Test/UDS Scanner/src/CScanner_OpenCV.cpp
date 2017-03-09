@@ -396,7 +396,10 @@ bool CScanner_OpenCV::preScanPrep()
 	//去除噪声
 	if(m_bDenoise == TWDN_AUTO) 
 	{	
-		MedianSmooth(m_mat_image);
+		Mat matDenoise;
+		medianBlur(m_mat_image, matDenoise, 3);
+		matDenoise.copyTo(m_mat_image);
+		//MedianSmooth(m_mat_image);
 	}
 
 	//去网纹
@@ -410,17 +413,6 @@ bool CScanner_OpenCV::preScanPrep()
 		//Y方向方差
 		GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
 		matDescreen.copyTo(m_mat_image);
-		
-		/*
-		//开运算
-		Mat dst;
-		//内核矩阵
-		Mat element = getStructuringElement(MORPH_RECT, Size(10, 10)); //getStructuringElement函数会返回指定形状和尺寸的结构元素（内核矩阵）。
-		//进行腐蚀操作
-		erode(matDescreen, dst, element); //腐蚀处理  element表示的kernel为NULL时，表示的是使用参考点位于中心3x3的核。 
-		dilate(dst, dst, element);//对腐蚀过的图像再膨胀
-		dst.copyTo(m_mat_image);*/
-		
 	}
 
 	//锐化
@@ -465,7 +457,6 @@ bool CScanner_OpenCV::preScanPrep()
 	//去除背景
 	if(m_bRemoveBack == TWRB_AUTO) 
 	{
-		//LOG高斯拉拉普拉斯算子：先对图像做高斯模糊抑制噪声，再滤波
 		if(m_nPixelType != TWPT_BW)
 		{	
 			Mat matRemoveBack;	
@@ -475,11 +466,6 @@ bool CScanner_OpenCV::preScanPrep()
 			cvtColor(matRemoveBack, bwMat, CV_BGR2GRAY);
 			int thresoldvalue = otsu(bwMat); //171	
 			threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
-	
-			/*char buf[60];
-			itoa(thresoldvalue, buf, 10);
-			::MessageBox(g_hwndDLG, TEXT(buf),"thresoldvalue",MB_OK);*/
-
 			Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
 			//将黑白图中的黑色像素点还原为原图中的像素点
 			for(int j = 0; j < bwMat.rows; j++)
@@ -503,6 +489,87 @@ bool CScanner_OpenCV::preScanPrep()
 			dstMat.copyTo(m_mat_image);
 		}//if end
 	}
+	/*
+	if(m_bRemoveBack == TWRB_AUTO) 
+	{
+		Mat matRemoveBack;	
+		m_mat_image.copyTo(matRemoveBack);
+		Mat bwmat;
+		cvtColor(matRemoveBack,bwmat,CV_BGR2GRAY); 
+		threshold( bwmat, bwmat, 0, 255, THRESH_OTSU);
+		vector<vector<Point>> contours; 
+		// find 
+		findContours(bwmat,contours,CV_RETR_LIST,CV_CHAIN_APPROX_NONE); 
+		// draw 
+		/*Mat result(matRemoveBack.size(),matRemoveBack.type(),Scalar(0)); 
+		drawContours(result,contours,-1,Scalar(255,255,255),2);		
+		result.copyTo(m_mat_image);*/
+		/*
+		Mat result(matRemoveBack.size(),matRemoveBack.type(),Scalar(0)); 
+		drawContours(result,contours,-1,Scalar(255),2);
+		
+		Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
+		//将黑白图中的黑色像素点还原为原图中的像素点
+		for(int j = 0; j < result.rows; j++)
+		{
+			for(int i = 0; i < result.cols; i++)
+			{
+				if((int)(result.at<uchar>(j,i)) == 0)
+				{
+					dstMat.at<Vec3b>(j,i)[0] = matRemoveBack.at<Vec3b>(j,i)[0];
+					dstMat.at<Vec3b>(j,i)[1] = matRemoveBack.at<Vec3b>(j,i)[1];
+					dstMat.at<Vec3b>(j,i)[2] = matRemoveBack.at<Vec3b>(j,i)[2];
+				}
+				else
+				{
+					dstMat.at<Vec3b>(j,i)[0] = 255;
+					dstMat.at<Vec3b>(j,i)[1] = 255;
+					dstMat.at<Vec3b>(j,i)[2] = 255;
+				}
+			} //i for end
+		} //j for end		
+		dstMat.copyTo(m_mat_image);
+	*/
+		/*
+		MatND hist;
+
+		double maxVal = 0;
+		double minVal = 0;
+
+		if(m_nPixelType!=TWPT_BW)
+		{
+			const int channels[1]={0};
+			const int histSize[1]={256};
+			float hranges[2]={0,255};
+			const float* ranges[1]={hranges};	
+			calcHist(&matRemoveBack,1,channels,Mat(),hist,1,histSize,ranges);
+
+			//找到直方图中的最大值和最小值 最多出现了多少次
+			minMaxLoc(hist,&minVal,&maxVal,0,0);
+
+			int gray; //最大取值对应的灰度
+			int size = hist.rows; //256
+			for(int h = 0; h < size; h++)
+			{
+				float binVal = hist.at<float>(h);
+				if(binVal == maxVal)
+				{
+					gray = h;
+				}
+			}
+
+			for(int i = 0; i < 256; i++)
+			{
+				if(i == gray)
+				{
+					matRemoveBack.at<uchar>(i) = 255; 
+				}
+			}
+
+			matRemoveBack.copyTo(m_mat_image);
+		}
+		*/
+	//}
 
 	//去除穿孔
 	if(m_bRemovePunch == TWRP_AUTO) 
@@ -623,6 +690,15 @@ bool CScanner_OpenCV::preScanPrep()
 		return true;
 	}
 }
+
+Mat CScanner_OpenCV::applyLookUp(const Mat &src, const Mat &lookup)
+{  
+	//输出图像  
+	Mat result;  
+	//应用查找表  
+	LUT(src, lookup, result);  
+	return result;  
+}  
 
 //OTSU最大类间方差算法
 int CScanner_OpenCV::otsu(Mat image) 

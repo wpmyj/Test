@@ -80,7 +80,7 @@ private:
 	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
 
 //	CButton m_btn_chooseimage;///<"选择图片按钮"
-	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板
+	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板 CButton m_radiobtn_scanmode_auto;
 	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
 
 	CButton m_check_frontcolor;
@@ -134,4 +134,5 @@ public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;	
 	CPage_Custom* m_pPaperPage;	
+	
 };

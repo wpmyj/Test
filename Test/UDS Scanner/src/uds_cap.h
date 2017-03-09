@@ -25,6 +25,8 @@
 #define UDSCAP_AUTOCROP                 CAP_CUSTOMBASE+13 /**< 自动裁切校正 */
 
 #define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
+#define UDSCAP_MULTIFEEDDETECT_VALUE    CAP_CUSTOMBASE+30 /**< 重张检测故障值 */
+
 #define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
 
 #define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+16 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */

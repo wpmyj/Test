@@ -28,6 +28,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fBrightness					= settings.m_fBrightness;
 	m_fThreshold					= settings.m_fThreshold;
 	m_bMultifeedDetection = settings.m_bMultifeedDetection;
+	m_bMD_value           = m_bMD_value;
 
 	m_fRotation						= settings.m_fRotation; //zhu
 	m_nOrientation				= settings.m_nOrientation; //zhu

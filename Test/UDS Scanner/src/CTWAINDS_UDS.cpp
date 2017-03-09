@@ -373,6 +373,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,UDSCAP_LONGDOCUMENT,0,TWON_ONEVALUE); //长纸型
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTIFEEDDETECT,0,TWON_ONEVALUE); //zhu  重张进纸检测
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTIFEEDDETECT_VALUE,0,TWON_ONEVALUE); //zhu  重张进纸检测
 
 	bResult = bResult && StoreCapInStream(DsData,ICAP_ROTATION,0,TWON_ONEVALUE); //zhu 旋转
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BINARIZATION,0,TWON_ONEVALUE); //zhu 二值化
@@ -469,6 +470,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DENOISE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_AUTOCROP,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTIFEEDDETECT,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTIFEEDDETECT_VALUE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_DOCS_IN_ADF,0); // ADF纸张数 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM_VALUE,0); // 多流输出选项值 
 
@@ -558,6 +560,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_DENOISE)
 	 || !pnCap->Add(UDSCAP_AUTOCROP)
 	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT) //多张进纸检测
+	 || !pnCap->Add(UDSCAP_MULTIFEEDDETECT_VALUE) //多张进纸故障值
 	 || !pnCap->Add(UDSCAP_MULTISTREAM_VALUE) // 多流输出选项值
 	 || !pnCap->Add(UDSCAP_EDGE_UP)
 	 || !pnCap->Add(UDSCAP_EDGE_DOWN)
@@ -614,7 +617,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	fRange.fCurrentValue = 1.0f; 
+	fRange.fCurrentValue = 3.0f; 
 	fRange.fMaxValue = 25.0f;
 	fRange.fMinValue = 1.0;
 	fRange.fStepSize = 1.0f;
@@ -628,7 +631,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	}
 
 	fRange.fCurrentValue = 0.0f; 
-	fRange.fMaxValue = 1024.0f;
+	fRange.fMaxValue = 1023.0f;
 	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
 	//缓存模式-内存大小
@@ -766,6 +769,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
+	//zhu 重张检测故障值
+	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT_VALUE] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT_VALUE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT_VALUE]))
+		|| !pbCap->Add(FALSE, true)
+		|| !pbCap->Add(TRUE) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTIFEEDDETECT_VALUE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
 	//色彩翻转
 	m_IndependantCapMap[UDSCAP_COLORFLIP] = new CTWAINContainerBool(UDSCAP_COLORFLIP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_COLORFLIP]))
@@ -793,7 +807,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
-   //|| !pnCap->Add(TWSS_NONE) //zhu
+   || !pnCap->Add(TWSS_NONE) //zhu
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
@@ -1297,8 +1311,67 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
+	/*
+	//边缘扩展上下左右 以英寸为单位
+	fRange.fCurrentValue = 0.00f; 
+	fRange.fMaxValue = 0.50f;
+	fRange.fMinValue = 0.00f;
+	fRange.fStepSize = 0.01f;
+	m_IndependantCapMap[UDSCAP_EDGE_UP] = new CTWAINContainerFix32Range(UDSCAP_EDGE_UP,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_EDGE_UP]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_UP !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_EDGE_DOWN] = new CTWAINContainerFix32Range(UDSCAP_EDGE_DOWN,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_EDGE_DOWN]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_DOWN !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
-	//边缘扩展上下左右
+	fRange.fCurrentValue = 0.00f; 
+	fRange.fMaxValue = 0.19f;
+	fRange.fMinValue = 0.00f;
+	fRange.fStepSize = 0.01f;
+	m_IndependantCapMap[UDSCAP_EDGE_LEFT] = new CTWAINContainerFix32Range(UDSCAP_EDGE_LEFT,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_EDGE_LEFT]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_LEFT !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_EDGE_RIGHT] = new CTWAINContainerFix32Range(UDSCAP_EDGE_RIGHT,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_EDGE_RIGHT]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_EDGE_RIGHT !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//XY偏移量
+	fRange.fCurrentValue = 0.00f; 
+	fRange.fMaxValue = 5.73f;
+	fRange.fMinValue = 0.00f;
+	fRange.fStepSize = 0.01f;
+	m_IndependantCapMap[UDSCAP_XPOS] = new CTWAINContainerFix32Range(UDSCAP_XPOS,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_XPOS]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_XPOS !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_YPOS] = new CTWAINContainerFix32Range(UDSCAP_YPOS,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_YPOS]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_YPOS !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}*/
+
+	
 	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP] = new CTWAINContainerFix32(UDSCAP_EDGE_UP, TWON_ONEVALUE, TWQC_ALL))
 		|| !m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP]->Add(0.0, true) )
 	{
@@ -2111,6 +2184,18 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pbCap->GetCurrent(bVal);
 		settings.m_bMultifeedDetection = bVal;
+	}
+
+	//zhu 重张检测故障值
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_MULTIFEEDDETECT_VALUE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_MULTIFEEDDETECT_VALUE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bMD_value = bVal;
 	}
 
 	//色彩翻转

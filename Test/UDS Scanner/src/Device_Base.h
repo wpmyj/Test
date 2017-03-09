@@ -122,7 +122,8 @@ public:
 	float             m_fBrightness;            /**< Brightness */
 	float             m_fThreshold;             /**< Threshold */
 
-	bool              m_bMultifeedDetection;//zhu/**<重张检测 */
+	bool              m_bMultifeedDetection;    /**<重张检测 */
+	bool              m_bMD_value;              /**<重张检测故障值 */
 
 	int               m_nOrientation; //zhu     /**< 纸张方向 */
 	int               m_nStandardsizes; //zhu   /**< 纸张大小 */

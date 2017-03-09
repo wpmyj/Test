@@ -44,7 +44,7 @@ private:
 	CEdit m_edit_spilt;
 
 	CComboBox m_combo_cachemode; ///<»º´æÄ£Ê½
-	CEdit m_edit_cachemode;
+//	CEdit m_edit_cachemode;
 	CSliderCtrl m_slider_cachemode;
 
 	CSliderCtrl m_slider_gamma;
@@ -107,5 +107,7 @@ public:
 	
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Cachemode();
 	afx_msg void OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeAdvanced_Edit_Cachemode();
+//	afx_msg void OnEnChangeAdvanced_Edit_Cachemode();
+	CButton m_check_mdvalue;
+	afx_msg void OnClicked_Check_MdValue();
 };
