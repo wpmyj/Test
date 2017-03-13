@@ -25,6 +25,39 @@
     <None Include="ClassDiagram.cd">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="skin\rotate_left.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\install_bg.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\checkbox6.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\panel_bk.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\picasa_close.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\view_close.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\rotate_right.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\order_up.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\btn_normal.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\btn53x22.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="skin\button.png">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UDS Scanner.cpp">
@@ -127,6 +160,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Scanner_G6X00.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ButtonPublic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PngButton.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -252,6 +291,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\testfiles\common\GL1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ButtonPublic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PngButton.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

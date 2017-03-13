@@ -133,7 +133,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	case DEVICE_CAMERA:
 		{
 			m_pScanner = new CCamera_CxImage;
-			//::MessageBox(g_hwndDLG,TEXT("未实现!"),MB_CAPTION,MB_OK);
+			//::MessageBox(g_hwndDLG,TEXT("高拍仪设备!"),MB_CAPTION,MB_OK);
 			break;
 		}
 	default:
@@ -617,7 +617,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
-	fRange.fCurrentValue = 3.0f; 
+	fRange.fCurrentValue = 1.0f; 
 	fRange.fMaxValue = 25.0f;
 	fRange.fMinValue = 1.0;
 	fRange.fStepSize = 1.0f;
@@ -631,7 +631,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	}
 
 	fRange.fCurrentValue = 0.0f; 
-	fRange.fMaxValue = 1023.0f;
+	fRange.fMaxValue = 1024.0f;
 	fRange.fMinValue = 0.0f;
 	fRange.fStepSize = 1.0f;
 	//缓存模式-内存大小
@@ -807,7 +807,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
-   || !pnCap->Add(TWSS_NONE) //zhu
+   //|| !pnCap->Add(TWSS_NONE) //zhu
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
@@ -1311,8 +1311,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
-	/*
-	//边缘扩展上下左右 以英寸为单位
+
+	//边缘扩展上下左右
 	fRange.fCurrentValue = 0.00f; 
 	fRange.fMaxValue = 0.50f;
 	fRange.fMinValue = 0.00f;
@@ -1369,7 +1369,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_YPOS !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
-	}*/
+	}
 
 	
 	if( NULL == (m_ICAP_UNIT_Dependant[UDSCAP_EDGE_UP] = new CTWAINContainerFix32(UDSCAP_EDGE_UP, TWON_ONEVALUE, TWQC_ALL))

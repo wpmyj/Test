@@ -10,7 +10,7 @@
 #define __PUBLIC_H__
 
 /** 文件名常量 */
-#define FILENAME_INI TEXT("UDS General TWAIN DS.INI")
+#define FILENAME_INI TEXT("UDS Universal TWAIN DS.INI")
 #define FILENAME_WAV_CAMERA1 TEXT("Camera1.WAV")
 #define FILENAME_WAV_CAMERA2 TEXT("Camera2.WAV")
 
@@ -29,13 +29,13 @@
 #define INI_KEY_CAMERANAME                   TEXT("CameraName")
 #define INI_KEY_PLAYSOUND                    TEXT("PlaySound")
 /** 消息框标题或驱动名称 */    
-#define MB_CAPTION TEXT("UDS General TWAIN DS")
+#define MB_CAPTION TEXT("UDS Universal TWAIN DS")
 
 /** 软件主版本号 */
-#define VERSION_MAJORNUMBER 2
+#define VERSION_MAJORNUMBER 1
 
 /** 软件副版本号 */
-#define VERSION_MINORNUMBER 3
+#define VERSION_MINORNUMBER 0
 
 /** 设备编号 */
 typedef enum DEVICE_NUMBER

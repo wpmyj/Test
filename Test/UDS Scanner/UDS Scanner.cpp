@@ -46,6 +46,7 @@ END_MESSAGE_MAP()
 // CUDSScannerApp 构造
 
 CUDSScannerApp::CUDSScannerApp()
+	//: m_gdiplusToken(0)
 {
 	// TODO: 在此处添加构造代码，
 	// 将所有重要的初始化放置在 InitInstance 中
@@ -63,9 +64,15 @@ CUDSScannerApp theApp;
 BOOL CUDSScannerApp::InitInstance()
 {
 	//g_hinstance = (HINSTANCE)GetCurrentModule(); //获取DLL自身的句柄
+
+	// GDI+,必须在CWinApp::InitInstance();之前
+	//::MessageBox(g_hwndDLG,TEXT("InitInstance!"),MB_CAPTION,MB_OK);
+	//GdiplusStartupInput gdiplusStartupInput;
+	//GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
 	CWinApp::InitInstance();
 	AfxEnableControlContainer();  // 调用ocx控件必须添加该函数
-	AfxInitRichEdit2(); // 调用RichEdit2控件必须添加该句该函数
+	//AfxInitRichEdit2(); // 调用RichEdit2控件必须添加该句该函数
 	//::MessageBox(hwndDLG,"Init",MB_CAPTION,MB_OK);
 
 	//该方法得到的是调用的exe的句柄
@@ -77,6 +84,7 @@ BOOL CUDSScannerApp::InitInstance()
 	::GetModuleFileName( GetCurrentModule(), lib_name, MAX_PATH );
 	::MessageBox(hwndDLG,lib_name,MB_CAPTION,MB_OK);*/
 
+
 	return TRUE;
 }
 
@@ -86,6 +94,7 @@ int CUDSScannerApp::ExitInstance()
 	// TODO: 在此添加专用代码和/或调用基类
 	unLoadDSMLib();
 	g_hinstance = 0;
+	//GdiplusShutdown(m_gdiplusToken);
 	return CWinApp::ExitInstance();
 }
 

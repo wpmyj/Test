@@ -11,4 +11,5 @@ IMPLEMENT_DYNCREATE(CDUDS_Video, CWnd)
 
 // CDUDS_Video ÊôÐÔ
 
-// CDUDS_Video ²Ù×÷
+
+

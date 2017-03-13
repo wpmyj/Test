@@ -25,4 +25,5 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 	virtual int ExitInstance();
+	//ULONG_PTR m_gdiplusToken;
 };

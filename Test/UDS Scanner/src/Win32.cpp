@@ -168,8 +168,9 @@ DS_Entry( pTW_IDENTITY _pOrigin,
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());  // 很重要，导出函数必须添加这一句
 
+
 	g_nDeviceNumber = GetDeviceNumberFromINI();  // 保存INI中的设备编号
-	
+
   CTWAINDS_Base* pTWAINLayer = 0;
 
   if(_pOrigin)
