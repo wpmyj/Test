@@ -1523,13 +1523,13 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
       //_pImageInfo->BitsPerPixel = 1;
       _pImageInfo->SamplesPerPixel = 1;
       _pImageInfo->BitsPerSample[0] = 1;
-			if (DEVICE_OPENCV == g_nDeviceNumber)
+			/*if (DEVICE_OPENCV == g_nDeviceNumber)
 			{
 				_pImageInfo->BitsPerPixel = 8;
 			} 
-			else
+			else*/
 			{
-				_pImageInfo->BitsPerPixel = 1;
+				_pImageInfo->BitsPerPixel = 8;
 			}
     break;
 

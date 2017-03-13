@@ -216,7 +216,8 @@ protected:
 	*  @param[in]  src ：输入图像 (灰度图)
 	*  @param[in]  dp ：检测圆心的累加器图像的分辨率与输入图像之比的倒数，即累加器图像的反比分辨率	
 	*  @param[in]  threshold1 ：第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
-	*  @param[in]  threshold2 ：表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
+	*  @param[in]  threshold2 ：表示在检测阶段圆心的累加器阈值；霍夫空间内累加和大于该阈值的点就对应于圆心；距离相同的“值"得数量大于该阈值时，认为该"值"是该圆心对应的圆半径
+	                           。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
 	*  @param[out]  输出变换后图像
 	*/
 	Mat HoughCirclesTransfer(Mat src_img ,double dp, double threshold1, double threshold2);
@@ -224,7 +225,7 @@ protected:
 	/**
 	*  @brief  去除穿孔
 	*  @param[in]  threshold1 ：霍夫变换的第三个参数method设置的检测方法的对应的参数,Canny边缘函数的高阈值，而低阈值为高阈值的一半
-	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
+	*  @param[in]  threshold2 ：霍夫变换的，表示在检测阶段圆心的累加器阈值(也就是有多少条梯度经过中心点)。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形
 	*  @param[out]  输出变换后图像
 	*/
 	Mat RemovePunch(double threshold1, double threshold2);
@@ -343,7 +344,7 @@ protected:
 	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */
 	int               m_i;                      /**< count循环变量*/
 
-	uchar             *m_byte_image;              /**< m_mat_image转为的字节对齐的uchar类型数据*/
+	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 }; 
 
