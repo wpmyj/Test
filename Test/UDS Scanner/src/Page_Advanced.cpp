@@ -435,6 +435,7 @@ BOOL CPage_Advanced::OnInitDialog()
 	GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->ShowWindow(FALSE);
 	GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->ShowWindow(FALSE);
 	GetDlgItem(IDC_ADVANCED_EDIT_SPILT)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_REMOVEPUNCH)->ShowWindow(FALSE); //去除穿孔
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE

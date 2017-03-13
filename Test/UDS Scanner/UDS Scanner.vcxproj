@@ -52,6 +52,7 @@
     <IncludePath>E:\OpenCV249\opencv\build\include\opencv2;E:\OpenCV249\opencv\build\include\opencv;E:\OpenCV249\opencv\build\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\OpenCV249\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
     <TargetName>UDS General TWAIN DS</TargetName>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

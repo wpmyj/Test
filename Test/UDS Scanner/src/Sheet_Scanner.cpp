@@ -204,6 +204,11 @@ BOOL CSheet_Scanner::OnInitDialog()
 
 	rect.left = tabrect.left;
 	rect.right = tabrect.left + width;
+	m_btn_preview.Create("‘§¿¿",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_PREVIEW);
+	m_btn_preview.SetFont(GetFont());
+	/*
+	rect.left = tabrect.left;
+	rect.right = tabrect.left + width;
 	m_btn_help.Create("∞Ô÷˙",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_HELP);
 	m_btn_help.SetFont(GetFont());
 	
@@ -211,6 +216,7 @@ BOOL CSheet_Scanner::OnInitDialog()
 	rect.right = rect.left + width;
 	m_btn_preview.Create("‘§¿¿",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_PREVIEW);
 	m_btn_preview.SetFont(GetFont()); 
+	*/
 	SetPreViewStatus();
 
 	return bResult;
