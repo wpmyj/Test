@@ -168,7 +168,6 @@ DS_Entry( pTW_IDENTITY _pOrigin,
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());  // 很重要，导出函数必须添加这一句
 
-
 	g_nDeviceNumber = GetDeviceNumberFromINI();  // 保存INI中的设备编号
 
   CTWAINDS_Base* pTWAINLayer = 0;
@@ -187,6 +186,7 @@ DS_Entry( pTW_IDENTITY _pOrigin,
   // Curently we are not open
   if( 0 == pTWAINLayer )
   {
+		//::MessageBox(g_hwndDLG,TEXT(" DS_Entry::0 == pTWAINLayer!"),MB_CAPTION,MB_OK);
     // Special case DSM can request to get identity information about 
     // DS before it is open.  In this special case, where the DS is not
     // open, we return this static Idenity.
@@ -196,7 +196,6 @@ DS_Entry( pTW_IDENTITY _pOrigin,
       // that the id will not be assigned until MSG_OPENDS
       CTWAINDS_Base::m_TheIdentity.Id = ((pTW_IDENTITY)_pData)->Id;
       memcpy( _pData, &CTWAINDS_Base::m_TheIdentity, sizeof(CTWAINDS_Base::m_TheIdentity) );
-
       return TWRC_SUCCESS;
     }
 

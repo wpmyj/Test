@@ -57,7 +57,7 @@ bool CScanner_G6X00::resetScanner()
 	m_fBrightness         = 0.0; //亮度-0.0
 	m_fThreshold          = 128.0; //阈值-128.0 ，虚拟默认128.G6400默认230
 	m_bMultifeedDetection = true; //重张检测-选中
-
+	m_bMD_value           = false;
 	//Advanced界面
 	m_nOrientation        = TWOR_ROT0; //zhu 纸张方向-纵向
 	m_nStandardsizes      = TWSS_USLETTER; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-TWSS_USLETTER
@@ -357,7 +357,7 @@ bool CScanner_G6X00::preScanPrep()
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 	}
-	imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", m_mat_image);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", m_mat_image);
 
 	//色彩翻转
 	if(m_bColorFlip == TWCF_AUTO)
@@ -986,11 +986,18 @@ void CScanner_G6X00::AdjustParameter()
 
 	if (m_bMultifeedDetection)
 	{
-		m_scanParameter.ExtScanParam = 0x9018;  //开启重张检测，暂停扫描 
+		if (m_bMD_value)  
+		{
+			m_scanParameter.ExtScanParam = 0x9018;  //开启重张检测，暂停扫描 
+		} 
+		else
+		{
+			m_scanParameter.ExtScanParam = 0x9410;  //开启重张检测，继续扫描
+		}
 	}
 	else
 	{
-		m_scanParameter.ExtScanParam = 0x9410;  //开启重张检测，继续扫描
+		m_scanParameter.ExtScanParam = 0x9000;   // 关闭重张检测
 	}
 	//m_scanParameter.ExtScanParam = 0x9000 ;       //Enable extended scan parameter and set XRes and YRes for newer model
 	//m_scanParameter.ExtScanParam2 |= 0x01000000;

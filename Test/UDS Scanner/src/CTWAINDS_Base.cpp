@@ -104,6 +104,7 @@ TW_UINT16 CTWAINDS_Base::DS_Entry( pTW_IDENTITY _pOrigin,
                                    TW_UINT16    _MSG,
                                    TW_MEMREF    _pData)
 {
+	//::MessageBox(g_hwndDLG,TEXT("IN CTWAINDS_Base::DS_Entry!"),MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   switch (_DG)
@@ -239,6 +240,7 @@ TW_INT16 CTWAINDS_Base::dat_identity(pTW_IDENTITY _pOrigin,
                                      TW_UINT16    _MSG,
                                      pTW_IDENTITY _pData)
 {
+	//::MessageBox(g_hwndDLG,TEXT("CTWAINDS_Base::dat_identity!"),MB_CAPTION,MB_OK);
   TW_INT16 twrc = TWRC_SUCCESS;
 
   switch(_MSG)
@@ -246,7 +248,6 @@ TW_INT16 CTWAINDS_Base::dat_identity(pTW_IDENTITY _pOrigin,
     case MSG_GET:
       memcpy(_pData, &m_MyIdentity, sizeof(TW_IDENTITY));
       break;
-
     case MSG_OPENDS:
       // store the id assigned to us by the DSM.
       m_MyIdentity.Id = _pData->Id;

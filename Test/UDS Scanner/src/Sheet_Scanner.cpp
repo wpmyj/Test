@@ -254,7 +254,7 @@ void CSheet_Scanner::OnButtonHelp()
 
 	SSTRCPY(path, sizeof(path), path);
 	strcat(path,  "\\");
-	strcat(path, "UDS General TWAIN DS聞喘返過.chm");
+	strcat(path, "UDS Universal TWAIN DS聞喘返過.chm");
 
 	ShellExecute(NULL,"open",path,NULL,NULL,SW_SHOWNORMAL);
 }
