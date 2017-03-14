@@ -588,7 +588,6 @@ bool CScanner_OpenCV::preScanPrep()
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect();//先自动校正	
-
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", m_mat_image);
@@ -673,7 +672,6 @@ bool CScanner_OpenCV::preScanPrep()
 	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
 	Mat tempmat;
 	m_mat_image.copyTo(tempmat);
-	//BYTE *temp = NULL;
 	Mat2uchar(tempmat);
 
 	if(status) //若为真，表示是空白页
@@ -1154,7 +1152,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 	int cCols = getOptimalDFTSize(nCols);
 	//复制图像，超过边界部分填充为0
 	Mat sizeConvMat;
-	copyMakeBorder(srcImage, sizeConvMat, 0, cRows -nRows, 0, cCols-nCols, BORDER_CONSTANT, Scalar::all(0));
+	copyMakeBorder(srcImage, sizeConvMat, 0, cRows-nRows, 0, cCols-nCols, BORDER_CONSTANT, Scalar::all(0));
 
 	//DFT变换************************
 	//通道组建立
@@ -1237,10 +1235,10 @@ Mat CScanner_OpenCV::AutoCorrect()
 		}
 
 	}
-	bool m_markit=false;
-	if (theta>45)
+	bool mark = false;
+	if (theta > 45)
 	{
-		m_markit = true;
+		mark = true;
 	} 
 	
 	//角度转换
@@ -1270,7 +1268,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 	warpAffine(img_first, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
-	if(m_markit)
+	if(mark)
 	{
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
 		
@@ -1313,10 +1311,26 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	
 	//【4】进行霍夫圆变换  
 	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆;圆心横坐标，圆心纵坐标和圆半径
-	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
+	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离，如果检测到的两个圆心之间距离小于该值，则认为它们是同一个圆心
 	minDist = midImage.rows/15;
-	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 
+	/*
+	double dFx = (double)m_fXResolution/200.00; //1
+	char buf[60];
+	itoa(dFx, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"dFx",MB_OK);
 
+	WORD width = (m_nSourceWidth > m_nHeight)?m_nHeight:m_nWidth; //1653
+	itoa(width, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"width",MB_OK);
+
+	WORD newWidth = (WORD)(width * dFx);
+	int maxradius =  ConvertUnits(newWidth/30, TWUN_CENTIMETERS, TWUN_PIXELS, m_fXResolution);
+	itoa(maxradius, buf, 10);
+	::MessageBox(g_hwndDLG, TEXT(buf),"maxradius",MB_OK);*/
+	
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);
+	//HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 CV_HOUGH_GRADIENT表示霍夫梯度法 
+	//threshold1是Canny的边缘阀值上限high，下限low被置为上限的一半;  minRadius和maxRadius为所检测到的圆半径的最小值和最大值
 	//【5】依次在图中绘制出圆  
 	for(size_t i = 0; i < circles.size(); i++)  
 	{ 

@@ -4,6 +4,8 @@
 #include <time.h>
 #include <vector>
 
+#include "ximage.h"  // CXImage
+
 #define DPI 100
 #define SCANWIDTH_INCH   8.27
 #define SCANLENGTH_INCH  /*118*/11.69 // 长纸模式
@@ -171,7 +173,12 @@ bool CScanner_G6X00::acquireImage()
 	//	::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
 	//	return false;
 	//}
-
+	int pixeltype;
+	if(m_nPixelType == TWPT_BW)
+	{
+		m_nPixelType = TWPT_GRAY;
+		pixeltype = TWPT_GRAY;
+	}
 	
 
 	if(!m_bSkip)
@@ -251,6 +258,11 @@ bool CScanner_G6X00::acquireImage()
 	}
 
 
+	if(pixeltype == TWPT_GRAY)
+	{
+		m_nPixelType = TWPT_BW;
+	}
+
 	//Document scanned, remove it from simulated intray
 	//m_nDocCount --;
 
@@ -294,7 +306,7 @@ bool CScanner_G6X00::preScanPrep()
 	int nType = CV_8UC3;
 	switch(m_nPixelType)
 	{
-	case  TWPT_BW:
+	case TWPT_BW:
 		nType = CV_8UC1; // 黑白与灰度相同
 		break;
 	case TWPT_GRAY:
@@ -307,11 +319,14 @@ bool CScanner_G6X00::preScanPrep()
 		nType = CV_8UC3;
 		break;
 	}
+	
+	Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
+	iMat.copyTo(m_mat_image);
 
+	if(m_nPixelType == TWPT_BW)
 	{
-		Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow);  
-		iMat.copyTo(m_mat_image);
-	}
+		threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU);
+	} 
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
@@ -1289,7 +1304,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 {
 	//ChangeImage(IMAGENAME_AUTOCORRECT);
 	//Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	imwrite("C:\\Users\\Administrator\\Desktop\\原图.jpg", src_img);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\原图.jpg", src_img);
 
 	Mat img(src_img);
 	resize(src_img, img, Size(m_nWidth/4, m_nHeight/4), (0, 0), (0, 0), cv::INTER_LINEAR);
@@ -1304,19 +1319,19 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		img.copyTo(srcImage);
 	}	
 
-	int nRows=srcImage.rows;
-	int nCols=srcImage.cols;
+	int nRows = srcImage.rows;
+	int nCols = srcImage.cols;
 
 	//获取DFT尺寸***********************
-	int cRows=getOptimalDFTSize(nRows);
-	int cCols=getOptimalDFTSize(nCols);
+	int cRows = getOptimalDFTSize(nRows);
+	int cCols = getOptimalDFTSize(nCols);
 	//复制图像，超过边界部分填充为0
 	Mat sizeConvMat;
-	copyMakeBorder(srcImage, sizeConvMat, 0, cRows -nRows, 0, cCols-nCols, BORDER_CONSTANT, Scalar::all(0));
+	copyMakeBorder(srcImage, sizeConvMat, 0, cRows-nRows, 0, cCols-nCols, BORDER_CONSTANT, Scalar::all(0));
 
 	//DFT变换************************
 	//通道组建立
-	Mat groupMats[]={cv::Mat_<float>(sizeConvMat), cv::Mat::zeros(sizeConvMat.size(), CV_32F)};
+	Mat groupMats[] = {cv::Mat_<float>(sizeConvMat), cv::Mat::zeros(sizeConvMat.size(), CV_32F)};
 	Mat mergeMat;
 	//通道合并
 	merge(groupMats, 2, mergeMat);
@@ -1328,7 +1343,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	magnitude(groupMats[0], groupMats[1], groupMats[0]);
 	Mat magnitudeMat = groupMats[0].clone();
 	//归一化，幅值加1
-	magnitudeMat+=Scalar::all(1);
+	magnitudeMat += Scalar::all(1);
 	//对数变换
 	log(magnitudeMat, magnitudeMat);
 	//归一化
@@ -1337,17 +1352,17 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	magnitudeMat.convertTo(magnitudeMat, CV_8UC1, 255, 0);
 
 	//频域中心移动**************************
-	int cx=(magnitudeMat.cols)/2;
-	int cy=magnitudeMat.rows/2;
+	int cx = (magnitudeMat.cols)/2;
+	int cy = magnitudeMat.rows/2;
 	Mat tmp;
 	//Top-Left为第一象限创建ROI
 	Mat q0(magnitudeMat, Rect(0,0,cx,cy));
 	//Top_Right
-	Mat q1(magnitudeMat,Rect(cx,0,cx,cy));
+	Mat q1(magnitudeMat, Rect(cx,0,cx,cy));
 	//Bottom-Left
-	Mat q2(magnitudeMat,Rect(0,cy,cx,cy));
+	Mat q2(magnitudeMat, Rect(0,cy,cx,cy));
 	//Bottom-Right
-	Mat q3(magnitudeMat,Rect(cx,cy,cx,cy));
+	Mat q3(magnitudeMat, Rect(cx,cy,cx,cy));
 	//变换象限
 	q0.copyTo(tmp);
 	q3.copyTo(q0);
@@ -1395,10 +1410,10 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		}
 
 	}
-	bool m_markit=false;
-	if (theta>45)
+	bool mark = false;
+	if (theta > 45)
 	{
-		m_markit = true;
+		mark = true;
 	} 
 
 	//角度转换
@@ -1428,7 +1443,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	warpAffine(src_img, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 
-	if(m_markit)
+	if(mark)
 	{
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
 
