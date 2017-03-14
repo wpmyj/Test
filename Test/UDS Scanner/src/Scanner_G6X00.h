@@ -220,7 +220,8 @@ protected:
 	*  @param[in]  src ：输入图像
 	*  @param[out]  输出去黑边后的图像
 	*/
-	Mat RemoveBlack(Mat src_img);
+	//Mat RemoveBlack(Mat src_img);
+	Rect RemoveBlack(Mat src_img);
 
 	/**
 	*  @brief  色彩翻转

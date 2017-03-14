@@ -366,8 +366,11 @@ bool CScanner_G6X00::preScanPrep()
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	
-		matAutoCrop = RemoveBlack(matAutoCrop);
-		matAutoCrop.copyTo(m_mat_image);
+		Rect rect = RemoveBlack(matAutoCrop);
+		Mat imageSave = matAutoCrop(rect);
+		imageSave.copyTo(m_mat_image);
+		//matAutoCrop = RemoveBlack(matAutoCrop);
+		//matAutoCrop.copyTo(m_mat_image);
 
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
@@ -411,8 +414,8 @@ bool CScanner_G6X00::preScanPrep()
 	//去除穿孔
 	if(m_bRemovePunch == TWRP_AUTO) 
 	{	 
-		Mat matRemovepunch;
-		matRemovepunch = RemovePunch(m_mat_image, 200, 22); //去除穿孔
+		Mat matRemovepunch(m_mat_image);
+		matRemovepunch = RemovePunch(matRemovepunch, 200, 30); //去除穿孔 原22
 		matRemovepunch.copyTo(m_mat_image);
 
 		m_nWidth = m_mat_image.cols; 
@@ -1465,7 +1468,8 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 }
 
 
-cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
+//cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
+Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 {
 	const int black = 10;
 	const int white = 250;
@@ -1570,8 +1574,9 @@ cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
 	
 	Rect rect(left, up, right-left, down-up); //(856.1030)
 	
-	Mat imageSave = inputImg(rect);
-	return imageSave;
+	return rect;
+	//Mat imageSave = inputImg(rect);
+	//return imageSave;
 }
 
 void CScanner_G6X00::ColorFlip(const Mat& src, Mat& dst)
@@ -1616,25 +1621,28 @@ cv::Mat CScanner_G6X00::RemovePunch(const Mat &src, double threshold1, double th
 {
 	//ChangeImage(IMAGENAME_REMOVEPUNCH);
 	//Mat src = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
+	Rect rect = RemoveBlack(src);
+	Mat tempMat = src(rect);  //设置感兴趣区域
 
 	vector<Rect> rects;
-	Rect rectTemp(0, 0, 3*src.cols/30, 3*src.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
-	rects.push_back(Rect(0, 0, src.cols, rectTemp.height)); //上侧
-	rects.push_back(Rect(0, src.rows-rectTemp.height, src.cols, rectTemp.height));	 //下侧	
-	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, src.rows-2*rectTemp.height)); //左侧  只是中间部分
-	rects.push_back(Rect(src.cols-rectTemp.width, rectTemp.height, rectTemp.width, src.rows-2*rectTemp.height)); //右侧
+	Rect rectTemp(0, 0, 3*tempMat.cols/30, 3*tempMat.rows/30); //宽、高只取十分之一,但rect宽高需要是3的倍数
+	rects.push_back(Rect(0, 0, tempMat.cols, rectTemp.height)); //上侧
+	rects.push_back(Rect(0, tempMat.rows-rectTemp.height, tempMat.cols, rectTemp.height));	 //下侧	
+	rects.push_back(Rect(0, rectTemp.height, rectTemp.width, tempMat.rows-2*rectTemp.height)); //左侧  只是中间部分
+	rects.push_back(Rect(tempMat.cols-rectTemp.width, rectTemp.height, rectTemp.width, tempMat.rows-2*rectTemp.height)); //右侧
 
 	vector<Mat> subImages;
 	for(size_t i = 0; i < rects.size(); i++)
 	{
 		Mat tempImg;
-		src(rects[i]).copyTo(tempImg);
+		tempMat(rects[i]).copyTo(tempImg);
 		tempImg = HoughCirclesTransfer(tempImg,1,threshold1,threshold2);
 		subImages.push_back(tempImg);	
 	}
 
+
 	Mat dst_img;
-	src.copyTo(dst_img);	
+	tempMat.copyTo(dst_img);	
 	for(size_t i = 0; i < rects.size(); i++)
 	{	
 		IplImage IplHough = IplImage(dst_img);
@@ -1644,7 +1652,9 @@ cv::Mat CScanner_G6X00::RemovePunch(const Mat &src, double threshold1, double th
 		cvCopy(&IplHoughTemp, &IplHough);
 		cvResetImageROI(&IplHough); 
 	}
-	return dst_img;
+
+	dst_img.copyTo(tempMat, dst_img);	
+	return src;
 }
 
 cv::Mat CScanner_G6X00::HoughCirclesTransfer(Mat src_img ,double dp, double threshold1, double threshold2)
@@ -1670,7 +1680,11 @@ cv::Mat CScanner_G6X00::HoughCirclesTransfer(Mat src_img ,double dp, double thre
 	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆;圆心横坐标，圆心纵坐标和圆半径
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离
 	minDist = midImage.rows/15;
-	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 
+	double dFx = (double)m_fXResolution/200.00; //1
+	WORD width = (m_nSourceWidth > m_nSourceHeight)?m_nSourceHeight:m_nSourceWidth; //1652
+	WORD newWidth = (WORD)(width * dFx);
+	int maxradius =  newWidth/30; //圆孔的直径  55
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 2*maxradius/3);  //200,100 
 
 	//【5】依次在图中绘制出圆  
 	for(size_t i = 0; i < circles.size(); i++)  
@@ -1698,7 +1712,7 @@ cv::Mat CScanner_G6X00::HoughCirclesTransfer(Mat src_img ,double dp, double thre
 		scalar = cvGet2D(&src_img_ipl, tempcentery, tempcenterx); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
 		if(radius < threshold2) //新增，半径小于阈值2时才填充
 		{
-			circle(src_img, center, (int)(1.5*radius), scalar, -1, 8, 0 );
+			circle(src_img, center, (int)(1.2*radius), scalar, -1, 8, 0 );
 		}
 		else //大于时，只画圆
 		{

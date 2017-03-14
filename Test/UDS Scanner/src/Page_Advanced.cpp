@@ -435,7 +435,11 @@ BOOL CPage_Advanced::OnInitDialog()
 	GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->ShowWindow(FALSE);
 	GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->ShowWindow(FALSE);
 	GetDlgItem(IDC_ADVANCED_EDIT_SPILT)->ShowWindow(FALSE);
-	GetDlgItem(IDC_CHECK_REMOVEPUNCH)->ShowWindow(FALSE); //去除穿孔
+	//暂时隐藏缓存模式相关控件
+	GetDlgItem(IDC_ADVANCED_COMBO_CACHEMODE)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_SLIDERSTATIC_CACHEMODE)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_SLIDER_CACHEMODE)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_STATIC_CACHEMODE_VALUE)->ShowWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -976,7 +980,7 @@ void CPage_Advanced::OnClicked_Check_Multifeeddetect()
 void CPage_Advanced::OnClicked_Check_MdValue()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	if (m_check_mdvalue.GetCheck()) //点中
+	if(m_check_mdvalue.GetCheck()) //点中
 	{
 		m_advancedmap[UDSCAP_MULTIFEEDDETECT_VALUE] = TRUE;		
 	} 

@@ -490,93 +490,12 @@ bool CScanner_OpenCV::preScanPrep()
 			dstMat.copyTo(m_mat_image);
 		}//if end
 	}
-	/*
-	if(m_bRemoveBack == TWRB_AUTO) 
-	{
-		Mat matRemoveBack;	
-		m_mat_image.copyTo(matRemoveBack);
-		Mat bwmat;
-		cvtColor(matRemoveBack,bwmat,CV_BGR2GRAY); 
-		threshold( bwmat, bwmat, 0, 255, THRESH_OTSU);
-		vector<vector<Point>> contours; 
-		// find 
-		findContours(bwmat,contours,CV_RETR_LIST,CV_CHAIN_APPROX_NONE); 
-		// draw 
-		/*Mat result(matRemoveBack.size(),matRemoveBack.type(),Scalar(0)); 
-		drawContours(result,contours,-1,Scalar(255,255,255),2);		
-		result.copyTo(m_mat_image);*/
-		/*
-		Mat result(matRemoveBack.size(),matRemoveBack.type(),Scalar(0)); 
-		drawContours(result,contours,-1,Scalar(255),2);
-		
-		Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
-		//将黑白图中的黑色像素点还原为原图中的像素点
-		for(int j = 0; j < result.rows; j++)
-		{
-			for(int i = 0; i < result.cols; i++)
-			{
-				if((int)(result.at<uchar>(j,i)) == 0)
-				{
-					dstMat.at<Vec3b>(j,i)[0] = matRemoveBack.at<Vec3b>(j,i)[0];
-					dstMat.at<Vec3b>(j,i)[1] = matRemoveBack.at<Vec3b>(j,i)[1];
-					dstMat.at<Vec3b>(j,i)[2] = matRemoveBack.at<Vec3b>(j,i)[2];
-				}
-				else
-				{
-					dstMat.at<Vec3b>(j,i)[0] = 255;
-					dstMat.at<Vec3b>(j,i)[1] = 255;
-					dstMat.at<Vec3b>(j,i)[2] = 255;
-				}
-			} //i for end
-		} //j for end		
-		dstMat.copyTo(m_mat_image);
-	*/
-		/*
-		MatND hist;
-
-		double maxVal = 0;
-		double minVal = 0;
-
-		if(m_nPixelType!=TWPT_BW)
-		{
-			const int channels[1]={0};
-			const int histSize[1]={256};
-			float hranges[2]={0,255};
-			const float* ranges[1]={hranges};	
-			calcHist(&matRemoveBack,1,channels,Mat(),hist,1,histSize,ranges);
-
-			//找到直方图中的最大值和最小值 最多出现了多少次
-			minMaxLoc(hist,&minVal,&maxVal,0,0);
-
-			int gray; //最大取值对应的灰度
-			int size = hist.rows; //256
-			for(int h = 0; h < size; h++)
-			{
-				float binVal = hist.at<float>(h);
-				if(binVal == maxVal)
-				{
-					gray = h;
-				}
-			}
-
-			for(int i = 0; i < 256; i++)
-			{
-				if(i == gray)
-				{
-					matRemoveBack.at<uchar>(i) = 255; 
-				}
-			}
-
-			matRemoveBack.copyTo(m_mat_image);
-		}
-		*/
-	//}
 
 	//去除穿孔
 	if(m_bRemovePunch == TWRP_AUTO) 
 	{	 
 		Mat matRemovepunch;
-		matRemovepunch = RemovePunch(200, 22); //去除穿孔
+		matRemovepunch = RemovePunch(200, 30); //去除穿孔 原来22
 		matRemovepunch.copyTo(m_mat_image);
 
 		m_nWidth = m_mat_image.cols; 
@@ -1109,15 +1028,6 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 			break;
 		}	
 	}
-	/*
-	itoa(left, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"left",MB_OK); //1161     1161
-	itoa(right, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"right",MB_OK); // 1394
-	itoa(up, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"up",MB_OK); //323     正确   1404
-	itoa(down, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"down",MB_OK); //1960   正确*/
 	
 	Rect rect(left, up, right-left, down-up); //(856.1030)
 	
@@ -1129,7 +1039,6 @@ Mat CScanner_OpenCV::AutoCorrect()
 {
 	ChangeImage(IMAGENAME_AUTOCORRECT);
 	Mat img_first = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\原图.jpg", img_first);
 
 	Mat img(img_first);
 	resize(img_first, img, Size(m_nWidth/4, m_nHeight/4), (0, 0), (0, 0), cv::INTER_LINEAR);
@@ -1266,7 +1175,6 @@ Mat CScanner_OpenCV::AutoCorrect()
 	Mat m_image_out;
 	m_image_out.create(Size(m_width_rotate, m_height_rotate), img_first.type());
 	warpAffine(img_first, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
 	if(mark)
 	{
@@ -1313,22 +1221,13 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 	vector<Vec3f> circles;  //存储下面三个参数: x_{c}, y_{c}, r 集合的容器来表示每个检测到的圆;圆心横坐标，圆心纵坐标和圆半径
 	double minDist;//src_gray.rows/8: 为霍夫变换检测到的圆的圆心之间的最小距离，如果检测到的两个圆心之间距离小于该值，则认为它们是同一个圆心
 	minDist = midImage.rows/15;
-	/*
+
 	double dFx = (double)m_fXResolution/200.00; //1
-	char buf[60];
-	itoa(dFx, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"dFx",MB_OK);
-
-	WORD width = (m_nSourceWidth > m_nHeight)?m_nHeight:m_nWidth; //1653
-	itoa(width, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"width",MB_OK);
-
+	WORD width = (m_nSourceWidth > m_nSourceHeight)?m_nSourceHeight:m_nSourceWidth; //1652
 	WORD newWidth = (WORD)(width * dFx);
-	int maxradius =  ConvertUnits(newWidth/30, TWUN_CENTIMETERS, TWUN_PIXELS, m_fXResolution);
-	itoa(maxradius, buf, 10);
-	::MessageBox(g_hwndDLG, TEXT(buf),"maxradius",MB_OK);*/
+	int maxradius =  newWidth/30; //圆孔的直径  55
 	
-	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 2*maxradius/3);
 	//HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, dp, minDist, threshold1, threshold2, 0, 0);  //200,100 CV_HOUGH_GRADIENT表示霍夫梯度法 
 	//threshold1是Canny的边缘阀值上限high，下限low被置为上限的一半;  minRadius和maxRadius为所检测到的圆半径的最小值和最大值
 	//【5】依次在图中绘制出圆  
@@ -1347,13 +1246,7 @@ Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshol
 		{
 			tempcenterx = midImage.cols-1;
 		}
-		/*
-		char buf[60];
-		itoa(tempcenterx, buf, 10);
-		::MessageBox(g_hwndDLG, TEXT(buf),"tempcenterx",MB_OK);
-		itoa(tempcentery, buf, 10);
-		::MessageBox(g_hwndDLG, TEXT(buf),"tempcentery",MB_OK);*/
-
+		
 		scalar = cvGet2D(&src_img_ipl, tempcentery, tempcenterx); //cvGet2D(图片 y坐标，x坐标)获取 CvScalar对象,是y,x不是x,y
 		if(radius < threshold2) //新增，半径小于阈值2时才填充
 		{

@@ -144,7 +144,7 @@ void CPage_Paper::UpdateControls(void)
 	// 自定义宽与高
 	TW_FRAME frame;	
 	int nIndex = m_combo_uints.GetCurSel();
-	SetScroll(); 
+	//SetScroll(); 
 	//单位为inches、centi时edit显示两位小数，其他直接显示整数
 	switch(FindUnit(nIndex)) //当前界面的单位
 	{
@@ -294,9 +294,6 @@ void CPage_Paper::UpdateControls(void)
 		case TWSS_USLEGAL:
 			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
 			break;
-		case TWSS_A3:
-			m_combo_standardsizes.InsertString(i,"ISO A3 (297mm x 420mm)"); //国际标准
-			break;
 		case TWSS_A4:
 			m_combo_standardsizes.InsertString(i,"ISO A4 (210mm x 297mm)"); //国际标准
 			break;
@@ -309,9 +306,6 @@ void CPage_Paper::UpdateControls(void)
 		case TWSS_A7:
 			m_combo_standardsizes.InsertString(i,"ISO A7 (74mm x 105mm)");
 			break;
-		case TWSS_ISOB4:
-			m_combo_standardsizes.InsertString(i,"ISO B4 (250mm x 353mm)");
-			break;
 		case TWSS_ISOB5:
 			m_combo_standardsizes.InsertString(i,"ISO B5 (176mm x 250mm)");
 			break;
@@ -320,9 +314,6 @@ void CPage_Paper::UpdateControls(void)
 			break;
 		case TWSS_ISOB7:
 			m_combo_standardsizes.InsertString(i,"ISO B7 (88mm x 125mm)");
-			break;
-		case TWSS_JISB4:
-			m_combo_standardsizes.InsertString(i,"JIS B4 (257mm x 364mm)");//JIS日本标准
 			break;
 		case TWSS_JISB5:
 			m_combo_standardsizes.InsertString(i,"JIS B5 (182mm x 257mm)");//JIS日本标准
@@ -446,13 +437,6 @@ BOOL CPage_Paper::OnInitDialog()
 	m_rectTracker.m_nStyle = CRectTracker::solidLine;//设置RectTracker样式,实线CRectTracker::resizeOutside|
 	m_rectTracker.m_nHandleSize = 5; //控制柄的像素大小
 
-	//为初始界面的纸张大小、单位赋值
-	/*m_standarindex = m_combo_standardsizes.GetCurSel();
-	m_papervalue = FindPaperSize(m_standarindex);
-	m_unitindex = m_combo_uints.GetCurSel();
-	m_unitvalue = FindUnit(m_unitindex);*/
-	//time = 1;
-
 	const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
 	int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
 	m_resolution = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
@@ -482,6 +466,7 @@ void CPage_Paper::SetScroll()
 	int nIndex = m_combo_uints.GetCurSel();
 	CString str;
 	int nval;
+	float tempinche;
 
 	switch(FindUnit(nIndex))
 	{
@@ -544,15 +529,18 @@ void CPage_Paper::SetScroll()
 	case TWUN_CENTIMETERS:
 		{
 			//宽
-			maxinches_width = 850;
-			m_scroll_width.SetScrollRange(0, (int)ConvertUnits(850.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution)); 
+			maxinches_width = (int)ConvertUnits(850.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			m_scroll_width.SetScrollRange(0, maxinches_width); 
 			m_edit_width.GetWindowText(str); //8.27
 			nval = _ttof(str) * 100;
 			m_scroll_width.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
 
+			//当前获取str为厘米单位,需转换为英寸
+			tempinche = ConvertUnits(_ttof(str), TWUN_CENTIMETERS, TWUN_INCHES, m_resolution);
 			//XPOS范围
-			maxinches_xpos = (int)ConvertUnits(100*(8.5-(_ttof(str))), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); //0.23
+			maxinches_xpos = (int)ConvertUnits(100.00*(8.50-tempinche), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); 
+			
 			//X、Y偏移量
 			m_edit_xpos.GetWindowText(str);
 			nval = _ttof(str) * 100;
@@ -565,8 +553,10 @@ void CPage_Paper::SetScroll()
 			nval = _ttof(str) * 100;
 			m_scroll_height.SetScrollPos(nval);
 
+			//当前获取str为厘米单位,需转换为英寸
+			tempinche = ConvertUnits(_ttof(str), TWUN_CENTIMETERS, TWUN_INCHES, m_resolution);
 			//YPOS范围
-			maxinches_ypos = (int)ConvertUnits(100*(14.0-(_ttof(str))), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			maxinches_ypos = (int)ConvertUnits(100.00*(14.00-tempinche), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
 			m_scroll_ypos.SetScrollRange(0, maxinches_ypos);
 			m_edit_ypos.GetWindowText(str);
 			nval = _ttof(str) * 100;
@@ -606,8 +596,10 @@ void CPage_Paper::SetScroll()
 			nval = _ttof(str);
 			m_scroll_width.SetScrollPos(nval); 
 			
+			//当前获取str为像素单位,需转换为英寸
+			tempinche = ConvertUnits(_ttof(str), TWUN_PIXELS, TWUN_INCHES, m_resolution);
 			//XPOS范围
-			maxinches_xpos = (int)ConvertUnits(100*(8.5-(_ttof(str))), TWUN_INCHES, TWUN_PIXELS, m_resolution);
+			maxinches_xpos = (int)ConvertUnits(100.00*(8.50-tempinche), TWUN_INCHES, TWUN_PIXELS, m_resolution);
 			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); 
 			//X、Y偏移量
 			m_edit_xpos.GetWindowText(str);
@@ -621,8 +613,10 @@ void CPage_Paper::SetScroll()
 			nval = _ttof(str);
 			m_scroll_height.SetScrollPos(nval);
 
+			//当前获取str为厘米单位,需转换为英寸
+			tempinche = ConvertUnits(_ttof(str), TWUN_PIXELS, TWUN_INCHES, m_resolution);
 			//YPOS范围
-			maxinches_ypos = (int)ConvertUnits(100*(14.0-(_ttof(str))), TWUN_INCHES, TWUN_PIXELS, m_resolution);
+			maxinches_ypos = (int)ConvertUnits(100.00*(14.00-tempinche), TWUN_INCHES, TWUN_PIXELS, m_resolution);
 			m_scroll_ypos.SetScrollRange(0, maxinches_ypos);
 			m_edit_ypos.GetWindowText(str);
 			nval = _ttof(str);
@@ -684,8 +678,8 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 	UpdateWindow();
 
 	//设置当前Combo对应单位、纸张大小生效
-	m_pUI->SetCapValueInt(ICAP_UNITS, unitindex);
-	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, index);	
+	//m_pUI->SetCapValueInt(ICAP_UNITS, unitindex);
+	//m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, index);	
 
 	//纸张大小尺寸：单位不同，值不同
   TW_FRAME frame;
@@ -752,7 +746,6 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Uints()
 	UpdateControls();
 
 	Invalidate(); //刷新标尺
-	//m_pUI->SetCapValueInt(ICAP_UNITS, m_unitvalue); //设置回去
 }
 
 
@@ -778,33 +771,6 @@ int CPage_Paper::FindUnit(int index)
 		nval = TWUN_INCHES; //默认A4
 	}
 	return nval;
-}
-
-float CPage_Paper::FindEditValue(int scrollpos)
-{
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex); //单位值
-	float editvalue;
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-		{
-			editvalue = (float)scrollpos/100;  //需要除以100.
-			break;
-		}
-	case TWUN_CENTIMETERS:
-		{
-			editvalue = ConvertUnits((float)scrollpos/100, TWUN_CENTIMETERS, TWUN_INCHES, m_resolution);
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = ConvertUnits((float)scrollpos/100, TWUN_PIXELS, TWUN_INCHES, m_resolution);
-			break;
-		}	
-	}
-	return editvalue;
 }
 
 void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -840,21 +806,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		}
 		// 设置滚动块位置  
 		m_scroll_width.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -884,21 +847,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		}
 		// 设置滚动块位置  
 		m_scroll_height.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -926,21 +886,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_up.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -966,21 +923,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_down.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -1007,21 +961,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_left.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -1047,21 +998,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_right.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -1089,29 +1037,24 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_xpos.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
 		}	
 		m_papermap[UDSCAP_XPOS] = editvalue; //存入Map
 		SetDlgItemText(IDC_PAPER_EDIT_XPOS, str); //设置edit的值
-
-		//UpdatePicRectangle(nPaperval, nval, editvalue, 0);
 
 		break;
 	case IDC_PAPER_SCROLLBAR_YPOS:
@@ -1132,21 +1075,18 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		}
 		m_scroll_ypos.SetScrollPos(scrollpos);
-		editvalue = FindEditValue(scrollpos);
 		switch(nval)
 		{
 		case TWUN_INCHES:
-			{
-				str.Format("%0.2f", editvalue);
-				break;
-			}
 		case TWUN_CENTIMETERS:
 			{
+				editvalue = (float)scrollpos/100.00;
 				str.Format("%0.2f", editvalue);
 				break;
 			}
 		case TWUN_PIXELS:
 			{
+				editvalue = (float)scrollpos;
 				str.Format("%d", scrollpos);
 				break;
 			}	
@@ -1154,7 +1094,6 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		m_papermap[UDSCAP_YPOS] = editvalue; //存入Map
 		SetDlgItemText(IDC_PAPER_EDIT_YPOS, str); //设置edit的值
 
-		//UpdatePicRectangle(nPaperval, nval, 0, editvalue);
 		break;
 
 	default:
@@ -1167,8 +1106,8 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 int CPage_Paper::FindPaperSize(int index)
 {
-	CString strCBText; 
-	m_combo_standardsizes.GetLBText(index, strCBText);
+	//CString strCBText; 
+	//m_combo_standardsizes.GetLBText(index, strCBText);
 	int nval;
 	
 	switch(index)
@@ -1236,17 +1175,6 @@ void CPage_Paper::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// TODO: 在此处添加消息处理程序代码
 	// 不为绘图消息调用 __super::OnPaint()
-	/*
-	if(time == 1) //初始画一次
-	{
-		m_standarindex = m_combo_standardsizes.GetCurSel();
-		nval = FindPaperSize(m_standarindex);
-		m_unitindex = m_combo_uints.GetCurSel();
-		int unitnval = FindUnit(m_unitindex);	 
-		UpdatePicRectangle(nval, unitnval); //初始画矩形
-	}	
-	time++;
-	*/
 	m_rectTracker.Draw(&dc); //橡皮筋类画好矩形框
 
 	//画标尺

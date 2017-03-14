@@ -799,7 +799,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !pbCap->Add(FALSE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTISTREAM !"),MB_CAPTION,MB_OK);
-		//cerr << "Could not create UDSCAP_MULTIFEEDDETECT" << endl;
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -807,7 +806,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
-   //|| !pnCap->Add(TWSS_NONE) //zhu
+   || !pnCap->Add(TWSS_NONE) //zhu
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
