@@ -184,7 +184,6 @@ bool CScanner_G6X00::acquireImage()
 	if(!m_bSkip)
 	{
 		static bool bFlag = false;
-
 		if (!bFlag)
 		{
 			StartScanJob();
@@ -203,6 +202,7 @@ bool CScanner_G6X00::acquireImage()
 		memset(m_pTempBuffer,0,m_dwTotal);
 		m_pSaveBuffer = m_pTempBuffer;
 
+
 		StartScan();
 		// 方法2：ReadScanEx
 		{
@@ -212,6 +212,19 @@ bool CScanner_G6X00::acquireImage()
 			ReadScanEx(&m_ioStatus);
 		}
 		StopScan();
+
+		// 判断是否有错误
+		{
+			long lStatus;
+			GetLastStatusCode(NULL, &lStatus);
+			if ( CODE_SUCCESS != lStatus )
+			{
+				::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);						
+				m_nDocCount = 0;
+				EndScanJob ();
+			}
+		}
+
 		m_pTempBuffer = m_pSaveBuffer; 
 
 
@@ -247,7 +260,11 @@ bool CScanner_G6X00::acquireImage()
 		//	EndScanJob ();
 		//	//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
 		//}			
+	
+
+
 	}
+
 
 
 
@@ -1955,6 +1972,562 @@ bool CScanner_G6X00::RemoveBlank(Mat src_img, float fValue)
 	{  
 		return true;
 	}  
+}
+
+const TCHAR* CScanner_G6X00::TranslateError(const long error)
+{
+	TCHAR* szError = TEXT("UnKnown Error!");
+	switch(error)
+	{
+	case CODE_SUCCESS: 
+		szError = TEXT("Success");
+		break;
+	case ERROR_SHORT_LM9800_CHECK_ERROR: 
+		szError = TEXT("Can not find scanner");
+		break;
+	case ERROR_SHORT_LM9800_RWTEST_FAILED: 
+		szError = TEXT("Scanner R/W test failed");
+		break;
+	case ERROR_SHORT_SPP_NIBBLE_READ_ERROR: 
+		szError = TEXT("Scanner connection failed");
+		break;
+	case ERROR_SHORT_PARTICULAR_RAM_TEST_FAILED: 
+		szError = TEXT("Scanner RAM test failed");
+		break;
+	case ERROR_SHORT_RING_RAM_TEST_FAILED: 
+		szError = TEXT("Scanner RAM test failed");
+		break;
+	case ERROR_SHORT_DMA_TEST_ERROR:                      
+		szError = TEXT("Scanner DMA test/power cable failed");
+		break;
+	case ERROR_SHORT_CALIBRATION_ERROR:                      
+		szError = TEXT("Calibration failed");
+		break;
+	case ERROR_SHORT_SCAN_ERROR:                      
+		szError = TEXT("Scanner internal error");
+		break;
+	case ERROR_SHORT_PAPER_FEED_ERROR:                      
+		szError = TEXT("Paper feed error");
+		break;
+	case ERROR_SHORT_SENSOR_ERROR:                      
+		szError = TEXT("Sensor error. Unlock the scanner by turning the scanner lock to the use position");
+		break;
+	case ERROR_SHORT_OUTER_LIGHT_OFF:                      
+		szError = TEXT("Transparency calibration error");
+		break;	
+	case ERROR_SHORT_SCSI_POWER_OFF:                      
+		szError = TEXT("Power off or Cable failure");
+		break;	
+	case ERROR_SHORT_SCSI_REMOVE_RETAINER:                      
+		szError = TEXT("Please remove shipping retainer");
+		break;	
+	case ERROR_SHORT_SCSI_PAPERJAM:                      
+		//szError = TEXT("Paper Jam");
+		szError = TEXT("夹纸！");
+		break;	
+	case ERROR_SHORT_SCSI_ADF_OPEN:                      
+		szError = TEXT("ADF Cover Open");
+		break;	
+	case ERROR_SHORT_SCSI_NO_PAPER:                      
+		szError = TEXT("No paper in Automatic Document Feeder");
+		break;	
+	case ERROR_SHORT_SCSI_SERERATION_SHEET_DETECTED :                      
+		szError = TEXT("Job separation sheet detected");
+		break;	
+	case ERROR_SHORT_SCSI_NO_TRANSPARENCY_KIT:                      
+		szError = TEXT("Can't find transparency kit");
+		break;	
+	case ERROR_SHORT_SCSI_TRANS_KIT_IS_OFF:                      
+		szError = TEXT("Transparency kit switch is off");
+		break;	
+	case ERROR_SHORT_SCSI_INTERNAL_FAILURE:                      
+		szError = TEXT("Internal Target Failure");
+		break;	
+	case ERROR_SHORT_SCSI_FUSE_BLOWN1:                      
+		szError = TEXT("Fuse blown");
+		break;	
+	case ERROR_SHORT_SCSI_FUSE_BLOWN2:                      
+		szError = TEXT("Fuse blown");
+		break;	
+	case ERROR_SHORT_SCSI_FUSE_BLOWN3:                      
+		szError = TEXT("Fuse blown");
+		break;	
+	case ERROR_SHORT_SCSI_FUSE_BLOWN4:                      
+		szError = TEXT("Fuse blown");
+		break;	
+	case ERROR_SHORT_SCSI_SYSTEM_FAILURE:                      
+		szError = TEXT("Mechanical system failure");
+		break;
+	case ERROR_SHORT_SCSI_OPTICAL_ERR:                      
+		szError = TEXT("Optical system failure");
+		break;	
+	case ERROR_SHORT_SCSI_INVALID_PARAMETER1:                      
+		szError = TEXT("Illegal Scanner parameter");
+		break;		
+	case ERROR_SHORT_SCSI_INVALID_PARAMETER2:                      
+		szError = TEXT("Illegal Scanner parameter");
+		break;		
+	case ERROR_SHORT_SCSI_INVALID_PARAMETER3:                      
+		szError = TEXT("Illegal Scanner parameter");
+		break;		
+	case ERROR_SHORT_SCSI_INVALID_PARAMETER4:                      
+		szError = TEXT("Illegal Scanner parameter");
+		break;		
+	case ERROR_SHORT_SCSI_INVALID_PARAMETER5:                      
+		szError = TEXT("Illegal Scanner parameter");
+		break;		
+	case ERROR_SHORT_SCSI_MESSAGE_ERROR:                      
+		szError = TEXT("Message Error");
+		break;			
+	case ERROR_SHORT_SCSI_IMAGE_TRANSFER_ERR:                      
+		szError = TEXT("Image transfer error");
+		break;		
+	case ERROR_SHORT_SCSI_UNKNOWN_REASON:                      
+		szError = TEXT("Unknown error reason");
+		break;		
+	case ERROR_SHORT_SCSI_NO_ASPI:                      
+		szError = TEXT("No ASPI managers were found");
+		break;		
+	case ERROR_SHORT_SCSI_NOSCSI_ASPI:                      
+		szError = TEXT("Can't find SCSI ASPI");
+		break;		
+	case ERROR_SHORT_SCSI_ASPI_NOT_SUPPORT_WIN:                      
+		szError = TEXT("An ASPI manager which does not support windows is resident");
+		break;		
+	case ERROR_SHORT_SCSI_MEMORY_NOT_ENOUGH:                      
+		szError = TEXT("Memory is not enough");
+		break;		
+	case ERROR_SHORT_SCSI_NO_DLL:                      
+		szError = TEXT("Can't find winaspi.dll or wnaspi32.dll");
+		break;		
+	case ERROR_SHORT_SCANNER_NOT_CONNECTED:                      
+		szError = TEXT("Can't find scanner");
+		break;		
+	case ERROR_SHORT_SCSI_CANT_INITIAL_SCSI_MANAGER:                      
+		szError = TEXT("Can't initialize SCSI manager");
+		break;		
+	case ERROR_SHORT_SCSI_TIME_OUT:                      
+		szError = TEXT("Time out");
+		break;		
+	case ERROR_SHORT_SCSI_SCAN_HEAD_POSITION_ERR:                      
+		szError = TEXT("Scan head positioning error");
+		break;		
+	case ERROR_SHORT_DRIVER_BUSY:                      
+		szError = TEXT("Driver Busy");
+		break;		
+	case ERROR_SHORT_PARAMETER_CHECK_ERROR:                      
+		szError = TEXT("Parameter Check Error");
+		break;		
+	case ERROR_SHORT_ALLOCATE_MEMORY_FAILED:                      
+		szError = TEXT("Allocate Memory Failed");
+		break;		
+	case ERROR_SHORT_DRIVER_ERROR:                      
+		szError = TEXT("Driver Initial Failed");
+		break;		
+	case ERROR_SHORT_SCANNER_ERROR:                      
+		szError = TEXT("Scanner internal error");
+		break;		
+	case ERROR_SHORT_SCANNER_CONNECT_FAILED:                      
+		szError = TEXT("Scanner Connect Failed");
+		break;		
+	case ERROR_SHORT_BEFORE_READ_ERROR:                      
+		szError = TEXT("Before Read Image Error(May be calibration error)");
+		break;		
+	case ERROR_SHORT_READ_ERROR:                      
+		szError = TEXT("Read Image Error");
+		break;		
+	case ERROR_SHORT_END_ERROR:                      
+		szError = TEXT("End Image Error");
+		break;		
+	case ERROR_SHORT_READ_ABORT:                      
+		szError = TEXT("Operation canceled(Read Abort, Maybe caused by user pushing cancel button or AP/TWAIN send cancel commands)");
+		break;		
+	case ERROR_SHORT_SHUTTLE_INITIALIZE_FAILED:                      
+		szError = TEXT("Driver Initial Failed");
+		break;		
+	case ERROR_SHORT_SEND_SCAN_PARAMETER_ERROR:                      
+		szError = TEXT("Send parameter failed");
+		break;		
+	case ERROR_SHORT_SCANNER_BUSY:                      
+		szError = TEXT("Scanner Busy");
+		break;		
+	case ERROR_SHORT_SEND_ERROR:                      
+		szError = TEXT("Send Command Error");
+		break;		
+	case ERROR_SHORT_SCANNER_WARM_UP:                      
+		szError = TEXT("Scanner Warm Up");
+		break;		
+	case ERROR_SHORT_POWER_TEST_OFF:                      
+		szError = TEXT("Power Test Off");
+		break;		
+	case ERROR_SHORT_FIRMWARE_DISAPPEAR:                      
+		szError = TEXT("Firmware is disappear");
+		break;		
+	case ERROR_SHORT_DONT_DOWNLOAD_FIRMWARE:                      
+		szError = TEXT("don't download firmware");
+		break;		
+	case ERROR_SHORT_PORT_DETECT_ERROR:                      
+		szError = TEXT("Parallel Not Found");
+		break;		
+	case ERROR_SHORT_SEND_ADDRESS_TIMEOUT:                      
+		szError = TEXT("Scanner Connect Failed");
+		break;		
+	case ERROR_SHORT_SEND_DATA_TIMEOUT:                      
+		szError = TEXT("Scanner Connect Failed");
+		break;		
+	case ERROR_SHORT_READ_DATA_TIMEOUT:                      
+		szError = TEXT("Scanner Connect Failed");
+		break;		
+	case ERROR_SHORT_REGISTER_RW_ERROR:                      
+		szError = TEXT("Scanner Initial Failed");
+		break;		
+	case ERROR_SHORT_GAMMA_RW_ERROR:                      
+		szError = TEXT("Scanner Initial Failed");
+		break;		
+	case ERROR_SHORT_HOME_SENSOR_ERROR:                      
+		szError = TEXT("Back to Home Position");
+		break;		
+	case ERROR_SHORT_SEARCH_START_ERROR:                      
+		szError = TEXT("Search Start Position Error");
+		break;		
+	case ERROR_SHORT_LAMP_ERROR:                      
+		szError = TEXT("Can't lamp on");
+		break;		
+	case ERROR_SHORT_LOCK_ERROR:                      
+		szError = TEXT("Scanner lock");
+		break;		
+	case ERROR_SHORT_INTERUPT_ERR:                      
+		szError = TEXT("ERROR_SHORT_INTERUPT_ERR");
+		break;		
+	case ERROR_SHORT_BAD_PIXEL:                      
+		szError = TEXT("Bad pixel");
+		break;		
+	case ERROR_SHORT_LOW_VOTAGE:                      
+		szError = TEXT("row data value too low");
+		break;		
+	case ERROR_SHORT_HIGH_VOTAGE:                      
+		szError = TEXT("row data value too high");
+		break;		
+	case ERROR_SHORT_END_OF_PAGE:                      
+		szError = TEXT("end of page");
+		break;		
+	case ERROR_SHORT_WRONG_CHART:                      
+		szError = TEXT("Wrong chart");
+		break;		
+	case ERROR_SHORT_DISK_SPACE_UNERROR_SHORTAILABLE:                      
+		szError = TEXT("Disk have no enough space for storing temporary scanning data. (The disk may used for storing rear page of interlace duplex scan)");
+		break;		
+	case ERROR_SHORT_MULTI_FEED:                      
+		//szError = TEXT("Multiple feed");
+		szError = TEXT("发现重张进纸！");
+		break;		
+	case ERROR_SHORT_ACCESSARIES_UNPLUGGED:                      
+		szError = TEXT("Accessories such as ADF was plugged out");
+		break;		
+	case ERROR_SHORT_END_OF_PAGE_WITH_MULTI_FEED:                      
+		szError = TEXT("End of page with multi feed occurred");
+		break;		
+	case ERROR_SHORT_FB_HOME_SENSOR_ERR:                      
+		szError = TEXT("Flatbed Home Sensor Error");
+		break;		
+	case ERROR_SHORT_ADF_HOME_SENSOR_ERR:                      
+		szError = TEXT("ADF Home Sensor Error");
+		break;		
+	case ERROR_SHORT_FB_DRAM_ERR:                      
+		szError = TEXT("Flatbed DRAM Error");
+		break;		
+	case ERROR_SHORT_ADF_DRAM_ERR:                      
+		szError = TEXT("ADF DRAM Error");
+		break;		
+	case ERROR_SHORT_FB_LAMP_ERR:                      
+		szError = TEXT("Flatbed Lamp Error");
+		break;		
+	case ERROR_SHORT_ADF_LAMP_ERR:                      
+		szError = TEXT("ADF front Lamp Error");
+		break;		
+	case ERROR_SHORT_FB_COVER_OPEN:                      
+		szError = TEXT("Flatbed cover open");
+		break;		
+	case ERROR_SHORT_IP_FORMAT_INCORRECT:                      
+		szError = TEXT("IP format incorrect(ASC=0x80 ASCQ=0x16)");
+		break;		
+	case ERROR_SHORT_IP_GETWAY_INVALID:                      
+		szError = TEXT("Invalid IP getway(ASC=0x80 ASCQ=0x17)");
+		break;		
+	case ERROR_SHORT_IP_MASK_INVALID:                      
+		szError = TEXT("Invalid IP mask(ASC=0x80 ASCQ=0x18)");
+		break;		
+	case ERROR_SHORT_IP_INVALID:                      
+		szError = TEXT("Invalid IP (ASC=0x80 ASCQ=0x19)");
+		break;		
+	case ERROR_SHORT_IP_DISCONTINUEOUS:                      
+		szError = TEXT("Discontinuous mask(ASC=0x80 ASCQ=0x1A)");
+		break;		
+	case ERROR_SHORT_SYSTEM_ERROR:                      
+		szError = TEXT("Operation system return error. (On Windows platform caller could use GetLastError() to get detail reason.)");
+		break;		
+	case ERROR_SHORT_INTERNAL_ERROR:                      
+		szError = TEXT("Driver Internal(unknown) Error");
+		break;		
+	case ERROR_SHORT_ADF_REAR_LAMP_ERR:                      
+		szError = TEXT("ADF Rear Lamp Error");
+		break;		
+	case ERROR_SHORT_SKEW_ERROR:                      
+		szError = TEXT("Occur skew");
+		break;		
+	case ERROR_SHORT_NEED_CALIBRATION:                      
+		szError = TEXT("Need calibration first");
+		break;		
+	case ERROR_SHORT_FUNCTION_SENSOR_ERROR:                      
+		szError = TEXT("Function sensor return error. Call tag AG_FUNCTION_SENSOR_WORK_STATUS for more detail.");
+		break;	
+	case ERROR_LONG_DRIVER_BUSY:                      
+		szError = TEXT("Driver Busy");
+		break;	
+	case ERROR_LONG_SCANNER_BUSY:                      
+		szError = TEXT("Scanner Busy");
+		break;	
+	case ERROR_LONG_PORT_BUSY:                      
+		szError = TEXT("IO port is busy");
+		break;	
+	case ERROR_LONG_HANDSHAKE_TIMEOUT:                      
+		szError = TEXT("Hand Shake Time Out");
+		break;	
+	case ERROR_LONG_SCANNER_CONNECT_FAILED:                      
+		szError = TEXT("Scanner Connect Failed");
+		break;	
+	case ERROR_LONG_PARAMETER_CHECK_ERROR:                      
+		szError = TEXT("Parameter Check Error");
+		break;	
+	case ERROR_LONG_ALLOCATE_MEMORY_FAILED:                      
+		szError = TEXT("Allocate Memory Failed");
+		break;	
+	case ERROR_LONG_LAMP_ERROR:                      
+		szError = TEXT("Can't Lamp On");
+		break;	
+	case ERROR_LONG_LOCK_ERROR:                      
+		szError = TEXT("Scanner locked");
+		break;	
+	case ERROR_LONG_SCANNER_WARM_UP:                      
+		szError = TEXT("Scanner Warm up");
+		break;	
+	case ERROR_LONG_READ_ABORT:                      
+		szError = TEXT("Read Abort. For push stop button");
+		break;	
+	case ERROR_LONG_REGISTER_RW_FAILED:                      
+		szError = TEXT("Register R/W Verify Failed");
+		break;	
+	case ERROR_LONG_MEMORY_RW_FAILED:                      
+		szError = TEXT("Memory R/W Verify Failed");
+		break;	
+	case ERROR_LONG_PAPER_JAM:                      
+		szError = TEXT("Paper Jam");
+		break;	
+	case ERROR_LONG_ADF_COVER_OPEN:                      
+		szError = TEXT("ADF Cover Open");
+		break;	
+	case ERROR_LONG_NO_PAPER_IN_ADF:                      
+		szError = TEXT("No paper in ADF");
+		break;	
+	case ERROR_LONG_NOT_FOUND_XPA_KIT:                      
+		szError = TEXT("Can't find Transparency kit");
+		break;	
+	case ERROR_LONG_XPA_KIT_POWER_OFF:                      
+		szError = TEXT("Transparency Kit power off");
+		break;	
+	case ERROR_LONG_NOT_FOUNT_WINASPI:                      
+		szError = TEXT("Can't find winaspi");
+		break;	
+	case ERROR_LONG_NOT_FOUND_SCANNER:                      
+		szError = TEXT("Can't find scanner");
+		break;	
+	case ERROR_LONG_CALIBRATION_ERROR:                      
+		szError = TEXT("calibration fail");
+		break;	
+	case ERROR_LONG_HOME_SENSOR_ERROR:                      
+		szError = TEXT("Back to Home Position Failed");
+		break;	
+	case ERROR_LONG_END_OF_PAGE:                      
+		szError = TEXT("end of page");
+		break;	
+	case ERROR_LONG_SYSTEM_ERROR:                      
+		szError = TEXT("Operation system returns error");
+		break;	
+	case ERROR_LONG_WRITE_NVM_ERROR:                      
+		szError = TEXT("Write NVM returns error");
+		break;	
+	case ERROR_LONG_PAPER_IN_MULTI_TRAY:                      
+		szError = TEXT("Papers were fed from multiple tray");
+		break;	
+	case ERROR_LONG_FRONT_DOOR_OPEN:                      
+		szError = TEXT("MFP printer's Front door open");
+		break;	
+	case ERROR_LONG_END_OF_PAGE_MULTI_FEED:                      
+		szError = TEXT("End of page with multi feed occurred");
+		break;	
+	case ERROR_LONG_ENDORSER_ADF_COVER_OPEN:                      
+		szError = TEXT("Endorser ADF Cover Open");
+		break;	
+	case ERROR_LONG_ENDORSER_PAPER_JAM:                      
+		szError = TEXT("Endorser Paper Jam");
+		break;	
+	case ERROR_LONG_ADF_SLIDER_OPEN:                      
+		szError = TEXT("The ADF slider cover is not closed");
+		break;	
+	case ERROR_LONG_NEED_PREPARE_DATA:                      
+		szError = TEXT("Need to call GetPrepareStatus() to wait status to ready");
+		break;	
+	case ERROR_LONG_WAIT_MEDIA:                      
+		szError = TEXT("Wait media into scanner");
+		break;	
+	case ERROR_LONG_SKEW_ERROR:                      
+		szError = TEXT("Occur skew");
+		break;	
+	case ERROR_LONG_FUNCTION_SENSOR_ERROR:                      
+		szError = TEXT("Function sensor return error. Call tag TAG_FUNCTION_SENSOR_WORK_STATUS for	more detail");
+		break;	
+	case ERROR_LONG_LOGICAL_UNIT_ERROR:                      
+		szError = TEXT("Logical Unit Not Supported	(ASC=0x25 ASCQ=0x00)");
+		break;	
+	case ERROR_LONG_ULTRASONIC_ERROR:                      
+		szError = TEXT("Ultrasonic error (ASC=0x15 ASCQ=0x05)	");
+		break;	
+	case ERROR_LONG_AFE_RW_TEST_ERROR:                      
+		szError = TEXT("AFE R/W test error (ASC=0x44 ASCQ=0x04)");
+		break;	
+	case ERROR_LONG_UNKNOW_ERROR:                      
+		szError = TEXT("unknown error");
+		break;	
+	case ERROR_LONG_FB_HOME_SENSOR_ERR:                      
+		szError = TEXT("Flatbed Home Sensor Error (ASC=0x15 ASCQ=0x02)");
+		break;	
+	case ERROR_LONG_ADF_HOME_SENSOR_ERR:                      
+		szError = TEXT("ADF Home Sensor Error (ASC=0x15 ASCQ=0x03)");
+		break;	
+	case ERROR_LONG_FB_DRAM_ERR:                      
+		szError = TEXT("Flatbed DRAM Error (ASC=0x44 ASCQ=0x01)");
+		break;	
+	case ERROR_LONG_ADF_DRAM_ERR:                      
+		szError = TEXT("ADF DRAM Error (ASC=0x44 ASCQ=0x02)");
+		break;	
+	case ERROR_LONG_FB_LAMP_ERR:                      
+		szError = TEXT("Flatbed Lamp Error (ASC=0x60 ASCQ=0x01)");
+		break;	
+	case ERROR_LONG_ADF_LAMP_ERR:                      
+		szError = TEXT("ADF Lamp Error (ASC=0x60 ASCQ=0x02)");
+		break;	
+	case ERROR_LONG_FB_COVER_OPEN:                      
+		szError = TEXT("Flatbed cover open (ASC=0x80 ASCQ=0x07)");
+		break;	
+	case ERROR_LONG_ACCESSARIES_UNPLUGGED:                      
+		szError = TEXT("Accessaries such as ADF was pluged out");
+		break;	
+	case ERROR_LONG_PREFEEDING:                      
+		szError = TEXT("Prefeeding");
+		break;	
+	case ERROR_LONG_ADF_REAR_LAMP_ERR:                      
+		szError = TEXT("ADF Lamp Error (ASC=0x60 ASCQ=0x03)");
+		break;	
+	case ERROR_LONG_NEED_CALIBRATION:                      
+		szError = TEXT("Need calibration first");
+		break;	
+	case ERROR_LONG_SCANNER_BUSY_CURRENT_TASK:                      
+		szError = TEXT("Scanner busy for current task (Job)");
+		break;	
+	case ERROR_LONG_MULTI_FEED:                      
+		//szError = TEXT("Multiple feed");
+		szError = TEXT("发现重张进纸！");
+		break;	
+	case ERROR_LONG_MANUAL_CALIBRATION_FAIL:                      
+		szError = TEXT("Manual Calibration Fail");
+		break;	
+	case ERROR_LONG_MANUAL_CALIBRATION_FAIL_LEAD_EDGE_FAIL:                      
+		szError = TEXT("Manual Calibration Fail - Lead Edge Fail");
+		break;	
+	case ERROR_LONG_MANUAL_CALIBRATION_FAIL_SIDE_EDGE_FAIL:                      
+		szError = TEXT("Manual Calibration Fail - Side Edge Fail");
+		break;	
+	case ERROR_LONG_MANUAL_CALIBRATION_FAIL_SHADING_TARGET_FAIL:                      
+		szError = TEXT("Manual Calibration Fail - Shading Target Fail");
+		break;	
+	case ERROR_LONG_PAPER_JAM2:                      
+		szError = TEXT("Paper Jam 2");
+		break;	
+	case ERROR_LONG_PAPER_JAM3:                      
+		szError = TEXT("Paper Jam 3");
+		break;	
+	case ERROR_LONG_PAPER_JAM4:                      
+		szError = TEXT("Paper Jam 4");
+		break;	
+	case ERROR_LONG_PICK_UP_ROLLER_ERROR:                      
+		szError = TEXT("Pick Up Roller");
+		break;	
+	case ERROR_LONG_ENDORSER_MODULE_ERR:                      
+		szError = TEXT("Endorser module not installed");
+		break;	
+	case ERROR_LONG_ENDORSER_HEAD_ERR:                      
+		szError = TEXT("Printer head not installed");
+		break;	
+	case ERROR_LONG_ADF_NEXT_PAGE_MISS_FEED:                      
+		szError = TEXT("Next page miss feed");
+		break;	
+	case ERROR_LONG_ADF_NEXT_PAGE_GAP_ERR:                      
+		szError = TEXT("Next page too close current page");
+		break;	
+	case ERROR_LONG_CUSTOM_PAPER_JAM_MIN:                      
+		szError = TEXT("ERROR_LONG_CUSTOM_PAPER_JAM_MIN.Mapping paper jam error (ASC=0x80 ASCQ=0x01) when additional information BYTE 3 if not zero. Mapping code = 3301 +Information BYTE 3");
+		break;	
+	case ERROR_LONG_CUSTOM_PAPER_JAM_MAX:                      
+		szError = TEXT("ERROR_LONG_CUSTOM_PAPER_JAM_MAX.Mapping paper jam error (ASC=0x80 ASCQ=0x01) when additional information BYTE 3 if not zero. Mapping code = 3301 +Information BYTE 3");
+		break;	
+	case ERROR_LONG_CARD_LENGTH_EXCEED:                      
+		szError = TEXT("Card Length > 2.5 Inch an error,for AW820");
+		break;	
+	case ERROR_LONG_IP_FORMAT_INCORRECT:                      
+		szError = TEXT("IP format incorrect	(ASC=0x80 ASCQ=0x16)");
+		break;	
+	case ERROR_LONG_IP_GETWAY_INVALID:                      
+		szError = TEXT("Invalid IP getway	(ASC=0x80 ASCQ=0x17)");
+		break;	
+	case ERROR_LONG_IP_MASK_INVALID:                      
+		szError = TEXT("Invalid IP mask	(ASC=0x80 ASCQ=0x18)");
+		break;	
+	case ERROR_LONG_IP_INVALID:                      
+		szError = TEXT("Invalid IP (ASC=0x80 ASCQ=0x19)");
+		break;	
+	case ERROR_LONG_IP_DISCONTINUEOUS:                      
+		szError = TEXT("Discontinuous mask	(ASC=0x80 ASCQ=0x1A)");
+		break;	
+	case ERROR_LONG_NO_FRONT_ADF:                      
+		szError = TEXT("If front ADF can't work or disable");
+		break;	
+	case ERROR_LONG_NO_BACK_ADF:                      
+		szError = TEXT("If rear ADF can't work or disable");
+		break;	
+	case ERROR_LONG_NO_ADF:                      
+		szError = TEXT("If front and rear both ADF can't work or disable");
+		break;	
+	case ERROR_LONG_NO_FLATBED:                      
+		szError = TEXT("If flatbed can't work or disable");
+		break;	
+	case ERROR_LONG_NO_IMPRINTERF:                      
+		szError = TEXT("If imprinter can't work or disable");
+		break;	
+	case ERROR_LONG_NO_MULTIFEED:                      
+		szError = TEXT("If multifeed can't work or disable");
+		break;	
+	case ERROR_LONGINF_INFO_WARM_UP:                      
+		szError = TEXT("Scanner Warm up, call GetLastStatusCode() and wait status to ready (AJAX_SUCCESS)");
+		break;	
+	case ERROR_LONGINF_INFO_NEED_PREPARE_DATA:                      
+		szError = TEXT("Need prepare data, call GetLastStatusCode() and wait status to ready (AJAX_SUCCESS)");
+		break;	
+	case ERROR_LONGINF_BUSY_CALIBRATION:                      
+		szError = TEXT("Busy calibration, call GetLastStatusCode() and wait status to ready (AJAX_SUCCESS)");
+		break;
+	}
+
+	return szError;
 }
 
 

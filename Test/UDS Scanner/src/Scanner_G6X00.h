@@ -77,6 +77,13 @@ public:
 	*/
 	void Release();
 
+	/**
+	*  @brief  获取错误编号对应内容
+	*  @param[in]  error  错误编号
+	*  @return 错误内容
+	*/
+	const TCHAR* TranslateError(const long error);
+
 protected:
 	/**
 	*  @brief  获取图片数据.

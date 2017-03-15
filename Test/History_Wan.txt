@@ -394,3 +394,11 @@ date 17.03.14
 @author wan
 1.CxImage由动态库改为静态库；
 原因：动态库使用会导致TWAIN DS被SmartScan的bug;
+2.修复Cap UDSCAP_MULTIFEEDDETECT_VALUE值保存不正确的bug;
+
+date 17.03.15
+------------------------------------------------------------
+@author wan
+1.完善重张进纸功能；
+2.增加根据错误编号获取错误内容的函数TranslateError();
+3.增加错误提示功能。若有错则显示错误内容，并停止扫描。
