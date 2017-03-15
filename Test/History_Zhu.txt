@@ -254,3 +254,4 @@ date 17.03.15
 3、增加CPage_Base::DrawImage(void)函数，由之前在PreView中画图改到OnPaint（）中画图，在OnSetActive（）只需刷新Invalidate（），从而实现属性页面切换时，预览界面显示的预览图不消失。
 4、CPage_Base类增加两个成员函数GetTempSavePath与CreateDir创建临时文件夹来存储预览的图片，防止在非管理员允许时，不能往驱动文件夹写图片的Bug。
 5、增加void CPage_Paper::SetXYPos()，设置纸张大小选择自动、USLetter、USLegal时，XY偏移量部分不可用；因为此时范围最大，调节滑动条也无效，直接设置为不可用。在FindPaperSize中调用。
+6、解决回复默认模板，从平板不能回到自动进纸器的Bug，调试发现从容器读取的返回值均正确，获取m_radiobtn_scanmode变量值也正确，找不见错误原因，最后将更新与下一个调换位置后，问题解决。但是在下一个更新里面没有修改m_radiobtn_scanmode的值。最后暂时隐藏平板选项。

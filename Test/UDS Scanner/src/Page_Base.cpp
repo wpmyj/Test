@@ -37,7 +37,6 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_BASE_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_BASE_EDIT_THRESHOLD, m_edit_threshold);
-	//  DDX_Control(pDX, IDC_BASE_BTN_CHOOSEIMAGE, m_btn_chooseimage);
 	DDX_Radio(pDX, IDC_BASE_RADIO_DUPLEX_DAN, m_radiobtn_duplex);
 	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
 	DDX_Control(pDX, IDC_CHECK_FRONTGRAY, m_check_frontgray);
@@ -54,8 +53,6 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
 	DDX_Control(pDX, IDC_BASE_PREPICTURE, m_base_picture);
 	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
-//	DDX_Control(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode_auto);
-//	DDX_Control(pDX, IDC_BASE_RADIO_SCANMODE_Flatbed, m_radiobtn_scanmode_flat);
 }
 
 
@@ -68,7 +65,6 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_EN_CHANGE(IDC_BASE_EDIT_THRESHOLD, &CPage_Base::OnEnChangeBase_Edit_Threshold)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORMODE, &CPage_Base::OnCbnSelchangeBase_Combo_Colormode)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_RESOLUTION, &CPage_Base::OnCbnSelchangeBase_Combo_Resolution)
-//	ON_BN_CLICKED(IDC_BASE_BTN_CHOOSEIMAGE, &CPage_Base::OnBase_Btn_Chooseimage)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_DAN, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_SHUANG, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM, &CPage_Base::OnBase_RadioBtn_Duplex)
@@ -287,19 +283,6 @@ void CPage_Base::UpdateControls(void)
 	}
 	else{}//必须保留
 
-	// 扫描方式	
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
-	if(0 == nCapIndex) //平板
-	{
-		m_radiobtn_scanmode = 1;
-	}
-	else //1为自动进纸器
-	{
-		m_radiobtn_scanmode = 0;
-	}
-	SetFlat();
-	m_basemap[CAP_FEEDERENABLED] = (float)m_radiobtn_scanmode;
-
   // 图像类型 
 	m_combo_colormode.ResetContent();
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_PIXELTYPE);
@@ -401,6 +384,19 @@ void CPage_Base::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
 	m_basemap[ICAP_THRESHOLD] = float(nCapValue);
+
+	// 扫描方式	
+	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
+	if(0 == nCapIndex) //平板
+	{
+		m_radiobtn_scanmode = 1;
+	}
+	else //1为自动进纸器
+	{
+		m_radiobtn_scanmode = 0;
+	}
+	SetFlat();
+	m_basemap[CAP_FEEDERENABLED] = (float)m_radiobtn_scanmode;
 
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
@@ -530,6 +526,7 @@ BOOL CPage_Base::OnInitDialog()
 
 	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 	
+	GetDlgItem(IDC_BASE_RADIO_SCANMODE_Flatbed)->ShowWindow(FALSE); //暂时隐藏平板。
 	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -900,7 +897,9 @@ void CPage_Base::SetFlat(void)
 		m_radiobtn_duplex = 0; //平板时，只能是单面
 	}	
 	else //为0表示自动进纸器选中
-	{}
+	{
+		m_radiobtn_scanmode = 0;
+	}
 	SetMultistream();
 }
 
