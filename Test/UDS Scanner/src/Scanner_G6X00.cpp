@@ -180,98 +180,10 @@ bool CScanner_G6X00::acquireImage()
 		pixeltype = TWPT_GRAY;
 	}
 	
-
-	if(!m_bSkip)
-	{
-		static bool bFlag = false;
-		if (!bFlag)
-		{
-			StartScanJob();
-			AdjustParameter();
-			SetParameter();
-			bFlag = true;
-		}
-
-		if(m_pTempBuffer)                                 
-		{
-			delete []m_pTempBuffer;     
-			m_pTempBuffer = NULL;
-		}
-
-		m_pTempBuffer = new BYTE[m_dwTotal];    
-		memset(m_pTempBuffer,0,m_dwTotal);
-		m_pSaveBuffer = m_pTempBuffer;
-
-
-		StartScan();
-		// 方法2：ReadScanEx
-		{
-			memset(&m_ioStatus,0,sizeof(IO_STATUS));
-			m_ioStatus.pBuffer = m_pTempBuffer;
-			m_ioStatus.dwRequestedBytes = m_dwTotal;
-			ReadScanEx(&m_ioStatus);
-		}
-		StopScan();
-
-		// 判断是否有错误
-		{
-			long lStatus;
-			GetLastStatusCode(NULL, &lStatus);
-			if ( CODE_SUCCESS != lStatus )
-			{
-				::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);						
-				m_nDocCount = 0;
-				EndScanJob ();
-			}
-		}
-
-		m_pTempBuffer = m_pSaveBuffer; 
-
-
-		{
-			switch(m_scanParameter.BitsPerPixel)
-			{
-			case 1:							
-				Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
-				break;
-			case 24:
-				RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
-				break;
-			default:
-				break;
-			}
-		}
-
-
-		if (m_nSpiltImage  == TWSI_NONE )
-		{
-			GetADFStatus(&m_byteADFStatus);
-			if ( (m_byteADFStatus & 0x1) != 1)
-			{
-				m_nDocCount = 0;
-				EndScanJob ();
-				//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
-			}	
-		}
-		//GetADFStatus(&m_byteADFStatus);
-		//if ( (m_byteADFStatus & 0x1) != 1)
-		//{
-		//	m_nDocCount = 0;
-		//	EndScanJob ();
-		//	//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
-		//}			
 	
-
-
-	}
-
-
-
-
-	if (m_pGammaTable)
+	if(false == m_bSkip)  // 若拆分，则同一张纸需要跳过扫描
 	{
-		delete []m_pGammaTable;
-		m_pGammaTable = NULL;
+		RunScan();
 	}
 
 
@@ -337,8 +249,10 @@ bool CScanner_G6X00::preScanPrep()
 		break;
 	}
 	
-	Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
-	iMat.copyTo(m_mat_image);
+	{
+		Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
+		iMat.copyTo(m_mat_image);
+	}
 
 	if(m_nPixelType == TWPT_BW)
 	{
@@ -514,10 +428,11 @@ bool CScanner_G6X00::preScanPrep()
 	m_nHeight = m_nHeight + (int)temp[3] + (int)temp[1] + (int)temp[2];
 	m_nWidth = m_nWidth + (int)temp[0] + (int)temp[4] + (int)temp[5];
 	
-	Mat borderMat;
-	copyMakeBorder(m_mat_image, borderMat, (int)temp[1], (int)temp[2]+(int)temp[3], (int)temp[4], (int)temp[5]+(int)temp[0], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
-	borderMat.copyTo(m_mat_image);
-
+	{
+		Mat borderMat;
+		copyMakeBorder(m_mat_image, borderMat, (int)temp[1], (int)temp[2]+(int)temp[3], (int)temp[4], (int)temp[5]+(int)temp[0], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+		borderMat.copyTo(m_mat_image);
+	}
 
 	//图像分割
 	if(m_nSpiltImage == TWSI_NONE)
@@ -662,6 +577,8 @@ void CScanner_G6X00::Release()
 		free(m_byte_image);
 		m_byte_image = NULL;
 	}	
+
+	//::MessageBox(g_hwndDLG,TEXT("CScanner_G6X00::Release!"),MB_CAPTION,MB_OK);
 }
 
 void CScanner_G6X00::InitDriverParamter()
@@ -1001,14 +918,28 @@ void CScanner_G6X00::AdjustParameter()
 		break;
 	}
 
-	if (m_bDuplex)
+	if(m_bMultiStream)  // 多流选中
 	{
-		m_scanParameter.ScanMethod = SME_DUPLEX;
-	} 
-	else
-	{
-		m_scanParameter.ScanMethod = SME_ADFFRONT;
+		//BYTE m_tempMuilt;
+		//m_tempMuilt = m_byteMultiValue;
+
+		//if (m_tempMuilt & 0X0F != 0X00) // 正面选中
+		//{
+
+		//}
 	}
+	else  // 单/双面 扫
+	{
+		if (m_bDuplex)
+		{
+			m_scanParameter.ScanMethod = SME_DUPLEX;
+		} 
+		else
+		{
+			m_scanParameter.ScanMethod = SME_ADFFRONT;
+		}
+	}
+
 
 	m_scanParameter.ScanSpeed = 0;
 	m_scanParameter.Contrast = 0;                 //always keep 0 for newer model
@@ -1282,6 +1213,12 @@ void CScanner_G6X00::hMirrorTrans(const Mat &src, Mat &dst)
 
 void CScanner_G6X00::Mat2uchar(Mat src_img)
 {
+	if(m_byte_image)  // 释放内存，否则会导致内存泄露
+	{
+		free(m_byte_image);
+		m_byte_image = NULL;
+	}	
+
 	m_widthstep = (src_img.step+7)/8*8; //8字节对齐   4字节对齐：(src_img.step+3)/4*4
 	m_byte_image = (BYTE *)calloc(src_img.rows*m_widthstep, sizeof(BYTE)); // 申请内存
 	int channel = src_img.channels(); 
@@ -2528,6 +2465,86 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 	}
 
 	return szError;
+}
+
+void CScanner_G6X00::RunScan()
+{
+	static bool bFlag = false;
+	if (!bFlag)
+	{
+		StartScanJob();
+		AdjustParameter();
+		SetParameter();
+		bFlag = true;
+	}
+
+	if(m_pTempBuffer)                                 
+	{
+		delete []m_pTempBuffer;     
+		m_pTempBuffer = NULL;
+		//::MessageBox(g_hwndDLG,TEXT("RunScan()__delete []m_pTempBuffer!"),MB_CAPTION,MB_OK);
+	}
+
+	m_pTempBuffer = new BYTE[m_dwTotal];    
+	memset(m_pTempBuffer,0,m_dwTotal);
+	m_pSaveBuffer = m_pTempBuffer;
+
+
+	StartScan();
+	// 方法2：ReadScanEx
+	{
+		memset(&m_ioStatus,0,sizeof(IO_STATUS));
+		m_ioStatus.pBuffer = m_pTempBuffer;
+		m_ioStatus.dwRequestedBytes = m_dwTotal;
+		ReadScanEx(&m_ioStatus);
+	}
+	StopScan();
+
+	// 判断是否有错误
+	{
+		long lStatus;
+		GetLastStatusCode(NULL, &lStatus);
+		if ( CODE_SUCCESS != lStatus )
+		{
+			::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);						
+			m_nDocCount = 0;
+			EndScanJob ();
+		}
+	}
+
+	m_pTempBuffer = m_pSaveBuffer; 
+
+	// 原始图像需要处理后才能使用
+	{
+		switch(m_scanParameter.BitsPerPixel)
+		{
+		case 1:							
+			Invert(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);									
+			break;
+		case 24:
+			RGB2BGR(m_pSaveBuffer, m_dwTotal, m_scanParameter.BitsPerPixel);												
+			break;
+		default:
+			break;
+		}
+	}
+
+	// 不拆分，则ADF中无纸时停止扫描
+	if (m_nSpiltImage  == TWSI_NONE )
+	{
+		GetADFStatus(&m_byteADFStatus);
+		if ( (m_byteADFStatus & 0x1) != 1)
+		{
+			m_nDocCount = 0;
+			EndScanJob ();
+		}	
+	}
+
+	if (m_pGammaTable)
+	{
+		delete []m_pGammaTable;
+		m_pGammaTable = NULL;
+	}
 }
 
 

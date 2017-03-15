@@ -1384,6 +1384,12 @@ bool CScanner_OpenCV::getDeviceOnline() const
 
 void CScanner_OpenCV::Mat2uchar(Mat src_img)
 {
+	if(m_byte_image)  // 释放内存，否则会导致内存泄露
+	{
+		free(m_byte_image);
+		m_byte_image = NULL;
+	}	
+
 	m_widthstep = (src_img.step+7)/8*8; //8字节对齐   4字节对齐：(src_img.step+3)/4*4
 	m_byte_image = (BYTE *)calloc(src_img.rows*m_widthstep, sizeof(BYTE)); // 申请内存
 	int channel = src_img.channels(); 

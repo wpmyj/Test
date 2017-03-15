@@ -84,6 +84,11 @@ public:
 	*/
 	const TCHAR* TranslateError(const long error);
 
+	/**
+	*  @brief  执行扫描
+	*/
+  void RunScan();
+
 protected:
 	/**
 	*  @brief  获取图片数据.

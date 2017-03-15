@@ -22,7 +22,7 @@ using namespace Gdiplus;
 #include "ximage.h"  // CXImage
 #include <vector>
 #include "afxcmn.h"
-#pragma comment(lib,"cximage.lib")
+#pragma comment(lib,"cximagel.lib")
 
 #define THUMB_WIDTH  80
 #define THUMB_HEIGHT 60
