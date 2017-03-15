@@ -21,6 +21,7 @@ CPage_Profile::~CPage_Profile()
 {
 }
 
+
 void CPage_Profile::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
@@ -317,6 +318,9 @@ void CPage_Profile::OnProfile_Btn_New()
 		return;
 	}
 
+	//是否需要重新创建
+	bool recreate = false;
+	int renameindex; //重名的序号
 	// 判断新建模板名是否已存在
 	CString strCombo;  
 	int nLength;   
@@ -324,29 +328,41 @@ void CPage_Profile::OnProfile_Btn_New()
 	{        
 		nLength = m_list_template.GetTextLen( i );  // 获取Combobox内容长度
 		m_list_template.GetText( i, strCombo.GetBuffer(nLength));
-		if (strCombo == strExistName)
+		if(strCombo == strExistName)
 		{
-			if (AfxMessageBox("模版已存在，您想要重新创建吗？",MB_OKCANCEL) == IDCANCEL)  
+			renameindex = i;
+			if(AfxMessageBox("模版已存在，您想要重新创建吗？",MB_OKCANCEL) == IDCANCEL)  
 			{
+				recreate = false;
 				return;  // 取消新建同名模版
+			}
+			else
+			{
+				recreate = true;
 			}
 		}
 		strCombo.ReleaseBuffer();      
 	}
-
-	//保存修改的CapValue
-	//SetCapValue();
-
+	
 	CString strName = strExistName;
 	string strProfile = strName.GetBuffer();  // CString->string
 	strName.ReleaseBuffer();
 
 	if(m_pUI->TW_SaveProfileToFile(strProfile))
-	{		
-		m_list_template.AddString(strName);
-		m_list_template.SetCurSel(m_list_template.GetCount()-1);
+	{	
+		if(!recreate)
+		{
+			m_list_template.AddString(strName);
+			m_list_template.SetCurSel(m_list_template.GetCount()-1);
+		}
+		else
+		{
+			m_list_template.SetCurSel(renameindex);
+		}
 	}
-
+	
+	SetDelete();
+	SetRename();
 	UpdateData(FALSE);
 }
 
@@ -359,7 +375,6 @@ void CPage_Profile::OnProfile_Btn_Rename()
 	dlg.DoModal();
 
 	CString strExistName;
-
 	if (TRUE == dlg.m_bOk)  // 确定重命名
 	{
 		strExistName = dlg.GetNewName();  // 获取对话框中的新名称
@@ -369,6 +384,9 @@ void CPage_Profile::OnProfile_Btn_Rename()
 		return;
 	}
 
+	//是否需要重新创建
+	bool recreate = false;
+	int renameindex; //重名的序号
 	// 判断新名称是否已存在
 	CString strCombo;  
 	int nLength;   
@@ -378,10 +396,17 @@ void CPage_Profile::OnProfile_Btn_Rename()
 		m_list_template.GetText( i, strCombo.GetBuffer(nLength));
 		if (strCombo == strExistName)
 		{
-			if (AfxMessageBox("该名称已存在，您想要重新创建吗？",MB_OKCANCEL) == IDCANCEL)  
+			renameindex = i;
+			if(AfxMessageBox("该名称已存在，您想要重新创建吗？",MB_OKCANCEL) == IDCANCEL)  
 			{
-				return;  // 取消新建同名模版
+				recreate = false;
+				return;  // 取消重命名模版
 			}
+			else
+			{
+				recreate = true;
+			}
+
 		}
 		strCombo.ReleaseBuffer();      
 	}
@@ -398,12 +423,26 @@ void CPage_Profile::OnProfile_Btn_Rename()
 	strNewName.ReleaseBuffer();
 
 	if(m_pUI->RenameProfile(OldName, NewName))
-	{	
-		m_list_template.DeleteString(index); //删除原有选中项
-		m_list_template.InsertString(index, strNewName);
-		m_list_template.SetCurSel(index);
+	{		
+		if(!recreate)
+		{
+			m_list_template.DeleteString(index); //删除原有选中项	
+			m_list_template.InsertString(index, strNewName);
+			m_list_template.SetCurSel(index);
+		}
+	}
+	else
+	{
+		if(recreate)
+		{
+			m_list_template.DeleteString(index); //删除原有选中项	
+			m_pUI->TW_DeleteProfile(OldName); //还需删除本地原重名模板
+			m_list_template.SetCurSel(renameindex); //设置已有名选中
+		}	
 	}
 
+	SetDelete();
+	SetRename();
 	UpdateData(FALSE);
 }
 
@@ -425,6 +464,7 @@ void CPage_Profile::OnProfile_Btn_Delete()
 	m_list_template.SetCurSel(0);  // 切换到默认模板
 	LoadTemplate();
 	SetDelete();
+	UpdateData(FALSE);  
 }
 
 

@@ -1569,6 +1569,7 @@ void CScanner_G6X00::MedianSmooth(const Mat &src/*, IplImage *out*/)
 
 	cvSmooth(&in, out, CV_MEDIAN, 3, in.nChannels);  //  ÖÐÖµÂË²¨ medianBlur(src,dst,3);
 	m_mat_image = out; //IplImage -> Mat
+	cvReleaseImage(&out);
 }
 
 cv::Mat CScanner_G6X00::RemovePunch(const Mat &src, double threshold1, double threshold2)

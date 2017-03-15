@@ -1556,6 +1556,7 @@ void CScanner_OpenCV::MedianSmooth(const Mat &src) //中值滤波
 
 	cvSmooth(&in, out, CV_MEDIAN, 3, in.nChannels);  //  中值滤波 medianBlur(src,dst,3);
 	m_mat_image = out; //IplImage -> Mat
+	cvReleaseImage(&out);
 }
 
 

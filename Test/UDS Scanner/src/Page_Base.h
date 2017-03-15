@@ -59,6 +59,11 @@ public:
 	*/
 	vector<string> MyBrowseForMultiImages();
 
+	void DrawImage(void); ///<OnPaint中画图，需要时刷新即可
+	void GetBmpFilePath(); ///<为成员变量m_bmpFilePath赋值
+	bool GetTempSavePath(TCHAR* pszPath); ///<获取临时文件夹
+	bool CreateDir(const CString& strPath); ///<创建文件夹
+
 	//DrawToHdc系列函数
 	void DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img); //在指定dDCDst根据pDstRect绘图。
 	void FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin); ///<为bmi写入信息头和调色板。
@@ -79,7 +84,6 @@ private:
 	CEdit m_edit_brightness;   ///< 用于同步显示m_slider_brightness值
 	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
 
-//	CButton m_btn_chooseimage;///<"选择图片按钮"
 	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板 CButton m_radiobtn_scanmode_auto;
 	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
 
@@ -100,6 +104,8 @@ private:
 	CStatic m_base_picture;
 
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
+
+	TCHAR m_bmpFilePath[PATH_MAX]; ///<预览图保存路径
 	
 	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
@@ -129,10 +135,10 @@ private:
 	afx_msg void OnBase_Btn_Check_BackColor();
 	afx_msg void OnBase_Btn_Check_BackGray();
 	afx_msg void OnBase_Btn_Check_BackBw();
+	afx_msg void OnPaint();
 
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;	
 	CPage_Custom* m_pPaperPage;	
-	
 };

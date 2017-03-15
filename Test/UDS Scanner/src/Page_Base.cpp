@@ -23,6 +23,7 @@ CPage_Base::CPage_Base(MFC_UI *pUI)
 
 CPage_Base::~CPage_Base()
 {
+	m_basemap.swap(map<int, float>());
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
@@ -80,6 +81,7 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BINARIZATION, &CPage_Base::OnCbnSelchangeBase_Combo_Binarization)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode_Auto)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed)
+	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 
@@ -541,6 +543,7 @@ void CPage_Base::PreView()
 	SetCapValue();
 	m_pAdPage->SetCapValue();
 	m_pPaperPage->SetCapValue();
+	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);//预览时只扫描一张
 	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
 	BYTE *data = NULL; //图像数据
@@ -549,28 +552,12 @@ void CPage_Base::PreView()
 	if(data != NULL)
 	{
 		// 保存图片
-		char bmpFilePath[PATH_MAX];;	
-		GetModuleFileName(g_hinstance, bmpFilePath, PATH_MAX);
-		// strip filename from path
-		size_t x = strlen(bmpFilePath);
-		while(x > 0)
-		{
-			if(PATH_SEPERATOR == bmpFilePath[x-1])
-			{
-				bmpFilePath[x-1] = 0;
-				break;
-			}
-			--x;
-		}
-
-		SSTRCPY(bmpFilePath, sizeof(bmpFilePath), bmpFilePath);
-		strcat(bmpFilePath,  "\\");
-		strcat(bmpFilePath, "preview.bmp");
+		GetBmpFilePath();//为m_bmpFilePath赋值
 
 		CFile file;
 		try
 		{
-			if(file.Open(bmpFilePath, CFile::modeWrite | CFile::modeCreate))
+			if(file.Open(m_bmpFilePath, CFile::modeWrite | CFile::modeCreate))
 			{
 				//写入文件
 				file.Write((LPSTR)&(m_pUI->m_bmpFileHeader), sizeof(BITMAPFILEHEADER)); // 写文件头
@@ -601,38 +588,49 @@ void CPage_Base::PreView()
 		catch (...) 
 		{
 			AfxMessageBox("SaveDIB2Bmp Error!");
-		}
+		}	
 
-		//显示图片
-		IplImage* img = cvLoadImage((CT2CA)bmpFilePath, 1);
-		CWnd *pWnd = GetDlgItem(IDC_BASE_PREPICTURE); 
-		CDC* pDC = pWnd->GetDC();
-		HDC hDC = pDC->GetSafeHdc();
-		CRect rect;
-		pWnd->GetClientRect(&rect);
-		SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);
-		
-		//调整长宽比例因子，使图像显示不失真
-		CRect newRect;
-		int width = img->width;
-		int height = img->height;
-
-		if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
-		{
-			newRect = CRect(rect.TopLeft(), CSize(width,height));
-		}
-		else
-		{
-			float xScale = (float)rect.Width() / (float)width;
-			float yScale = (float)rect.Height() / (float)height;
-			float scale = xScale>=yScale?yScale:xScale; 
-			newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
-		}
-
-		DrawToHDC(hDC, &newRect, img);
-		ReleaseDC(pDC);
+		Invalidate(); //直接刷新，OnPaint中实现DrawImage();
 	}
+
+	UpdateData(FALSE);
 }
+
+void CPage_Base::DrawImage(void) 
+{
+	UpdateData(TRUE);
+	//显示图片
+	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
+	CWnd *pWnd = GetDlgItem(IDC_BASE_PREPICTURE); 
+	CDC* pDC = pWnd->GetDC();
+	HDC hDC = pDC->GetSafeHdc();
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+	SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);
+
+	//调整长宽比例因子，使图像显示不失真
+	CRect newRect;
+	int width = img->width;
+	int height = img->height;
+
+	if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
+	{
+		newRect = CRect(rect.TopLeft(), CSize(width,height));
+	}
+	else
+	{
+		float xScale = (float)rect.Width() / (float)width;
+		float yScale = (float)rect.Height() / (float)height;
+		float scale = xScale>=yScale?yScale:xScale; 
+		newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
+	}
+
+	DrawToHDC(hDC, &newRect, img);
+	ReleaseDC(pDC);
+	
+	UpdateData(FALSE);
+}
+
 
 //DrawToHdc系列函数
 RECT CPage_Base::NormalizeRect(RECT r)  
@@ -1137,6 +1135,7 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 		break;
 	case 2:
 		m_basemap[UDSCAP_MULTISTREAM] = 1.0f;
+		m_check_frontcolor.SetCheck(TRUE);
 		break;
 	}
 	SetFlat();//内含SetMultiStream();
@@ -1343,12 +1342,57 @@ void CPage_Base::OnBase_Btn_Check_BackBw()
 	}
 }
 
+void CPage_Base::GetBmpFilePath()
+{
+	if(GetTempSavePath(m_bmpFilePath))
+	{
+		strcat(m_bmpFilePath, "preview.bmp");
+	}
+}
 
 BOOL CPage_Base::OnSetActive()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
+
+	GetBmpFilePath();
+	Invalidate();
+
 	return __super::OnSetActive();
+}
+
+
+bool CPage_Base::GetTempSavePath(TCHAR* pszPath)
+{
+	TCHAR szTempPath[MAX_PATH];
+	memset(szTempPath, 0, MAX_PATH);
+	GetTempPath(MAX_PATH, szTempPath);
+
+	SSTRCAT(szTempPath, MAX_PATH, MB_CAPTION);
+	SSTRCAT(szTempPath, MAX_PATH, TEXT("\\"));
+
+	if(false == CreateDir(szTempPath))
+	{
+		MessageBox(TEXT("创建临时文件夹失败！"));
+		return false;
+	}
+
+	SSTRCPY(pszPath, MAX_PATH, szTempPath);
+	return true;
+}
+
+bool CPage_Base::CreateDir(const CString& strPath)
+{
+	if (!PathFileExists(strPath))
+	{
+		if (!CreateDirectory(strPath, NULL))
+		{	
+			return false;
+		}
+		return true;
+	}
+
+	return true;		
 }
 
 
@@ -1489,4 +1533,13 @@ void CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed()
 
 	m_basemap[CAP_FEEDERENABLED] = (float)index;
 	UpdateData(FALSE);
+}
+
+
+void CPage_Base::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 在此处添加消息处理程序代码
+	// 不为绘图消息调用 __super::OnPaint()
+	DrawImage();
 }

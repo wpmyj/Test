@@ -18,6 +18,7 @@ CPage_Paper::CPage_Paper(MFC_UI *pUI)
 
 CPage_Paper::~CPage_Paper()
 {
+	m_papermap.swap(map<int, float>());  // 清空并释放内存
 }
 
 void CPage_Paper::DoDataExchange(CDataExchange* pDX)
@@ -144,7 +145,6 @@ void CPage_Paper::UpdateControls(void)
 	// 自定义宽与高
 	TW_FRAME frame;	
 	int nIndex = m_combo_uints.GetCurSel();
-	//SetScroll(); 
 	//单位为inches、centi时edit显示两位小数，其他直接显示整数
 	switch(FindUnit(nIndex)) //当前界面的单位
 	{
@@ -374,6 +374,8 @@ void CPage_Paper::UpdateControls(void)
 
 void CPage_Paper::SetPaperSize(void)
 {
+	SetXYPos();
+
 	int nIndex = m_combo_standardsizes.GetCurSel(); 
 	int nval = FindPaperSize(nIndex);
 	int nIndex_unit = m_combo_uints.GetCurSel();
@@ -666,11 +668,56 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Standardsizes()
 	int unitnval = FindUnit(unitIndex);
 	
 	UpdatePicRectangle(nval, unitnval, 0, 0);
-
-	//m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, m_papervalue);
-	//m_pUI->SetCapValueInt(ICAP_UNITS, m_unitvalue);
 }
 
+void CPage_Paper::SetXYPos()
+{
+	int index = m_combo_standardsizes.GetCurSel();	
+	switch(index)
+	{
+		//自动与US Legal
+	case 0:
+	case 2:
+		{
+			m_edit_xpos.EnableWindow(FALSE);
+			m_edit_ypos.EnableWindow(FALSE);
+			m_scroll_xpos.EnableWindow(FALSE);
+			m_scroll_ypos.EnableWindow(FALSE);
+			break;
+		}
+
+		//US Letter
+	case 1:
+		{
+			m_edit_xpos.EnableWindow(FALSE);
+			m_edit_ypos.EnableWindow(TRUE);
+			m_scroll_xpos.EnableWindow(FALSE);
+			m_scroll_ypos.EnableWindow(TRUE);
+			break;
+		}
+
+		//其他
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+	case 14:
+		{
+			m_edit_xpos.EnableWindow(TRUE);
+			m_edit_ypos.EnableWindow(TRUE);
+			m_scroll_xpos.EnableWindow(TRUE);
+			m_scroll_ypos.EnableWindow(TRUE);
+			break;
+		}
+	}
+}
 
 void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypos)
 {
@@ -1106,8 +1153,6 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 int CPage_Paper::FindPaperSize(int index)
 {
-	//CString strCBText; 
-	//m_combo_standardsizes.GetLBText(index, strCBText);
 	int nval;
 	
 	switch(index)

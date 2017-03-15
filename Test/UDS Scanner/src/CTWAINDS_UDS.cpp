@@ -1183,8 +1183,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 
 	m_IndependantCapMap[UDSCAP_AUTOCROP] = new CTWAINContainerBool(UDSCAP_AUTOCROP, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_AUTOCROP]))
-		|| !pbCap->Add(TRUE)
-		|| !pbCap->Add(FALSE, true) )
+		|| !pbCap->Add(TRUE, true)
+		|| !pbCap->Add(FALSE) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_AUTOCROP !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_AUTOCROP" << endl;

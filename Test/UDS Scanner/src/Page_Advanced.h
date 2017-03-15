@@ -61,6 +61,7 @@ private:
 	CButton m_check_colorflip;
 
 	CButton m_check_multifeeddetect;
+	CButton m_check_mdvalue;
 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
 
@@ -101,13 +102,12 @@ private:
 
 	afx_msg void OnAdvanced_Btn_Check_Colorflip();
 
+	afx_msg void OnCbnSelchangeAdvanced_Combo_Cachemode();
+	afx_msg void OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnClicked_Check_MdValue();
+
 public:
 	/** Base界面的父类指针*/
 	CPage_Custom* m_pBasePage;
-	
-	afx_msg void OnCbnSelchangeAdvanced_Combo_Cachemode();
-	afx_msg void OnNMCustomdrawAdvanced_Slider_Cachemode(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnEnChangeAdvanced_Edit_Cachemode();
-	CButton m_check_mdvalue;
-	afx_msg void OnClicked_Check_MdValue();
+
 };

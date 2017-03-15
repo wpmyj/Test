@@ -38,9 +38,10 @@ private:
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void UpdatePicRectangle(int index, int unitindex, int xpos, int ypos); ///<根据选择的纸张对应序号，更新图片控件上的矩形区域。
 	void SetPaperSize(void);
+
+	void SetXYPos(void); ///<设置XY偏移量是否可用。
 	
 private:
-	//int time;
 	MAP_CAP m_papermap;  ///<用于保存参数改变后的值
 
 	CRectTracker m_rectTracker; ///<橡皮筋类
