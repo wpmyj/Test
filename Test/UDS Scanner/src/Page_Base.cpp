@@ -597,7 +597,6 @@ void CPage_Base::DrawImage(void)
 {
 	UpdateData(TRUE);
 	//显示图片
-	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
 	CWnd *pWnd = GetDlgItem(IDC_BASE_PREPICTURE); 
 	CDC* pDC = pWnd->GetDC();
 	HDC hDC = pDC->GetSafeHdc();
@@ -605,27 +604,31 @@ void CPage_Base::DrawImage(void)
 	pWnd->GetClientRect(&rect);
 	SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);
 
-	//调整长宽比例因子，使图像显示不失真
-	CRect newRect;
-	int width = img->width;
-	int height = img->height;
-
-	if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
+	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
+	if(img != NULL)
 	{
-		newRect = CRect(rect.TopLeft(), CSize(width,height));
-	}
-	else
-	{
-		float xScale = (float)rect.Width() / (float)width;
-		float yScale = (float)rect.Height() / (float)height;
-		float scale = xScale>=yScale?yScale:xScale; 
-		newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
-	}
+		//调整长宽比例因子，使图像显示不失真
+		CRect newRect;
+		int width = img->width;
+		int height = img->height;
+		if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
+		{
+			newRect = CRect(rect.TopLeft(), CSize(width,height));
+		}
+		else
+		{
+			float xScale = (float)rect.Width() / (float)width;
+			float yScale = (float)rect.Height() / (float)height;
+			float scale = xScale>=yScale?yScale:xScale; 
+			newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
+		}
 
-	DrawToHDC(hDC, &newRect, img);
-	ReleaseDC(pDC);
-	
-	UpdateData(FALSE);
+		DrawToHDC(hDC, &newRect, img);
+		ReleaseDC(pDC);
+		cvReleaseImage(&img);
+
+		UpdateData(FALSE);
+	}
 }
 
 
@@ -1045,12 +1048,15 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 	//获取控件窗口指针  
 	CEdit* pEdit1 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS);  
 	CEdit* pEdit2 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_CONTRAST);  
-
-	CString str1, str2;   
+	CEdit* pEdit3 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_THRESHOLD);
+	
+	CString str1, str2, str3;   
 	GetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS, str1); // 获取edit中文本  
 	GetDlgItemText(IDC_BASE_EDIT_CONTRAST, str2);
+	GetDlgItemText(IDC_BASE_EDIT_THRESHOLD, str3);
 
-	if( (GetFocus() == pEdit1 ||GetFocus() == pEdit2) && (pMsg->message == WM_CHAR))  
+	if( (GetFocus() == pEdit1 || GetFocus() == pEdit2 || GetFocus() == pEdit3) 
+				&& (pMsg->message == WM_CHAR))  
 	{  
 		//允许输入数字//和小数点“.”
 		if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
@@ -1061,8 +1067,35 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 		{
 			return 1; //不准输入小数点
 		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			////设置光标只能在末尾
+			//if(GetFocus() == pEdit1){
+			//	pEdit1->SetSel(str1.GetLength(), str1.GetLength(),TRUE);
+			//}
+			//else if(GetFocus() == pEdit2){
+			//	pEdit2->SetSel(str2.GetLength(), str2.GetLength(),TRUE);
+			//}
+			//else if(GetFocus() == pEdit3){
+			//	pEdit3->SetSel(str3.GetLength(), str3.GetLength(),TRUE);
+			//}
+			//else{}
+			  // 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	//对比度、亮度能输入负号
+	if( (GetFocus() == pEdit1 || GetFocus() == pEdit2) 
+		&& (pMsg->message == WM_CHAR))
+	{
 		//保证负号'-'只能出现一次,并且只能出现在第一个字符
-		else if (pMsg->wParam == '-') //亮度、对比度只能输入负号与数字
+		if(pMsg->wParam == '-') //亮度、对比度只能输入负号与数字
 		{
 			if(str1.IsEmpty() || str2.IsEmpty())
 			{
@@ -1073,16 +1106,7 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 				return 1;
 			}
 		}
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{  
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}  
+	}
 
 	return __super::PreTranslateMessage(pMsg);
 }

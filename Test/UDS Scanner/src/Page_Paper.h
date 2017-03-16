@@ -108,4 +108,5 @@ private:
 	afx_msg void OnEnChangeBase_Edit_EdgeDown();
 	afx_msg void OnEnChangeBase_Edit_EdgeXpos();
 	afx_msg void OnEnChangeBase_Edit_EdgeYpos();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

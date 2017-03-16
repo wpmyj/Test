@@ -63,6 +63,7 @@ BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_DOWN, &CPage_Paper::OnEnChangeBase_Edit_EdgeDown)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_XPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeXpos)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_YPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeYpos)
+//	ON_NOTIFY(NM_THEMECHANGED, IDC_PAPER_SCROLLBAR_XPOS, &CPage_Paper::OnThemechangedPaperScrollbarXpos)
 END_MESSAGE_MAP()
 
 
@@ -434,7 +435,7 @@ BOOL CPage_Paper::OnInitDialog()
 	// TODO:  在此添加额外的初始化
 	UpdateControls();
 	InitSliderCtrl();
-
+	
 	//橡皮筋类初始化
 	m_rectTracker.m_nStyle = CRectTracker::solidLine;//设置RectTracker样式,实线CRectTracker::resizeOutside|
 	m_rectTracker.m_nHandleSize = 5; //控制柄的像素大小
@@ -724,10 +725,6 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 	InvalidateRect(NULL);
 	UpdateWindow();
 
-	//设置当前Combo对应单位、纸张大小生效
-	//m_pUI->SetCapValueInt(ICAP_UNITS, unitindex);
-	//m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, index);	
-
 	//纸张大小尺寸：单位不同，值不同
   TW_FRAME frame;
 	frame = m_pUI->GetCurrentFrame();
@@ -776,8 +773,6 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 	pDC->Rectangle(xpos, ypos, endrect.right, endrect.bottom);
 	pDC->SelectObject(pOldBr);  
 	pDC->SelectObject(pOldPen);
-
-	Invalidate(FALSE);
 }
 
 
@@ -788,11 +783,14 @@ void CPage_Paper::OnCbnSelchangePaper_Combo_Uints()
 	int nval = FindUnit(nIndex);	
 	m_papermap[ICAP_UNITS] = nval;
 	m_combo_uints.SetCurSel(nIndex);
-
 	m_pUI->SetCapValueInt(ICAP_UNITS,nval); //界面能够直接响应
 	UpdateControls();
 
-	Invalidate(); //刷新标尺
+	Invalidate(); //先刷新标尺
+
+	int paperIndex = m_combo_standardsizes.GetCurSel();
+	int paperval = FindPaperSize(paperIndex);
+	UpdatePicRectangle(paperval, nval, 0, 0);	
 }
 
 
@@ -845,11 +843,12 @@ void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			scrollpos -= 1; 
 			break;
 		case SB_TOP: //最顶端
-			scrollpos = maxinches_height;
+			scrollpos = maxinches_width;
 			break;
 		case SB_BOTTOM:
 			scrollpos = 0;
 			break;
+		
 		}
 		// 设置滚动块位置  
 		m_scroll_width.SetScrollPos(scrollpos);
@@ -1211,6 +1210,7 @@ BOOL CPage_Paper::OnSetActive()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
+
 	return CPropertyPage::OnSetActive();
 } 
 
@@ -1551,7 +1551,7 @@ void CPage_Paper::OnEnChangeBase_Edit_EdgeRight()
 	case TWUN_INCHES:
 	case TWUN_CENTIMETERS:
 		{		
-			editvalue = fval * 100;  //需要除以100.		
+			editvalue = fval * 100;  //需要乘以100.		
 			break;
 		}
 	case TWUN_PIXELS:
@@ -1734,23 +1734,25 @@ void CPage_Paper::OnEnChangeBase_Edit_EdgeXpos()
 
 	// TODO:  在此添加控件通知处理程序代码
 	UpdateData(TRUE);  // 接收数据
+	
 	CString str;
 	m_edit_xpos.GetWindowText(str);
 	float fval = _ttof(str);
 	
 	int nIndex = m_combo_uints.GetCurSel();
-	float editvalue;
-	switch(FindUnit(nIndex))
+	int editvalue;
+	int nval = FindUnit(nIndex);
+	switch(nval)
 	{
 	case TWUN_INCHES:
 	case TWUN_CENTIMETERS:
 		{		
-			editvalue = fval * 100;  //需要除以100.		
+			editvalue = (int)(fval * 100.00);  //需要除以100.		
 			break;
 		}
 	case TWUN_PIXELS:
 		{
-			editvalue = fval; 
+			editvalue = (int)fval; 
 			break;
 		}
 	}
@@ -1764,10 +1766,25 @@ void CPage_Paper::OnEnChangeBase_Edit_EdgeXpos()
 		editvalue = 0;
 	}
 	else{}
-
 	m_scroll_xpos.SetScrollPos(editvalue);
-	m_papermap[UDSCAP_XPOS] = fval;
 
+	switch(nval)
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			str.Format("%0.2f",(float)(editvalue/100.00));	
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			str.Format("%0.2f",(float)editvalue); 
+			break;
+		}
+	}
+	//SetDlgItemText(IDC_PAPER_EDIT_XPOS, str);
+	
+	m_papermap[UDSCAP_XPOS] = fval;
 	m_edit_xpos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
 
 	UpdateData(FALSE);  // 更新控件
@@ -1821,3 +1838,263 @@ void CPage_Paper::OnEnChangeBase_Edit_EdgeYpos()
 
 	UpdateData(FALSE);  // 更新控件
 }
+
+
+BOOL CPage_Paper::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	//获取控件窗口指针  
+	CEdit* pEdit[10];
+	pEdit[0] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_WIDTH);  
+	pEdit[1] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_HEIGHT);  
+	pEdit[2] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_XPOS);
+	pEdit[3] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_YPOS);  
+	pEdit[4] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_UP);  
+	pEdit[5] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_DOWN);
+	pEdit[6] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_LEFT);  
+	pEdit[7] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_RIGHT); 
+
+	CString str[10];   
+	GetDlgItemText(IDC_PAPER_EDIT_WIDTH, str[0]); // 获取edit中文本  
+	GetDlgItemText(IDC_PAPER_EDIT_HEIGHT, str[1]);
+	GetDlgItemText(IDC_PAPER_EDIT_XPOS, str[2]);
+	GetDlgItemText(IDC_PAPER_EDIT_YPOS, str[3]);  
+	GetDlgItemText(IDC_PAPER_EDIT_UP, str[4]);
+	GetDlgItemText(IDC_PAPER_EDIT_DOWN, str[5]);
+	GetDlgItemText(IDC_PAPER_EDIT_LEFT, str[6]); 
+	GetDlgItemText(IDC_PAPER_EDIT_RIGHT, str[7]);
+
+	int nPos[8] = {0}; 
+	for(int i = 0; i < 8; i++)
+	{
+		nPos[i] = str[i].Find('.'); // 查找.的位置 
+	}
+
+	if(GetFocus() == pEdit[0] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[0] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[1] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[1] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[2] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[2] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[3] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[3] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[4] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[4] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[5] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[5] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[6] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[6] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+	if(GetFocus() == pEdit[7] && (pMsg->message == WM_CHAR))
+	{
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			if(nPos[7] >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//允许输入数字
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{
+			// 设置编辑框控件范围
+			return 0;  
+		}  
+		else
+		{
+			return 1;
+		}
+	}
+
+
+	return __super::PreTranslateMessage(pMsg);
+}
+

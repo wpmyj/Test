@@ -70,7 +70,7 @@ void CPage_Profile::OnOK()
 	{
 		m_pUI->Scan();
 	}
-	
+
 	CPropertyPage::OnOK();
 }
 

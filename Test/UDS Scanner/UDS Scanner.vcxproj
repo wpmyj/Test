@@ -139,7 +139,6 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_front.jpg" "c:\wi
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\AutoCorrect.jpg" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Scanner_leaflet_back.jpg" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\RemovePunch.jpg" "c:\windows\twain_32\UDS Universal TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS General TWAIN DS使用手册.chm" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_core249.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_highgui249.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\opencv_imgproc249.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
