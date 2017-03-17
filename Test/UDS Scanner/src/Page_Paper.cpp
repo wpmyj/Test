@@ -14,6 +14,8 @@ IMPLEMENT_DYNAMIC(CPage_Paper, CPropertyPage)
 CPage_Paper::CPage_Paper(MFC_UI *pUI)
 	: m_pUI(pUI),CPropertyPage(CPage_Paper::IDD)
 {
+	//  m_edit__value_xpos = _T("");
+	//  m_edit_value_xpos = _T("");
 }
 
 CPage_Paper::~CPage_Paper()
@@ -32,7 +34,7 @@ void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAPER_EDIT_LEFT, m_edit_left);
 	DDX_Control(pDX, IDC_PAPER_EDIT_RIGHT, m_edit_right);
 	DDX_Control(pDX, IDC_PAPER_EDIT_UP, m_edit_up);
-	DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
+	//  DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
 	DDX_Control(pDX, IDC_PAPER_EDIT_YPOS, m_edit_ypos);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_YPOS, m_scroll_ypos);
@@ -45,6 +47,9 @@ void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAPER_COMBO_COMPRESS, m_combo_compress);
 	DDX_Control(pDX, IDC_PAPER_SLIDER_COMPRESSION, m_slider_compressvalue);
 	DDX_Control(pDX, IDC_PAPER_EDIT_COMPRESSVALUE, m_edit_compressvalue);
+	//  DDX_Text(pDX, IDC_PAPER_EDIT_XPOS, m_edit__value_xpos);
+	//  DDX_Text(pDX, IDC_PAPER_EDIT_XPOS, m_edit_value_xpos);
+	DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
 }
 
 
@@ -847,7 +852,7 @@ void CPage_Paper::SetXYPos()
 	case 0:
 	case 2:
 		{
-			m_edit_xpos.EnableWindow(FALSE);
+			//m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(FALSE);
 			m_scroll_xpos.EnableWindow(FALSE);
 			m_scroll_ypos.EnableWindow(FALSE);
@@ -857,7 +862,7 @@ void CPage_Paper::SetXYPos()
 		//US Letter
 	case 1:
 		{
-			m_edit_xpos.EnableWindow(FALSE);
+			//m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(TRUE);
 			m_scroll_xpos.EnableWindow(FALSE);
 			m_scroll_ypos.EnableWindow(TRUE);
@@ -878,7 +883,7 @@ void CPage_Paper::SetXYPos()
 	case 13:
 	case 14:
 		{
-			m_edit_xpos.EnableWindow(TRUE);
+			//m_edit_xpos.EnableWindow(TRUE);
 			m_edit_ypos.EnableWindow(TRUE);
 			m_scroll_xpos.EnableWindow(TRUE);
 			m_scroll_ypos.EnableWindow(TRUE);
@@ -2042,7 +2047,7 @@ void CPage_Paper::OnEnChangeBase_Edit_EdgeXpos()
 	//	SetDlgItemText(IDC_PAPER_EDIT_XPOS, str);
 	//	//m_edit_xpos.SetWindowText(str);
 	//	//((CEdit*)(GetDlgItem(IDC_PAPER_EDIT_XPOS)))->SetWindowText(str);
-	//}	
+	//}
 
 	m_edit_xpos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // ÉèÖÃ±à¼­¿ò¿Ø¼ş·¶Î§
 	

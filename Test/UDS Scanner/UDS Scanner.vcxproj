@@ -147,6 +147,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcp100.dll" "c:\windows\twain_3
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\msvcr100.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Camera1.WAV" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS Universal TWAIN DS.INI" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS Universal TWAIN DS使用手册.CHM" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\cximage.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\pdflib.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SoftekBarcode.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
