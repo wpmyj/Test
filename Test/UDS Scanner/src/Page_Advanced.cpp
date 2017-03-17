@@ -130,10 +130,10 @@ void CPage_Advanced::SetCapValue(void)
 			
 		case UDSCAP_SPLITIMAGE: //图像分割
 			{
-				m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
-
 				if(m_combo_splitimage.IsWindowEnabled())
 				{
+					m_pUI->SetCapValueInt(iter->first,(int)(iter->second)); //设置参数生效
+
 					if((int)(iter->second) == TWSI_HORIZONTAL || (int)(iter->second) == TWSI_VERTICAL)
 					{
 						m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2); //设置扫描张数为2
@@ -543,6 +543,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Rotate()
 void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int nIndex = m_combo_splitimage.GetCurSel();
 	CString strCBText; 
 	m_combo_splitimage.GetLBText( nIndex, strCBText);
@@ -568,6 +569,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_SpiltImage()
 	m_advancedmap[UDSCAP_SPLITIMAGE] = (float)nval;
 	m_combo_splitimage.SetCurSel(nIndex);
 	SetSpiltimage();
+	UpdateData(FALSE);
 }
 
 
@@ -921,6 +923,9 @@ BOOL CPage_Advanced::OnSetActive()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
+
+	SetSpiltimage();
+
 	return __super::OnSetActive();
 }
 
@@ -939,25 +944,37 @@ void CPage_Advanced::SetSpiltimage()
 		SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
 
 		m_edit_spilt.EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
 	}
 	else if(strCBText.Find("上下") >= 0 || strCBText.Find("左右") >= 0) //水平、垂直分割图像
 	{
 		SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
 
 		m_edit_spilt.EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
-		GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
 	}
 	else if(strCBText.Find("自定义") >= 0)
 	{
 		SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
 		m_edit_spilt.EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(TRUE);
-		GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(TRUE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(TRUE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(TRUE);
 	}
 	else{}
+
+	int nCapValue;
+	//基本选择多流时，拆分不可用
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(nCapValue == 1) //多流选中
+	{
+		m_combo_splitimage.EnableWindow(FALSE);
+	}
+	else
+	{
+		m_combo_splitimage.EnableWindow(TRUE);
+	}
 }
 
 

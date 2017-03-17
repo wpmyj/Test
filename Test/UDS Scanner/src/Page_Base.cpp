@@ -24,6 +24,7 @@ CPage_Base::CPage_Base(MFC_UI *pUI)
 CPage_Base::~CPage_Base()
 {
 	m_basemap.swap(map<int, float>());
+	remove(m_bmpFilePath); //删除临时预览图片
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
@@ -1146,7 +1147,8 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 	case 0:
 	case 1:
 		m_basemap[CAP_DUPLEXENABLED] = (float)m_radiobtn_duplex;
-
+		m_pUI->SetCapValueInt(CAP_DUPLEXENABLED, m_radiobtn_duplex); //直接设置有效
+		
 		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
 		m_basemap[UDSCAP_MULTISTREAM] = 0.0f;
 
@@ -1158,6 +1160,8 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 		break;
 	case 2:
 		m_basemap[UDSCAP_MULTISTREAM] = 1.0f;
+		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM, TRUE);//直接设置有效
+		
 		m_check_frontcolor.SetCheck(TRUE);
 		break;
 	}

@@ -42,6 +42,7 @@ private:
 	void SetXYPos(void); ///<设置XY偏移量是否可用。
 	
 private:
+	//int m_num[6]; //记录6个edit进入的次数
 	MAP_CAP m_papermap;  ///<用于保存参数改变后的值
 
 	CRectTracker m_rectTracker; ///<橡皮筋类
