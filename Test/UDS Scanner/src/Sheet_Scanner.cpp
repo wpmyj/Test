@@ -164,7 +164,7 @@ void CSheet_Scanner::OnDestroy()
 BOOL CSheet_Scanner::OnInitDialog()
 {
 	BOOL bResult = CPropertySheet::OnInitDialog();
-
+	this->SetWindowText(MB_CAPTION);
 	// TODO:  在此添加您的专用代码	
 	SetActivePage(m_p_page_advanced);
 	SetActivePage(m_p_page_base);

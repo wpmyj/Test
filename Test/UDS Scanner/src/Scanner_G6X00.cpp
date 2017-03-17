@@ -115,23 +115,12 @@ bool CScanner_G6X00::resetScanner()
 bool CScanner_G6X00::isFeederLoaded()
 {
 	//::MessageBox(g_hwndDLG,TEXT("isFeederLoaded()"),MB_CAPTION,MB_OK);
-
 	bool rtn = true;
-	//static bool bRunned = false;
-	//if (bRunned)
-	//{
-	//	if ( (m_byteADFStatus & 0x1 ) != 1)
-	//	{
-	//		::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
-	//		m_nDocCount = 0;
-	//		rtn =  false;
-	//	}
-	//}
-	//bRunned = true;
 	if(m_nDocCount<=0)
 	{
 		rtn = false;
 		m_nDocCount = m_nMaxDocCount;// Reloaded the scanner with paper
+		Release(); // 传输结束，清理内存
 	}
 	return rtn;
 }
@@ -222,6 +211,10 @@ bool CScanner_G6X00::preScanPrep()
 	{
 		m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 		m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
+		if(m_bAutoCrop == TWAC_AUTO) // 自动裁切先给定有效长度
+		{
+			m_nHeight = m_nSourceHeight = m_ioStatus.dwEffectiveLines;  
+		}
 	}
 	//else
 	//{
@@ -1107,7 +1100,26 @@ void CScanner_G6X00::GetCurrentScanRange(const int& _nSize, float& _fWeight, flo
 			_fHeight = 4.92f;
 		}
 		break;
+	case TWSS_JISB5:
+		{
+			_fWeight = 7.17f;
+			_fHeight = 10.12f;
+		}
+		break;
+	case TWSS_JISB6:
+		{
+			_fWeight = 5.04f;
+			_fHeight = 7.17f;
+		}
+		break;
+	case TWSS_JISB7:
+		{
+			_fWeight = 3.58f;
+			_fHeight = 5.04f;
+		}
+		break;
 	case TWSS_MAXSIZE:
+	case TWSS_NONE:
 		{
 			_fWeight = 8.5f;
 			_fHeight = 14.0f;
@@ -1117,6 +1129,12 @@ void CScanner_G6X00::GetCurrentScanRange(const int& _nSize, float& _fWeight, flo
 		{
 			_fWeight = 8.5f;
 			_fHeight = 118.0f;
+		}
+		break;
+	default:  // 默认按最大范围扫
+		{
+			_fWeight = 8.5f;
+			_fHeight = 14.0f;
 		}
 		break;
 	}
@@ -2471,7 +2489,7 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 void CScanner_G6X00::RunScan()
 {
 	static bool bFlag = false;
-	if (!bFlag)
+	//if (!bFlag)  // 屏蔽原因：EndScanJob()执行后，必须先再次执行StartScanJob()，否则会出错。
 	{
 		StartScanJob();
 		AdjustParameter();

@@ -1372,6 +1372,7 @@ bool CScanner_OpenCV::isFeederLoaded()
 	{
 		rtn = false;
 		m_nDocCount = m_nMaxDocCount;// Reloaded the scanner with paper
+		Release();  // 传输结束，清理内存
 	}
 	return rtn;
 }
