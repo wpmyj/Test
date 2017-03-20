@@ -29,7 +29,7 @@ private:
 	*/
 	MFC_UI  *m_pUI; 
 
-private:
+public:
 	void SetCapValue(void);  ///<设置参数
 	void UpdateControls(void);  ///< 更新控件状态
 	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
@@ -40,8 +40,24 @@ private:
 	void SetPaperSize(void);
 
 	void SetXYPos(void); ///<设置XY偏移量是否可用。
-	
+
+	void PreView();  //预览按钮
+
+	void DrawImage(void); ///<OnPaint中画图，需要时刷新即可
+	void GetBmpFilePath(); ///<为成员变量m_bmpFilePath赋值
+	bool GetTempSavePath(TCHAR* pszPath); ///<获取临时文件夹
+	bool CreateDir(const CString& strPath); ///<创建文件夹
+	//DrawToHdc系列函数
+	void DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img); //在指定dDCDst根据pDstRect绘图。
+	void FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin); ///<为bmi写入信息头和调色板。
+	void Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y);	 ///<使用DIB位图和颜色数据对与目标设备环境相关的设备在dc上的指定矩形中的像素进行设置
+	CvRect RectToCvRect(RECT sr); ///<将Rect类型转为CvRect类型
+	RECT NormalizeRect(RECT r); ///<标准化处理输入rect，防止左侧坐标大于右侧坐标，上侧坐标大于下侧坐标
+
 private:
+	TCHAR m_bmpFilePath[PATH_MAX]; ///<预览图保存路径
+	CRect m_endrect; ///<最终图像需要在预览框显示的区域大小
+
 	//int m_num[6]; //记录6个edit进入的次数
 	MAP_CAP m_papermap;  ///<用于保存参数改变后的值
 

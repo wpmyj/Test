@@ -121,9 +121,6 @@ private:
 
 	afx_msg void OnBase_Btn_Newprofile();
 
-  /** Ñ¡Ôñ´ýÉ¨Í¼Æ¬ */
-//	afx_msg void OnBase_Btn_Chooseimage();
-
 	afx_msg void OnBase_RadioBtn_Scanmode_Auto();
 	afx_msg void OnBase_RadioBtn_Scanmode_Flatbed();
 

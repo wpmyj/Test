@@ -201,12 +201,7 @@ BOOL CSheet_Scanner::OnInitDialog()
 
 	width = rect.Width();
 	stepwidth = rect_cancel.left - rect.right; //确定与取消按钮之间的距离
-
-	rect.left = tabrect.left;
-	rect.right = tabrect.left + width;
-	m_btn_preview.Create("预览",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_PREVIEW);
-	m_btn_preview.SetFont(GetFont());
-	/*
+	
 	rect.left = tabrect.left;
 	rect.right = tabrect.left + width;
 	m_btn_help.Create("帮助",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_HELP);
@@ -216,7 +211,7 @@ BOOL CSheet_Scanner::OnInitDialog()
 	rect.right = rect.left + width;
 	m_btn_preview.Create("预览",BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP, rect, this, IDC_SHEET_BUTTON_PREVIEW);
 	m_btn_preview.SetFont(GetFont()); 
-	*/
+	
 	SetPreViewStatus();
 
 	return bResult;
@@ -225,7 +220,7 @@ BOOL CSheet_Scanner::OnInitDialog()
 
 void CSheet_Scanner::SetPreViewStatus()
 {
-	if(1 == GetTabControl()->GetCurFocus())
+	if(1 == GetTabControl()->GetCurFocus() || 2 == GetTabControl()->GetCurFocus()) //基本与纸张界面预览可用
 	{
 		m_btn_preview.EnableWindow(TRUE);
 	}
@@ -262,5 +257,13 @@ void CSheet_Scanner::OnButtonHelp()
 
 void CSheet_Scanner::OnButtonPreView() 
 {
-	m_p_page_base->PreView();
+	if(1 == GetTabControl()->GetCurFocus()) 
+	{
+		m_p_page_base->PreView();
+	}
+	else if(2 == GetTabControl()->GetCurFocus())
+	{
+		m_p_page_paper->PreView();
+	}
+	else{}
 }

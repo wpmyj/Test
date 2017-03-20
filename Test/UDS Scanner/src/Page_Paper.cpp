@@ -14,8 +14,6 @@ IMPLEMENT_DYNAMIC(CPage_Paper, CPropertyPage)
 CPage_Paper::CPage_Paper(MFC_UI *pUI)
 	: m_pUI(pUI),CPropertyPage(CPage_Paper::IDD)
 {
-	//  m_edit__value_xpos = _T("");
-	//  m_edit_value_xpos = _T("");
 }
 
 CPage_Paper::~CPage_Paper()
@@ -34,7 +32,7 @@ void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAPER_EDIT_LEFT, m_edit_left);
 	DDX_Control(pDX, IDC_PAPER_EDIT_RIGHT, m_edit_right);
 	DDX_Control(pDX, IDC_PAPER_EDIT_UP, m_edit_up);
-	//  DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
+	DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
 	DDX_Control(pDX, IDC_PAPER_EDIT_YPOS, m_edit_ypos);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_YPOS, m_scroll_ypos);
@@ -47,9 +45,6 @@ void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAPER_COMBO_COMPRESS, m_combo_compress);
 	DDX_Control(pDX, IDC_PAPER_SLIDER_COMPRESSION, m_slider_compressvalue);
 	DDX_Control(pDX, IDC_PAPER_EDIT_COMPRESSVALUE, m_edit_compressvalue);
-	//  DDX_Text(pDX, IDC_PAPER_EDIT_XPOS, m_edit__value_xpos);
-	//  DDX_Text(pDX, IDC_PAPER_EDIT_XPOS, m_edit_value_xpos);
-	DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
 }
 
 
@@ -68,7 +63,6 @@ BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_DOWN, &CPage_Paper::OnEnChangeBase_Edit_EdgeDown)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_XPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeXpos)
 	ON_EN_CHANGE(IDC_PAPER_EDIT_YPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeYpos)
-//	ON_NOTIFY(NM_THEMECHANGED, IDC_PAPER_SCROLLBAR_XPOS, &CPage_Paper::OnThemechangedPaperScrollbarXpos)
 END_MESSAGE_MAP()
 
 
@@ -541,6 +535,7 @@ void CPage_Paper::UpdateControls(void)
 	m_papermap[UDSCAP_COMPRESSVALUE] = (float)nCapValue;
 }
 
+
 void CPage_Paper::SetPaperSize(void)
 {
 	SetXYPos();
@@ -619,6 +614,13 @@ BOOL CPage_Paper::OnInitDialog()
 	GetDlgItem(IDC_PAPER_COMBO_COMPRESS)->ShowWindow(FALSE); //暂时隐藏
 	GetDlgItem(IDC_PAPER_SLIDER_COMPRESSION)->ShowWindow(FALSE); //暂时隐藏
 	GetDlgItem(IDC_PAPER_EDIT_COMPRESSVALUE)->ShowWindow(FALSE); //暂时隐藏
+
+	//初始化纸张单位，并未m_endrect赋值
+	int paperindex = m_combo_standardsizes.GetCurSel();
+	int papervalue = FindPaperSize(paperindex);
+	int unitindex = m_combo_uints.GetCurSel();
+	int unitvalue = FindUnit(unitindex);
+	UpdatePicRectangle(papervalue, unitvalue, 0, 0);	
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -852,7 +854,7 @@ void CPage_Paper::SetXYPos()
 	case 0:
 	case 2:
 		{
-			//m_edit_xpos.EnableWindow(FALSE);
+			m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(FALSE);
 			m_scroll_xpos.EnableWindow(FALSE);
 			m_scroll_ypos.EnableWindow(FALSE);
@@ -862,7 +864,7 @@ void CPage_Paper::SetXYPos()
 		//US Letter
 	case 1:
 		{
-			//m_edit_xpos.EnableWindow(FALSE);
+			m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(TRUE);
 			m_scroll_xpos.EnableWindow(FALSE);
 			m_scroll_ypos.EnableWindow(TRUE);
@@ -883,7 +885,7 @@ void CPage_Paper::SetXYPos()
 	case 13:
 	case 14:
 		{
-			//m_edit_xpos.EnableWindow(TRUE);
+			m_edit_xpos.EnableWindow(TRUE);
 			m_edit_ypos.EnableWindow(TRUE);
 			m_scroll_xpos.EnableWindow(TRUE);
 			m_scroll_ypos.EnableWindow(TRUE);
@@ -909,7 +911,6 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 	float width = (float)picrect.Width(); //257
 	float height = (float)picrect.Height(); //392
 
-	CRect endrect;
 	float widthscale;
 	float heightscale;
 	//根据英寸的值，设置比例，最终得到需要画出区域的大小
@@ -934,15 +935,15 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 		heightscale = height / 42.00f;
 	}
 	else{}
-	endrect.right = (int)(right * widthscale);
-	endrect.bottom = (int)(bottom * heightscale);
+	m_endrect.right = (int)(right * widthscale);
+	m_endrect.bottom = (int)(bottom * heightscale);
 	
 	//画图
 	CDC *pDC = GetDlgItem(IDC_PAPER_PREPICTURE)->GetDC();
 	CPen pen(PS_SOLID, 1, RGB(255,0,0));  
 	CPen *pOldPen = pDC->SelectObject(&pen);  
 	CBrush *pOldBr = (CBrush *)pDC->SelectStockObject(NULL_BRUSH); 
-	pDC->Rectangle(xpos, ypos, endrect.right, endrect.bottom);
+	pDC->Rectangle(xpos, ypos, m_endrect.right, m_endrect.bottom);
 	pDC->SelectObject(pOldBr);  
 	pDC->SelectObject(pOldPen);
 }
@@ -1391,6 +1392,8 @@ void CPage_Paper::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// TODO: 在此处添加消息处理程序代码
 	// 不为绘图消息调用 __super::OnPaint()
+	DrawImage(); //画预览图
+	
 	m_rectTracker.Draw(&dc); //橡皮筋类画好矩形框
 
 	//画标尺
@@ -1460,12 +1463,7 @@ void CPage_Paper::OnPaint()
 		float fscale = (float)reso/200.00; //200dpi对应1800
 		int xmax = (int)(1800.00 * fscale);//不同分辨率下，横坐标的最大值
 		int ymax = (int)(2800.00 * fscale);//不同分辨率下，纵坐标的最大值
-		/*CString str;
-		str.Format("%d",xreso);
-		AfxMessageBox(str);
-		str.Format("%d",yreso);
-		AfxMessageBox(str);
-*/
+	
 		int xpos = 0;
 		beginpoint.x = rect.left;
 		beginpoint.y = rect.top-2; //画在图片上方
@@ -2379,7 +2377,259 @@ BOOL CPage_Paper::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 
-
 	return __super::PreTranslateMessage(pMsg);
 }
+
+
+void CPage_Paper::PreView()
+{
+	UpdateData(TRUE);
+
+	SetCapValue();
+	//m_pAdPage->SetCapValue();
+	//m_pPaperPage->SetCapValue();
+	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);//预览时只扫描一张
+	m_pUI->TW_SaveProfileToFile("上次使用模板");
+
+	BYTE *data = NULL; //图像数据
+	data = m_pUI->PreView();  
+
+	if(data != NULL)
+	{
+		// 保存图片
+		GetBmpFilePath();//为m_bmpFilePath赋值
+
+		CFile file;
+		try
+		{
+			if(file.Open(m_bmpFilePath, CFile::modeWrite | CFile::modeCreate))
+			{
+				//写入文件
+				file.Write((LPSTR)&(m_pUI->m_bmpFileHeader), sizeof(BITMAPFILEHEADER)); // 写文件头
+				file.Write((LPSTR)&(m_pUI->m_bmpInfoHeader), sizeof(BITMAPINFOHEADER)); // 写信息头
+				if (m_pUI->m_nBpp < 16)
+				{			
+					DWORD dwColors = 0;
+					if (true == m_pUI->GetColorsUsed(m_pUI->m_nBpp, dwColors))
+					{
+						file.Write((LPSTR)(m_pUI->m_bmpLpRGB),sizeof(RGBQUAD) * dwColors); // 写调色板
+					}	
+
+					if (m_pUI->m_bmpLpRGB)
+					{
+						delete []m_pUI->m_bmpLpRGB;
+						m_pUI->m_bmpLpRGB = NULL;
+					}
+				}
+				file.Write(data, m_pUI->m_nDIBSize); // 写数据
+				file.Close();
+				if (data)
+				{
+					delete []data;
+					data = NULL;
+				}	
+			}
+		}
+		catch (...) 
+		{
+			AfxMessageBox("SaveDIB2Bmp Error!");
+		}	
+
+		Invalidate(); //直接刷新，OnPaint中实现DrawImage();
+	}
+
+	UpdateData(FALSE);
+}
+
+void CPage_Paper::DrawImage(void) 
+{
+	UpdateData(TRUE);
+	//显示图片
+	CWnd *pWnd = GetDlgItem(IDC_PAPER_PREPICTURE); 
+	CDC* pDC = pWnd->GetDC();
+	HDC hDC = pDC->GetSafeHdc();
+	/*CRect rect;
+	pWnd->GetClientRect(&rect);
+	SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);*/
+
+	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
+	if(img != NULL)
+	{
+		//调整长宽比例因子，使图像显示不失真
+		CRect newRect;
+		int width = img->width;
+		int height = img->height;
+
+		if(width <= m_endrect.Width() && height <= m_endrect.Height()) //小图片，不缩放
+		{
+			newRect = CRect(m_endrect.TopLeft(), CSize(width,height));
+		}
+		else
+		{
+			float xScale = (float)m_endrect.Width() / (float)width;
+			float yScale = (float)m_endrect.Height() / (float)height;
+			float scale = xScale>=yScale?yScale:xScale; 
+			newRect = CRect(m_endrect.TopLeft(), CSize((int)width*scale, (int)height*scale));
+		}
+
+		DrawToHDC(hDC, &newRect, img);
+		ReleaseDC(pDC);
+		cvReleaseImage(&img);
+
+		UpdateData(FALSE);
+	}
+}
+
+void CPage_Paper::GetBmpFilePath()
+{
+	if(GetTempSavePath(m_bmpFilePath))
+	{
+		strcat(m_bmpFilePath, "preview.bmp");
+	}
+}
+
+bool CPage_Paper::GetTempSavePath(TCHAR* pszPath)
+{
+	TCHAR szTempPath[MAX_PATH];
+	memset(szTempPath, 0, MAX_PATH);
+	GetTempPath(MAX_PATH, szTempPath);
+
+	SSTRCAT(szTempPath, MAX_PATH, MB_CAPTION);
+	SSTRCAT(szTempPath, MAX_PATH, TEXT("\\"));
+
+	if(false == CreateDir(szTempPath))
+	{
+		MessageBox(TEXT("创建临时文件夹失败！"));
+		return false;
+	}
+
+	SSTRCPY(pszPath, MAX_PATH, szTempPath);
+	return true;
+}
+
+bool CPage_Paper::CreateDir(const CString& strPath)
+{
+	if (!PathFileExists(strPath))
+	{
+		if (!CreateDirectory(strPath, NULL))
+		{	
+			return false;
+		}
+		return true;
+	}
+
+	return true;		
+}
+
+//DrawToHdc系列函数
+RECT CPage_Paper::NormalizeRect(RECT r)  
+{  
+	int t;  
+
+	if( r.left > r.right )  
+	{  
+		t = r.left;  
+		r.left = r.right;  
+		r.right = t;  
+	}  
+
+	if( r.top > r.bottom )  
+	{  
+		t = r.top;  
+		r.top = r.bottom;  
+		r.bottom = t;  
+	}  
+
+	return r;  
+}  
+CvRect CPage_Paper::RectToCvRect(RECT sr)  
+{  
+	sr = NormalizeRect( sr );  
+	return cvRect( sr.left, sr.top, sr.right - sr.left, sr.bottom - sr.top );  
+} 
+void  CPage_Paper::FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin)  
+{  
+	assert( bmi && width >= 0 && height >= 0 && (bpp == 8 || bpp == 24 || bpp == 32));  
+
+	BITMAPINFOHEADER* bmih = &(bmi->bmiHeader);  
+
+	memset(bmih, 0, sizeof(*bmih));  
+	bmih->biSize = sizeof(BITMAPINFOHEADER);  
+	bmih->biWidth = width;  
+	bmih->biHeight = origin ? abs(height) : -abs(height);  
+	bmih->biPlanes = 1;  
+	bmih->biBitCount = (unsigned short)bpp;  
+	bmih->biCompression = BI_RGB;  
+
+	if(bpp == 8)  
+	{  
+		RGBQUAD* palette = bmi->bmiColors;  
+		int i;  
+		for( i = 0; i < 256; i++ )  
+		{  
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;  
+			palette[i].rgbReserved = 0;  
+		}  
+	}  
+}  
+void  CPage_Paper::Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y)  
+{  
+	if( img && img->depth == IPL_DEPTH_8U )  
+	{  
+		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
+		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
+		int bmp_w = img->width, bmp_h = img->height;  
+
+		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
+		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
+
+		from_x = MIN(MAX( from_x, 0 ), bmp_w - 1);  
+		from_y = MIN(MAX( from_y, 0 ), bmp_h - 1);  
+
+		int sw = MAX(MIN( bmp_w - from_x, w ), 0);  
+		int sh = MAX(MIN( bmp_h - from_y, h ), 0);  
+
+		SetDIBitsToDevice(  
+			dc, x, y, sw, sh, from_x, from_y, from_y, sh,  
+			img->imageData + from_y*img->widthStep,  
+			bmi, DIB_RGB_COLORS);  
+	}  
+}  
+void  CPage_Paper::DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img )  
+{  
+	if(pDstRect && img && img->depth == IPL_DEPTH_8U && img->imageData )  
+	{  
+		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
+		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
+		int bmp_w = img->width, bmp_h = img->height;  
+
+		CvRect roi = cvGetImageROI(img);
+		CvRect dst = RectToCvRect(*pDstRect);  
+
+		if( roi.width == dst.width && roi.height == dst.height )  
+		{  
+			Show(img, hDCDst, dst.x, dst.y, dst.width, dst.height, roi.x, roi.y);  
+			return;  
+		}  
+
+		if(roi.width > dst.width)  
+		{  
+			SetStretchBltMode(hDCDst, // handle to device context  
+				HALFTONE );  
+		}  
+		else  
+		{  
+			SetStretchBltMode(hDCDst, // handle to device context  
+				COLORONCOLOR );  
+		}  
+
+		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
+		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
+		::StretchDIBits(
+			hDCDst,  
+			dst.x, dst.y, dst.width, dst.height,  
+			roi.x, roi.y, roi.width, roi.height,  
+			img->imageData, bmi, DIB_RGB_COLORS, SRCCOPY);  
+	}  
+}  
 
