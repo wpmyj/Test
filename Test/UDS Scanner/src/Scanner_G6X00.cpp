@@ -106,7 +106,11 @@ bool CScanner_G6X00::resetScanner()
 	}
 
 	//m_pCxImage = NULL;
-	LoadDLL();
+	//LoadDLL();
+	if (false == LoadDLL())
+	{
+		return false;
+	}
 	InitDriverParamter();
 
 	return true;
