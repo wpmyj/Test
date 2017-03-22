@@ -1976,95 +1976,124 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Transparency calibration error");
 		break;	
 	case ERROR_SHORT_SCSI_POWER_OFF:                      
-		szError = TEXT("Power off or Cable failure");
+		//szError = TEXT("Power off or Cable failure");
+		szError = TEXT("电源关闭或电缆故障");
 		break;	
 	case ERROR_SHORT_SCSI_REMOVE_RETAINER:                      
-		szError = TEXT("Please remove shipping retainer");
+		//szError = TEXT("Please remove shipping retainer");
+		szError = TEXT("请移除扫描仪锁定装置");
 		break;	
 	case ERROR_SHORT_SCSI_PAPERJAM:                      
 		//szError = TEXT("Paper Jam");
 		szError = TEXT("夹纸！");
 		break;	
 	case ERROR_SHORT_SCSI_ADF_OPEN:                      
-		szError = TEXT("ADF Cover Open");
+		//szError = TEXT("ADF Cover Open");
+		szError = TEXT("自动文件进纸器前盖开启");
 		break;	
 	case ERROR_SHORT_SCSI_NO_PAPER:                      
-		szError = TEXT("No paper in Automatic Document Feeder");
+		//szError = TEXT("No paper in Automatic Document Feeder");
+		szError = TEXT("自动文件进纸器中没有纸张");
 		break;	
 	case ERROR_SHORT_SCSI_SERERATION_SHEET_DETECTED :                      
-		szError = TEXT("Job separation sheet detected");
+		//szError = TEXT("Job separation sheet detected");
+		szError = TEXT("检测到工作分离单张");
 		break;	
 	case ERROR_SHORT_SCSI_NO_TRANSPARENCY_KIT:                      
-		szError = TEXT("Can't find transparency kit");
+		//szError = TEXT("Can't find transparency kit");
+		szError = TEXT("要使用扫描透明胶片功能，您必须先安装扫描透明胶片套件");
 		break;	
 	case ERROR_SHORT_SCSI_TRANS_KIT_IS_OFF:                      
-		szError = TEXT("Transparency kit switch is off");
+		//szError = TEXT("Transparency kit switch is off");
+		szError = TEXT("透明胶片套件开关关闭");
 		break;	
 	case ERROR_SHORT_SCSI_INTERNAL_FAILURE:                      
-		szError = TEXT("Internal Target Failure");
+		//szError = TEXT("Internal Target Failure");
+		szError = TEXT("内部目标故障");
 		break;	
 	case ERROR_SHORT_SCSI_FUSE_BLOWN1:                      
-		szError = TEXT("Fuse blown");
+		//szError = TEXT("Fuse blown");
+		szError = TEXT("保险丝熔断");
 		break;	
 	case ERROR_SHORT_SCSI_FUSE_BLOWN2:                      
-		szError = TEXT("Fuse blown");
+		//szError = TEXT("Fuse blown");
+		szError = TEXT("保险丝熔断");
 		break;	
 	case ERROR_SHORT_SCSI_FUSE_BLOWN3:                      
-		szError = TEXT("Fuse blown");
+		//szError = TEXT("Fuse blown");
+		szError = TEXT("保险丝熔断");
 		break;	
 	case ERROR_SHORT_SCSI_FUSE_BLOWN4:                      
-		szError = TEXT("Fuse blown");
+		//szError = TEXT("Fuse blown");
+		szError = TEXT("保险丝熔断");
 		break;	
 	case ERROR_SHORT_SCSI_SYSTEM_FAILURE:                      
-		szError = TEXT("Mechanical system failure");
+		//szError = TEXT("Mechanical system failure");
+		szError = TEXT("机械系统故障");
 		break;
 	case ERROR_SHORT_SCSI_OPTICAL_ERR:                      
-		szError = TEXT("Optical system failure");
+		//szError = TEXT("Optical system failure");
+		szError = TEXT("光学系统故障");
 		break;	
 	case ERROR_SHORT_SCSI_INVALID_PARAMETER1:                      
-		szError = TEXT("Illegal Scanner parameter");
+		//szError = TEXT("Illegal Scanner parameter");
+		szError = TEXT("扫描仪参数设置错误");
 		break;		
 	case ERROR_SHORT_SCSI_INVALID_PARAMETER2:                      
-		szError = TEXT("Illegal Scanner parameter");
+		//szError = TEXT("Illegal Scanner parameter");
+		szError = TEXT("扫描仪参数设置错误");
 		break;		
 	case ERROR_SHORT_SCSI_INVALID_PARAMETER3:                      
-		szError = TEXT("Illegal Scanner parameter");
+		//szError = TEXT("Illegal Scanner parameter");
+		szError = TEXT("扫描仪参数设置错误");
 		break;		
 	case ERROR_SHORT_SCSI_INVALID_PARAMETER4:                      
-		szError = TEXT("Illegal Scanner parameter");
+		//szError = TEXT("Illegal Scanner parameter");
+		szError = TEXT("扫描仪参数设置错误");
 		break;		
 	case ERROR_SHORT_SCSI_INVALID_PARAMETER5:                      
-		szError = TEXT("Illegal Scanner parameter");
+		//szError = TEXT("Illegal Scanner parameter");
+		szError = TEXT("扫描仪参数设置错误");
 		break;		
 	case ERROR_SHORT_SCSI_MESSAGE_ERROR:                      
-		szError = TEXT("Message Error");
+		//szError = TEXT("Message Error");
+		szError = TEXT("消息错误");
 		break;			
 	case ERROR_SHORT_SCSI_IMAGE_TRANSFER_ERR:                      
-		szError = TEXT("Image transfer error");
+		//szError = TEXT("Image transfer error");
+		szError = TEXT("图像传输错误");
 		break;		
 	case ERROR_SHORT_SCSI_UNKNOWN_REASON:                      
-		szError = TEXT("Unknown error reason");
+		//szError = TEXT("Unknown error reason");
+		szError = TEXT("未知的错误");
 		break;		
 	case ERROR_SHORT_SCSI_NO_ASPI:                      
-		szError = TEXT("No ASPI managers were found");
+		//szError = TEXT("No ASPI managers were found");
+		szError = TEXT("未找到任何 ASPI 管理器");
 		break;		
 	case ERROR_SHORT_SCSI_NOSCSI_ASPI:                      
-		szError = TEXT("Can't find SCSI ASPI");
+		//szError = TEXT("Can't find SCSI ASPI");
+		szError = TEXT("未找到 SCSI ASPI");
 		break;		
 	case ERROR_SHORT_SCSI_ASPI_NOT_SUPPORT_WIN:                      
-		szError = TEXT("An ASPI manager which does not support windows is resident");
+		//szError = TEXT("An ASPI manager which does not support windows is resident");
+		szError = TEXT("一个不支持视窗的常驻 ASPI 管理器");
 		break;		
 	case ERROR_SHORT_SCSI_MEMORY_NOT_ENOUGH:                      
-		szError = TEXT("Memory is not enough");
+		//szError = TEXT("Memory is not enough");
+		szError = TEXT("内存不足");
 		break;		
 	case ERROR_SHORT_SCSI_NO_DLL:                      
-		szError = TEXT("Can't find winaspi.dll or wnaspi32.dll");
+		//szError = TEXT("Can't find winaspi.dll or wnaspi32.dll");
+		szError = TEXT("未找到 winaspi.dll 或 wnaspi32.dll");
 		break;		
 	case ERROR_SHORT_SCANNER_NOT_CONNECTED:                      
-		szError = TEXT("Can't find scanner");
+		//szError = TEXT("Can't find scanner");
+		szError = TEXT("找不到扫描仪");
 		break;		
 	case ERROR_SHORT_SCSI_CANT_INITIAL_SCSI_MANAGER:                      
-		szError = TEXT("Can't initialize SCSI manager");
+		//szError = TEXT("Can't initialize SCSI manager");
+		szError = TEXT("找不到初始化的 SCSI 管理器");
 		break;		
 	case ERROR_SHORT_SCSI_TIME_OUT:                      
 		szError = TEXT("Time out");
@@ -2073,52 +2102,67 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Scan head positioning error");
 		break;		
 	case ERROR_SHORT_DRIVER_BUSY:                      
-		szError = TEXT("Driver Busy");
+		//szError = TEXT("Driver Busy");
+		szError = TEXT("驱动程序忙碌中");
 		break;		
 	case ERROR_SHORT_PARAMETER_CHECK_ERROR:                      
-		szError = TEXT("Parameter Check Error");
+		//szError = TEXT("Parameter Check Error");
+		szError = TEXT("无效的扫描仪参数");
 		break;		
 	case ERROR_SHORT_ALLOCATE_MEMORY_FAILED:                      
-		szError = TEXT("Allocate Memory Failed");
+		//szError = TEXT("Allocate Memory Failed");
+		szError = TEXT("分配内存失败");
 		break;		
 	case ERROR_SHORT_DRIVER_ERROR:                      
-		szError = TEXT("Driver Initial Failed");
+		//szError = TEXT("Driver Initial Failed");
+		szError = TEXT("驱动初始化失败");
 		break;		
 	case ERROR_SHORT_SCANNER_ERROR:                      
-		szError = TEXT("Scanner internal error");
+		//szError = TEXT("Scanner internal error");
+		szError = TEXT("扫描仪初始化失败");
 		break;		
 	case ERROR_SHORT_SCANNER_CONNECT_FAILED:                      
-		szError = TEXT("Scanner Connect Failed");
+		//szError = TEXT("Scanner Connect Failed");
+		szError = TEXT("扫描仪连结失败");
 		break;		
 	case ERROR_SHORT_BEFORE_READ_ERROR:                      
-		szError = TEXT("Before Read Image Error(May be calibration error)");
+		//szError = TEXT("Before Read Image Error(May be calibration error)");
+		szError = TEXT("读取图像错误之前（可能是校准错误）");
 		break;		
 	case ERROR_SHORT_READ_ERROR:                      
-		szError = TEXT("Read Image Error");
+		//szError = TEXT("Read Image Error");
+		szError = TEXT("读取图像错误");
 		break;		
 	case ERROR_SHORT_END_ERROR:                      
 		szError = TEXT("End Image Error");
 		break;		
 	case ERROR_SHORT_READ_ABORT:                      
-		szError = TEXT("Operation canceled(Read Abort, Maybe caused by user pushing cancel button or AP/TWAIN send cancel commands)");
+		//szError = TEXT("Operation canceled(Read Abort, Maybe caused by user pushing cancel button or AP/TWAIN send cancel commands)");
+		szError = TEXT("扫描取消(读取停止,可能是用户按下取消键或APP发送取消命令)");
 		break;		
 	case ERROR_SHORT_SHUTTLE_INITIALIZE_FAILED:                      
-		szError = TEXT("Driver Initial Failed");
+		//szError = TEXT("Driver Initial Failed");
+		szError = TEXT("驱动初始化失败");
 		break;		
 	case ERROR_SHORT_SEND_SCAN_PARAMETER_ERROR:                      
-		szError = TEXT("Send parameter failed");
+		//szError = TEXT("Send parameter failed");
+		szError = TEXT("参数传递失败");
 		break;		
 	case ERROR_SHORT_SCANNER_BUSY:                      
-		szError = TEXT("Scanner Busy");
+		//szError = TEXT("Scanner Busy");
+		szError = TEXT("扫描仪正忙");
 		break;		
 	case ERROR_SHORT_SEND_ERROR:                      
-		szError = TEXT("Send Command Error");
+		//szError = TEXT("Send Command Error");
+		szError = TEXT("命令传输失败");
 		break;		
 	case ERROR_SHORT_SCANNER_WARM_UP:                      
-		szError = TEXT("Scanner Warm Up");
+		//szError = TEXT("Scanner Warm Up");
+		szError = TEXT("扫描仪暖机中");
 		break;		
 	case ERROR_SHORT_POWER_TEST_OFF:                      
-		szError = TEXT("Power Test Off");
+		//szError = TEXT("Power Test Off");
+		szError = TEXT("已关机");
 		break;		
 	case ERROR_SHORT_FIRMWARE_DISAPPEAR:                      
 		szError = TEXT("Firmware is disappear");
@@ -2130,31 +2174,38 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Parallel Not Found");
 		break;		
 	case ERROR_SHORT_SEND_ADDRESS_TIMEOUT:                      
-		szError = TEXT("Scanner Connect Failed");
+		//szError = TEXT("Scanner Connect Failed");
+		szError = TEXT("扫描仪连接失败");
 		break;		
 	case ERROR_SHORT_SEND_DATA_TIMEOUT:                      
-		szError = TEXT("Scanner Connect Failed");
+		//szError = TEXT("Scanner Connect Failed");
+		szError = TEXT("扫描仪连接失败");
 		break;		
 	case ERROR_SHORT_READ_DATA_TIMEOUT:                      
-		szError = TEXT("Scanner Connect Failed");
+		//szError = TEXT("Scanner Connect Failed");
+		szError = TEXT("扫描仪连接失败");
 		break;		
 	case ERROR_SHORT_REGISTER_RW_ERROR:                      
-		szError = TEXT("Scanner Initial Failed");
+		//szError = TEXT("Scanner Initial Failed");
+		szError = TEXT("扫描仪初始化失败");
 		break;		
 	case ERROR_SHORT_GAMMA_RW_ERROR:                      
-		szError = TEXT("Scanner Initial Failed");
+		//szError = TEXT("Scanner Initial Failed");
+		szError = TEXT("扫描仪初始化失败");
 		break;		
 	case ERROR_SHORT_HOME_SENSOR_ERROR:                      
 		szError = TEXT("Back to Home Position");
 		break;		
 	case ERROR_SHORT_SEARCH_START_ERROR:                      
-		szError = TEXT("Search Start Position Error");
+		//szError = TEXT("Search Start Position Error");
+		szError = TEXT("寻找初始位置失败");
 		break;		
 	case ERROR_SHORT_LAMP_ERROR:                      
 		szError = TEXT("Can't lamp on");
 		break;		
 	case ERROR_SHORT_LOCK_ERROR:                      
-		szError = TEXT("Scanner lock");
+		//szError = TEXT("Scanner lock");
+		szError = TEXT("扫瞄器锁定装置关闭");
 		break;		
 	case ERROR_SHORT_INTERUPT_ERR:                      
 		szError = TEXT("ERROR_SHORT_INTERUPT_ERR");
@@ -2224,7 +2275,8 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Discontinuous mask(ASC=0x80 ASCQ=0x1A)");
 		break;		
 	case ERROR_SHORT_SYSTEM_ERROR:                      
-		szError = TEXT("Operation system return error. (On Windows platform caller could use GetLastError() to get detail reason.)");
+		//szError = TEXT("Operation system return error. (On Windows platform caller could use GetLastError() to get detail reason.)");
+		szError = TEXT("操作系统错误");
 		break;		
 	case ERROR_SHORT_INTERNAL_ERROR:                      
 		szError = TEXT("Driver Internal(unknown) Error");
@@ -2242,10 +2294,12 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Function sensor return error. Call tag AG_FUNCTION_SENSOR_WORK_STATUS for more detail.");
 		break;	
 	case ERROR_LONG_DRIVER_BUSY:                      
-		szError = TEXT("Driver Busy");
+		//szError = TEXT("Driver Busy");
+		szError = TEXT("驱动程序忙碌中");
 		break;	
 	case ERROR_LONG_SCANNER_BUSY:                      
-		szError = TEXT("Scanner Busy");
+		//szError = TEXT("Scanner Busy");
+		szError = TEXT("扫描仪忙碌中");
 		break;	
 	case ERROR_LONG_PORT_BUSY:                      
 		szError = TEXT("IO port is busy");
@@ -2254,25 +2308,32 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Hand Shake Time Out");
 		break;	
 	case ERROR_LONG_SCANNER_CONNECT_FAILED:                      
-		szError = TEXT("Scanner Connect Failed");
+		//szError = TEXT("Scanner Connect Failed");
+		szError = TEXT("扫描仪连接失败");
 		break;	
 	case ERROR_LONG_PARAMETER_CHECK_ERROR:                      
-		szError = TEXT("Parameter Check Error");
+		//szError = TEXT("Parameter Check Error");
+		szError = TEXT("无效的扫描仪参数");
 		break;	
 	case ERROR_LONG_ALLOCATE_MEMORY_FAILED:                      
-		szError = TEXT("Allocate Memory Failed");
+		//szError = TEXT("Allocate Memory Failed");
+		szError = TEXT("分配内存失败");
 		break;	
 	case ERROR_LONG_LAMP_ERROR:                      
-		szError = TEXT("Can't Lamp On");
+		//szError = TEXT("Can't Lamp On");
+		szError = TEXT("无法开启灯管");
 		break;	
 	case ERROR_LONG_LOCK_ERROR:                      
-		szError = TEXT("Scanner locked");
+		//szError = TEXT("Scanner locked");
+		szError = TEXT("扫描仪锁定装置关闭");
 		break;	
 	case ERROR_LONG_SCANNER_WARM_UP:                      
-		szError = TEXT("Scanner Warm up");
+		//szError = TEXT("Scanner Warm up");
+		szError = TEXT("扫描仪暖机中");
 		break;	
 	case ERROR_LONG_READ_ABORT:                      
-		szError = TEXT("Read Abort. For push stop button");
+		//szError = TEXT("Read Abort. For push stop button");
+		szError = TEXT("按下停止键后, 扫瞄中断");
 		break;	
 	case ERROR_LONG_REGISTER_RW_FAILED:                      
 		szError = TEXT("Register R/W Verify Failed");
@@ -2281,37 +2342,47 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Memory R/W Verify Failed");
 		break;	
 	case ERROR_LONG_PAPER_JAM:                      
-		szError = TEXT("Paper Jam");
+		//szError = TEXT("Paper Jam");
+		szError = TEXT("夹纸");
 		break;	
 	case ERROR_LONG_ADF_COVER_OPEN:                      
-		szError = TEXT("ADF Cover Open");
+		//szError = TEXT("ADF Cover Open");
+		szError = TEXT("自动文件进纸器前盖开启");
 		break;	
 	case ERROR_LONG_NO_PAPER_IN_ADF:                      
-		szError = TEXT("No paper in ADF");
+		//szError = TEXT("No paper in ADF");
+		szError = TEXT("自动文件进纸器中没有纸张");
 		break;	
 	case ERROR_LONG_NOT_FOUND_XPA_KIT:                      
-		szError = TEXT("Can't find Transparency kit");
+		//szError = TEXT("Can't find Transparency kit");
+		szError = TEXT("要使用扫描透明胶片功能，您必须先安装扫描透明胶片套件");
 		break;	
 	case ERROR_LONG_XPA_KIT_POWER_OFF:                      
-		szError = TEXT("Transparency Kit power off");
+		//szError = TEXT("Transparency Kit power off");
+		szError = TEXT("透明胶片套件开关关闭");
 		break;	
 	case ERROR_LONG_NOT_FOUNT_WINASPI:                      
-		szError = TEXT("Can't find winaspi");
+		//szError = TEXT("Can't find winaspi");
+		szError = TEXT("找不到 winaspi.dll 或 wnaspi32.dll");
 		break;	
 	case ERROR_LONG_NOT_FOUND_SCANNER:                      
-		szError = TEXT("Can't find scanner");
+		//szError = TEXT("Can't find scanner");
+		szError = TEXT("未找到扫描仪");
 		break;	
 	case ERROR_LONG_CALIBRATION_ERROR:                      
-		szError = TEXT("calibration fail");
+		//szError = TEXT("calibration fail");
+		szError = TEXT("扫描仪校正失败");
 		break;	
 	case ERROR_LONG_HOME_SENSOR_ERROR:                      
-		szError = TEXT("Back to Home Position Failed");
+		//szError = TEXT("Back to Home Position Failed");
+		szError = TEXT("返回起始点失败");
 		break;	
 	case ERROR_LONG_END_OF_PAGE:                      
 		szError = TEXT("end of page");
 		break;	
 	case ERROR_LONG_SYSTEM_ERROR:                      
-		szError = TEXT("Operation system returns error");
+		//szError = TEXT("Operation system returns error");
+		szError = TEXT("操作系统错误");
 		break;	
 	case ERROR_LONG_WRITE_NVM_ERROR:                      
 		szError = TEXT("Write NVM returns error");
@@ -2356,28 +2427,36 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("AFE R/W test error (ASC=0x44 ASCQ=0x04)");
 		break;	
 	case ERROR_LONG_UNKNOW_ERROR:                      
-		szError = TEXT("unknown error");
+		//szError = TEXT("unknown error");
+		szError = TEXT("未知错误");
 		break;	
 	case ERROR_LONG_FB_HOME_SENSOR_ERR:                      
-		szError = TEXT("Flatbed Home Sensor Error (ASC=0x15 ASCQ=0x02)");
+		//szError = TEXT("Flatbed Home Sensor Error (ASC=0x15 ASCQ=0x02)");
+		szError = TEXT("平板原点侦测失败 (ASC=0x15 ASCQ=0x02)");
 		break;	
 	case ERROR_LONG_ADF_HOME_SENSOR_ERR:                      
-		szError = TEXT("ADF Home Sensor Error (ASC=0x15 ASCQ=0x03)");
+		//szError = TEXT("ADF Home Sensor Error (ASC=0x15 ASCQ=0x03)");
+		szError = TEXT("自动进纸器原点侦测失败 (ASC=0x15 ASCQ=0x03)");
 		break;	
 	case ERROR_LONG_FB_DRAM_ERR:                      
-		szError = TEXT("Flatbed DRAM Error (ASC=0x44 ASCQ=0x01)");
+		//szError = TEXT("Flatbed DRAM Error (ASC=0x44 ASCQ=0x01)");
+		szError = TEXT("平板DRAM错误 (ASC=0x44 ASCQ=0x01)");
 		break;	
 	case ERROR_LONG_ADF_DRAM_ERR:                      
-		szError = TEXT("ADF DRAM Error (ASC=0x44 ASCQ=0x02)");
+		//szError = TEXT("ADF DRAM Error (ASC=0x44 ASCQ=0x02)");
+		szError = TEXT("自动进纸器DRAM错误 (ASC=0x44 ASCQ=0x02)");
 		break;	
 	case ERROR_LONG_FB_LAMP_ERR:                      
-		szError = TEXT("Flatbed Lamp Error (ASC=0x60 ASCQ=0x01)");
+		//szError = TEXT("Flatbed Lamp Error (ASC=0x60 ASCQ=0x01)");
+		szError = TEXT("平板灯管错误 (ASC=0x60 ASCQ=0x01)");
 		break;	
 	case ERROR_LONG_ADF_LAMP_ERR:                      
-		szError = TEXT("ADF Lamp Error (ASC=0x60 ASCQ=0x02)");
+		//szError = TEXT("ADF Lamp Error (ASC=0x60 ASCQ=0x02)");
+		szError = TEXT("自动进纸器灯管错误 (ASC=0x60 ASCQ=0x02)");
 		break;	
 	case ERROR_LONG_FB_COVER_OPEN:                      
-		szError = TEXT("Flatbed cover open (ASC=0x80 ASCQ=0x07)");
+		//szError = TEXT("Flatbed cover open (ASC=0x80 ASCQ=0x07)");
+		szError = TEXT("平板文件上盖开启 (ASC=0x80 ASCQ=0x07)");
 		break;	
 	case ERROR_LONG_ACCESSARIES_UNPLUGGED:                      
 		szError = TEXT("Accessaries such as ADF was pluged out");
@@ -2411,13 +2490,16 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Manual Calibration Fail - Shading Target Fail");
 		break;	
 	case ERROR_LONG_PAPER_JAM2:                      
-		szError = TEXT("Paper Jam 2");
+		//szError = TEXT("Paper Jam 2");
+		szError = TEXT("发现重张进纸！");
 		break;	
 	case ERROR_LONG_PAPER_JAM3:                      
-		szError = TEXT("Paper Jam 3");
+		//szError = TEXT("Paper Jam 3");
+		szError = TEXT("发现重张进纸！");
 		break;	
 	case ERROR_LONG_PAPER_JAM4:                      
-		szError = TEXT("Paper Jam 4");
+		//szError = TEXT("Paper Jam 4");
+		szError = TEXT("发现重张进纸！");
 		break;	
 	case ERROR_LONG_PICK_UP_ROLLER_ERROR:                      
 		szError = TEXT("Pick Up Roller");
@@ -2429,7 +2511,8 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 		szError = TEXT("Printer head not installed");
 		break;	
 	case ERROR_LONG_ADF_NEXT_PAGE_MISS_FEED:                      
-		szError = TEXT("Next page miss feed");
+		//szError = TEXT("Next page miss feed");
+		szError = TEXT("自动进纸遗漏纸张");
 		break;	
 	case ERROR_LONG_ADF_NEXT_PAGE_GAP_ERR:                      
 		szError = TEXT("Next page too close current page");
