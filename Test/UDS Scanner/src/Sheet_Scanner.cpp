@@ -26,6 +26,12 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
 
+	m_p_page_set = new CPage_Set(pUI);
+	AddPage(m_p_page_set);
+
+	m_p_page_info = new CPage_Info(pUI);
+	AddPage(m_p_page_info);
+
 	//m_p_page_muilstream = new CPage_Muiltstream(pUI);
 	//AddPage(m_p_page_muilstream);
 
@@ -42,6 +48,7 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	m_p_page_profile->m_pBasePage = m_p_page_base;
 	m_p_page_profile->m_pAdPage = m_p_page_advanced;
 	m_p_page_profile->m_pPaperPage = m_p_page_paper;
+	m_p_page_profile->m_pSetPage = m_p_page_set;
 }
 
 CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
@@ -61,6 +68,13 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
 
+	m_p_page_set = new CPage_Set(pUI);
+	AddPage(m_p_page_set);
+
+	m_p_page_info = new CPage_Info(pUI);
+	AddPage(m_p_page_info);
+
+
 	//m_p_page_muilstream = new CPage_Muiltstream(pUI);
 	//AddPage(m_p_page_muilstream);
 
@@ -78,6 +92,7 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	m_p_page_profile->m_pBasePage = m_p_page_base;
 	m_p_page_profile->m_pAdPage = m_p_page_advanced;
 	m_p_page_profile->m_pPaperPage = m_p_page_paper;
+	m_p_page_profile->m_pSetPage = m_p_page_set;
 }
 
 CSheet_Scanner::~CSheet_Scanner()
@@ -106,11 +121,25 @@ CSheet_Scanner::~CSheet_Scanner()
 		m_p_page_advanced = NULL;
 	}
 
+	if (m_p_page_set)
+	{
+		delete m_p_page_set;
+		m_p_page_set = NULL;
+	}
+
+	if (m_p_page_info)
+	{
+		delete m_p_page_info;
+		m_p_page_info = NULL;
+	}
+
 	if (m_p_page_about)
 	{
 		delete m_p_page_about;
 		m_p_page_about = NULL;
 	}
+
+
 
 	//if (m_p_page_muilstream)
 	//{
@@ -178,11 +207,6 @@ BOOL CSheet_Scanner::OnInitDialog()
 	{
 		GetDlgItem(IDOK)->SetWindowText("扫描");
 	}
-
-	////暂时移除后三个界面
-	//RemovePage(m_p_page_paper);
-	//RemovePage(m_p_page_muilstream);
-	//RemovePage(m_p_page_imageprocess);
 
 	GetDlgItem(ID_APPLY_NOW)->ShowWindow(FALSE); //隐藏应用按钮 （标准按钮的ID是IDOK，IDCANCEL，IDHELP和ID_APPLY_NOW） 
 

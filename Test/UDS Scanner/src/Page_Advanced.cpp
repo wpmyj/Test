@@ -710,11 +710,11 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
 	int nval;
 	if (m_check_sharpen.GetCheck())
 	{
-		nval = TWSP_AUTO;
+		nval = TWSN_AUTO;
 	} 
 	else
 	{
-		nval = TWSP_DISABLE;
+		nval = TWSN_DISABLE;
 	} 
 	m_advancedmap[UDSCAP_SHARPEN] = (float)nval;
 }

@@ -168,6 +168,12 @@
     <ClCompile Include="src\PngButton.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Page_Set.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page_Info.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -297,6 +303,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\PngButton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Set.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Info.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

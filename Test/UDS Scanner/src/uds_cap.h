@@ -50,6 +50,13 @@
 #define UDSCAP_CACHEMODE_PAPERNUM       CAP_CUSTOMBASE+28  /**< 缓存模式选项-纸张数量 */
 #define UDSCAP_CACHEMODE_MEMORYSIZE     CAP_CUSTOMBASE+29  /**< 缓存模式选项-内存大小 */
 
+#define UDSCAP_SAVEPOWER                CAP_CUSTOMBASE+31  /**< 节电模式 */
+#define UDSCAP_SAVEPOWER_VALUE          CAP_CUSTOMBASE+32  /**< 节电模式值：时间 */
+
+#define UDSCAP_OFFTIME                  CAP_CUSTOMBASE+33  /**< 关机时间 */
+#define UDSCAP_OFFTIME_VALUE            CAP_CUSTOMBASE+34  /**< 关机时间值：时间 */
+
+
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
 #define TWBZ_FIXEDTHRESHOLD        1
@@ -71,8 +78,8 @@
 #define TWRP_AUTO                 TRUE  
 
 /* UDSCAP_SHARPEN values (SP_ means SHARPEN)图像锐化。*/
-#define TWSP_DISABLE              FALSE
-#define TWSP_AUTO                 TRUE 
+#define TWSN_DISABLE              FALSE
+#define TWSN_AUTO                 TRUE 
 
 /* UDSCAP_REMOVEBLANK values (RA_ means REMOVEBLANK)去除空白页。*/
 #define TWRA_DISABLE              FALSE 
@@ -135,3 +142,10 @@
 #define TWCM_PAPERNUM              1 //纸张数量
 #define TWCM_MEMORYSIZE            2 //缓存大小
 
+/* UDSCAP_SAVEPOWER values (SP_ means SAVEPOWER)节电模式。*/
+#define TWSP_DISABLE              FALSE
+#define TWSP_AUTO                 TRUE
+
+/* UDSCAP_OFFTIME values (OT_ means OFFTIME)关机时间。*/
+#define TWOT_DISABLE              FALSE
+#define TWOT_AUTO                 TRUE

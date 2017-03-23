@@ -122,9 +122,9 @@ bool CScanner_OpenCV::resetScanner()
 	//其他图像处理
 	//默认不选中
 	m_fRemoveBlank        = TWBP_DISABLE; 
-	m_bRemoveBlank        = FALSE;
+	m_bRemoveBlank        = TWRA_DISABLE;
 	m_bRemovePunch        = TWRP_DISABLE;
-	m_bSharpen            = TWSP_DISABLE;
+	m_bSharpen            = TWSN_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
@@ -148,6 +148,11 @@ bool CScanner_OpenCV::resetScanner()
 	m_fCMAuto             = 1.0;
 	m_fCMPaperNum         = 1.0;
 	m_fCMMemorySize       = 1.0;
+
+	m_bSavePower          = TRUE;
+	m_fSavePowerValue     = 15.0;
+	m_bOffTime            = TRUE;
+	m_fOffTimeValue       = 240.0;
 	
 	m_byte_image = NULL;
 	if (false == m_mat_image.empty())
@@ -418,27 +423,12 @@ bool CScanner_OpenCV::preScanPrep()
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
 	//锐化图像
-	if(m_bSharpen == TWSP_AUTO) 
+	if(m_bSharpen == TWSN_AUTO) 
 	{	
 		if(m_nPixelType != TWPT_BW)
 		{
 			Mat matSharpen;
 		
-			/*//sobel锐化
-			m_mat_image.copyTo(matSharpen);
-			GaussianBlur(matSharpen, matSharpen, Size(3,3), 0, 0, BORDER_DEFAULT);
-			Mat grad_x, grad_y;
-			Mat abs_grad_x, abs_grad_y;	
-			//Sobel参数为：源图像，结果图像，图像深度，x方向阶数，y方向阶数，核的大小，尺度因子，增加的值
-			Sobel(matSharpen, grad_x, index, 1, 0, 3, 1, 0, BORDER_DEFAULT); //分别计算x方向和y方向的导数，index为图像的深度
-			Sobel(matSharpen, grad_y, index, 0, 1, 3, 1, 0, BORDER_DEFAULT);		
-			convertScaleAbs(grad_x, abs_grad_x); //将其转成CV_8U 
-			convertScaleAbs(grad_y, abs_grad_y);
-			Mat grad;
-			addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad); //用两个方向的倒数去模拟梯度 
-			grad = matSharpen + grad;
-			grad.copyTo(m_mat_image);*/
-
 			//USM 锐化
 			float amount = 1;  
 			m_mat_image.copyTo(matSharpen);
@@ -1034,6 +1024,74 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	Mat imageSave = inputImg(rect);
 	return imageSave;
 }
+/*
+Mat CScanner_OpenCV::AutoCorrect()
+{
+	ChangeImage(IMAGENAME_AUTOCORRECT);
+	Mat img_first = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
+
+	Mat img(img_first);
+	resize(img_first, img, Size(m_nWidth/4, m_nHeight/4), (0, 0), (0, 0), cv::INTER_LINEAR);
+
+	Mat srcImage;
+	/*if (img.channels() != 1)
+	{
+		cvtColor(img, srcImage, CV_RGB2GRAY); //彩色转灰度
+	} 
+	else
+	{
+		img.copyTo(srcImage);
+	}	/
+	img.copyTo(srcImage);
+
+	int nRows = srcImage.rows;
+	int nCols = srcImage.cols;
+
+	//Size(5,5)模板大小，为奇数，要更精确需要自己生成模板
+	//x方向方差
+	//Y方向方差
+	//GaussianBlur(srcImage, srcImage, Size(5,5), 0, 0);  //高斯滤波，降噪
+
+	Mat midImage,dstImage;
+	Canny(srcImage, midImage, 150, 100, 3);
+
+	//imwrite("C:\\Users\\Administrator\\Desktop\\1midImage.jpg", midImage);
+	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图
+	
+	//固定阈值二值化处理
+	//Mat binaryMagnMat;
+	//threshold(srcImage, binaryMagnMat, 128, 255, CV_THRESH_BINARY);
+
+	//【2】进行边缘检测和转化为灰度图  
+	//Canny(srcImage, midImage, 50, 200, 3);//进行一此canny边缘检测  
+	//cvtColor(midImage,dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图  
+
+	//【3】进行霍夫线变换  
+	vector<Vec2f> lines; //定义一个矢量结构lines用于存放得到的线段矢量集合  
+	HoughLines(midImage, lines, 1, CV_PI/180, 150, 0, 0 );  
+
+	//【4】依次在图中绘制出每条线段  
+	for( size_t i = 0; i < lines.size(); i++ )  
+	{  
+		float rho = lines[i][0], theta = lines[i][1];  
+		Point pt1, pt2;  
+		double a = cos(theta), b = sin(theta);  
+		double x0 = a*rho, y0 = b*rho;  
+		pt1.x = cvRound(x0 + 1000*(-b));  
+		pt1.y = cvRound(y0 + 1000*(a));  
+		pt2.x = cvRound(x0 - 1000*(-b));  
+		pt2.y = cvRound(y0 - 1000*(a));  
+		line(dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);  //仅能在灰度图上画图
+	}  
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
+
+	Mat m_image_out(dstImage);
+	//cannyMat.copyTo(m_image_out);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
+
+	return m_image_out;
+}*/
+
 
 Mat CScanner_OpenCV::AutoCorrect()
 {
@@ -1196,6 +1254,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 		return m_image_out;
 	}
 }
+
 
 //霍夫圆变换
 Mat CScanner_OpenCV::HoughCirclesTransfer(Mat src_img ,double dp,double threshold1, double threshold2)

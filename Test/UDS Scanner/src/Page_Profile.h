@@ -78,4 +78,5 @@ public:
 	CPage_Custom* m_pBasePage;
 	CPage_Custom* m_pAdPage;
 	CPage_Custom* m_pPaperPage;
+	CPage_Custom* m_pSetPage;
 };

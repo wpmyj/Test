@@ -174,6 +174,11 @@ public:
 	float             m_fCMPaperNum;            /**< 缓存模式选项-纸张数量 */
 	float             m_fCMMemorySize;          /**< 缓存模式选项-内存大小 */
 
+	bool              m_bSavePower;             /**< 节电模式 */
+	float             m_fSavePowerValue;        /**< 节电模式值 */
+	bool              m_bOffTime;               /**< 关机时间 */ 
+	float             m_fOffTimeValue;          /**< 关机时间值 */
+
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0
 	* （背面） 保留 黑白 灰度 彩色    （正面）  保留 黑白 灰度 彩色

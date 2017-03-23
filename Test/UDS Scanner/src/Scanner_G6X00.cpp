@@ -79,10 +79,11 @@ bool CScanner_G6X00::resetScanner()
 	m_fSensitiveThreshold_colorretent = 128.0;   //底色保留-128.0
 
 	//其他图像处理
-	//默认不选中
-	m_fRemoveBlank        = TWRP_DISABLE; 
-	m_bRemovePunch        = TWSP_DISABLE;
-	m_bSharpen            = TWGM_DISABLE;
+	//默认不选中 
+	m_fRemoveBlank        = TWBP_DISABLE; 
+	m_bRemoveBlank        = TWRA_DISABLE;
+	m_bRemovePunch        = TWRP_DISABLE;
+	m_bSharpen            = TWSN_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;
 	m_bDenoise            = TWDN_DISABLE;
@@ -354,7 +355,7 @@ bool CScanner_G6X00::preScanPrep()
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
 	//锐化图像
-	if(m_bSharpen == TWSP_AUTO) 
+	if(m_bSharpen == TWSN_AUTO) 
 	{	
 		if(m_nPixelType != TWPT_BW)
 		{

@@ -45,12 +45,10 @@ END_MESSAGE_MAP()
 void CPage_Profile::OnOK()
 {
 	// TODO: 在此添加专用代码和/或调用基类
-	//SetCapValue(); //点击确定后才设置	
-	//m_pAdPage->SetCapValue(); //先设置高级界面，再设置基本界面,否则基本的“双面”设置后，高级的“分割”又设置为1了
-
 	m_pBasePage->SetCapValue();
 	m_pAdPage->SetCapValue();
 	m_pPaperPage->SetCapValue();
+	m_pSetPage->SetCapValue();
 
 	int index = m_list_template.GetCurSel();
 	CString str;
@@ -176,6 +174,7 @@ void CPage_Profile::LoadTemplate()
 	m_pBasePage->UpdateControls();
 	m_pAdPage->UpdateControls();//高级设置界面参数也更新
 	m_pPaperPage->UpdateControls();
+	m_pSetPage->UpdateControls();
 
 	UpdateData(FALSE);
 }

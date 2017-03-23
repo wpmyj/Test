@@ -380,16 +380,9 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SPLITIMAGE,0,TWON_ONEVALUE); //zhu  分割图像
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_MULTISTREAM,0,TWON_ONEVALUE); //多流输出
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTCOLOR,0,TWON_ONEVALUE); //彩色正面
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTGRAY,0,TWON_ONEVALUE); //灰度正面
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_FRONTBW,0,TWON_ONEVALUE); //黑白正面
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKCOLOR,0,TWON_ONEVALUE); //彩色背面
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKGRAY,0,TWON_ONEVALUE); //灰度背面
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKBW,0,TWON_ONEVALUE); //黑白背面
-
+	
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTS,0,TWON_ONEVALUE); //去除斑点
-	//bResult = bResult && StoreCapInStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0,TWON_ONEVALUE); //底色保留
-
+	
 	bResult = bResult && StoreCapInStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0,TWON_ONEVALUE); //zhu  去除空白页
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVEBLANK,0,TWON_ONEVALUE); //zhu  去除空白页的checkBox
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0,TWON_ONEVALUE); //zhu  去除穿孔
@@ -416,6 +409,11 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_AUTO,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0,TWON_ONEVALUE);
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER,0,TWON_ONEVALUE); //节电模式
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER_VALUE,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME_VALUE,0,TWON_ONEVALUE);
 
 	return bResult;
 }
@@ -452,14 +450,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BINARIZATION,0); //zhu 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SPLITIMAGE,0); //zhu
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_MULTISTREAM,0); //zhu 多流输出
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTCOLOR,0); //彩色正面
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTGRAY,0); //灰度正面
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FRONTBW,0); //黑白正面
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKCOLOR,0); //彩色背面
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKGRAY,0); //灰度背面
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKBW,0); //黑白背面
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTS,0); //zhu 去除斑点
-	//bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SENSITIVETHRESHOLD_COLORRETENT,0); //zhu 底色保留
 	bResult = bResult && ReadCapFromStream(DsData,ICAP_AUTODISCARDBLANKPAGES,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVEBLANK,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PUNCHHOLEREMOVEL,0);
@@ -488,6 +479,11 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_AUTO,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0); 
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER,0); //节电模式
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER_VALUE,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME_VALUE,0);
 
   return bResult;
 }
@@ -573,6 +569,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_CACHEMODE_AUTO)
 	 || !pnCap->Add(UDSCAP_CACHEMODE_PAPERNUM)
 	 || !pnCap->Add(UDSCAP_CACHEMODE_MEMORYSIZE)
+	 || !pnCap->Add(UDSCAP_SAVEPOWER)
+	 || !pnCap->Add(UDSCAP_SAVEPOWER_VALUE)
+	 || !pnCap->Add(UDSCAP_OFFTIME)
+	 || !pnCap->Add(UDSCAP_OFFTIME_VALUE)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -580,6 +580,54 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
+
+	//节电模式
+	m_IndependantCapMap[UDSCAP_SAVEPOWER] = new CTWAINContainerBool(UDSCAP_SAVEPOWER, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_SAVEPOWER]))
+		|| !pbCap->Add(FALSE)
+		|| !pbCap->Add(TRUE, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SAVEPOWER !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 15.0f; 
+	fRange.fMaxValue = 240.0f;
+	fRange.fMinValue = 1.0f;
+	fRange.fStepSize = 1.0f;
+	//节电模式值
+	m_IndependantCapMap[UDSCAP_SAVEPOWER_VALUE] = new CTWAINContainerFix32Range(UDSCAP_SAVEPOWER_VALUE,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SAVEPOWER_VALUE]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SAVEPOWER_VALUE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//关机时间
+	m_IndependantCapMap[UDSCAP_OFFTIME] = new CTWAINContainerBool(UDSCAP_OFFTIME, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_OFFTIME]))
+		|| !pbCap->Add(FALSE)
+		|| !pbCap->Add(TRUE, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_OFFTIME !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 240.0f; 
+	fRange.fMaxValue = 480.0f;
+	fRange.fMinValue = 1.0f;
+	fRange.fStepSize = 1.0f;
+	//关机时间值
+	m_IndependantCapMap[UDSCAP_OFFTIME_VALUE] = new CTWAINContainerFix32Range(UDSCAP_OFFTIME_VALUE,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_OFFTIME_VALUE]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_OFFTIME_VALUE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
   m_IndependantCapMap[ICAP_COMPRESSION] = new CTWAINContainerInt(ICAP_COMPRESSION, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
@@ -2133,6 +2181,52 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompress = nVal;
+	}
+
+	//节电模式
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_SAVEPOWER))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SAVEPOWER!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bSavePower = bVal;
+	}
+
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SAVEPOWER_VALUE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SAVEPOWER_VALUE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fSavePowerValue= fVal;
+	}
+
+	//关机时间
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_OFFTIME))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_OFFTIME!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bOffTime = bVal;
+	}
+
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_OFFTIME_VALUE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_OFFTIME_VALUE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fOffTimeValue = fVal;
 	}
 
 	//压缩比的值

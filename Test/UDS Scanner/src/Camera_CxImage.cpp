@@ -78,7 +78,7 @@ bool CCamera_CxImage::resetScanner()
 	//其他图像处理
 	//默认不选中
 	m_fRemoveBlank        = TWRP_DISABLE; 
-	m_bRemovePunch        = TWSP_DISABLE;
+	m_bRemovePunch        = TWSN_DISABLE;
 	m_bSharpen            = TWGM_DISABLE;
 	m_bRemoveBack         = TWRB_DISABLE;
 	m_bDescreen           = TWDS_DISABLE;

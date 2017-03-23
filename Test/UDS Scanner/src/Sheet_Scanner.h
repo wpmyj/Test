@@ -7,6 +7,9 @@
 #include "Page_Advanced.h"
 #include "Page_About.h"
 #include "Page_Paper.h"
+#include "Page_Set.h"
+#include "Page_Info.h"
+
 //#include "Page_Muiltstream.h"
 //#include "Page_ImageProcess.h"
 
@@ -29,12 +32,13 @@ private:
 	MFC_UI *m_pUI;
 
 public:
-	CPage_Profile *m_p_page_profile;
-	CPage_Base *m_p_page_base;
+	CPage_Profile  *m_p_page_profile;
+	CPage_Base     *m_p_page_base;
 	CPage_Advanced *m_p_page_advanced;
-	//CPage_About m_page_about;
-	CPage_About *m_p_page_about;
-	CPage_Paper *m_p_page_paper;
+	CPage_About    *m_p_page_about;
+	CPage_Paper    *m_p_page_paper;
+	CPage_Set      *m_p_page_set;
+	CPage_Info     *m_p_page_info;
 	//CPage_Muiltstream *m_p_page_muilstream;
 	//CPage_ImageProcess *m_p_page_imageprocess;
 

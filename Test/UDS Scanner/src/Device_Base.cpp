@@ -69,6 +69,11 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fCMAuto             = settings.m_fCMAuto;
 	m_fCMPaperNum         = settings.m_fCMPaperNum;
 	m_fCMMemorySize       = settings.m_fCMMemorySize;
+
+	m_bSavePower          = settings.m_bSavePower;
+	m_fSavePowerValue     = settings.m_fSavePowerValue;
+	m_bOffTime            = settings.m_bOffTime;
+	m_fOffTimeValue       = settings.m_fOffTimeValue;
 }
 
 CDevice_Base* CDevice_Base::getSetting() const
