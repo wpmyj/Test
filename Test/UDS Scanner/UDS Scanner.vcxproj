@@ -159,7 +159,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Video.ocx" "c:\windows\twain_
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL1.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL2.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SmartImage.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
@@ -232,6 +233,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32
     <ClInclude Include="..\..\..\testfiles\common\GL1.h" />
     <ClInclude Include="..\..\..\testfiles\common\twain.h" />
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
+    <ClInclude Include="..\..\..\testfiles\pub\external\include\ComputerInfo.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\ButtonPublic.h" />
     <ClInclude Include="src\Camera_CxImage.h" />

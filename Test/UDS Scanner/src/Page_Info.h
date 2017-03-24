@@ -3,6 +3,7 @@
 #include "MFC_UI.h"
 #include "afxwin.h"
 #include "Page_Custom.h"
+#include "afxcmn.h"
 // CPage_Info 对话框
 
 class MFC_UI;
@@ -34,16 +35,18 @@ private:
 private:
 	virtual BOOL OnInitDialog();
 
-	afx_msg void OnLbnSelchangeInfo_List_Information();
+//	afx_msg void OnLbnSelchangeInfo_List_Information();
 	afx_msg void OnInfo_Btn_Report();
-
-public:
 	afx_msg void OnInfo_Btn_ClearDicideNum(); //自定义按钮响应事件
 	afx_msg void OnInfo_Btn_ClearFeedNum();
 
 private:
 	CButton m_btn_cleardicidenum; //分纸轮计数清零
 	CButton m_btn_clearfeednum;  //进纸轮计数清零
+	CListCtrl m_list_infomation;
+//	CListBox m_list_infomation;
 
-	CListBox m_list_infomation;
+protected:
+	void GetComputerInfo();
+	
 };

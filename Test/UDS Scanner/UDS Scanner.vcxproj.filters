@@ -311,6 +311,9 @@
     <ClInclude Include="src\Page_Info.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\testfiles\pub\external\include\ComputerInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UDS Scanner.rc">
