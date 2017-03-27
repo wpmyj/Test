@@ -48,7 +48,7 @@ TW_IDENTITY g_myIdentity_Chinese =
 		VERSION_MINORNUMBER,   // TW_UINT16  MinorNum;         Incremental revision number of the software
 		TWLG_CHINESE_PRC,      // TW_UINT16  Language;         e.g. TWLG_SWISSFRENCH
 		TWCY_CHINA,            // TW_UINT16  Country;          e.g. TWCY_SWITZERLAND
-		"2.3.0"                // TW_STR32   Info;             e.g. "1.0b3 Beta release"
+		"1.0.0"                // TW_STR32   Info;             e.g. "1.0b3 Beta release"
 #ifdef _DEBUG
 		" debug"
 #else

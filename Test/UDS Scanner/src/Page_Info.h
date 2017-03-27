@@ -31,6 +31,37 @@ private:
 	* @note 从外部接收值
 	*/
 	MFC_UI  *m_pUI;
+	HMODULE m_hDLL;
+
+protected:
+	InitializeDriverProc               InitializeDriver;
+	InitializeScannerProc              InitializeScanner;
+	GetScannerAbilityProc              GetScannerAbility;  
+	GetScannerAbilityExProc            GetScannerAbilityEx;    
+	GetADFStatusProc                   GetADFStatus;
+	StartScanJobProc                 	 StartScanJob;
+	SetScanParameterProc               SetScanParameter;
+	SetGammaTableProc                  SetGammaTable;
+	StartScanProc                      StartScan;
+	ReadScanProc                       ReadScan;
+	ReadScanExProc                     ReadScanEx;
+	ReadScanEx2Proc                    ReadScanEx2;
+	StopScanProc                       StopScan;
+	EndScanJobProc                     EndScanJob ;
+	DoEjectPaperAfterScanProc          DoEjectPaperAfterScan;
+	TerminateDriverProc                TerminateDriver;
+	GetLastStatusCodeProc              GetLastStatusCode;
+	GetDeviceListProc                  GetDeviceList;
+	DestroyDeviceListProc              DestroyDeviceList;
+	SelectDeviceProc                   SelectDevice;
+	GeneralOperationProc               GeneralOperation;
+	ResetScannerProc                   ResetScanner;
+	LampOnProc                         LampOn;
+	GetBackgroundRasterProc            GetBackgroundRaster;
+	TuneScanLengthProc                 TuneScanLength;
+	ReadNVMDataProc                    ReadNVMData;
+	SetBatchScanParameterProc          SetBatchScanParameter;
+	SetSpeedModeProc                   SetSpeedMode;
 
 private:
 	virtual BOOL OnInitDialog();
@@ -47,6 +78,7 @@ private:
 //	CListBox m_list_infomation;
 
 protected:
-	void GetComputerInfo();
+	void ShowComputerAndScannerInfo();  ///< 显示用户电脑配置信息与扫描仪硬件信息
+	bool LoadDLL();
 	
 };
