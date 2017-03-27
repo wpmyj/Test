@@ -36,32 +36,8 @@ private:
 protected:
 	InitializeDriverProc               InitializeDriver;
 	InitializeScannerProc              InitializeScanner;
-	GetScannerAbilityProc              GetScannerAbility;  
-	GetScannerAbilityExProc            GetScannerAbilityEx;    
-	GetADFStatusProc                   GetADFStatus;
-	StartScanJobProc                 	 StartScanJob;
-	SetScanParameterProc               SetScanParameter;
-	SetGammaTableProc                  SetGammaTable;
-	StartScanProc                      StartScan;
-	ReadScanProc                       ReadScan;
-	ReadScanExProc                     ReadScanEx;
-	ReadScanEx2Proc                    ReadScanEx2;
-	StopScanProc                       StopScan;
-	EndScanJobProc                     EndScanJob ;
-	DoEjectPaperAfterScanProc          DoEjectPaperAfterScan;
 	TerminateDriverProc                TerminateDriver;
-	GetLastStatusCodeProc              GetLastStatusCode;
-	GetDeviceListProc                  GetDeviceList;
-	DestroyDeviceListProc              DestroyDeviceList;
-	SelectDeviceProc                   SelectDevice;
-	GeneralOperationProc               GeneralOperation;
-	ResetScannerProc                   ResetScanner;
-	LampOnProc                         LampOn;
-	GetBackgroundRasterProc            GetBackgroundRaster;
-	TuneScanLengthProc                 TuneScanLength;
 	ReadNVMDataProc                    ReadNVMData;
-	SetBatchScanParameterProc          SetBatchScanParameter;
-	SetSpeedModeProc                   SetSpeedMode;
 
 private:
 	virtual BOOL OnInitDialog();

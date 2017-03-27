@@ -96,7 +96,7 @@ void CPage_Info::ShowComputerAndScannerInfo()
 {
 	m_list_infomation.SetExtendedStyle( LVS_EX_FULLROWSELECT); // 表示选中整行，而非某一列
 	//设置扩展风格为：网格形式、整行选取
-	//m_list_infomation.DeleteAllItems(); // 清空
+	m_list_infomation.DeleteAllItems(); // 清空
 	CRect rect;   
 	m_list_infomation.GetClientRect(rect);
 
@@ -146,8 +146,7 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
-
-	// 获取操作系统语言
+	// 获取应用程序名称
 	str1 = TEXT("应用程序名称：");
 	{
 		pTW_IDENTITY app = m_pUI->m_pDS->getApp();
@@ -224,7 +223,7 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
-	// 获取单面扫描次数
+	// 获取双面扫描次数
 	str1 = TEXT("双面扫描次数：");
 	memset(buffer, 0, sizeof(buffer));
 	_stprintf_s(buffer, "%lu", data.ADFDuplexModeScanCount);
@@ -270,8 +269,6 @@ bool CPage_Info::LoadDLL()
 		return false;
 	}
 
-	//::MessageBox(g_hwndDLG, DllPath, MB_CAPTION,MB_OK);
-
 	m_hDLL = LoadLibrary(DllPath);
 	if(m_hDLL == NULL)
 	{
@@ -292,177 +289,6 @@ bool CPage_Info::LoadDLL()
 		::MessageBox(g_hwndDLG, TEXT("Load InitializeScanner Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
-
-	//GetScannerAbility = (GetScannerAbilityProc)GetProcAddress(m_hDLL, "GetScannerAbility");
-	//if(GetScannerAbility == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetScannerAbility Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//GetScannerAbilityEx = (GetScannerAbilityExProc)GetProcAddress(m_hDLL, "GetScannerAbilityEx");
-	//if(GetScannerAbilityEx == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetScannerAbilityEx Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//GetADFStatus = (GetADFStatusProc)GetProcAddress(m_hDLL, "GetADFStatus");
-	//if(GetADFStatus == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetADFStatus Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//StartScanJob = (StartScanJobProc)GetProcAddress(m_hDLL, "StartScanJob");
-	//if(StartScanJob == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load StartScanJob Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//SetScanParameter = (SetScanParameterProc)GetProcAddress(m_hDLL, "SetScanParameter");
-	//if(SetScanParameter == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load SetScanParameter Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//SetGammaTable = (SetGammaTableProc)GetProcAddress(m_hDLL, "SetGammaTable");
-	//if(SetGammaTable == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load SetGammaTable Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//StartScan = (StartScanProc)GetProcAddress(m_hDLL, "StartScan");
-	//if(StartScan == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load StartScan Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//ReadScan  = (ReadScanProc)GetProcAddress(m_hDLL, "ReadScan");
-	//if(ReadScan  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load ReadScan Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//ReadScanEx = (ReadScanExProc)GetProcAddress(m_hDLL, "ReadScanEx");
-	//if(ReadScanEx == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load ReadScanEx Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//ReadScanEx2 = (ReadScanEx2Proc)GetProcAddress(m_hDLL, "ReadScanEx2");
-	//if(ReadScanEx2 == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load ReadScanEx2 Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//StopScan = (StopScanProc)GetProcAddress(m_hDLL, "StopScan");
-	//if(StopScan == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load StopScan Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//EndScanJob = (EndScanJobProc)GetProcAddress(m_hDLL, "EndScanJob");
-	//if(EndScanJob == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load EndScanJob Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//DoEjectPaperAfterScan = (DoEjectPaperAfterScanProc)GetProcAddress(m_hDLL, "DoEjectPaperAfterScan");
-	//if(DoEjectPaperAfterScan == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load DoEjectPaperAfterScan Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-
-
-	//GetLastStatusCode  = (GetLastStatusCodeProc)GetProcAddress(m_hDLL, "GetLastStatusCode");
-	//if(GetLastStatusCode  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetLastStatusCode Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//GetDeviceList  = (GetDeviceListProc)GetProcAddress(m_hDLL, "GetDeviceList");
-	//if(GetDeviceList  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetDeviceList Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//DestroyDeviceList  = (DestroyDeviceListProc)GetProcAddress(m_hDLL, "DestroyDeviceList");
-	//if(DestroyDeviceList  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load DestroyDeviceList Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//SelectDevice  = (SelectDeviceProc)GetProcAddress(m_hDLL, "SelectDevice");
-	//if(SelectDevice  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load SelectDevice Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//GeneralOperation = (GeneralOperationProc)GetProcAddress(m_hDLL, "GeneralOperation");
-	//if(GeneralOperation  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GeneralOperation Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//ResetScanner = (ResetScannerProc)GetProcAddress(m_hDLL, "ResetScanner");
-	//if(ResetScanner  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load ResetScanner Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//LampOn = (LampOnProc)GetProcAddress(m_hDLL, "LampOn");
-	//if(LampOn  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load LampOn Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//GetBackgroundRaster = (GetBackgroundRasterProc)GetProcAddress(m_hDLL, "GetBackgroundRaster");
-	//if(GetBackgroundRaster  == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load GetBackgroundRaster Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//TuneScanLength = (TuneScanLengthProc)GetProcAddress(m_hDLL, "TuneScanLength");
-	//if(TuneScanLength == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load TuneScanLength Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-
-	//SetBatchScanParameter = (SetBatchScanParameterProc)GetProcAddress(m_hDLL, "SetBatchScanParameter");
-	//if(SetBatchScanParameter == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load SetBatchScanParameter Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
-
-	//SetSpeedMode = (SetSpeedModeProc)GetProcAddress(m_hDLL, "SetSpeedMode");
-	//if(SetSpeedMode == NULL)
-	//{
-	//	::MessageBox(g_hwndDLG, TEXT("Load SetSpeedMode Failed!"), MB_CAPTION, MB_OK);
-	//	return false;
-	//}
 
 
 	TerminateDriver  = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
