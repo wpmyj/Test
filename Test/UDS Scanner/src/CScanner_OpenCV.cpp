@@ -1024,220 +1024,110 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	Mat imageSave = inputImg(rect);
 	return imageSave;
 }
-/*
+
 Mat CScanner_OpenCV::AutoCorrect()
 {
 	ChangeImage(IMAGENAME_AUTOCORRECT);
-	Mat img_first = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-
-	Mat img(img_first);
-	resize(img_first, img, Size(m_nWidth/4, m_nHeight/4), (0, 0), (0, 0), cv::INTER_LINEAR);
+	Mat img_src = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
 
 	Mat srcImage;
-	/*if (img.channels() != 1)
-	{
-		cvtColor(img, srcImage, CV_RGB2GRAY); //彩色转灰度
-	} 
-	else
-	{
-		img.copyTo(srcImage);
-	}	/
-	img.copyTo(srcImage);
-
-	int nRows = srcImage.rows;
-	int nCols = srcImage.cols;
-
-	//Size(5,5)模板大小，为奇数，要更精确需要自己生成模板
-	//x方向方差
-	//Y方向方差
-	//GaussianBlur(srcImage, srcImage, Size(5,5), 0, 0);  //高斯滤波，降噪
+	img_src.copyTo(srcImage);
 
 	Mat midImage,dstImage;
-	Canny(srcImage, midImage, 150, 100, 3);
+	Canny(srcImage, midImage, 200, 150, 3);
+	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
 
-	//imwrite("C:\\Users\\Administrator\\Desktop\\1midImage.jpg", midImage);
-	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图
-	
-	//固定阈值二值化处理
-	//Mat binaryMagnMat;
-	//threshold(srcImage, binaryMagnMat, 128, 255, CV_THRESH_BINARY);
+	//【3】进行概率霍夫线变换
+	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
+	HoughLinesP(midImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/2,srcImage.rows/2), 50);
 
-	//【2】进行边缘检测和转化为灰度图  
-	//Canny(srcImage, midImage, 50, 200, 3);//进行一此canny边缘检测  
-	//cvtColor(midImage,dstImage, CV_GRAY2BGR);//转化边缘检测后的图为灰度图  
+	//【4】依次在图中绘制出每条线段
+	Vec4i maxline = lines[0];
+	float dx = 0.0;
+	float dy = 0.0;
+	for( size_t i = 0; i < lines.size(); i++ )
+	{
+		Vec4i l = lines[i];
+		//每一条线由具有四个元素的矢量(x_1,y_1, x_2, y_2）表示，
+		//其中，(x_1, y_1)和(x_2, y_2) 是是每个检测到的线段的起点和结束点。
+		float mi = (l[2]-l[0]) * (l[2]-l[0]) + (l[3]-l[1]) * (l[3]-l[1]);
+		int xi = sqrt(mi);
 
-	//【3】进行霍夫线变换  
-	vector<Vec2f> lines; //定义一个矢量结构lines用于存放得到的线段矢量集合  
-	HoughLines(midImage, lines, 1, CV_PI/180, 150, 0, 0 );  
+		float maxi = (maxline[2]-maxline[0])*(maxline[2]-maxline[0]) + (maxline[3]-maxline[1]) * (maxline[3]-maxline[1]);
+		int maxsqrt = sqrt(maxi);
 
-	//【4】依次在图中绘制出每条线段  
-	for( size_t i = 0; i < lines.size(); i++ )  
-	{  
-		float rho = lines[i][0], theta = lines[i][1];  
-		Point pt1, pt2;  
-		double a = cos(theta), b = sin(theta);  
-		double x0 = a*rho, y0 = b*rho;  
-		pt1.x = cvRound(x0 + 1000*(-b));  
-		pt1.y = cvRound(y0 + 1000*(a));  
-		pt2.x = cvRound(x0 - 1000*(-b));  
-		pt2.y = cvRound(y0 - 1000*(a));  
-		line(dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);  //仅能在灰度图上画图
-	}  
+		if(xi > maxsqrt)
+		{
+			maxline = lines[i];
+		}
+	}
+	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
+
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
-	Mat m_image_out(dstImage);
-	//cannyMat.copyTo(m_image_out);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
+	bool mark = false;
 
-	return m_image_out;
-}*/
-
-
-Mat CScanner_OpenCV::AutoCorrect()
-{
-	ChangeImage(IMAGENAME_AUTOCORRECT);
-	Mat img_first = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-
-	Mat img(img_first);
-	resize(img_first, img, Size(m_nWidth/4, m_nHeight/4), (0, 0), (0, 0), cv::INTER_LINEAR);
-	
-	Mat srcImage;
-	if (img.channels() != 1)
-	{
-		cvtColor(img, srcImage, CV_RGB2GRAY);
-	} 
+	dx = (float)(maxline[2]-maxline[0]);
+	dy = (float)(maxline[3]-maxline[1]);
+	double temp;
+	double theta;
+	if(dy > 0)
+	{//负表示顺时针，正表示逆时针
+		if(dx > dy)
+		{	//右斜短边：上边
+			temp = dx/dy;
+			theta = CV_PI/2.0 - atan(temp);
+		}
+		else
+		{ //左斜长边：右边
+			temp = dy/dx; 		
+			theta = atan(temp); 
+			mark = true;
+		}
+	}
 	else
 	{
-		img.copyTo(srcImage);
-	}	
-
-	int nRows = srcImage.rows;
-	int nCols = srcImage.cols;
-
-	//获取DFT尺寸***********************
-	int cRows = getOptimalDFTSize(nRows);
-	int cCols = getOptimalDFTSize(nCols);
-	//复制图像，超过边界部分填充为0
-	Mat sizeConvMat;
-	copyMakeBorder(srcImage, sizeConvMat, 0, cRows-nRows, 0, cCols-nCols, BORDER_CONSTANT, Scalar::all(0));
-
-	//DFT变换************************
-	//通道组建立
-	Mat groupMats[] = {cv::Mat_<float>(sizeConvMat), cv::Mat::zeros(sizeConvMat.size(), CV_32F)};
-	Mat mergeMat;
-	//通道合并
-	merge(groupMats, 2, mergeMat);
-	//DFT变换
-	dft(mergeMat, mergeMat);
-	//分离通道
-	split(mergeMat, groupMats);
-	//计算幅值
-	magnitude(groupMats[0], groupMats[1], groupMats[0]);
-	Mat magnitudeMat = groupMats[0].clone();
-	//归一化，幅值加1
-	magnitudeMat += Scalar::all(1);
-	//对数变换
-	log(magnitudeMat, magnitudeMat);
-	//归一化
-	normalize(magnitudeMat, magnitudeMat, 0, 1, CV_MINMAX);
-	//图像类型转换
-	magnitudeMat.convertTo(magnitudeMat, CV_8UC1, 255, 0);
-
-	//频域中心移动**************************
-	int cx = (magnitudeMat.cols)/2;
-	int cy = magnitudeMat.rows/2;
-	Mat tmp;
-	//Top-Left为第一象限创建ROI
-	Mat q0(magnitudeMat, Rect(0,0,cx,cy));
-	//Top_Right
-	Mat q1(magnitudeMat, Rect(cx,0,cx,cy));
-	//Bottom-Left
-	Mat q2(magnitudeMat, Rect(0,cy,cx,cy));
-	//Bottom-Right
-	Mat q3(magnitudeMat, Rect(cx,cy,cx,cy));
-	//变换象限
-	q0.copyTo(tmp);
-	q3.copyTo(q0);
-	tmp.copyTo(q3);
-
-	q1.copyTo(tmp);
-	q2.copyTo(q1);
-	tmp.copyTo(q2);
-
-	//倾斜角检测*************************************************
-	//固定阈值二值化处理
-	Mat binaryMagnMat;
-	threshold(magnitudeMat, binaryMagnMat, 128, 255, CV_THRESH_BINARY);
-
-	//霍夫变换
-	vector<Vec2f> lines;
-	binaryMagnMat.convertTo(binaryMagnMat, CV_8UC1, 255, 0);
-	HoughLines(binaryMagnMat, lines, 1, CV_PI/180, 100, 0, 0);
-	//检测线个数
-	Mat houghMat(binaryMagnMat.size(), CV_8UC3);
-	//绘制检测线
-	for (size_t i=0; i<lines.size(); i++)
-	{
-		float rho = lines[i][0], theta = lines[i][1];
-		Point pt1, pt2;
-		//坐标变换生成线表达式
-		double a=cos(theta), b=sin(theta);
-		double x0=a*rho, y0=b*rho;
-		pt1.x = cvRound(x0+1000*(-b));
-		pt1.y = cvRound(y0+1000*(a));
-		pt2.x = cvRound(x0-1000*(-b));
-		pt2.y = cvRound(y0-1000*(a));
-		line(houghMat, pt1, pt2, Scalar(0, 0, 255), 3, CV_AA);
-	}
-
-	float theta = 0;
-	//检测线角度判断
-	for(size_t i=0; i<lines.size(); i++)
-	{
-		float thetaTemp = lines[i][1]*180/CV_PI;		
-		if (thetaTemp>0 && thetaTemp<90)
-		{			
-			theta = thetaTemp;
-			break;						
+		if(dx > fabs(dy))
+		{//左斜短边：上边
+			temp = dx/fabs(dy);
+			theta = atan(temp);
+			mark = true;
 		}
-
+		else
+		{//右斜长边：右边
+			temp = fabs(dy)/dx;
+			theta = CV_PI/2.0 - atan(temp);
+		}
 	}
-	bool mark = false;
-	if (theta > 45)
-	{
-		mark = true;
-	} 
-	
-	//角度转换
-	float angleT = nRows*tan(theta/180*CV_PI)/nCols;  //角度转弧度
-	theta = atan(angleT)*180/CV_PI;                   //弧度转角度
+	theta = theta/CV_PI*180; //弧度转角度
 
-	nRows = img_first.rows;
-	nCols = img_first.cols;
+	int nRows = srcImage.rows; //高11420
+	int nCols = srcImage.cols; //宽4202
 
 	//仿射变换校正***********************
 	float   degree = theta;
-	double  angle  = degree*CV_PI/180;
+	double  angle  = degree/180*CV_PI; //角度转弧度
 	double  a = sin(angle), b = cos(angle);
 	int     m_width_rotate = int(nRows *fabs(a) + nCols *fabs(b));
 	int     m_height_rotate = int(nCols *fabs(a) + nRows *fabs(b));
 	float   map[6];
 	Mat     m_map_matrix(2,3,CV_32F, map);
 
-	CvPoint2D32f center = cvPoint2D32f(nCols / 2, nRows / 2);  
+	CvPoint2D32f center = cvPoint2D32f(nCols/2, nRows/2);  
 	CvMat map_matrix2 = m_map_matrix;  
-	cv2DRotationMatrix(center, degree, 1.0, &map_matrix2); 
+	cv2DRotationMatrix(center, degree, 1.0, &map_matrix2);  //degree为角度，不是弧度
 	map[2] += (m_width_rotate - nCols)/2;
 	map[5] += (m_height_rotate - nRows)/2;
 
 	Mat m_image_out;
-	m_image_out.create(Size(m_width_rotate, m_height_rotate), img_first.type());
-	warpAffine(img_first, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
+	m_image_out.create(Size(m_width_rotate, m_height_rotate), srcImage.type());
+	warpAffine(srcImage, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
 	if(mark)
 	{
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
-		
+
 		double scale = m_dRat;
 		Point2f tempcenter = Point2f((float)m_image_out.cols / 2, (float)m_image_out.rows / 2);  // 旋转中心   	 
 		Mat rotateMat;   
@@ -1245,7 +1135,7 @@ Mat CScanner_OpenCV::AutoCorrect()
 
 		Mat rotateImg = Mat::ones(Size(m_image_out.rows, m_image_out.cols), m_image_out.type()); 
 		warpAffine(m_image_out, rotateImg, rotateMat, rotateImg.size());  
-	
+
 		//imwrite("C:\\Users\\Administrator\\Desktop\\rotateImg.jpg", rotateImg);
 		return rotateImg;
 	}
