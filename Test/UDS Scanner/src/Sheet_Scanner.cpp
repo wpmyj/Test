@@ -5,8 +5,10 @@
 #include "UDS Scanner.h"
 #include "Sheet_Scanner.h"
 
+#define FILENAME_CHM_DS  TEXT("UDS Universal TWAIN DS聞喘返過.chm")
 // CSheet_Scanner
 extern HINSTANCE  g_hinstance;
+extern void GetFilePath( char* szFileName, char* szFilePath);
 
 IMPLEMENT_DYNAMIC(CSheet_Scanner, CPropertySheet)
 
@@ -257,25 +259,10 @@ void CSheet_Scanner::SetPreViewStatus()
 
 void CSheet_Scanner::OnButtonHelp()
 {
-	char path[PATH_MAX];
-	GetModuleFileName(g_hinstance, path, PATH_MAX);
-	// strip filename from path
-	size_t x = strlen(path);
-	while(x > 0)
-	{
-		if(PATH_SEPERATOR == path[x-1])
-		{
-			path[x-1] = 0;
-			break;
-		}
-		--x;
-	}
-
-	SSTRCPY(path, sizeof(path), path);
-	strcat(path,  "\\");
-	strcat(path, "UDS Universal TWAIN DS聞喘返過.chm");
-
-	ShellExecute(NULL,"open",path,NULL,NULL,SW_SHOWNORMAL);
+	TCHAR szPath[MAX_PATH];
+	memset(szPath, 0, sizeof(szPath));
+	GetFilePath(FILENAME_CHM_DS, szPath);
+	ShellExecute(NULL,TEXT("open"),szPath,NULL,NULL,SW_SHOWNORMAL);
 }
 
 

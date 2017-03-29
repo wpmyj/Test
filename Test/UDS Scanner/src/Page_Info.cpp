@@ -6,6 +6,7 @@
 #include "Page_Info.h"
 #include "afxdialogex.h"
 #include "ComputerInfo.h"
+#define  FILENAME_TXT_LOG  TEXT("log.txt")
 //#include <tchar.h>
 
 #pragma comment(lib, "ComputerInfo.lib")
@@ -57,6 +58,10 @@ END_MESSAGE_MAP()
 void CPage_Info::OnInfo_Btn_Report()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	TCHAR szPath[MAX_PATH];
+	memset(szPath, 0, sizeof(szPath));
+	GetFilePath(FILENAME_TXT_LOG, szPath);
+	ShellExecute(NULL,TEXT("open"),szPath,NULL,NULL,SW_SHOWNORMAL);
 }
 
 void CPage_Info::OnInfo_Btn_ClearDicideNum()
@@ -88,6 +93,8 @@ BOOL CPage_Info::OnInitDialog()
 	m_btn_clearfeednum.SetFont(GetFont());
 	
 	ShowComputerAndScannerInfo();
+
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -104,6 +111,8 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertColumn(1, "", LVCFMT_LEFT, rect.Width() - rect.Width()/3);
 	//m_list_infomation.SetRedraw(FALSE); // 防止重绘
 
+	//////////////////////////////////////////////////////////////////////////
+	// 获取电脑信息
 	STRING str1(TEXT("中央处理器："));  // 第1列
 	STRING str2(TEXT(""));            // 第2列
 	// 获取中央处理器信息
@@ -111,6 +120,28 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	int nIndex = 0;
 	m_list_infomation.InsertItem(nIndex, str1.c_str());  // 第1列
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+	
+	FILE *pFile  = NULL;
+	STRING strLog = TEXT("");
+
+	//opens file
+	TCHAR szPath[MAX_PATH];
+	memset(szPath, 0, sizeof(szPath));
+	GetFilePath(FILENAME_TXT_LOG, szPath);
+	fopen_s(&pFile, szPath, "w"); // ‘只写’方式打开文件
+
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+	else
+	{
+		TCHAR buffer[MAX_PATH];
+		_stprintf_s(buffer, "文件%s打开失败！", szPath);
+		::MessageBox(g_hwndDLG,TEXT(buffer),MB_CAPTION,MB_OK);
+	}
 
 	// 循环获取硬盘信息
 	int nCount = 0;
@@ -126,6 +157,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 		before = behind + 1;
 		m_list_infomation.InsertItem(nIndex, str1.c_str());
 		m_list_infomation.SetItemText(nIndex++, 1, strSub.c_str()); // 第2列
+
+		if (pFile)
+		{
+			strLog = str1 + strSub + TEXT("\n");;
+			fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+			fseek(pFile, 0, SEEK_END); 
+		}
 	}
 
 	//获取内存信息
@@ -134,17 +172,39 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+
 	// 获取操作系统信息
 	str1 = TEXT("操作系统：");
 	GetWindowsVersion(str2);
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+
+
 	// 获取操作系统语言
 	str1 = TEXT("操作系统语言：");
 	GetUserDefaultLanguage(str2);
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
 
 	// 获取应用程序名称
 	str1 = TEXT("应用程序名称：");
@@ -160,7 +220,17 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+		fclose(pFile);
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// 获取扫描仪信息
 	if (false == LoadDLL())
 	{
 		return;
@@ -174,6 +244,20 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	fopen_s(&pFile, szPath, "a"); // ‘追加’方式打开文件
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+	else
+	{
+		TCHAR buffer[MAX_PATH];
+		_stprintf_s(buffer, "文件%s打开失败!", szPath);
+		::MessageBox(g_hwndDLG,TEXT(buffer),MB_CAPTION,MB_OK);
+	}
+
 	TCHAR  buffer[MAX_PATH];
 	// 获取扫描仪序列号
 	str1 = TEXT("扫描仪序列号：");
@@ -182,6 +266,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	str2 = buffer;
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+	
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
 
 	// 获取版本日期
 	str1 = TEXT("版本日期：");
@@ -191,6 +282,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+
 	// 获取更新日期
 	str1 = TEXT("更新日期：");
 	memset(buffer, 0, sizeof(buffer));
@@ -198,6 +296,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	str2 = buffer;
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
 
 	// 获取耗材分纸轮计数
 	str1 = TEXT("耗材分纸轮计数：");
@@ -207,6 +312,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+
 	// 获取耗材进纸轮计数
 	str1 = TEXT("耗材进纸轮计数：");
 	memset(buffer, 0, sizeof(buffer));
@@ -214,6 +326,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	str2 = buffer;
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
 
 	// 获取单面扫描次数
 	str1 = TEXT("单面扫描次数：");
@@ -223,6 +342,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	} 
+
 	// 获取双面扫描次数
 	str1 = TEXT("双面扫描次数：");
 	memset(buffer, 0, sizeof(buffer));
@@ -230,6 +356,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	str2 = buffer;
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
+
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
 
 	// 获取重叠进纸次数
 	str1 = TEXT("重叠进纸次数：");
@@ -239,6 +372,13 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	} 
+
 	// 获取卡纸次数
 	str1 = TEXT("卡纸次数：");
 	memset(buffer, 0, sizeof(buffer));
@@ -247,8 +387,16 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fclose(pFile);
+	}
+
 	TerminateDriver();
 	FreeLibrary(m_hDLL);
+	
 }
 
 bool CPage_Info::LoadDLL()
