@@ -160,7 +160,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL1.dll" "c:\windows\twain_32\UDS
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL2.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SmartImage.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\FindDevice.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>
@@ -194,6 +195,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twa
     <ClCompile Include="src\CScanner_OpenCV.cpp" />
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
     <ClCompile Include="src\CTWAINDS_UDS.cpp" />
+    <ClCompile Include="src\Dlg_Device.cpp" />
     <ClCompile Include="src\Dlg_Profile.cpp" />
     <ClCompile Include="src\Dlg_Rename.cpp" />
     <ClCompile Include="src\Dlg_Video.cpp" />
@@ -242,6 +244,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twa
     <ClInclude Include="src\CScanner_OpenCV.h" />
     <ClInclude Include="src\CTWAINDS_Base.h" />
     <ClInclude Include="src\CTWAINDS_UDS.h" />
+    <ClInclude Include="src\Dlg_Device.h" />
     <ClInclude Include="src\Dlg_Profile.h" />
     <ClInclude Include="src\Dlg_Rename.h" />
     <ClInclude Include="src\Dlg_Video.h" />

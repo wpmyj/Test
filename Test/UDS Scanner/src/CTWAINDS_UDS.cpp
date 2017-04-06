@@ -6,7 +6,7 @@
 * @author TWAIN Working Group
 * @date April 2007
 */
-
+#include "Dlg_Device.h"
 #include "CTWAINDS_UDS.h"
 #include "TWAIN_UI.h"
 //#include "FreeImage.h"
@@ -17,16 +17,19 @@
 #include <assert.h>
 #include <signal.h>
 #include <typeinfo>
-
+//#include "stdafx.h"
 #ifdef TWH_CMP_MSC
-  #include <Winbase.h>
+#include <Winbase.h>
 #endif
+#include "FindDevice.h"
 
 #include "public.h"
+
 
 extern HWND g_hwndDLG;
 extern int g_nDeviceNumber;  // 设备编号
 extern DWORD  g_dwImageSize; 
+extern void GetFilePath( char* szFileName, char* szFilePath);
 // I found that compiling using the sunfreeware.com stuff on Solaris 9
 // required this typedef. This is related to the inclusion of signal.h
 #if defined (__SVR4) && defined (__sun)
@@ -100,6 +103,7 @@ TW_IDENTITY g_myIdentity_Original =
 //* Initialize global identiy for this DS. */
 TW_IDENTITY CTWAINDS_Base::m_TheIdentity = g_myIdentity_Chinese;
 
+
 //////////////////////////////////////////////////////////////////////////////
 CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
   m_pICAP_FRAMES(0)
@@ -110,20 +114,57 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
   m_pGUI = CreateUI(this);
 //	GetImagePathFromINI();  
 
-	//wan
+	CString strNoDeviceUI, strShowOnce;
+	int nMaxLength = 512;
+	TCHAR szINIPath[MAX_PATH];  // INI文件路径
+	GetFilePath(FILENAME_INI,szINIPath);
+	GetPrivateProfileString(INI_APP_DEVICE,INI_KEY_NOUI,TEXT(""),
+		strNoDeviceUI.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+
+	if (strNoDeviceUI.Find(TEXT("N")) >= 0)  // 显示界面
+	{
+		CDlg_Device dlg;
+		dlg.DoModal();
+	}
+	else  // 不显示，需要判断上次设备是否连接
+	{
+		STRING vid,pid;
+		BOOL ret = FALSE;
+
+		// 判断上次设备是否处于连接状态
+		g_nDeviceNumber = GetPrivateProfileInt(INI_APP_DEVICE,INI_KEY_DEVICENUMBER,1,szINIPath);
+		switch(g_nDeviceNumber)
+		{
+		case DEVICE_G6400:		
+			ret = FindScanner(TEXT("0638"), TEXT("2c73"));		
+			break;
+		case DEVICE_G6600:
+			ret = FindScanner(TEXT("0638"), TEXT("2c74"));
+			break;
+		case DEVICE_CAMERA:
+			ret = GetCameraCount();  // 这里只判断是否有摄像头设备
+			break;
+		case DEVICE_OPENCV:  // 虚拟扫描仪始终不需要显示
+			ret = TRUE;
+			break;
+		default:
+			break;
+		}
+
+		if (FALSE == ret) // 上次设备未连接，需要显示
+		{
+			CDlg_Device dlg;
+			dlg.DoModal();
+		}
+	}
+
 	switch (g_nDeviceNumber)
 	{
-/*	case DEVICE_FREEIMAGE:
-		{
-			m_pScanner = new CScanner_FreeImage;
-			break;
-		}	*/	
 	case DEVICE_G6400:
 	case DEVICE_G6600:
 		{
 			m_pScanner = new CScanner_G6X00;
 			break;
-			//::MessageBox(g_hwndDLG,"G6400",MB_CAPTION,MB_OK);
 		}
 	case DEVICE_OPENCV:
 		{
@@ -133,7 +174,6 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 	case DEVICE_CAMERA:
 		{
 			m_pScanner = new CCamera_CxImage;
-			//::MessageBox(g_hwndDLG,TEXT("高拍仪设备!"),MB_CAPTION,MB_OK);
 			break;
 		}
 	default:
@@ -1607,7 +1647,6 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
 {
-  //::MessageBox(g_hwndDLG,"openDS",MB_CAPTION,MB_OK);
   TW_INT16 ret = TWRC_SUCCESS;
   // this basic version of the DS only supports one connection from the DSM
   if( m_App.Id != 0 )
@@ -1666,7 +1705,6 @@ TW_INT16 CTWAINDS_UDS::closeDS()
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 {
-	//::MessageBox(g_hwndDLG,"enableDS",MB_CAPTION,MB_OK);
 	g_hwndDLG = (HWND)_pData->hParent;
   if( dsState_Open != m_CurrentState )
   {
@@ -1682,7 +1720,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 		setConditionCode(TWCC_BUMMER);
 		assert(0);
 	}
-
   //set pending xfers to whatever the user configured for XferCount
   int Count = TWON_DONTCARE32;
   CTWAINContainerInt *pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(CAP_XFERCOUNT));
@@ -1700,7 +1737,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // The application will move to state 5 after this triplet which means that
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
-
 	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
 	{
 		if(FALSE == _pData->ShowUI)
@@ -1740,7 +1776,6 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			}
 		}
 	}
-
   CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
   bool bIndicators = FALSE;
   if(pbCap)

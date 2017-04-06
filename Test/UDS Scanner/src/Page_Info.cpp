@@ -103,6 +103,11 @@ void CPage_Info::ShowComputerAndScannerInfo()
 {
 	m_list_infomation.SetExtendedStyle( LVS_EX_FULLROWSELECT); // 表示选中整行，而非某一列
 	//设置扩展风格为：网格形式、整行选取
+	m_list_infomation.ShowScrollBar(SB_VERT,TRUE); // 只显示垂直滚动条
+
+	CImageList m_image; 
+	m_image.Create(1,20,ILC_COLOR32,1,0); 
+	m_list_infomation.SetImageList(&m_image, LVSIL_SMALL);
 	m_list_infomation.DeleteAllItems(); // 清空
 	CRect rect;   
 	m_list_infomation.GetClientRect(rect);
@@ -199,6 +204,31 @@ void CPage_Info::ShowComputerAndScannerInfo()
 	m_list_infomation.InsertItem(nIndex, str1.c_str());
 	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 
+	if (pFile)
+	{
+		strLog = str1 + str2 + TEXT("\n");
+		fwrite(strLog.c_str(), strLog.size(), 1, pFile);
+		fseek(pFile, 0, SEEK_END); 
+	}
+
+	// 获取设备名称
+	str1 = TEXT("设备名称：");
+	switch(g_nDeviceNumber)
+	{
+	case DEVICE_OPENCV:
+		str2 = TEXT("虚拟扫描仪");
+		break;
+	case DEVICE_G6400:
+		str2 = TEXT("G6400");
+		break;
+	case DEVICE_G6600:
+		str2 = TEXT("G6600");
+		break;
+	default:
+		break;
+	}
+	m_list_infomation.InsertItem(nIndex, str1.c_str());
+	m_list_infomation.SetItemText(nIndex++, 1, str2.c_str()); // 第2列
 	if (pFile)
 	{
 		strLog = str1 + str2 + TEXT("\n");

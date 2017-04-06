@@ -79,7 +79,6 @@ MFC_UI::~MFC_UI(void)
 
 TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndicators)
 {
-	//::MessageBox(g_hwndDLG,TEXT("MFC_UI::DisplayTWAINGUI!"),MB_CAPTION,MB_OK);
   TW_INT16 nRes = CTWAIN_UI::DisplayTWAINGUI(Data, bSetup, bIndicators);
 	
 	if(nRes)
@@ -108,7 +107,6 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 	
 	if (DEVICE_CAMERA == g_nDeviceNumber)  // 进入Camera界面
 	{
-		//::MessageBox(g_hwndDLG,TEXT("DEVICE_CAMERA == g_nDeviceNumber!"),MB_CAPTION,MB_OK);
 		m_pDlgVideo = new CDlg_Video(this);
 		if (m_pDlgVideo)
 		{
