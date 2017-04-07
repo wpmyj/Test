@@ -103,7 +103,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\testfiles\pub\external\include\;..\..\..\testfiles\common;..;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\testfiles\pub\external\include\;..\..\..\testfiles\common;..;.;..\..\..\testfiles\pub\include;..\..\..\testfiles\pub\include\UDS_Skin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +112,7 @@ copy "$(ProjectDir)\..\pub\bin\TWAIN_logo.png" "c:\windows\twain_32\UDS Scanner"
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\UDS Scanner.def</ModuleDefinitionFile>
       <OutputFile>$(OutDir)UDS Universal TWAIN DS.ds</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\testfiles\pub\external\lib;..\..\..\testfiles\pub\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>mfcs100.lib;mfc100.lib;strmiids.lib;</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>mfcs100.lib;mfc100.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>
@@ -161,7 +161,8 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GL2.dll" "c:\windows\twain_32\UDS
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SmartImage.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\FindDevice.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\FindDevice.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>

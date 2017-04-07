@@ -5,6 +5,8 @@
 #include "resource.h"
 #include "afxwin.h"
 
+#include "SkinControls.h"
+#pragma comment(lib, "UDS_Skin.lib")
 // CDlg_Device 对话框
 
 class CDlg_Device : public CDialogEx
@@ -34,5 +36,11 @@ public:
 	afx_msg void OnLvnItemchangedDeviceList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedDeviceCheck_Noui();
 protected:
-	CButton m_check_noui;
+	CSkinCheckBox m_check_noui;  // CSkinCheckBox 选择与取消选择对应的函数是SetChecked(), GetChecked()
+	CSkinButton   m_btnOK;
+public:
+	afx_msg LRESULT OnNcHitTest(CPoint point);
+	afx_msg void OnPaint();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
 };
