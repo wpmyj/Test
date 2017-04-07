@@ -179,6 +179,16 @@ public:
 	bool              m_bOffTime;               /**< 关机时间 */ 
 	float             m_fOffTimeValue;          /**< 关机时间值 */
 
+	bool              m_bTurnVideo;             /**< 扫描仪无纸时转高拍仪 */
+	int               m_nCutMethod;             /**< 图像裁切方式 */
+
+	float             m_fNoiseNum;              /**< 去除噪声-噪声数目 */
+	float             m_fNoiseRange;            /**< 去除噪声-噪声范围 */
+
+	int               m_nFilterColor;           /**< 滤除颜色 */
+	int               m_nFilterMode;            /**< 滤除模式 */
+	float             m_fFilterLevel;           /**< 滤除程度 */
+
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0
 	* （背面） 保留 黑白 灰度 彩色    （正面）  保留 黑白 灰度 彩色

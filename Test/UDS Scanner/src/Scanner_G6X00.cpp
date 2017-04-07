@@ -291,7 +291,8 @@ bool CScanner_G6X00::preScanPrep()
 
 
 	//自动裁切与校正
-	if(m_bAutoCrop == TWAC_AUTO) 
+	//if(m_bAutoCrop == TWAC_AUTO) 
+	if(m_nCutMethod == TWCT_AUTO)
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	

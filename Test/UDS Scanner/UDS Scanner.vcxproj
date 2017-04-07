@@ -189,6 +189,10 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClCompile Include="..\..\..\testfiles\common\CommonTWAIN.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\CTiffWriter.cpp" />
     <ClCompile Include="..\..\..\testfiles\common\TwainString.cpp" />
+    <ClCompile Include="src\Base_AutoColor.cpp" />
+    <ClCompile Include="src\Base_Tab_BW.cpp" />
+    <ClCompile Include="src\Base_Tab_Color.cpp" />
+    <ClCompile Include="src\Base_Tab_Gray.cpp" />
     <ClCompile Include="src\ButtonPublic.cpp" />
     <ClCompile Include="src\Camera_CxImage.cpp" />
     <ClCompile Include="src\CDUDS_Video.cpp" />
@@ -207,6 +211,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClCompile Include="src\Page_Base.cpp" />
     <ClCompile Include="src\Device_Base.cpp" />
     <ClCompile Include="src\Page_Custom.cpp" />
+    <ClCompile Include="src\Page_Filter.cpp" />
     <ClCompile Include="src\Page_Info.cpp" />
     <ClCompile Include="src\Page_Paper.cpp" />
     <ClCompile Include="src\Page_Profile.cpp" />
@@ -238,6 +243,10 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClInclude Include="..\..\..\testfiles\common\TwainString.h" />
     <ClInclude Include="..\..\..\testfiles\pub\external\include\ComputerInfo.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\Base_AutoColor.h" />
+    <ClInclude Include="src\Base_Tab_BW.h" />
+    <ClInclude Include="src\Base_Tab_Color.h" />
+    <ClInclude Include="src\Base_Tab_Gray.h" />
     <ClInclude Include="src\ButtonPublic.h" />
     <ClInclude Include="src\Camera_CxImage.h" />
     <ClInclude Include="src\CDUDS_Video.h" />
@@ -256,6 +265,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClInclude Include="src\Page_Advanced.h" />
     <ClInclude Include="src\Page_Base.h" />
     <ClInclude Include="src\Page_Custom.h" />
+    <ClInclude Include="src\Page_Filter.h" />
     <ClInclude Include="src\Page_Info.h" />
     <ClInclude Include="src\Page_Paper.h" />
     <ClInclude Include="src\Page_Profile.h" />

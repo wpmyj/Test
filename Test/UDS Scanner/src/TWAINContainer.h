@@ -53,6 +53,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 
@@ -75,6 +76,11 @@ typedef vector<int> IntVector;
 * BOOL Vector
 */
 typedef vector<BOOL> BoolVector; 
+
+/**
+* float map
+*/
+typedef map<int, float> FloatMap;  //add by zhu
 
 /**
 * All possible TWQC_xxxxx messages

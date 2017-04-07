@@ -12,13 +12,17 @@
 // CPage_Base 对话框
 extern HWND g_hwndDLG;
 extern HINSTANCE  g_hinstance;
-extern int g_nDeviceNumber;
+extern int g_nDeviceNumber; 
 
 IMPLEMENT_DYNAMIC(CPage_Base, CPropertyPage)
 
 CPage_Base::CPage_Base(MFC_UI *pUI)
-	: m_pUI(pUI),CPropertyPage(CPage_Base::IDD)
+	: m_pUI(pUI), CPropertyPage(CPage_Base::IDD)
 {
+	m_pTabAutoColor = new CBase_AutoColor(pUI);
+	m_pTabColor = new CBase_Tab_Color(pUI);
+	m_pTabGray = new CBase_Tab_Gray(pUI);
+	m_pTabBW = new CBase_Tab_BW(pUI);
 }
 
 
@@ -26,19 +30,34 @@ CPage_Base::~CPage_Base()
 {
 	m_basemap.swap(map<int, float>());
 	remove(m_bmpFilePath); //删除临时预览图片
+
+	if (m_pTabAutoColor)
+	{
+		delete m_pTabAutoColor;
+		m_pTabAutoColor = NULL;
+	}
+	if (m_pTabColor)
+	{
+		delete m_pTabColor;
+		m_pTabColor = NULL;
+	}
+	if (m_pTabGray)
+	{
+		delete m_pTabGray;
+		m_pTabGray = NULL;
+	}
+	if (m_pTabBW)
+	{
+		delete m_pTabBW;
+		m_pTabBW = NULL;
+	}
+
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_BASE_COMBO_COLORMODE, m_combo_colormode);
-	DDX_Control(pDX, IDC_BASE_COMBO_RESOLUTION, m_combo_resolution);
-	DDX_Control(pDX, IDC_BASE_SLIDER_CONTRAST, m_slider_contrast);
-	DDX_Control(pDX, IDC_BASE_SLIDER_BRIGHTNESS, m_slider_brightness);
-	DDX_Control(pDX, IDC_BASE_SLIDER_THRESHOLD, m_slider_threshold);
-	DDX_Control(pDX, IDC_BASE_EDIT_BRIGHTNESS, m_edit_brightness);
-	DDX_Control(pDX, IDC_BASE_EDIT_CONTRAST, m_edit_contrast);
-	DDX_Control(pDX, IDC_BASE_EDIT_THRESHOLD, m_edit_threshold);
 	DDX_Radio(pDX, IDC_BASE_RADIO_DUPLEX_DAN, m_radiobtn_duplex);
 	DDX_Control(pDX, IDC_CHECK_FRONTCOLOR, m_check_frontcolor);
 	DDX_Control(pDX, IDC_CHECK_FRONTGRAY, m_check_frontgray);
@@ -46,27 +65,30 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_BACKBW, m_check_backbw);
 	DDX_Control(pDX, IDC_CHECK_BACKGRAY, m_check_backgray);
 	DDX_Control(pDX, IDC_CHECK_BACKCOLOR, m_check_backcolor);
-	DDX_Control(pDX, IDC_BASE_COMBO_BINARIZATION, m_combo_binarization);
 	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTCOLOR, m_btn_frontcolor);
 	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTGRAY, m_btn_frontgray);
 	DDX_Control(pDX, IDC_BASE_BUTTON_FRONTBW, m_btn_frontbw);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKCOLOR, m_btn_backcolor);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKGRAY, m_btn_backgray);
 	DDX_Control(pDX, IDC_BASE_BUTTON_BACKBW, m_btn_backbw);
-	DDX_Control(pDX, IDC_BASE_PREPICTURE, m_base_picture);
 	DDX_Radio(pDX, IDC_BASE_RADIO_SCANMODE_AUTO, m_radiobtn_scanmode);
+	DDX_Control(pDX, IDC_BASE_TAB, m_base_tab);
+	DDX_Control(pDX, IDC_BASE_COMBO_ROTATE, m_combo_rotate);
+	DDX_Control(pDX, IDC_BASE_COMBO_SPLITIMG, m_combo_splitimage);
+	DDX_Control(pDX, IDC_BASE_SLIDER_GAMMA, m_slider_gamma);
+	DDX_Control(pDX, IDC_BASE_EDIT_GAMMA, m_edit_gamma);
+	DDX_Control(pDX, IDC_BASE_SLIDER_REMOVEBLANK, m_slider_removeblank);
+	DDX_Control(pDX, IDC_BASE_EDIT_REMOVEBLANK, m_edit_removeblank);
+	DDX_Control(pDX, IDC_BASE_CHECK_REMOVEBLANK, m_check_removeblank);
+	DDX_Control(pDX, IDC_BASE_SCROLLBAR_NOISENUM, m_scroll_noisenum);
+	DDX_Control(pDX, IDC_BASE_SCROLLBAR_NOISERANGE, m_scroll_noiserange);
+	DDX_Control(pDX, IDC_BASE_EDIT_NOISENUM, m_edit_noisenum);
+	DDX_Control(pDX, IDC_BASE_EDIT_NOISERANGE, m_edit_noiserange);
 }
 
 
 BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_CONTRAST, &CPage_Base::OnNMCustomdrawBase_Slider_Contrast)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_BRIGHTNESS, &CPage_Base::OnNMCustomdrawBase_Slider_Brightness)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_THRESHOLD, &CPage_Base::OnNMCustomdrawBase_Slider_Threshold)
-	ON_EN_CHANGE(IDC_BASE_EDIT_CONTRAST, &CPage_Base::OnEnChangeBase_Edit_Contrast)
-	ON_EN_CHANGE(IDC_BASE_EDIT_BRIGHTNESS, &CPage_Base::OnEnChangeBase_Edit_Brightness)
-	ON_EN_CHANGE(IDC_BASE_EDIT_THRESHOLD, &CPage_Base::OnEnChangeBase_Edit_Threshold)
 	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORMODE, &CPage_Base::OnCbnSelchangeBase_Combo_Colormode)
-	ON_CBN_SELCHANGE(IDC_BASE_COMBO_RESOLUTION, &CPage_Base::OnCbnSelchangeBase_Combo_Resolution)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_DAN, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_SHUANG, &CPage_Base::OnBase_RadioBtn_Duplex)
 	ON_BN_CLICKED(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM, &CPage_Base::OnBase_RadioBtn_Duplex)
@@ -76,10 +98,26 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_BACKCOLOR, &CPage_Base::OnBase_Btn_Check_BackColor)
 	ON_BN_CLICKED(IDC_CHECK_BACKGRAY, &CPage_Base::OnBase_Btn_Check_BackGray)
 	ON_BN_CLICKED(IDC_CHECK_BACKBW, &CPage_Base::OnBase_Btn_Check_BackBw)
-	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BINARIZATION, &CPage_Base::OnCbnSelchangeBase_Combo_Binarization)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_AUTO, &CPage_Base::OnBase_RadioBtn_Scanmode_Auto)
 	ON_BN_CLICKED(IDC_BASE_RADIO_SCANMODE_Flatbed, &CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed)
-	ON_WM_PAINT()
+//	ON_WM_PAINT()
+	ON_NOTIFY(TCN_SELCHANGE, IDC_BASE_TAB, &CPage_Base::OnTcnSelchangeBase_Tab)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_ROTATE, &CPage_Base::OnCbnSelchangeBase_Combo_Rotate)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_SPLITIMG, &CPage_Base::OnCbnSelchangeBase_Combo_SpiltImage)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_GAMMA, &CPage_Base::OnNMCustomdrawBase_Slider_Gamma)
+	ON_EN_CHANGE(IDC_BASE_EDIT_GAMMA, &CPage_Base::OnEnChangeBase_Edit_Gamma)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_REMOVEBLANK, &CPage_Base::OnNMCustomdrawBase_Slider_Removeblank)
+	ON_EN_CHANGE(IDC_BASE_EDIT_REMOVEBLANK, &CPage_Base::OnEnChangeBase_Edit_Removeblank)
+	ON_BN_CLICKED(IDC_BASE_CHECK_REMOVEBLANK, &CPage_Base::OnBase_Btn_Check_RemoveBlank)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_FRONTCOLOR, &CPage_Base::OnBase_Btn_FrontColor)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_BACKCOLOR, &CPage_Base::OnBase_Btn_Backcolor)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_FRONTGRAY, &CPage_Base::OnBase_Btn_Frontgray)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_BACKGRAY, &CPage_Base::OnBase_Btn_Backgray)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_FRONTBW, &CPage_Base::OnBase_Btn_Frontbw)
+	ON_BN_CLICKED(IDC_BASE_BUTTON_BACKBW, &CPage_Base::OnBase_Btn_Backbw)
+	ON_WM_VSCROLL()
+	ON_EN_CHANGE(IDC_BASE_EDIT_NOISENUM, &CPage_Base::OnEnChangeBase_Edit_NoiseNum)
+	ON_EN_CHANGE(IDC_BASE_EDIT_NOISERANGE, &CPage_Base::OnEnChangeBase_Edit_NoiseRange)
 END_MESSAGE_MAP()
 
 
@@ -92,69 +130,6 @@ void CPage_Base::SetCapValue(void)
 	{
 		switch(iter->first)
 		{
-		case ICAP_CONTRAST:
-		case ICAP_BRIGHTNESS:
-		case ICAP_THRESHOLD:
-			{
-				m_pUI->SetCapValueFloat(iter->first,iter->second);  // 设置阈值为当前滚动条值
-				break;
-			}
-
-		case ICAP_PIXELTYPE:
-			{
-				if(GetDlgItem(IDC_BASE_COMBO_COLORMODE)->IsWindowEnabled())//图像类型可用时才设置
-				{
-					m_pUI->SetCapValueInt(iter->first,(int)iter->second);
-				}	
-
-				break;
-			}
-
-		case UDSCAP_BINARIZATION: //二值化
-		case ICAP_XRESOLUTION:
-		case ICAP_YRESOLUTION:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
-				break;
-			}	
-
-		case CAP_FEEDERENABLED:
-			{
-				if(m_radiobtn_scanmode==0)//自动进纸器
-				{
-					m_pUI->SetCapValueInt(iter->first,TRUE); 
-				}
-				else //平板
-				{
-					m_pUI->SetCapValueInt(iter->first,FALSE); 
-				}
-				break;
-			}
-
-		case UDSCAP_REMOVESPOTS: //去除斑点
-			{
-				if(m_slider_threshold.IsWindowEnabled())
-				{
-					m_pUI->SetCapValueFloat(iter->first,iter->second);
-				}	
-				break;
-			}
-
-		case CAP_DUPLEXENABLED:
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)iter->second); 
-
-				if(1 == ((int)iter->second)) //双面，单面该值为0
-				{
-					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
-				}	
-				else
-				{
-					m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
-				}
-				break;
-			}
-
 		case UDSCAP_MULTISTREAM: //多流输出
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
@@ -176,72 +151,7 @@ void CPage_Base::SetCapValue(void)
 	
 		case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
 			{
-				BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
-				unsigned int doc_count = 0;
-
-				//若多流未选中多流 选项值设为0，,然后退出
-				if( 0 == m_radiobtn_duplex) {
-					m_pUI->SetCapValueFloat(iter->first, 0.0f); // 保存多流选项值
-					break;
-				}
-
-				/************************************************************
-				* 判断多流chebox各选项的状态;
-				* 若选中则‘&’上对应bit为1的值;
-				* 若未选中则'|'上对应bit为0的值.
-				************************************************************/
-				// 正面彩色
-				if (m_check_frontcolor.GetCheck()) {  
-					temp |= 0x01;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x01);
-				}
-				// 正面彩色
-				if (m_check_frontgray.GetCheck()) {
-					temp |= 0x02;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x02);
-				}
-				// 正面黑白
-				if (m_check_frontbw.GetCheck()) {
-					temp |= 0x04;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x04);
-				}
-				// 背面彩色
-				if (m_check_backcolor.GetCheck()) {
-					temp |= 0x10;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x10);
-				}
-				// 背面灰度
-				if (m_check_backgray.GetCheck()) {
-					temp |= 0x20;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x20);
-				}
-				// 背面黑白
-				if (m_check_backbw.GetCheck()) {
-					temp |= 0x40;
-					doc_count++;
-				} 
-				else {
-					temp &= (0xFF-0x40);
-				}
-
-				m_pUI->SetCapValueFloat(iter->first, (float)temp); // 保存多流选项值
-				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
-
+				SetCapMulti();
 				break;
 			}
 
@@ -254,6 +164,76 @@ void CPage_Base::SetCapValue(void)
 }
 
 
+void CPage_Base::SetCapMulti()
+{
+	BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+	unsigned int doc_count = 0;
+
+	//若多流未选中多流 选项值设为0，,然后退出
+	if( 0 == m_radiobtn_duplex) {
+		m_pUI->SetCapValueFloat(UDSCAP_MULTISTREAM_VALUE, 0.0f); // 保存多流选项值
+	}
+	else
+	{
+		/************************************************************
+		* 判断多流chebox各选项的状态;
+		* 若选中则‘&’上对应bit为1的值;
+		* 若未选中则'|'上对应bit为0的值.
+		************************************************************/
+		// 正面彩色
+		if (m_check_frontcolor.GetCheck()) {  
+			temp |= 0x01;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x01);
+		}
+		// 正面彩色
+		if (m_check_frontgray.GetCheck()) {
+			temp |= 0x02;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x02);
+		}
+		// 正面黑白
+		if (m_check_frontbw.GetCheck()) {
+			temp |= 0x04;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x04);
+		}
+		// 背面彩色
+		if (m_check_backcolor.GetCheck()) {
+			temp |= 0x10;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x10);
+		}
+		// 背面灰度
+		if (m_check_backgray.GetCheck()) {
+			temp |= 0x20;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x20);
+		}
+		// 背面黑白
+		if (m_check_backbw.GetCheck()) {
+			temp |= 0x40;
+			doc_count++;
+		} 
+		else {
+			temp &= (0xFF-0x40);
+		}
+
+		m_pUI->SetCapValueFloat(UDSCAP_MULTISTREAM_VALUE, (float)temp); // 保存多流选项值
+		m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+	}
+}
+
 void CPage_Base::UpdateControls(void)
 {
 	int nCapIndex;
@@ -261,29 +241,17 @@ void CPage_Base::UpdateControls(void)
 	const FloatVector* lstCapValuesFlt;
 	int nCapValue;
 	CString strText;
-	int nval;
+	float fCapValue;
 
-	CString str;
-	GetDlgItemText(IDC_BASE_STATIC_THRESHOLD,str);
-	if(str.Find("去除斑点") >= 0)
-	{
-		//多流输出-去除斑点 
-		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
-		m_slider_threshold.SetPos(nCapValue);
-		strText.Format("%d",nCapValue);
-		SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, strText);
-		m_basemap[UDSCAP_REMOVESPOTS] = (float)nCapIndex;
-	}
-	else if(str.Find("底色保留") >= 0)
-	{
-		//多流输出-底色保留  与二值化阈值是同样的意义 
-		nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
-		m_slider_threshold.SetPos(nCapValue);
-		strText.Format("%d",nCapValue);
-		SetDlgItemText(IDC_ADVANCED_EDIT_SENSITIVE_THRESHOLD, strText);
-		m_basemap[ICAP_THRESHOLD] = (float)nCapIndex;
-	}
-	else{}//必须保留
+	//去除噪声-噪声数目
+	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_NOISENUM);
+	strText.Format("%d",(int)fCapValue);
+	SetDlgItemText(IDC_BASE_EDIT_NOISENUM,strText);
+
+	//去除噪声-噪声范围
+	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_NOISERANGE);
+	strText.Format("%d",(int)fCapValue);
+	SetDlgItemText(IDC_BASE_EDIT_NOISERANGE,strText);
 
   // 图像类型 
 	m_combo_colormode.ResetContent();
@@ -307,86 +275,79 @@ void CPage_Base::UpdateControls(void)
 		}
 	}
 	m_combo_colormode.SetCurSel(nCapIndex);
-	m_basemap[ICAP_PIXELTYPE] = (float)nCapIndex;
 	InitComboPixType();
-
-	//二值化
-	m_combo_binarization.ResetContent(); //清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_BINARIZATION);
-	lstCapValues = m_pUI->GetValidCap(UDSCAP_BINARIZATION);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
+	
+	//2.0版本
+	//图像设置-图像旋转
+	m_combo_rotate.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_ROTATION);
+	lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_ROTATION);
+	for(unsigned int i=0; i<lstCapValuesFlt->size();i++)
 	{
-		switch(lstCapValues->at(i))
+		switch((int)lstCapValuesFlt->at(i))
 		{
-		case TWBZ_DYNATHRESHOLD:
-			m_combo_binarization.InsertString(i,"动态阈值");
+		case TWOR_ROT0:
+			m_combo_rotate.InsertString(i,"不旋转图像");
 			break;
-		case TWBZ_FIXEDTHRESHOLD:
-			m_combo_binarization.InsertString(i,"固定阈值"); 
+		case TWOR_ROT90:
+			m_combo_rotate.InsertString(i,"顺时针90度"); 
 			break;
-		case TWBZ_HALFTONE1:
-			m_combo_binarization.InsertString(i,"半色调1");
+		case TWOR_ROT180:
+			m_combo_rotate.InsertString(i,"顺时针180度");
 			break;
-		case TWBZ_HALFTONE2:
-			m_combo_binarization.InsertString(i,"半色调2");
-			break;
-		case TWBZ_HALFTONE3:
-			m_combo_binarization.InsertString(i,"半色调3");
-			break;
-		case TWBZ_HALFTONE4:
-			m_combo_binarization.InsertString(i,"半色调4");
-			break;
-		case TWBZ_HALFTONE5:
-			m_combo_binarization.InsertString(i,"半色调5");
-			break;
-		case TWBZ_ERRORDIFF:
-			m_combo_binarization.InsertString(i,"误差扩散");
+		case TWOR_ROT270:
+			m_combo_rotate.InsertString(i,"顺时针270度");
 			break;
 		default:
 			continue;
 		}
 	}
-	m_combo_binarization.SetCurSel(nCapIndex);
-	m_basemap[UDSCAP_BINARIZATION] = (float)nCapIndex;
-	SetBinarization();
+	m_combo_rotate.SetCurSel(nCapIndex);
 
-	// 分辨率
-	m_combo_resolution.ResetContent();
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
-	lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
-
-	for(unsigned int i=0; i<lstCapValuesFlt->size();i++)
+	//图像设置-图像分割
+	m_combo_splitimage.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_SPLITIMAGE);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_SPLITIMAGE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
 	{
-		CString strTemp;
-		strTemp.Format("%d",(int)lstCapValuesFlt->at(i));
-		m_combo_resolution.InsertString(i,strTemp);
+		switch(lstCapValues->at(i))
+		{
+		case TWSI_NONE:
+			m_combo_splitimage.InsertString(i,"不拆分"); //不分割图像
+			break;
+		case TWSI_HORIZONTAL:
+			m_combo_splitimage.InsertString(i,"上下");  //水平分割图像
+			break;
+		case TWSI_VERTICAL:
+			m_combo_splitimage.InsertString(i,"左右"); //垂直分割图像
+			break;
+		case TWSI_DEFINED:
+			m_combo_splitimage.InsertString(i,"自定义"); //垂直分割图像
+			break;
+		default:
+			continue;
+		}
 	}
-	m_combo_resolution.SetCurSel(nCapIndex);
-	nval = (int)lstCapValuesFlt->at(nCapIndex);
-	m_basemap[ICAP_XRESOLUTION] = (float)nval;
-	m_basemap[ICAP_YRESOLUTION] = (float)nval;
+	m_combo_splitimage.SetCurSel(nCapIndex);
 
-	// 对比度 
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_CONTRAST)); 
-	m_slider_contrast.SetPos(nCapValue);
+	//Gamma校正 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型	
+	m_slider_gamma.SetPos(nCapValue);
+	float valueTemp = ((float)nCapValue)/100;
+	strText.Format("%.2f", valueTemp);
+	SetDlgItemText(IDC_BASE_EDIT_GAMMA, strText);
+
+	//去除空白页checkbox
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBLANK));
+	m_check_removeblank.SetCheck(nCapValue);
+	//去除空白页 -1自动;-2不可用:改为滑动条 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES)); 
+	m_slider_removeblank.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
-	SetDlgItemText(IDC_BASE_EDIT_CONTRAST,strText);
-	m_basemap[ICAP_CONTRAST] = float(nCapValue);
+	SetDlgItemText(IDC_BASE_EDIT_REMOVEBLANK, strText);
+	SetBlank();
 
-	// 亮度 
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_BRIGHTNESS));
-	m_slider_brightness.SetPos(nCapValue);
-	strText.Format("%d",nCapValue);
-	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,strText);
-	m_basemap[ICAP_BRIGHTNESS] = float(nCapValue);
-
-	// 阈值 
-	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
-	m_slider_threshold.SetPos(nCapValue);
-	strText.Format("%d",nCapValue);
-	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD,strText);
-	m_basemap[ICAP_THRESHOLD] = float(nCapValue);
-
+	//int型radio更新要放在最后，否则SetDlgItemText刷新时会又重新设置。
 	// 扫描方式	
 	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_FEEDERENABLED);
 	if(0 == nCapIndex) //平板
@@ -398,7 +359,6 @@ void CPage_Base::UpdateControls(void)
 		m_radiobtn_scanmode = 0;
 	}
 	SetFlat();
-	m_basemap[CAP_FEEDERENABLED] = (float)m_radiobtn_scanmode;
 
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
@@ -482,10 +442,9 @@ void CPage_Base::UpdateControls(void)
 		// 单面/双面扫
 		nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
 		m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
-		m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;
 	}
-	scanside = m_radiobtn_duplex; //初始化scanside，防止用户未点击下拉框改变单双面直接扫描时，scanside默认为0，高级界面仍会设置裁切
 	SetMultistream();
+	SetDenoise();
 }
 
 
@@ -493,9 +452,11 @@ void CPage_Base::InitBasemap(void)
 {
 	m_basemap.erase(m_basemap.begin(),m_basemap.end());//清空
 
-	int nCapIndex;
-	nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
+	int nCapIndex = m_pUI->GetCurrentCapIndex(CAP_DUPLEXENABLED);
 	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
+
+	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	m_basemap[UDSCAP_MULTISTREAM_VALUE] = (float)nCapValue;
 
 	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
 	m_basemap[UDSCAP_MULTISTREAM_VALUE] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
@@ -510,8 +471,6 @@ BOOL CPage_Base::OnInitDialog()
 	InitSliderCtrl();
 	UpdateControls();
 	
-	SetMultistream();
-	SetFlat();
 	if(m_radiobtn_scanmode == 0)
 	{
 		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
@@ -523,10 +482,7 @@ BOOL CPage_Base::OnInitDialog()
 		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
 	}
 	
-	SetBinarization();
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用,需在SetBinarization后
-
-	m_pAdPage->InitAdvancedmap(); //初始化高级界面的Map
 	
 	if(g_nDeviceNumber != 1)//不为虚拟扫描仪，禁用多流
 	{
@@ -534,258 +490,51 @@ BOOL CPage_Base::OnInitDialog()
 	}
 
 	GetDlgItem(IDC_BASE_RADIO_SCANMODE_Flatbed)->ShowWindow(FALSE); //暂时隐藏平板。
-	UpdateData(FALSE);
+	 
+	//2.0版本界面修改
+	//新增TAB控件  
+	//m_base_tab.InsertItem(0, _T("自动彩色"));  //插入第一个标签     
+	m_base_tab.InsertItem(0, _T("彩色"));  
+	m_base_tab.InsertItem(1, _T("灰度"));     
+	m_base_tab.InsertItem(2, _T("黑白"));
+	//m_pTabAutoColor->Create(IDD_BASETAB_AUTOCOLOR, &m_base_tab); //创建第一个标签页     
+	m_pTabColor->Create(IDD_BASETAB_COLOR, &m_base_tab); 
+	m_pTabGray->Create(IDD_BASETAB_GRAY, &m_base_tab);    
+	m_pTabBW->Create(IDD_BASETAB_BW, &m_base_tab);    
+
+	m_base_tab.GetClientRect(&m_tabRect);    // 获取标签控件客户区Rect     
+	// 调整tabRect，使其覆盖范围适合放置标签页     
+	m_tabRect.left += 1;                    
+	m_tabRect.right -= 1;     
+	m_tabRect.top += 25;     
+	m_tabRect.bottom -= 1;   
+	//根据调整好的tabRect放置主子对话框，并设置为显示 
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);     
+	//根据调整好的tabRect放置其他子对话框，并设置为隐藏     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	SetTabCtrl();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
 
-void CPage_Base::PreView()
-{
-	UpdateData(TRUE);
-
-	SetCapValue();
-	m_pAdPage->SetCapValue();
-	m_pPaperPage->SetCapValue();
-	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);//预览时只扫描一张
-	m_pUI->TW_SaveProfileToFile("上次使用模板");
-
-	BYTE *data = NULL; //图像数据
-	data = m_pUI->PreView();  
-
-	if(data != NULL)
-	{
-		// 保存图片
-		GetBmpFilePath();//为m_bmpFilePath赋值
-
-		CFile file;
-		try
-		{
-			if(file.Open(m_bmpFilePath, CFile::modeWrite | CFile::modeCreate))
-			{
-				//写入文件
-				file.Write((LPSTR)&(m_pUI->m_bmpFileHeader), sizeof(BITMAPFILEHEADER)); // 写文件头
-				file.Write((LPSTR)&(m_pUI->m_bmpInfoHeader), sizeof(BITMAPINFOHEADER)); // 写信息头
-				if (m_pUI->m_nBpp < 16)
-				{			
-					DWORD dwColors = 0;
-					if (true == m_pUI->GetColorsUsed(m_pUI->m_nBpp, dwColors))
-					{
-						file.Write((LPSTR)(m_pUI->m_bmpLpRGB),sizeof(RGBQUAD) * dwColors); // 写调色板
-					}	
-
-					if (m_pUI->m_bmpLpRGB)
-					{
-						delete []m_pUI->m_bmpLpRGB;
-						m_pUI->m_bmpLpRGB = NULL;
-					}
-				}
-				file.Write(data, m_pUI->m_nDIBSize); // 写数据
-				file.Close();
-				if (data)
-				{
-					delete []data;
-					data = NULL;
-				}	
-			}
-		}
-		catch (...) 
-		{
-			AfxMessageBox("SaveDIB2Bmp Error!");
-		}	
-
-		Invalidate(); //直接刷新，OnPaint中实现DrawImage();
-	}
-
-	UpdateData(FALSE);
-}
-
-void CPage_Base::DrawImage(void) 
-{
-	UpdateData(TRUE);
-	//显示图片
-	CWnd *pWnd = GetDlgItem(IDC_BASE_PREPICTURE); 
-	CDC* pDC = pWnd->GetDC();
-	HDC hDC = pDC->GetSafeHdc();
-	CRect rect;
-	pWnd->GetClientRect(&rect);
-	SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);
-
-	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
-	if(img != NULL)
-	{
-		//调整长宽比例因子，使图像显示不失真
-		CRect newRect;
-		int width = img->width;
-		int height = img->height;
-		if(width <= rect.Width() && height <= rect.Height())//小图片，不缩放
-		{
-			newRect = CRect(rect.TopLeft(), CSize(width,height));
-		}
-		else
-		{
-			float xScale = (float)rect.Width() / (float)width;
-			float yScale = (float)rect.Height() / (float)height;
-			float scale = xScale>=yScale?yScale:xScale; 
-			newRect = CRect(rect.TopLeft(), CSize((int)width*scale, (int)height*scale));
-		}
-
-		DrawToHDC(hDC, &newRect, img);
-		ReleaseDC(pDC);
-		cvReleaseImage(&img);
-
-		UpdateData(FALSE);
-	}
-}
-
-
-
 void CPage_Base::InitSliderCtrl()
 {
 	float fMin,fMax,fStep;
-	m_pUI->GetCapRangeFloat(ICAP_CONTRAST, fMin, fMax, fStep);
-	m_slider_contrast.SetRange((int)fMin, (int)fMax);
-	m_slider_contrast.SetTicFreq((int)fStep);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
+	m_pUI->GetCapRangeFloat(ICAP_GAMMA, fMin, fMax, fStep);
+	m_slider_gamma.SetRange((int)fMin, (int)fMax);
+	m_slider_gamma.SetTicFreq((int)fStep); //步长
 
-	m_pUI->GetCapRangeFloat(ICAP_BRIGHTNESS, fMin, fMax, fStep);
-	m_slider_brightness.SetRange((int)fMin, (int)fMax);
-	m_slider_brightness.SetTicFreq((int)fStep);
-
-	m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
-	m_slider_threshold.SetRange((int)fMin, (int)fMax);
-	m_slider_threshold.SetTicFreq((int)fStep);
+	m_pUI->GetCapRangeFloat(ICAP_AUTODISCARDBLANKPAGES, fMin, fMax, fStep);
+	m_slider_removeblank.SetRange((int)fMin, (int)fMax);
+	m_slider_removeblank.SetTicFreq((int)fStep); //步长
 
 	UpdateData(FALSE);  // 更新控件，刷新当前对话框
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Slider控件内容变动
-void CPage_Base::OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	int sldValue = m_slider_contrast.GetPos();  // 获取滑块当前位置
-	m_basemap[ICAP_CONTRAST] = float(sldValue);
-
-	str.Format("%d", sldValue);
-	SetDlgItemText(IDC_BASE_EDIT_CONTRAST, str);
-
-	//contrast = sldValue;
-	//m_pAdPage->UpdateControls();
-
-	UpdateData(FALSE);  // 更新控件
-
-	*pResult = 0;
-}
-
-
-void CPage_Base::OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	int sldValue = m_slider_brightness.GetPos();  // 获取滑块当前位置
-	m_basemap[ICAP_BRIGHTNESS] = float(sldValue);
-
-	str.Format("%d", sldValue);
-	SetDlgItemText(IDC_BASE_EDIT_BRIGHTNESS,str);
-
-	//brightness = sldValue;
-	//m_pAdPage->UpdateControls();
-
-	UpdateData(FALSE);  // 更新控件
-
-	*pResult = 0;
-}
-
-
-void CPage_Base::OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	// TODO: 在此添加控件通知处理程序代码	
-	UpdateData(TRUE); //接收数据
-	CString str;
-	int sldValue = m_slider_threshold.GetPos(); //获取滑块的当前位置
-	m_basemap[ICAP_THRESHOLD] = (float)sldValue;
-
-	str.Format("%d", sldValue);
-	SetDlgItemText(IDC_BASE_EDIT_THRESHOLD, str);
-	UpdateData(FALSE); //更新控件。
-
-	*pResult = 0;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Edit控件内容变动
-void CPage_Base::OnEnChangeBase_Edit_Contrast()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CPropertyPage::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	m_edit_contrast.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_contrast.SetPos(nval);
-	m_basemap[ICAP_CONTRAST] = (float)nval;
-
-	m_edit_contrast.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-	
-	//contrast = nval;
-	//m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Base::OnEnChangeBase_Edit_Brightness()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CPropertyPage::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	m_edit_brightness.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_brightness.SetPos(nval);
-	m_basemap[ICAP_BRIGHTNESS] = (float)nval;
-	m_edit_brightness.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	//brightness = nval;
-	//m_pAdPage->UpdateControls(); //更新一次高级界面，同步对比度参数
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Base::OnEnChangeBase_Edit_Threshold()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CPropertyPage::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-	UpdateData(TRUE); //接收数据
-	CString str;
-	m_edit_threshold.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_threshold.SetPos(nval); //_ttoi把CString类型转换为int
-	m_basemap[ICAP_THRESHOLD] = (float)nval;
-
-	m_edit_threshold.SetSel(str.GetLength(), str.GetLength(), TRUE); //设置编辑框控件范围
-
-	UpdateData(FALSE); //更新控件
-}
 
 void CPage_Base::SetFlat(void)
 {
@@ -805,57 +554,37 @@ void CPage_Base::SetFlat(void)
 void CPage_Base::InitComboPixType(void)
 {
 	int nIndex = m_combo_colormode.GetCurSel();
-
+	
 	if(0 == nIndex) //黑白
 	{
-		m_slider_contrast.EnableWindow(FALSE);  //由指针改为变量，否则初始化就闪退
-		m_edit_contrast.EnableWindow(FALSE);
-		m_slider_brightness.EnableWindow(FALSE);
-		m_edit_brightness.EnableWindow(FALSE);
-
-		m_slider_threshold.EnableWindow(TRUE);
-		m_edit_threshold.EnableWindow(TRUE);
-		m_combo_binarization.EnableWindow(TRUE);
+		m_edit_noisenum.EnableWindow(TRUE); 
+		m_scroll_noisenum.EnableWindow(TRUE); 
+		m_edit_noiserange.EnableWindow(TRUE); 
+		m_scroll_noiserange.EnableWindow(TRUE); 
 	} 
 	else
 	{
-		m_slider_contrast.EnableWindow(TRUE);  
-		m_edit_contrast.EnableWindow(TRUE);
-		m_slider_brightness.EnableWindow(TRUE);
-		m_edit_brightness.EnableWindow(TRUE);
-
-		m_slider_threshold.EnableWindow(FALSE);
-		m_edit_threshold.EnableWindow(FALSE);
-		m_combo_binarization.EnableWindow(FALSE);
+		m_edit_noisenum.EnableWindow(FALSE); 
+		m_scroll_noisenum.EnableWindow(FALSE); 
+		m_edit_noiserange.EnableWindow(FALSE); 
+		m_scroll_noiserange.EnableWindow(FALSE); 
 	}
-
-	BaseStatus(); //获取base界面图像模式,传给高级界面。
 }
 
 void CPage_Base::OnCbnSelchangeBase_Combo_Colormode()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nIndex = m_combo_colormode.GetCurSel();
-	m_basemap[ICAP_PIXELTYPE] = (float)nIndex;
+
+	if(GetDlgItem(IDC_BASE_COMBO_COLORMODE)->IsWindowEnabled())//图像类型可用时才设置
+	{
+		m_pUI->SetCapValueInt(ICAP_PIXELTYPE,nIndex);
+	}	
+
 	m_combo_colormode.SetCurSel(nIndex);
 
 	InitComboPixType(); //zhu 判断亮度等是否可用
-	return;
-}
-
-
-void CPage_Base::OnCbnSelchangeBase_Combo_Resolution()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_resolution.GetCurSel();
-	CString strCBText; 
-	m_combo_resolution.GetLBText(nIndex, strCBText);
-	int nval = _ttoi(strCBText);  // CString 转 int
-
-	m_basemap[ICAP_XRESOLUTION] = (float)nval;
-	m_basemap[ICAP_YRESOLUTION] = (float)nval;
-	
-	m_combo_resolution.SetCurSel(nIndex);
+	SetTabCtrl();
 }
 
 
@@ -940,6 +669,67 @@ vector<string> CPage_Base::MyBrowseForMultiImages()
 BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: 在此添加专用代码和/或调用基类
+	CEdit* pEdit1 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_REMOVEBLANK);  
+	CString str1;   
+	GetDlgItemText(IDC_BASE_EDIT_REMOVEBLANK, str1); // 获取edit中文本  
+
+	if( (GetFocus() == pEdit1) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字//和小数点“.”
+		if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else if(pMsg->wParam == '.')
+		{
+			return 1; //不准输入小数点
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else
+		{ 
+			return 1; 
+		}
+	}  
+
+	//需要输入小数点的Edit只允许一个小数点
+	CEdit* pEdit2 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_GAMMA); 
+	CString str2;   
+	GetDlgItemText(IDC_BASE_EDIT_GAMMA, str2); // 获取edit中文本  
+	if( (GetFocus() == pEdit2) && (pMsg->message == WM_CHAR))  
+	{  
+		//允许输入数字和小数点“.”
+		if(pMsg->wParam == '.')
+		{
+			//输入框只允许输入一个小数点
+			int nPos3 = 0; 
+			nPos3 = str2.Find('.'); // 查找.的位置 
+
+			if(nPos3 >= 0)  //必须分开写，或||操作的话总会满足
+			{  
+				return 1;   //如果存在,返回,即不再允许输入
+			}	
+			return 0;
+		}
+		//接受Backspace和delete键 
+		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
+		{  
+			return 0;  
+		}  
+		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
+		{  
+			return 0;  
+		} 
+		else
+		{ 
+			return 1; 
+		}
+	}
+
+	/*
 	//获取控件窗口指针  
 	CEdit* pEdit1 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_BRIGHTNESS);  
 	CEdit* pEdit2 = (CEdit*)GetDlgItem(IDC_BASE_EDIT_CONTRAST);  
@@ -965,17 +755,6 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 		//接受Backspace和delete键 
 		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
 		{
-			////设置光标只能在末尾
-			//if(GetFocus() == pEdit1){
-			//	pEdit1->SetSel(str1.GetLength(), str1.GetLength(),TRUE);
-			//}
-			//else if(GetFocus() == pEdit2){
-			//	pEdit2->SetSel(str2.GetLength(), str2.GetLength(),TRUE);
-			//}
-			//else if(GetFocus() == pEdit3){
-			//	pEdit3->SetSel(str3.GetLength(), str3.GetLength(),TRUE);
-			//}
-			//else{}
 			  // 设置编辑框控件范围
 			return 0;  
 		}  
@@ -1002,54 +781,30 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 			}
 		}
 	}
-
+	*/
 	return __super::PreTranslateMessage(pMsg);
 }
-
-
-//void CPage_Base::OnBase_RadioBtn_Scanmode()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-//	int index;
-//	SetFlat();
-//	if(1 == m_radiobtn_scanmode)
-//	{
-//		index = 0;
-//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
-//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
-//	}
-//	else //为0表示自动进纸器选中
-//	{
-//		index = 1;
-//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(TRUE); 
-//		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(TRUE);
-//	}
-//
-//	m_basemap[CAP_FEEDERENABLED] = (float)index;
-//	UpdateData(FALSE);
-//}
-
 
 void CPage_Base::OnBase_RadioBtn_Duplex()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-	scanside = m_radiobtn_duplex; 
 	switch(m_radiobtn_duplex)
 	{
 	case 0:
 	case 1:
-		m_basemap[CAP_DUPLEXENABLED] = (float)m_radiobtn_duplex;
-		m_pUI->SetCapValueInt(CAP_DUPLEXENABLED, m_radiobtn_duplex); //直接设置有效
-		
-		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);
-		m_basemap[UDSCAP_MULTISTREAM] = 0.0f;
+		m_pUI->SetCapValueInt(CAP_DUPLEXENABLED,m_radiobtn_duplex); 
+		if(1 == m_radiobtn_duplex) //双面，单面该值为0
+		{
+			m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2);
+		}	
+		else
+		{
+			m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);
+		}
 
-		m_slider_brightness.EnableWindow(TRUE); //亮度
-		m_slider_contrast.EnableWindow(TRUE); //对比度
-		m_edit_brightness.EnableWindow(TRUE); //亮度Edit
-		m_edit_contrast.EnableWindow(TRUE); //对比度Edit
+		m_basemap[UDSCAP_MULTISTREAM] = 0.0f;
+		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM,FALSE);		
 
 		break;
 	case 2:
@@ -1057,10 +812,12 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 		m_pUI->SetCapValueInt(UDSCAP_MULTISTREAM, TRUE);//直接设置有效
 		
 		m_check_frontcolor.SetCheck(TRUE);
+		m_base_tab.SetCurSel(0);
 		break;
 	}
 	SetFlat();//内含SetMultiStream();
-
+	SetDenoise();
+	SetCapMulti();
 	UpdateData(FALSE);
 }
 
@@ -1076,19 +833,15 @@ void CPage_Base::SetMultistream(void)
 		m_check_backgray.EnableWindow(TRUE);
 		m_check_backbw.EnableWindow(TRUE);
 		
+		m_btn_frontcolor.EnableWindow(TRUE);
+		m_btn_frontgray.EnableWindow(TRUE);
+		m_btn_frontbw.EnableWindow(TRUE);
+		m_btn_backcolor.EnableWindow(TRUE);
+		m_btn_backgray.EnableWindow(TRUE);
+		m_btn_backbw.EnableWindow(TRUE);
+
 		m_combo_colormode.EnableWindow(FALSE);
-
-		SetColorGrayImage();
-		SetBWImage();
-		//GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(FALSE); //图像拆分不可用
-
-		//((CButton*)GetDlgItem(IDC_CHECK_AUTOCROP))->SetCheck(FALSE); //自动裁切与校正不选中
-		//((CButton*)GetDlgItem(IDC_CHECK_REMOVEPUNCH))->SetCheck(FALSE); //去除穿孔不选中
-
-		//m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,TWRP_DISABLE);
-		//m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
-		//GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(FALSE); //自动裁切与校正不可用
-		//GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(FALSE);//去除穿孔不可用
+		m_combo_splitimage.EnableWindow(FALSE);	
 	} 
 	else 
 	{
@@ -1107,65 +860,22 @@ void CPage_Base::SetMultistream(void)
 		m_check_backgray.EnableWindow(FALSE);
 		m_check_backbw.EnableWindow(FALSE);
 
+		m_btn_frontcolor.EnableWindow(FALSE);
+		m_btn_frontgray.EnableWindow(FALSE);
+		m_btn_frontbw.EnableWindow(FALSE);
+		m_btn_backcolor.EnableWindow(FALSE);
+		m_btn_backgray.EnableWindow(FALSE);
+		m_btn_backbw.EnableWindow(FALSE);
+
 		m_combo_colormode.EnableWindow(TRUE);	
-		//GetDlgItem(IDC_ADVANCED_COMBO_SPLITIMG)->EnableWindow(TRUE); //图像拆分可用
-		//GetDlgItem(IDC_CHECK_AUTOCROP)->EnableWindow(TRUE); //自动裁切与校正可用
-		//GetDlgItem(IDC_CHECK_REMOVEPUNCH)->EnableWindow(TRUE); //去除穿孔可用			
+		m_combo_splitimage.EnableWindow(TRUE);
 	}
-}
-
-
-void CPage_Base::SetColorGrayImage(void)
-{
-	if (m_check_frontgray.GetCheck() || m_check_frontcolor.GetCheck()
-		|| m_check_backcolor.GetCheck() || m_check_backgray.GetCheck())
-	{
-		m_slider_brightness.EnableWindow(TRUE); 
-		m_slider_contrast.EnableWindow(TRUE); 
-		m_edit_brightness.EnableWindow(TRUE); 
-		m_edit_contrast.EnableWindow(TRUE); 
-	} 
-	else
-	{
-		m_slider_brightness.EnableWindow(FALSE); 
-		m_slider_contrast.EnableWindow(FALSE); 
-		m_edit_brightness.EnableWindow(FALSE); 
-		m_edit_contrast.EnableWindow(FALSE);
-	}
-}
-
-
-void CPage_Base::SetBWImage(void)
-{
-	if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
-	{
-		m_slider_threshold.EnableWindow(TRUE); 
-		m_edit_threshold.EnableWindow(TRUE); 
-
-		//图像增强系列不可用
-		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(FALSE);*/
-	} 
-	else
-	{
-		m_slider_threshold.EnableWindow(FALSE); 
-		m_edit_threshold.EnableWindow(FALSE); 
-		//图像增强系列可用
-		/*GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_SHARPEN)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_REMOVEBACK)->EnableWindow(TRUE);*/
-	}
-	SetBinarization(); //设置“去除斑点”还是“阈值”
 }
 
 
 void CPage_Base::OnBase_Btn_Check_FrontColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetColorGrayImage();
 	if(m_check_frontcolor.GetCheck())
 	{
 		m_btn_frontcolor.SetFocus();
@@ -1176,13 +886,15 @@ void CPage_Base::OnBase_Btn_Check_FrontColor()
 	{
 		m_btn_frontcolor.SetState(FALSE);
 	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(0);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_FrontGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetColorGrayImage();
 	if(m_check_frontgray.GetCheck())
 	{
 		m_btn_frontgray.SetFocus();
@@ -1193,13 +905,15 @@ void CPage_Base::OnBase_Btn_Check_FrontGray()
 	{
 		m_btn_frontgray.SetState(FALSE);
 	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(1);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_FrontBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetBWImage();
 	if(m_check_frontbw.GetCheck())
 	{
 		m_btn_frontbw.SetFocus();
@@ -1210,13 +924,15 @@ void CPage_Base::OnBase_Btn_Check_FrontBw()
 	{
 		m_btn_frontbw.SetState(FALSE);
 	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(2);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetColorGrayImage();
 	if(m_check_backcolor.GetCheck())
 	{
 		m_btn_backcolor.SetFocus();
@@ -1227,13 +943,15 @@ void CPage_Base::OnBase_Btn_Check_BackColor()
 	{
 		m_btn_backcolor.SetState(FALSE);
 	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(0);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetColorGrayImage();
 	if(m_check_backgray.GetCheck())
 	{
 		m_btn_backgray.SetFocus();
@@ -1244,13 +962,15 @@ void CPage_Base::OnBase_Btn_Check_BackGray()
 	{
 		m_btn_backgray.SetState(FALSE);
 	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(1);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetBWImage();
 	if(m_check_backbw.GetCheck())
 	{
 		m_btn_backbw.SetFocus();
@@ -1261,278 +981,21 @@ void CPage_Base::OnBase_Btn_Check_BackBw()
 	{
 		m_btn_backbw.SetState(FALSE);
 	}
-}
-
-void CPage_Base::GetBmpFilePath()
-{
-	if(GetTempSavePath(m_bmpFilePath))
-	{
-		strcat(m_bmpFilePath, "preview.bmp");
-	}
+	SetDenoise();
+	SetCapMulti();
+	m_base_tab.SetCurSel(2);
 }
 
 BOOL CPage_Base::OnSetActive()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
-
-	GetBmpFilePath();
+	UpdateControls();
+	
 	Invalidate();
 
+	SetSpiltimage();
 	return __super::OnSetActive();
-}
-
-
-bool CPage_Base::GetTempSavePath(TCHAR* pszPath)
-{
-	TCHAR szTempPath[MAX_PATH];
-	memset(szTempPath, 0, MAX_PATH);
-	GetTempPath(MAX_PATH, szTempPath);
-
-	SSTRCAT(szTempPath, MAX_PATH, MB_CAPTION);
-	SSTRCAT(szTempPath, MAX_PATH, TEXT("\\"));
-
-	if(false == CreateDir(szTempPath))
-	{
-		MessageBox(TEXT("创建临时文件夹失败！"));
-		return false;
-	}
-
-	SSTRCPY(pszPath, MAX_PATH, szTempPath);
-	return true;
-}
-
-bool CPage_Base::CreateDir(const CString& strPath)
-{
-	if (!PathFileExists(strPath))
-	{
-		if (!CreateDirectory(strPath, NULL))
-		{	
-			return false;
-		}
-		return true;
-	}
-
-	return true;		
-}
-
-
-//DrawToHdc系列函数
-RECT CPage_Base::NormalizeRect(RECT r)  
-{  
-	int t;  
-
-	if( r.left > r.right )  
-	{  
-		t = r.left;  
-		r.left = r.right;  
-		r.right = t;  
-	}  
-
-	if( r.top > r.bottom )  
-	{  
-		t = r.top;  
-		r.top = r.bottom;  
-		r.bottom = t;  
-	}  
-
-	return r;  
-}  
-CvRect CPage_Base::RectToCvRect(RECT sr)  
-{  
-	sr = NormalizeRect( sr );  
-	return cvRect( sr.left, sr.top, sr.right - sr.left, sr.bottom - sr.top );  
-} 
-void  CPage_Base::FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin)  
-{  
-	assert( bmi && width >= 0 && height >= 0 && (bpp == 8 || bpp == 24 || bpp == 32));  
-
-	BITMAPINFOHEADER* bmih = &(bmi->bmiHeader);  
-
-	memset(bmih, 0, sizeof(*bmih));  
-	bmih->biSize = sizeof(BITMAPINFOHEADER);  
-	bmih->biWidth = width;  
-	bmih->biHeight = origin ? abs(height) : -abs(height);  
-	bmih->biPlanes = 1;  
-	bmih->biBitCount = (unsigned short)bpp;  
-	bmih->biCompression = BI_RGB;  
-
-	if(bpp == 8)  
-	{  
-		RGBQUAD* palette = bmi->bmiColors;  
-		int i;  
-		for( i = 0; i < 256; i++ )  
-		{  
-			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;  
-			palette[i].rgbReserved = 0;  
-		}  
-	}  
-}  
-void  CPage_Base::Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y)  
-{  
-	if( img && img->depth == IPL_DEPTH_8U )  
-	{  
-		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
-		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
-		int bmp_w = img->width, bmp_h = img->height;  
-
-		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
-		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
-
-		from_x = MIN(MAX( from_x, 0 ), bmp_w - 1);  
-		from_y = MIN(MAX( from_y, 0 ), bmp_h - 1);  
-
-		int sw = MAX(MIN( bmp_w - from_x, w ), 0);  
-		int sh = MAX(MIN( bmp_h - from_y, h ), 0);  
-
-		SetDIBitsToDevice(  
-			dc, x, y, sw, sh, from_x, from_y, from_y, sh,  
-			img->imageData + from_y*img->widthStep,  
-			bmi, DIB_RGB_COLORS);  
-	}  
-}  
-void  CPage_Base::DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img )  
-{  
-	if(pDstRect && img && img->depth == IPL_DEPTH_8U && img->imageData )  
-	{  
-		uchar buffer[sizeof(BITMAPINFOHEADER) + 1024];  
-		BITMAPINFO* bmi = (BITMAPINFO*)buffer;  
-		int bmp_w = img->width, bmp_h = img->height;  
-
-		CvRect roi = cvGetImageROI(img);
-		CvRect dst = RectToCvRect(*pDstRect);  
-
-		if( roi.width == dst.width && roi.height == dst.height )  
-		{  
-			Show(img, hDCDst, dst.x, dst.y, dst.width, dst.height, roi.x, roi.y);  
-			return;  
-		}  
-
-		if(roi.width > dst.width)  
-		{  
-			SetStretchBltMode(hDCDst, // handle to device context  
-				HALFTONE );  
-		}  
-		else  
-		{  
-			SetStretchBltMode(hDCDst, // handle to device context  
-				COLORONCOLOR );  
-		}  
-
-		int bpp = img ? (img->depth & 255)*img->nChannels : 0;
-		FillBitmapInfo(bmi, bmp_w, bmp_h, bpp, img->origin);  
-		::StretchDIBits(
-			hDCDst,  
-			dst.x, dst.y, dst.width, dst.height,  
-			roi.x, roi.y, roi.width, roi.height,  
-			img->imageData, bmi, DIB_RGB_COLORS, SRCCOPY);  
-	}  
-}  
-
-
-void CPage_Base::OnCbnSelchangeBase_Combo_Binarization()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_binarization.GetCurSel();
-	CString strCBText; 
-	m_combo_binarization.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("动态阈值") >= 0)
-	{
-		nval = TWBZ_DYNATHRESHOLD;
-	}
-	else if(strCBText.Find("固定阈值") >= 0)
-	{
-		nval = TWBZ_FIXEDTHRESHOLD; 
-	}
-	else if(strCBText.Find("半色调1") >= 0)
-	{
-		nval = TWBZ_HALFTONE1; 
-	}
-	else if(strCBText.Find("半色调2") >= 0)
-	{
-		nval = TWBZ_HALFTONE2; 
-	}
-	else if(strCBText.Find("半色调3") >= 0)
-	{
-		nval = TWBZ_HALFTONE3; 
-	}
-	else if(strCBText.Find("半色调4") >= 0)
-	{
-		nval = TWBZ_HALFTONE4; 
-	}
-	else if(strCBText.Find("半色调5") >= 0)
-	{
-		nval = TWBZ_HALFTONE5; 
-	}
-	else if(strCBText.Find("误差扩散") >= 0)
-	{
-		nval = TWBZ_ERRORDIFF; 
-	}
-	else
-	{}
-	m_basemap[UDSCAP_BINARIZATION] = (float)nval;
-
-	SetBinarization();
-	m_combo_binarization.SetCurSel(nIndex);
-}
-
-void CPage_Base::SetBinarization(void)
-{
-	int nCapValue;
-	float fMin,fMax,fStep;
-	
-	if(m_radiobtn_duplex == 0 || m_radiobtn_duplex == 1 || m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
-	{
-		m_slider_threshold.EnableWindow(TRUE);
-		m_edit_threshold.EnableWindow(TRUE); 
-
-		CString strCBText;
-		GetDlgItemText(IDC_BASE_COMBO_BINARIZATION,strCBText);
-		if (strCBText.Find("动态阈值") >= 0)
-		{
-			SetDlgItemText(IDC_BASE_STATIC_THRESHOLD, TEXT("去除斑点:"));
-			m_pUI->GetCapRangeFloat(UDSCAP_REMOVESPOTS, fMin, fMax, fStep);
-			m_slider_threshold.SetRange((int)fMin, (int)fMax);
-			m_slider_threshold.SetTicFreq((int)fStep); 
-
-			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS));
-			m_slider_threshold.SetPos(nCapValue);
-
-			//设置此时亮度不可用
-			m_slider_brightness.EnableWindow(FALSE);
-			m_edit_brightness.EnableWindow(FALSE); 
-
-		} 
-		else if(strCBText.Find("固定阈值") >= 0)
-		{
-			SetDlgItemText(IDC_BASE_STATIC_THRESHOLD, TEXT("阈值:"));
-			m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
-			m_slider_threshold.SetRange((int)fMin, (int)fMax);
-			m_slider_threshold.SetTicFreq((int)fStep); 
-
-			nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
-			m_slider_threshold.SetPos(nCapValue);
-
-			//设置此时亮度可用
-			m_slider_brightness.EnableWindow(TRUE);
-			m_edit_brightness.EnableWindow(TRUE);
-		}
-		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
-		{
-			m_slider_threshold.EnableWindow(FALSE);
-			m_edit_threshold.EnableWindow(FALSE);
-
-			//设置此时亮度可用
-			m_slider_brightness.EnableWindow(TRUE);
-			m_edit_brightness.EnableWindow(TRUE);
-		}
-	}
-	else
-	{
-		m_slider_threshold.EnableWindow(FALSE);
-		m_edit_threshold.EnableWindow(FALSE);
-	} 
 }
 
 
@@ -1565,15 +1028,532 @@ void CPage_Base::OnBase_RadioBtn_Scanmode_Flatbed()
 	GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->EnableWindow(FALSE); 
 	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE);
 
-	m_basemap[CAP_FEEDERENABLED] = (float)index;
+	//m_basemap[CAP_FEEDERENABLED] = (float)index;
+	if(m_radiobtn_scanmode==0)//自动进纸器
+	{
+		m_pUI->SetCapValueInt(CAP_FEEDERENABLED,TRUE); 
+	}
+	else //平板
+	{
+		m_pUI->SetCapValueInt(CAP_FEEDERENABLED,FALSE); 
+	}
+
 	UpdateData(FALSE);
 }
 
 
-void CPage_Base::OnPaint()
+void CPage_Base::OnTcnSelchangeBase_Tab(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CPaintDC dc(this); // device context for painting
-	// TODO: 在此处添加消息处理程序代码
-	// 不为绘图消息调用 __super::OnPaint()
-	DrawImage();
+	// TODO: 在此添加控件通知处理程序代码
+	switch(m_base_tab.GetCurSel())     
+	{       
+	/*case 0:     
+		m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);     
+		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		break;    */ 
+	case 0:     
+		//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		break;
+	case 1:
+		//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+		break;
+	case 2:
+		//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
+	default:     
+		break;     
+	}     
+
+	*pResult = 0;
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_Rotate()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_rotate.GetCurSel();
+	CString strCBText; 
+	m_combo_rotate.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("不旋转图像") >= 0)
+	{
+		nval = TWOR_ROT0;
+	}
+	else if(strCBText.Find("顺时针90度") >= 0)
+	{
+		nval = TWOR_ROT90; 
+	}
+	else if(strCBText.Find("顺时针180度") >= 0)
+	{
+		nval = TWOR_ROT180; 
+	}
+	else if(strCBText.Find("顺时针270度") >= 0)
+	{
+		nval = TWOR_ROT270; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(ICAP_ROTATION,nval); 
+	m_combo_rotate.SetCurSel(nIndex);
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_SpiltImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	int nIndex = m_combo_splitimage.GetCurSel();
+	CString strCBText; 
+	m_combo_splitimage.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("不拆分") >= 0) //不分割图像
+	{
+		nval = TWSI_NONE;	
+	}
+	else if(strCBText.Find("上下") >= 0) //水平分割图像
+	{
+		nval = TWSI_HORIZONTAL; 
+	}
+	else if(strCBText.Find("左右") >= 0) //垂直分割图像
+	{
+		nval = TWSI_VERTICAL; 
+	}
+	else if(strCBText.Find("自定义") >= 0) //垂直分割图像
+	{
+		nval = TWSI_DEFINED; 
+	}
+	else
+	{}
+	if(m_combo_splitimage.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueInt(UDSCAP_SPLITIMAGE,nval); //设置参数生效
+
+		if(nval == TWSI_HORIZONTAL || nval == TWSI_VERTICAL)
+		{
+			m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 2); //设置扫描张数为2
+		}
+		else if(nval == TWSI_NONE && m_radiobtn_duplex == 0) //不拆分&&单面
+		{
+				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1); //不拆分时又设回1
+		}	
+		/*else if(nval == TWSI_DEFINED)
+		{
+			if(m_edit_spilt.IsWindowEnabled())
+			{
+				CString str;
+				m_edit_spilt.GetWindowText(str);
+				int num = _ttoi(str);
+				m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, num); 
+			}
+			else{}
+		}*/
+		else{}
+	}
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_SPLITIMAGE, TWSI_NONE); //设置参数生效
+	}
+
+	m_combo_splitimage.SetCurSel(nIndex);
+	SetSpiltimage();
+	UpdateData(FALSE);
+}
+
+void CPage_Base::SetSpiltimage()
+{
+	CString strCBText;
+	GetDlgItemText(IDC_BASE_COMBO_SPLITIMG, strCBText);
+
+	CString str;
+	str.Format("%d",2);
+
+	if(strCBText.Find("不拆分") >= 0)
+	{
+		//str.Format("%d",1);
+		//SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
+		//m_edit_spilt.EnableWindow(FALSE);
+
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
+	}
+	else if(strCBText.Find("上下") >= 0 || strCBText.Find("左右") >= 0) //水平、垂直分割图像
+	{
+		//SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
+		//m_edit_spilt.EnableWindow(FALSE);
+
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(FALSE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(FALSE);
+	}
+	else if(strCBText.Find("自定义") >= 0)
+	{
+		//SetDlgItemText(IDC_ADVANCED_EDIT_SPILT, str);
+		//m_edit_spilt.EnableWindow(TRUE);
+
+		//GetDlgItem(IDC_ADVANCED_RADIO_HORIZONTAL)->EnableWindow(TRUE);
+		//GetDlgItem(IDC_ADVANCED_RADIO_VERTICAL)->EnableWindow(TRUE);
+	}
+	else{}
+}
+
+void CPage_Base::OnNMCustomdrawBase_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_gamma.GetPos();  // 获取滑块当前位置
+	str.Format("%d",sldValue);
+
+	float value = ((int)sldValue*10)/10.00f;
+	m_pUI->SetCapValueFloat(ICAP_GAMMA,value);
+
+	float valueTemp = ((float)sldValue)/100;
+	str.Format("%.2f", valueTemp); //小数点后只要2位
+	SetDlgItemText(IDC_BASE_EDIT_GAMMA, str);// 在编辑框同步显示滚动条值
+	UpdateData(FALSE);  // 更新控件
+
+	*pResult = 0;
+}
+
+
+void CPage_Base::OnEnChangeBase_Edit_Gamma()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_gamma.GetWindowText(str);
+
+	float fval = (float)(_ttof(str));
+	int nval = (int)(100*fval);
+	m_slider_gamma.SetPos(nval);
+	m_pUI->SetCapValueFloat(ICAP_GAMMA, float(nval));
+
+	m_edit_gamma.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Base::OnNMCustomdrawBase_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_removeblank.GetPos();  // 获取滑块当前位置
+
+	if(m_slider_removeblank.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES,(float)sldValue);
+	}	
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_BASE_EDIT_REMOVEBLANK, str);
+	UpdateData(FALSE);  // 更新控件
+
+	*pResult = 0;
+}
+
+
+void CPage_Base::OnEnChangeBase_Edit_Removeblank()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_removeblank.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_removeblank.SetPos(nval);
+
+	if(m_slider_removeblank.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueFloat(ICAP_AUTODISCARDBLANKPAGES,(float)nval);
+	}	
+
+	m_edit_removeblank.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Base::OnBase_Btn_Check_RemoveBlank()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_removeblank.GetCheck())
+	{
+		nval = TWRA_AUTO;
+	} 
+	else
+	{
+		nval = TWRA_DISABLE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_REMOVEBLANK,nval);
+	SetBlank();
+}
+
+void CPage_Base::SetBlank(void)
+{
+	if(m_check_removeblank.GetCheck())
+	{
+		m_slider_removeblank.EnableWindow(TRUE);
+		m_edit_removeblank.EnableWindow(TRUE);
+	}
+	else
+	{
+		m_slider_removeblank.EnableWindow(FALSE);
+		m_edit_removeblank.EnableWindow(FALSE);
+	}
+}
+
+
+void CPage_Base::OnBase_Btn_FrontColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(0);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+}
+
+
+void CPage_Base::OnBase_Btn_Backcolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(0);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+}
+
+
+void CPage_Base::OnBase_Btn_Frontgray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(1);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+}
+
+
+void CPage_Base::OnBase_Btn_Backgray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(1);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+}
+
+
+void CPage_Base::OnBase_Btn_Frontbw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(2);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
+}
+
+
+void CPage_Base::OnBase_Btn_Backbw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	m_base_tab.SetCurSel(2);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
+}
+
+
+void CPage_Base::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	int scrollpos;
+	CString str;
+	SetScroll();
+	switch(pScrollBar->GetDlgCtrlID())
+	{
+		//去除噪声数目               
+	case IDC_BASE_SCROLLBAR_NOISENUM:
+		{
+			scrollpos = m_scroll_noisenum.GetScrollPos();
+			switch(nSBCode)
+			{
+			case SB_LINEUP: //如果向上滚动一列，则pos加1
+				scrollpos += 1;
+				break;
+			case SB_LINEDOWN: //如果向下滚动一列，则pos减1
+				scrollpos -= 1; 
+				break;
+			case SB_TOP: //最顶端
+				scrollpos = 3600;
+				break;
+			case SB_BOTTOM:
+				scrollpos = 0;
+				break;
+			}
+			// 设置滚动块位置  
+			m_scroll_noisenum.SetScrollPos(scrollpos);
+			str.Format("%d", scrollpos);
+			SetDlgItemText(IDC_BASE_EDIT_NOISENUM, str); 
+		}
+		break;
+	//去除噪声-噪声范围
+	case IDC_BASE_SCROLLBAR_NOISERANGE:
+		{
+			scrollpos = m_scroll_noiserange.GetScrollPos();
+			switch(nSBCode)
+			{
+			case SB_LINEUP: //如果向上滚动一列，则pos加1
+				scrollpos += 1;
+				break;
+			case SB_LINEDOWN: //如果向下滚动一列，则pos减1
+				scrollpos -= 1; 
+				break;
+			case SB_TOP: //最顶端
+				scrollpos = 30;
+				break;
+			case SB_BOTTOM:
+				scrollpos = 1;
+				break;
+			}
+			// 设置滚动块位置  
+			m_scroll_noiserange.SetScrollPos(scrollpos);
+			str.Format("%d", scrollpos);
+			SetDlgItemText(IDC_BASE_EDIT_NOISERANGE, str); 
+		}
+	}
+	__super::OnVScroll(nSBCode, nPos, pScrollBar);
+}
+
+void CPage_Base::SetScroll()
+{
+	CString str;
+	int nval;
+	float fMin,fMax,fStep;
+	
+	m_pUI->GetCapRangeFloat(UDSCAP_NOISENUM, fMin, fMax, fStep);
+	m_scroll_noisenum.SetScrollRange(fMin, fMax); 
+	m_edit_noisenum.GetWindowText(str); 
+	nval = _ttof(str);
+	m_scroll_noisenum.SetScrollPos(nval); 
+
+	m_pUI->GetCapRangeFloat(UDSCAP_NOISERANGE, fMin, fMax, fStep);
+	m_scroll_noiserange.SetScrollRange((int)fMin, (int)fMax); 
+	m_edit_noiserange.GetWindowText(str); 
+	nval = _ttof(str);
+	m_scroll_noiserange.SetScrollPos(nval); 
+}
+
+void CPage_Base::SetDenoise()
+{
+	if(m_check_frontbw.GetCheck() || m_check_backbw.GetCheck()
+	|| m_btn_frontbw.GetCheck() || m_btn_backbw.GetCheck())
+	{
+		m_edit_noisenum.EnableWindow(TRUE); 
+		m_scroll_noisenum.EnableWindow(TRUE); 
+		m_edit_noiserange.EnableWindow(TRUE); 
+		m_scroll_noiserange.EnableWindow(TRUE); 
+	}
+	else
+	{
+		m_edit_noisenum.EnableWindow(FALSE); 
+		m_scroll_noisenum.EnableWindow(FALSE); 
+		m_edit_noiserange.EnableWindow(FALSE); 
+		m_scroll_noiserange.EnableWindow(FALSE); 
+	}
+}
+
+void CPage_Base::OnEnChangeBase_Edit_NoiseNum()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	SetScroll();
+
+	CString str;
+	m_edit_noisenum.GetWindowText(str);
+	float fval = _ttof(str);
+	m_scroll_noisenum.SetScrollPos((int)fval);
+
+	m_pUI->SetCapValueFloat(UDSCAP_NOISENUM, fval); 
+	m_edit_noisenum.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Base::OnEnChangeBase_Edit_NoiseRange()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	SetScroll();
+
+	CString str;
+	m_edit_noiserange.GetWindowText(str);
+	float fval = _ttof(str);
+	m_scroll_noiserange.SetScrollPos((int)fval);
+
+	m_pUI->SetCapValueFloat(UDSCAP_NOISERANGE, fval); 
+	m_edit_noiserange.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+void CPage_Base::SetTabCtrl()
+{
+	int nIndex = m_combo_colormode.GetCurSel();
+	switch(nIndex)
+	{
+	case 0:
+		m_base_tab.SetCurSel(2);
+		break;
+	case 1:
+		m_base_tab.SetCurSel(1);
+		break;
+	case 2:
+		m_base_tab.SetCurSel(0);
+		break;
+	}	
 }

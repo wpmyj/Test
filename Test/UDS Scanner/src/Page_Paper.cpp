@@ -6,7 +6,6 @@
 #include "Page_Paper.h"
 #include "afxdialogex.h"
 
-extern CPage_Paper *m_p_page_paper;
 // CPage_Paper 对话框
 
 IMPLEMENT_DYNAMIC(CPage_Paper, CPropertyPage)
@@ -24,89 +23,133 @@ CPage_Paper::~CPage_Paper()
 void CPage_Paper::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_PAPER_COMBO_STANDARDSIZES, m_combo_standardsizes);
-	DDX_Control(pDX, IDC_PAPER_COMBO_UINTS, m_combo_uints);
-	DDX_Control(pDX, IDC_PAPER_EDIT_WIDTH, m_edit_width);
-	DDX_Control(pDX, IDC_PAPER_EDIT_HEIGHT, m_edit_height);
-	DDX_Control(pDX, IDC_PAPER_EDIT_DOWN, m_edit_down);
-	DDX_Control(pDX, IDC_PAPER_EDIT_LEFT, m_edit_left);
-	DDX_Control(pDX, IDC_PAPER_EDIT_RIGHT, m_edit_right);
-	DDX_Control(pDX, IDC_PAPER_EDIT_UP, m_edit_up);
-	DDX_Control(pDX, IDC_PAPER_EDIT_XPOS, m_edit_xpos);
-	DDX_Control(pDX, IDC_PAPER_EDIT_YPOS, m_edit_ypos);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_XPOS, m_scroll_xpos);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_YPOS, m_scroll_ypos);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_WIDTH, m_scroll_width);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_UP, m_scroll_up);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_RIGHT, m_scroll_right);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_LEFT, m_scroll_left);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_HEIGHT, m_scroll_height);
-	DDX_Control(pDX, IDC_PAPER_SCROLLBAR_DOWN, m_scroll_down);
-	DDX_Control(pDX, IDC_PAPER_COMBO_COMPRESS, m_combo_compress);
-	DDX_Control(pDX, IDC_PAPER_SLIDER_COMPRESSION, m_slider_compressvalue);
-	DDX_Control(pDX, IDC_PAPER_EDIT_COMPRESSVALUE, m_edit_compressvalue);
+
+	DDX_Control(pDX, IDC_PAPERPRE_COMBO_UINT, m_combo_uints);
+	DDX_Control(pDX, IDC_PAPER_CHECK_FRONTCOLOR, m_check_frontcolor);
+	DDX_Control(pDX, IDC_PAPER_CHECK_FRONTBW, m_check_frontbw);
+	DDX_Control(pDX, IDC_PAPER_CHECK_FRONTGRAY, m_check_frontgray);
+	DDX_Control(pDX, IDC_PAPER_CHECK_BACKGRAY, m_check_backgray);
+	DDX_Control(pDX, IDC_PAPER_CHECK_BACKCOLOR, m_check_backcolor);
+	DDX_Control(pDX, IDC_PAPER_CHECK_BACKBW, m_check_backbw);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_FRONTCOLOR, m_btn_frontcolor);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_FRONTBW, m_btn_frontbw);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_FRONTGRAY, m_btn_frontgray);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_BACKGRAY, m_btn_backgray);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_BACKCOLOR, m_btn_backcolor);
+	DDX_Control(pDX, IDC_PAPER_BUTTON_BACKBW, m_btn_backbw);
 }
 
 
 BEGIN_MESSAGE_MAP(CPage_Paper, CPropertyPage)
-	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_STANDARDSIZES, &CPage_Paper::OnCbnSelchangePaper_Combo_Standardsizes)
-	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_UINTS, &CPage_Paper::OnCbnSelchangePaper_Combo_Uints)
 	ON_WM_VSCROLL()
 	ON_WM_PAINT()
-	ON_EN_CHANGE(IDC_PAPER_EDIT_COMPRESSVALUE, &CPage_Paper::OnEnChangeBase_Edit_Compressvalue)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_PAPER_SLIDER_COMPRESSION, &CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue)
-	ON_CBN_SELCHANGE(IDC_PAPER_COMBO_COMPRESS, &CPage_Paper::OnCbnSelchangePaper_Combo_Compress)
 	ON_WM_LBUTTONDOWN()
-	ON_EN_CHANGE(IDC_PAPER_EDIT_RIGHT, &CPage_Paper::OnEnChangeBase_Edit_EdgeRight)
-	ON_EN_CHANGE(IDC_PAPER_EDIT_UP, &CPage_Paper::OnEnChangeBase_Edit_EdgeUp)
-	ON_EN_CHANGE(IDC_PAPER_EDIT_LEFT, &CPage_Paper::OnEnChangeBase_Edit_EdgeLeft)
-	ON_EN_CHANGE(IDC_PAPER_EDIT_DOWN, &CPage_Paper::OnEnChangeBase_Edit_EdgeDown)
-	ON_EN_CHANGE(IDC_PAPER_EDIT_XPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeXpos)
-	ON_EN_CHANGE(IDC_PAPER_EDIT_YPOS, &CPage_Paper::OnEnChangeBase_Edit_EdgeYpos)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_FRONTCOLOR, &CPage_Paper::OnPaper_Btn_Check_FrontColor)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_FRONTGRAY, &CPage_Paper::OnPaper_Btn_Check_FrontGray)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_FRONTBW, &CPage_Paper::OnPaper_Btn_Check_FrontBw)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_BACKBW, &CPage_Paper::OnPaper_Btn_Check_BackBw)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_BACKCOLOR, &CPage_Paper::OnPaper_Btn_Check_BackColor)
+	ON_BN_CLICKED(IDC_PAPER_CHECK_BACKGRAY, &CPage_Paper::OnPaper_Btn_Check_BackGray)
+	ON_CBN_SELCHANGE(IDC_PAPERPRE_COMBO_UINT, &CPage_Paper::OnCbnSelchangePaper_Combo_Uints)
 END_MESSAGE_MAP()
 
 
 // CPage_Paper 消息处理程序
+
 void CPage_Paper::SetCapValue(void)
 {
 	MAP_CAP::iterator iter; 
 	for(iter = m_papermap.begin(); iter != m_papermap.end(); iter++)
 	{
 		switch(iter->first)
-		{	
-		case ICAP_UNITS:  //单位
-		case ICAP_SUPPORTEDSIZES:  //纸张大小	
-		case ICAP_COMPRESSION: //压缩格式
+		{
+		case UDSCAP_MULTISTREAM_VALUE: // 多流输出选项值
 			{
-				m_pUI->SetCapValueInt(iter->first,iter->second); 
+				SetCapMulti();
+				break;
+			}
+
+		default:
+			{
 				break;
 			}	
-
-		case ICAP_PHYSICALWIDTH: //宽高
-		case ICAP_PHYSICALHEIGHT:
-		case UDSCAP_EDGE_UP: // 边缘扩充
-		case UDSCAP_EDGE_DOWN:
-		case UDSCAP_EDGE_LEFT:
-		case UDSCAP_EDGE_RIGHT:
-		case UDSCAP_XPOS: //X偏移量
-		case UDSCAP_YPOS:
-			{
-				m_pUI->SetCapValueFloat(iter->first, iter->second); 
-				break;
-			}
-
-		case UDSCAP_COMPRESSVALUE: //压缩比
-			{
-				if(m_slider_compressvalue.IsWindowEnabled())
-				{
-					m_pUI->SetCapValueFloat(iter->first,iter->second);
-				}	
-				break;
-			}
 		}
 	}
 }
 
+
+void CPage_Paper::InitPapermap(void)
+{
+	m_papermap.erase(m_papermap.begin(),m_papermap.end());//清空
+
+	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+	m_papermap[UDSCAP_MULTISTREAM_VALUE] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
+}
+
+
+void CPage_Paper::SetCapMulti()
+{
+	BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+	unsigned int doc_count = 0;
+
+	/************************************************************
+	* 判断多流chebox各选项的状态;
+	* 若选中则‘&’上对应bit为1的值;
+	* 若未选中则'|'上对应bit为0的值.
+	************************************************************/
+	// 正面彩色
+	if (m_check_frontcolor.GetCheck()) {  
+		temp |= 0x01;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x01);
+	}
+	// 正面彩色
+	if (m_check_frontgray.GetCheck()) {
+		temp |= 0x02;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x02);
+	}
+	// 正面黑白
+	if (m_check_frontbw.GetCheck()) {
+		temp |= 0x04;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x04);
+	}
+	// 背面彩色
+	if (m_check_backcolor.GetCheck()) {
+		temp |= 0x10;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x10);
+	}
+	// 背面灰度
+	if (m_check_backgray.GetCheck()) {
+		temp |= 0x20;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x20);
+	}
+	// 背面黑白
+	if (m_check_backbw.GetCheck()) {
+		temp |= 0x40;
+		doc_count++;
+	} 
+	else {
+		temp &= (0xFF-0x40);
+	}
+
+	m_pUI->SetCapValueFloat(UDSCAP_MULTISTREAM_VALUE, (float)temp); // 保存多流选项值
+	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+
+}
 
 void CPage_Paper::UpdateControls(void)
 {
@@ -116,7 +159,7 @@ void CPage_Paper::UpdateControls(void)
 	int nCapValue;
 	CString strText;
 	int nval;
-	
+
 	//纸张设置-单位
 	m_combo_uints.ResetContent();  // 清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_UNITS);
@@ -140,454 +183,130 @@ void CPage_Paper::UpdateControls(void)
 	}
 	m_combo_uints.SetCurSel(nCapIndex);
 	nval = FindUnit(nCapIndex);
-	m_papermap[ICAP_UNITS] = (float)nval;
-	
-	SetScroll();
-	// 自定义宽与高
-	TW_FRAME frame;	
-	int nIndex = m_combo_uints.GetCurSel();
-	//单位为inches、centi时edit显示两位小数，其他直接显示整数
-	switch(FindUnit(nIndex)) //当前界面的单位
+
+	//多流输出：默认不使用
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(nCapValue == 1) //多流选中
 	{
-	case TWUN_INCHES:
+		// 获取多流选项值并更新控件状态
+		BYTE value = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+		// 循环判断每bit的值，并更新对应控件的状态
+		for (unsigned int i = 0; i < 7; i++)
 		{
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%0.2f",FIX32ToFloat(frame.Right));
-			SetDlgItemText(IDC_PAPER_EDIT_WIDTH, strText);
-
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%0.2f",FIX32ToFloat(frame.Bottom));
-			SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, strText);
-
-			//边缘扩充 上下左右
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
-			if(fCapValue > (float)maxinches_updown)
+			switch(i)
 			{
-				fCapValue = (float)maxinches_updown;
+			case 0:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 1:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontgray.SetCheck(FALSE);
+					}
+				}
+			case 2:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_frontbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_frontbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 4:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backcolor.SetCheck(TRUE);
+					}
+					else {
+						m_check_backcolor.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 5:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backgray.SetCheck(TRUE);
+					}
+					else {
+						m_check_backgray.SetCheck(FALSE);
+					}
+				}
+				break;
+			case 6:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+						m_check_backbw.SetCheck(TRUE);
+					}
+					else {
+						m_check_backbw.SetCheck(FALSE);
+					}
+				}
+				break;
+			default:
+				break;
 			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
-			if(fCapValue > (float)maxinches_updown)
-			{
-				fCapValue = (float)maxinches_updown;
-			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
-			if(fCapValue > (float)maxinches_leftright)
-			{
-				fCapValue = (float)maxinches_leftright;
-			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
-			if(fCapValue > (float)maxinches_leftright)
-			{
-				fCapValue = (float)maxinches_leftright;
-			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
-
-			//XY偏移量
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
-			if(fCapValue > (float)maxinches_xpos)
-			{
-				fCapValue = (float)maxinches_xpos;
-			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}		
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
-			if(fCapValue > (float)maxinches_ypos)
-			{
-				fCapValue = (float)maxinches_ypos;
-			}
-			else if(fCapValue < 0.00)
-			{
-				fCapValue = 0.00;
-			}
-			else{}		
-			strText.Format("%0.2f",fCapValue);
-			SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
-		
-			break;
-		}
-	case TWUN_CENTIMETERS:
-		{
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%0.2f",FIX32ToFloat(frame.Right));
-			SetDlgItemText(IDC_PAPER_EDIT_WIDTH, strText);
-
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%0.2f",FIX32ToFloat(frame.Bottom));
-			SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, strText);
-
-			//边缘扩充 上下左右
-			float fvalue;
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_updown)
-			{
-				fvalue = (float)maxinches_updown;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_updown)
-			{
-				fvalue = (float)maxinches_updown;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_leftright)
-			{
-				fvalue = (float)maxinches_leftright;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_leftright)
-			{
-				fvalue = (float)maxinches_leftright;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
-
-			//XY偏移量
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_xpos)
-			{
-				fvalue = (float)maxinches_xpos;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			if(fvalue > (float)maxinches_ypos)
-			{
-				fvalue = (float)maxinches_ypos;
-			}
-			else if(fvalue < 0.00)
-			{
-				fvalue = 0.00;
-			}
-			else{}	
-			strText.Format("%0.2f",fvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
-
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%d",(int)FIX32ToFloat(frame.Right));
-			SetDlgItemText(IDC_PAPER_EDIT_WIDTH, strText);
-
-			frame = m_pUI->GetCurrentFrame();
-			strText.Format("%d",(int)FIX32ToFloat(frame.Bottom));
-			SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, strText);
-
-			//边缘扩充 上下左右
-			int nvalue;
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_updown)
-			{
-				nvalue = maxinches_updown;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_UP,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_updown)
-			{
-				nvalue = maxinches_updown;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_DOWN,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_leftright)
-			{
-				nvalue = maxinches_leftright;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_LEFT,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_leftright)
-			{
-				nvalue = maxinches_leftright;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_RIGHT,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_xpos)
-			{
-				nvalue = maxinches_xpos;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_XPOS,strText);
-
-			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
-			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			if(nvalue > maxinches_ypos)
-			{
-				nvalue = maxinches_ypos;
-			}
-			else if(nvalue < 0)
-			{
-				nvalue = 0;
-			}
-			else{}	
-			strText.Format("%d",nvalue);
-			SetDlgItemText(IDC_PAPER_EDIT_YPOS,strText);
-
-			break;
-		}
-	}
+			value = value >> 1; // 始终比较最低位
+		} // for end
+	}//if end
+	SetMultistream();
 	
-	//纸张设置-纸张大小
-	m_combo_standardsizes.ResetContent();  // 清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_SUPPORTEDSIZES);
-	lstCapValues = m_pUI->GetValidCap(ICAP_SUPPORTEDSIZES);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWSS_NONE:
-			m_combo_standardsizes.InsertString(i,"自动");
-			break;
-		case TWSS_USLETTER:
-			m_combo_standardsizes.InsertString(i,"US Letter (8.5\" x 11\")");  //216mm x 280mm
-			break;
-		case TWSS_USLEGAL:
-			m_combo_standardsizes.InsertString(i,"US Legal (8.5\" x 14\")");  //216mm x 356mm
-			break;
-		case TWSS_A4:
-			m_combo_standardsizes.InsertString(i,"ISO A4 (210mm x 297mm)"); //国际标准
-			break;
-		case TWSS_A5:
-			m_combo_standardsizes.InsertString(i,"ISO A5 (148mm x 210mm)");
-			break;
-		case TWSS_A6:
-			m_combo_standardsizes.InsertString(i,"ISO A6 (105mm x 148mm)");
-			break;
-		case TWSS_A7:
-			m_combo_standardsizes.InsertString(i,"ISO A7 (74mm x 105mm)");
-			break;
-		case TWSS_ISOB5:
-			m_combo_standardsizes.InsertString(i,"ISO B5 (176mm x 250mm)");
-			break;
-		case TWSS_ISOB6:
-			m_combo_standardsizes.InsertString(i,"ISO B6 (125mm x 176mm)");
-			break;
-		case TWSS_ISOB7:
-			m_combo_standardsizes.InsertString(i,"ISO B7 (88mm x 125mm)");
-			break;
-		case TWSS_JISB5:
-			m_combo_standardsizes.InsertString(i,"JIS B5 (182mm x 257mm)");//JIS日本标准
-			break;
-		case TWSS_JISB6:
-			m_combo_standardsizes.InsertString(i,"JIS B6 (128mm x 182mm)");
-			break;
-		case TWSS_JISB7:
-			m_combo_standardsizes.InsertString(i,"JIS B7 (91mm x 128mm)");
-			break;
-		case UDSCAP_LONGDOCUMENT:
-			m_combo_standardsizes.InsertString(i,"长纸模式");
-			break;
-		case TWSS_MAXSIZE:
-			m_combo_standardsizes.InsertString(i,"最大扫描范围");
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_standardsizes.SetCurSel(nCapIndex);  //显示默认值
-	nval = FindPaperSize(nCapIndex);
-	m_papermap[ICAP_SUPPORTEDSIZES] = (float)nval;//不能只更新容器，还要更新CAP
-	SetPaperSize();
-	
-	//压缩
-	m_combo_compress.ResetContent();  // 清空内容
-	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_COMPRESSION);
-	lstCapValues = m_pUI->GetValidCap(ICAP_COMPRESSION);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWCP_NONE:
-			m_combo_compress.InsertString(i,"自动"); //英寸
-			break;
-		case TWCP_JPEG:
-			m_combo_compress.InsertString(i,"JPEG"); //像素
-			break;
-		case TWCP_GROUP4:
-			m_combo_compress.InsertString(i,"G4"); //厘米
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_compress.SetCurSel(nCapIndex);
-	nval = (int)lstCapValues->at(nCapIndex);
-	m_papermap[ICAP_COMPRESSION] = (float)nval;
-
-	// 压缩比 
-	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
-	m_slider_compressvalue.SetPos(nCapValue);
-	strText.Format("%d",nCapValue);
-	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE,strText);
-	m_papermap[UDSCAP_COMPRESSVALUE] = (float)nCapValue;
 }
 
-
-void CPage_Paper::SetPaperSize(void)
+void CPage_Paper::SetMultistream(void)
 {
-	SetXYPos();
+	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 
-	int nIndex = m_combo_standardsizes.GetCurSel(); 
-	int nval = FindPaperSize(nIndex);
-	int nIndex_unit = m_combo_uints.GetCurSel();
-	int nval_unit = FindUnit(nIndex_unit);
-	CString str;
-	float value = 118.00;
-	if(nval == UDSCAP_LONGDOCUMENT)
+	if(nCapValue == 1) //多流选中
 	{
-		m_scroll_height.ShowWindow(FALSE);
+		m_check_frontcolor.EnableWindow(TRUE);
+		m_check_frontgray.EnableWindow(TRUE);
+		m_check_frontbw.EnableWindow(TRUE);
+		m_check_backcolor.EnableWindow(TRUE);
+		m_check_backgray.EnableWindow(TRUE);
+		m_check_backbw.EnableWindow(TRUE);
 
-		//switch设置长纸最大值
-		switch(nval_unit)
-		{
-		case TWUN_INCHES:
-			str.Format("%0.2f",value);
-			m_edit_height.SetWindowText(str);
-			break;
-		case TWUN_CENTIMETERS:		
-			value = ConvertUnits(value, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);	
-			str.Format("%0.2f",value);
-			m_edit_height.SetWindowText(str);
-			break;
-		case TWUN_PIXELS:
-			value = ConvertUnits(value, TWUN_INCHES, TWUN_PIXELS, m_resolution);	
-			str.Format("%d",(int)value);
-			m_edit_height.SetWindowText(str);
-			break;
-		}
-		
-	}
-	else
-	{
-		m_scroll_height.ShowWindow(TRUE);
-	}
-
-	/*if(nval == TWSS_NONE)  //纸张大小：自动。
-	{
-		m_edit_width.EnableWindow(TRUE);
-		m_edit_height.EnableWindow(TRUE);
-		m_scroll_width.EnableWindow(TRUE);
-		m_scroll_height.EnableWindow(TRUE);
+		m_btn_frontcolor.EnableWindow(TRUE);
+		m_btn_frontgray.EnableWindow(TRUE);
+		m_btn_frontbw.EnableWindow(TRUE);
+		m_btn_backcolor.EnableWindow(TRUE);
+		m_btn_backgray.EnableWindow(TRUE);
+		m_btn_backbw.EnableWindow(TRUE);
 	} 
-	else*/
+	else 
 	{
-		m_edit_width.EnableWindow(FALSE);
-		m_edit_height.EnableWindow(FALSE);
-		m_scroll_width.EnableWindow(FALSE);
-		m_scroll_height.EnableWindow(FALSE);
+		//多流输出未选中时，六个选项也均不要选中
+		m_check_frontcolor.SetCheck(FALSE);
+		m_check_frontgray.SetCheck(FALSE);
+		m_check_frontbw.SetCheck(FALSE);
+		m_check_backcolor.SetCheck(FALSE);
+		m_check_backgray.SetCheck(FALSE);
+		m_check_backbw.SetCheck(FALSE);
+
+		m_check_frontcolor.EnableWindow(FALSE);
+		m_check_frontgray.EnableWindow(FALSE);
+		m_check_frontbw.EnableWindow(FALSE);
+		m_check_backcolor.EnableWindow(FALSE);
+		m_check_backgray.EnableWindow(FALSE);
+		m_check_backbw.EnableWindow(FALSE);
+
+		m_btn_frontcolor.EnableWindow(FALSE);
+		m_btn_frontgray.EnableWindow(FALSE);
+		m_btn_frontbw.EnableWindow(FALSE);
+		m_btn_backcolor.EnableWindow(FALSE);
+		m_btn_backgray.EnableWindow(FALSE);
+		m_btn_backbw.EnableWindow(FALSE);
 	}
 }
 
@@ -595,304 +314,26 @@ BOOL CPage_Paper::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
-	// TODO:  在此添加额外的初始化
-	/*for(int i = 0; i< 6; i++)
-	{
-		m_num[i] = 0;
-	}*/
-
 	UpdateControls();
-	InitSliderCtrl();
+
+	//2.0版本界面
+	InitPapermap();
+	
 	//橡皮筋类初始化
 	m_rectTracker.m_nStyle = CRectTracker::solidLine;//设置RectTracker样式,实线CRectTracker::resizeOutside|
 	m_rectTracker.m_nHandleSize = 5; //控制柄的像素大小
 
-	const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
-	int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
-	m_resolution = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
-
-	GetDlgItem(IDC_PAPER_COMBO_COMPRESS)->ShowWindow(FALSE); //暂时隐藏
-	GetDlgItem(IDC_PAPER_SLIDER_COMPRESSION)->ShowWindow(FALSE); //暂时隐藏
-	GetDlgItem(IDC_PAPER_EDIT_COMPRESSVALUE)->ShowWindow(FALSE); //暂时隐藏
-
 	//初始化纸张单位，并未m_endrect赋值
-	int paperindex = m_combo_standardsizes.GetCurSel();
+	int paperindex = m_pUI->GetCurrentCapIndex(ICAP_SUPPORTEDSIZES);
 	int papervalue = FindPaperSize(paperindex);
-	int unitindex = m_combo_uints.GetCurSel();
+	int unitindex  = m_pUI->GetCurrentCapIndex(ICAP_UNITS);
 	int unitvalue = FindUnit(unitindex);
-	UpdatePicRectangle(papervalue, unitvalue, 0, 0);	
-	
+	UpdatePicRectangle(papervalue, unitvalue, 0, 0);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
-
-void CPage_Paper::InitSliderCtrl()
-{
-	float fMin,fMax,fStep;
-	m_pUI->GetCapRangeFloat(UDSCAP_COMPRESSVALUE, fMin, fMax, fStep);
-	m_slider_compressvalue.SetRange((int)fMin, (int)fMax);
-	m_slider_compressvalue.SetTicFreq((int)fStep);
-}
-
-
-void CPage_Paper::SetScroll()
-{
-	// 设置垂直滚动条的滚动范围	
-	//宽高
-	int nIndex = m_combo_uints.GetCurSel();
-	CString str;
-	int nval;
-	float tempinche;
-
-	switch(FindUnit(nIndex))
-	{
-	case TWUN_INCHES:	
-		{
-			//宽
-			maxinches_width = 850;
-			m_scroll_width.SetScrollRange(0, maxinches_width); 
-			m_edit_width.GetWindowText(str); //8.27
-			nval = _ttof(str) * 100;
-			m_scroll_width.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
-
-			//XPOS范围
-			maxinches_xpos = maxinches_width - nval;
-			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); //0.23
-			//X偏移量
-			m_edit_xpos.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_xpos.SetScrollPos(nval); 
-
-			//高
-			maxinches_height = 1400;
-			m_scroll_height.SetScrollRange(0, maxinches_height);
-			m_edit_height.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_height.SetScrollPos(nval);
-
-			//YPOS范围
-			maxinches_ypos = maxinches_height - nval;
-			m_scroll_ypos.SetScrollRange(0, maxinches_ypos);
-			m_edit_ypos.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_ypos.SetScrollPos(nval); 
-
-			//边缘扩充 上下左右
-			maxinches_updown = 50;
-			m_scroll_up.SetScrollRange(0, maxinches_updown);
-			m_edit_up.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_up.SetScrollPos(nval); 
-
-			m_scroll_down.SetScrollRange(0, maxinches_updown);
-			m_edit_down.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_down.SetScrollPos(nval); 
-
-			maxinches_leftright = 19;
-			m_scroll_left.SetScrollRange(0, maxinches_leftright);
-			m_edit_left.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_left.SetScrollPos(nval);
-
-			m_scroll_right.SetScrollRange(0, maxinches_leftright);
-			m_edit_right.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_right.SetScrollPos(nval); 
-
-			break;
-		}
-	case TWUN_CENTIMETERS:
-		{
-			//宽
-			maxinches_width = (int)ConvertUnits(850.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_width.SetScrollRange(0, maxinches_width); 
-			m_edit_width.GetWindowText(str); //8.27
-			nval = _ttof(str) * 100;
-			m_scroll_width.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
-
-			//当前获取str为厘米单位,需转换为英寸
-			tempinche = ConvertUnits(_ttof(str), TWUN_CENTIMETERS, TWUN_INCHES, m_resolution);
-			//XPOS范围
-			maxinches_xpos = (int)ConvertUnits(100.00*(8.50-tempinche), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); 
-			
-			//X、Y偏移量
-			m_edit_xpos.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_xpos.SetScrollPos(nval); 
-
-			//高
-			maxinches_height = (int)ConvertUnits(1400.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_height.SetScrollRange(0, maxinches_height);
-			m_edit_height.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_height.SetScrollPos(nval);
-
-			//当前获取str为厘米单位,需转换为英寸
-			tempinche = ConvertUnits(_ttof(str), TWUN_CENTIMETERS, TWUN_INCHES, m_resolution);
-			//YPOS范围
-			maxinches_ypos = (int)ConvertUnits(100.00*(14.00-tempinche), TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_ypos.SetScrollRange(0, maxinches_ypos);
-			m_edit_ypos.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_ypos.SetScrollPos(nval); 
-
-			//边缘扩充 上下左右
-			maxinches_updown = (int)ConvertUnits(50.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_up.SetScrollRange(0, maxinches_updown);
-			m_edit_up.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_up.SetScrollPos(nval);
-
-			m_scroll_down.SetScrollRange(0, maxinches_updown);
-			m_edit_down.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_down.SetScrollPos(nval); 
-
-			maxinches_leftright = (int)ConvertUnits(19.00, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
-			m_scroll_left.SetScrollRange(0, maxinches_leftright);
-			m_edit_left.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_left.SetScrollPos(nval);
-
-			m_scroll_right.SetScrollRange(0, maxinches_leftright);
-			m_edit_right.GetWindowText(str);
-			nval = _ttof(str) * 100;
-			m_scroll_right.SetScrollPos(nval); 
-
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			//宽
-			maxinches_width = (int)ConvertUnits(850.00, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_width.SetScrollRange(0, maxinches_width); 
-			m_edit_width.GetWindowText(str); 
-			nval = _ttof(str);
-			m_scroll_width.SetScrollPos(nval); 
-			
-			//当前获取str为像素单位,需转换为英寸
-			tempinche = ConvertUnits(_ttof(str), TWUN_PIXELS, TWUN_INCHES, m_resolution);
-			//XPOS范围
-			maxinches_xpos = (int)ConvertUnits(100.00*(8.50-tempinche), TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_xpos.SetScrollRange(0, maxinches_xpos); 
-			//X、Y偏移量
-			m_edit_xpos.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_xpos.SetScrollPos(nval); 
-			
-			//高
-			maxinches_height = (int)ConvertUnits(1400.00, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_height.SetScrollRange(0, maxinches_height);
-			m_edit_height.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_height.SetScrollPos(nval);
-
-			//当前获取str为厘米单位,需转换为英寸
-			tempinche = ConvertUnits(_ttof(str), TWUN_PIXELS, TWUN_INCHES, m_resolution);
-			//YPOS范围
-			maxinches_ypos = (int)ConvertUnits(100.00*(14.00-tempinche), TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_ypos.SetScrollRange(0, maxinches_ypos);
-			m_edit_ypos.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_ypos.SetScrollPos(nval); 
-
-			//边缘扩充 上下左右
-			maxinches_updown = (int)ConvertUnits(50.00, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_up.SetScrollRange(0, maxinches_updown);
-			m_edit_up.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_up.SetScrollPos(nval); 
-
-			m_scroll_down.SetScrollRange(0, maxinches_updown);
-			m_edit_down.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_down.SetScrollPos(nval); 
-
-			maxinches_leftright = (int)ConvertUnits(19.00, TWUN_INCHES, TWUN_PIXELS, m_resolution);
-			m_scroll_left.SetScrollRange(0, maxinches_leftright);
-			m_edit_left.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_left.SetScrollPos(nval);
-
-			m_scroll_right.SetScrollRange(0, maxinches_leftright);
-			m_edit_right.GetWindowText(str);
-			nval = _ttof(str);
-			m_scroll_right.SetScrollPos(nval); 
-		
-			break;
-		}		
-	}//switch	
-}
-
-
-void CPage_Paper::OnCbnSelchangePaper_Combo_Standardsizes()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_standardsizes.GetCurSel();
-	int nval = FindPaperSize(nIndex);
-	m_papermap[ICAP_SUPPORTEDSIZES] = nval;
-	m_combo_standardsizes.SetCurSel(nIndex);
-	SetPaperSize();
-	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, nval); //能够直接响应
-	UpdateControls(); //更新宽、高
-
-	int unitIndex = m_combo_uints.GetCurSel(); //当前单位
-	int unitnval = FindUnit(unitIndex);
-	
-	UpdatePicRectangle(nval, unitnval, 0, 0);
-}
-
-void CPage_Paper::SetXYPos()
-{
-	int index = m_combo_standardsizes.GetCurSel();	
-	switch(index)
-	{
-		//自动与US Legal
-	case 0:
-	case 2:
-		{
-			m_edit_xpos.EnableWindow(FALSE);
-			m_edit_ypos.EnableWindow(FALSE);
-			m_scroll_xpos.EnableWindow(FALSE);
-			m_scroll_ypos.EnableWindow(FALSE);
-			break;
-		}
-
-		//US Letter
-	case 1:
-		{
-			m_edit_xpos.EnableWindow(FALSE);
-			m_edit_ypos.EnableWindow(TRUE);
-			m_scroll_xpos.EnableWindow(FALSE);
-			m_scroll_ypos.EnableWindow(TRUE);
-			break;
-		}
-
-		//其他
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
-	case 14:
-		{
-			m_edit_xpos.EnableWindow(TRUE);
-			m_edit_ypos.EnableWindow(TRUE);
-			m_scroll_xpos.EnableWindow(TRUE);
-			m_scroll_ypos.EnableWindow(TRUE);
-			break;
-		}
-	}
-}
 
 void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypos)
 {
@@ -948,433 +389,11 @@ void CPage_Paper::UpdatePicRectangle(int index, int unitindex, int xpos, int ypo
 	pDC->SelectObject(pOldPen);
 }
 
-
-void CPage_Paper::OnCbnSelchangePaper_Combo_Uints()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);	
-	m_papermap[ICAP_UNITS] = nval;
-	m_combo_uints.SetCurSel(nIndex);
-	m_pUI->SetCapValueInt(ICAP_UNITS,nval); //界面能够直接响应
-	UpdateControls();
-
-	Invalidate(); //先刷新标尺
-
-	int paperIndex = m_combo_standardsizes.GetCurSel();
-	int paperval = FindPaperSize(paperIndex);
-	UpdatePicRectangle(paperval, nval, 0, 0);	
-}
-
-
-int CPage_Paper::FindUnit(int index)
-{
-	CString strCBText; 
-	m_combo_uints.GetLBText(index, strCBText);
-	int nval;
-	if (strCBText.Find("Inches") >= 0)
-	{
-		nval = TWUN_INCHES;
-	}
-	else if (strCBText.Find("Pixels") >= 0)
-	{
-		nval = TWUN_PIXELS;
-	}
-	else if (strCBText.Find("Centimeters") >= 0)
-	{
-		nval = TWUN_CENTIMETERS;
-	}
-	else
-	{
-		nval = TWUN_INCHES; //默认A4
-	}
-	return nval;
-}
-
 void CPage_Paper::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int scrollpos;
-	CString str;
-	float editvalue;
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-
-	SetScroll(); //初始化范围
-
-	switch(pScrollBar->GetDlgCtrlID())
-	{
-		//宽
-	case IDC_PAPER_SCROLLBAR_WIDTH:
-		scrollpos = m_scroll_width.GetScrollPos(); //获取垂直滚动条当前位置
-		switch(nSBCode)
-		{
-		case SB_LINEUP: //如果向上滚动一列，则pos加1
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: //如果向下滚动一列，则pos减1
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_width;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		
-		}
-		// 设置滚动块位置  
-		m_scroll_width.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}
-		m_papermap[ICAP_PHYSICALWIDTH] = editvalue;
-		SetDlgItemText(IDC_PAPER_EDIT_WIDTH, str); //设置edit的值
-		break;
-	
-		//高
-	case IDC_PAPER_SCROLLBAR_HEIGHT:
-		//高
-		scrollpos = m_scroll_height.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_height;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		// 设置滚动块位置  
-		m_scroll_height.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}
-		m_papermap[ICAP_PHYSICALHEIGHT] = editvalue;
-		SetDlgItemText(IDC_PAPER_EDIT_HEIGHT, str); //设置edit的值
-		break;
-
-	//边缘扩充 上下左右
-	case IDC_PAPER_SCROLLBAR_UP:
-		scrollpos = m_scroll_up.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;	
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_updown;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_up.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}	
-		m_papermap[UDSCAP_EDGE_UP] = editvalue;
-		SetDlgItemText(IDC_PAPER_EDIT_UP, str); //设置edit的值
-		break;
-	case IDC_PAPER_SCROLLBAR_DOWN:
-		scrollpos = m_scroll_down.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break; 
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_updown;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_down.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}	
-		m_papermap[UDSCAP_EDGE_DOWN] = editvalue; 
-		SetDlgItemText(IDC_PAPER_EDIT_DOWN, str); //设置edit的值
-		break;
-
-	case IDC_PAPER_SCROLLBAR_LEFT:
-		scrollpos = m_scroll_left.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_leftright;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_left.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}
-		m_papermap[UDSCAP_EDGE_LEFT] = editvalue;
-		SetDlgItemText(IDC_PAPER_EDIT_LEFT, str); //设置edit的值
-		break;
-	case IDC_PAPER_SCROLLBAR_RIGHT:
-		scrollpos = m_scroll_right.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_leftright;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_right.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}	
-		m_papermap[UDSCAP_EDGE_RIGHT] = editvalue;
-		SetDlgItemText(IDC_PAPER_EDIT_RIGHT, str); //设置edit的值
-		break;
-
-	//X偏移量
-	case IDC_PAPER_SCROLLBAR_XPOS:
-		scrollpos = m_scroll_xpos.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_xpos;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_xpos.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}	
-		m_papermap[UDSCAP_XPOS] = editvalue; //存入Map
-		SetDlgItemText(IDC_PAPER_EDIT_XPOS, str); //设置edit的值
-		break;
-	case IDC_PAPER_SCROLLBAR_YPOS:
-		scrollpos = m_scroll_ypos.GetScrollPos(); 
-		switch(nSBCode)
-		{
-		case SB_LINEUP: 
-			scrollpos += 1;
-			break;
-		case SB_LINEDOWN: 
-			scrollpos -= 1; 
-			break;
-		case SB_TOP: //最顶端
-			scrollpos = maxinches_ypos;
-			break;
-		case SB_BOTTOM:
-			scrollpos = 0;
-			break;
-		}
-		m_scroll_ypos.SetScrollPos(scrollpos);
-		switch(nval)
-		{
-		case TWUN_INCHES:
-		case TWUN_CENTIMETERS:
-			{
-				editvalue = (float)scrollpos/100.00;
-				str.Format("%0.2f", editvalue);
-				break;
-			}
-		case TWUN_PIXELS:
-			{
-				editvalue = (float)scrollpos;
-				str.Format("%d", scrollpos);
-				break;
-			}	
-		}	
-		m_papermap[UDSCAP_YPOS] = editvalue; //存入Map
-		SetDlgItemText(IDC_PAPER_EDIT_YPOS, str); //设置edit的值
-
-		break;
-
-	default:
-		break;
-	}
 
 	CPropertyPage::OnVScroll(nSBCode, nPos, pScrollBar);
-}
-
-
-int CPage_Paper::FindPaperSize(int index)
-{
-	int nval;
-	
-	switch(index)
-	{
-	case 0:
-		nval = TWSS_NONE;
-		break;
-	case 1:
-		nval = TWSS_USLETTER;
-		break;
-	case 2:
-		nval = TWSS_USLEGAL;
-		break;
-	case 3:
-		nval = TWSS_A4;
-		break;
-	case 4:
-		nval = TWSS_A5;
-		break;
-	case 5:
-		nval = TWSS_A6;
-		break;
-	case 6:
-		nval = TWSS_A7;
-		break;
-	case 7:
-		nval = TWSS_ISOB5;
-		break;
-	case 8:
-		nval = TWSS_ISOB6;
-		break;
-	case 9:
-		nval = TWSS_ISOB7;
-		break;
-	case 10:
-		nval = TWSS_JISB5;
-		break;
-	case 11:
-		nval = TWSS_JISB6;
-		break;
-	case 12:
-		nval = TWSS_JISB7;
-		break;
-	case 13:
-		nval = UDSCAP_LONGDOCUMENT;
-		break;
-	case 14:
-		nval = TWSS_MAXSIZE;
-		break;
-	}
-	return nval;
 }
 
 
@@ -1382,7 +401,7 @@ BOOL CPage_Paper::OnSetActive()
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();
-
+	UpdateControls();
 	return CPropertyPage::OnSetActive();
 } 
 
@@ -1565,76 +584,7 @@ void CPage_Paper::OnPaint()
 		} 
 	}
 	else{}
-	
 }
-
-
-void CPage_Paper::OnEnChangeBase_Edit_Compressvalue()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	m_edit_compressvalue.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_compressvalue.SetPos(nval);
-	
-	m_papermap[UDSCAP_COMPRESSVALUE] = (float)nval;
-	m_pUI->SetCapValueFloat(UDSCAP_COMPRESSVALUE, (float)nval);
-
-	m_edit_compressvalue.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnNMCustomdrawPaper_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	//TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	int sldValue = m_slider_compressvalue.GetPos();  // 获取滑块当前位置
-	m_papermap[UDSCAP_COMPRESSVALUE] = sldValue;
-	m_pUI->SetCapValueInt(UDSCAP_COMPRESSVALUE, sldValue); 
-	
-	str.Format("%d", sldValue);
-	SetDlgItemText(IDC_PAPER_EDIT_COMPRESSVALUE, str);
-
-	*pResult = 0;
-}
-
-
-void CPage_Paper::OnCbnSelchangePaper_Combo_Compress()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_compress.GetCurSel();
-	CString strCBText; 
-	m_combo_compress.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("自动") >= 0)
-	{
-		nval = TWCP_NONE;
-	}
-	else if(strCBText.Find("JPEG") >= 0)
-	{
-		nval = TWCP_JPEG; 
-	}
-	else if(strCBText.Find("G4") >= 0)
-	{
-		nval = TWCP_GROUP4; 
-	} 
-	else
-	{}
-	m_papermap[ICAP_COMPRESSION] = nval;
-	m_pUI->SetCapValueInt(ICAP_COMPRESSION, nval); 
-	m_combo_compress.SetCurSel(nIndex);
-}
-
 
 void CPage_Paper::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -1700,682 +650,11 @@ void CPage_Paper::OnLButtonDown(UINT nFlags, CPoint point)
 }
 
 
-void CPage_Paper::OnEnChangeBase_Edit_EdgeRight()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	SetScroll();
-
-	CString str;
-	m_edit_right.GetWindowText(str);
-	float fval = _ttof(str);
-
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	float editvalue;
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = fval * 100;  //需要乘以100.		
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = fval; 
-			break;
-		}
-	}
-	if(editvalue > maxinches_leftright)
-	{
-		editvalue = maxinches_leftright;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_right.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-	m_papermap[UDSCAP_EDGE_RIGHT] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_EDGE_RIGHT, fval);
-	
-	m_edit_right.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnEnChangeBase_Edit_EdgeUp()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	SetScroll();
-
-	CString str;
-	m_edit_up.GetWindowText(str);
-	float fval = _ttof(str);
-
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	float editvalue;
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = fval * 100;  //需要除以100.		
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = fval; 
-			break;
-		}
-	}
-	if(editvalue > maxinches_updown)
-	{
-		editvalue = maxinches_updown;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_up.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-	m_papermap[UDSCAP_EDGE_UP] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_EDGE_UP, fval);
-	
-	m_edit_up.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnEnChangeBase_Edit_EdgeLeft()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	SetScroll();
-
-	CString str;
-	m_edit_left.GetWindowText(str);
-	float fval = _ttof(str);
-
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	float editvalue;
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = fval * 100;  //需要除以100.		
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = fval; 
-			break;
-		}
-	}
-
-	if(editvalue > maxinches_leftright)
-	{
-		editvalue = maxinches_leftright;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_left.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-	m_papermap[UDSCAP_EDGE_LEFT] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_EDGE_LEFT, fval); 
-
-	m_edit_left.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnEnChangeBase_Edit_EdgeDown()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	SetScroll();
-
-	CString str;
-	m_edit_down.GetWindowText(str);
-	float fval = _ttof(str);
-
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	float editvalue;
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = fval * 100;  //需要乘以100
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = fval; 
-			break;
-		}
-	}
-
-	if(editvalue > maxinches_updown)
-	{
-		editvalue = maxinches_updown;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_down.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-	m_papermap[UDSCAP_EDGE_DOWN] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_EDGE_DOWN, fval); 
-
-	m_edit_down.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnEnChangeBase_Edit_EdgeXpos()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-
-	//m_num[0]++; //记录EdgeXpos的调用次数
-	SetScroll();
-
-	CString str;
-	m_edit_xpos.GetWindowText(str);
-	float fval = _ttof(str);
-	
-	int nIndex = m_combo_uints.GetCurSel();
-	int editvalue;
-	int nval = FindUnit(nIndex);
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = (int)(fval * 100.00);  //需要除以100.		
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = (int)fval; 
-			break;
-		}
-	}
-	
-	if(editvalue > maxinches_xpos)
-	{
-		editvalue = maxinches_xpos;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_xpos.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-	}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-
-	m_papermap[UDSCAP_XPOS] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_XPOS, fval); 
-
-	//if(m_num[0] != 1)
-	//{
-	//	SetDlgItemText(IDC_PAPER_EDIT_XPOS, str);
-	//	//m_edit_xpos.SetWindowText(str);
-	//	//((CEdit*)(GetDlgItem(IDC_PAPER_EDIT_XPOS)))->SetWindowText(str);
-	//}
-
-	m_edit_xpos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-	
-	UpdateData(FALSE);  // 更新控件
-}
-
-
-void CPage_Paper::OnEnChangeBase_Edit_EdgeYpos()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 __super::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	SetScroll();
-
-	CString str;
-	m_edit_ypos.GetWindowText(str);
-	float fval = _ttof(str);
-	
-	int nIndex = m_combo_uints.GetCurSel();
-	int nval = FindUnit(nIndex);
-	float editvalue;
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			editvalue = fval * 100;  //需要除以100.		
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			editvalue = fval; 
-			break;
-		}
-	}
-
-	if(editvalue > maxinches_ypos)
-	{
-		editvalue = maxinches_ypos;
-	}
-	else if(editvalue < 0)
-	{
-		editvalue = 0;
-	}
-	else{}
-	m_scroll_ypos.SetScrollPos(editvalue);
-
-	switch(nval)
-	{
-	case TWUN_INCHES:
-	case TWUN_CENTIMETERS:
-		{		
-			fval = (float)(editvalue/100.00);
-			str.Format("%0.2f",fval);	
-			break;
-		}
-	case TWUN_PIXELS:
-		{
-			fval = (float)editvalue;
-			str.Format("%0.2f",(float)editvalue); 
-			break;
-		}
-	}
-
-	m_papermap[UDSCAP_YPOS] = fval;
-	m_pUI->SetCapValueFloat(UDSCAP_YPOS, fval); 
-
-	m_edit_ypos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-
-	UpdateData(FALSE);  // 更新控件
-}
-
-
 BOOL CPage_Paper::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: 在此添加专用代码和/或调用基类
 	//获取控件窗口指针  
-	CEdit* pEdit[10];
-	pEdit[0] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_WIDTH);  
-	pEdit[1] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_HEIGHT);  
-	pEdit[2] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_XPOS);
-	pEdit[3] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_YPOS);  
-	pEdit[4] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_UP);  
-	pEdit[5] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_DOWN);
-	pEdit[6] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_LEFT);  
-	pEdit[7] = (CEdit*)GetDlgItem(IDC_PAPER_EDIT_RIGHT); 
-
-	CString str[10];   
-	GetDlgItemText(IDC_PAPER_EDIT_WIDTH, str[0]); // 获取edit中文本  
-	GetDlgItemText(IDC_PAPER_EDIT_HEIGHT, str[1]);
-	GetDlgItemText(IDC_PAPER_EDIT_XPOS, str[2]);
-	GetDlgItemText(IDC_PAPER_EDIT_YPOS, str[3]);  
-	GetDlgItemText(IDC_PAPER_EDIT_UP, str[4]);
-	GetDlgItemText(IDC_PAPER_EDIT_DOWN, str[5]);
-	GetDlgItemText(IDC_PAPER_EDIT_LEFT, str[6]); 
-	GetDlgItemText(IDC_PAPER_EDIT_RIGHT, str[7]);
-
-	int nPos[8] = {0}; 
-	for(int i = 0; i < 8; i++)
-	{
-		nPos[i] = str[i].Find('.'); // 查找.的位置 
-	}
-
-	if(GetFocus() == pEdit[0] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[0] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[1] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[1] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[2] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[2] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[3] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[3] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[4] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[4] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[5] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[5] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[6] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[6] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
-
-	if(GetFocus() == pEdit[7] && (pMsg->message == WM_CHAR))
-	{
-		if(pMsg->wParam == '.')
-		{
-			//输入框只允许输入一个小数点
-			if(nPos[7] >= 0)  //必须分开写，或||操作的话总会满足
-			{  
-				return 1;   //如果存在,返回,即不再允许输入
-			}	
-			return 0;
-		}
-		//允许输入数字
-		else if((pMsg->wParam >= '0' && pMsg->wParam <= '9'))   
-		{  
-			return 0;  
-		} 
-		//接受Backspace和delete键 
-		else if(pMsg->wParam == 0x08 || pMsg->wParam == 0x2E)  
-		{
-			// 设置编辑框控件范围
-			return 0;  
-		}  
-		else
-		{
-			return 1;
-		}
-	}
+	
 
 	return __super::PreTranslateMessage(pMsg);
 }
@@ -2386,8 +665,6 @@ void CPage_Paper::PreView()
 	UpdateData(TRUE);
 
 	SetCapValue();
-	//m_pAdPage->SetCapValue();
-	//m_pPaperPage->SetCapValue();
 	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF, 1);//预览时只扫描一张
 	m_pUI->TW_SaveProfileToFile("上次使用模板");
 
@@ -2448,10 +725,7 @@ void CPage_Paper::DrawImage(void)
 	CWnd *pWnd = GetDlgItem(IDC_PAPER_PREPICTURE); 
 	CDC* pDC = pWnd->GetDC();
 	HDC hDC = pDC->GetSafeHdc();
-	/*CRect rect;
-	pWnd->GetClientRect(&rect);
-	SetRect(rect, rect.left, rect.top, rect.right, rect.bottom);*/
-
+	
 	IplImage* img = cvLoadImage((CT2CA)m_bmpFilePath, 1);
 	if(img != NULL)
 	{
@@ -2630,6 +904,125 @@ void  CPage_Paper::DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img )
 			dst.x, dst.y, dst.width, dst.height,  
 			roi.x, roi.y, roi.width, roi.height,  
 			img->imageData, bmi, DIB_RGB_COLORS, SRCCOPY);  
+
 	}  
 }  
 
+
+void CPage_Paper::OnPaper_Btn_Check_FrontColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_frontcolor.GetCheck())
+	{
+		m_btn_frontcolor.SetFocus();
+		m_btn_frontcolor.SetState(TRUE);
+		m_btn_frontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontcolor.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnPaper_Btn_Check_FrontGray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_frontgray.GetCheck())
+	{
+		m_btn_frontgray.SetFocus();
+		m_btn_frontgray.SetState(TRUE);
+		m_btn_frontgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontgray.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnPaper_Btn_Check_FrontBw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_frontbw.GetCheck())
+	{
+		m_btn_frontbw.SetFocus();
+		m_btn_frontbw.SetState(TRUE);
+		m_btn_frontbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_frontbw.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnPaper_Btn_Check_BackBw()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_backbw.GetCheck())
+	{
+		m_btn_backbw.SetFocus();
+		m_btn_backbw.SetState(TRUE);
+		m_btn_backbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backbw.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnPaper_Btn_Check_BackColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_backcolor.GetCheck())
+	{
+		m_btn_backcolor.SetFocus();
+		m_btn_backcolor.SetState(TRUE);
+		m_btn_backcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backcolor.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnPaper_Btn_Check_BackGray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(m_check_backgray.GetCheck())
+	{
+		m_btn_backgray.SetFocus();
+		m_btn_backgray.SetState(TRUE);
+		m_btn_backgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+	}
+	else
+	{
+		m_btn_backgray.SetState(FALSE);
+	}
+	SetCapMulti();
+}
+
+
+void CPage_Paper::OnCbnSelchangePaper_Combo_Uints()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_uints.GetCurSel();
+	int nval = FindUnit(nIndex);	
+	m_combo_uints.SetCurSel(nIndex);
+	m_pUI->SetCapValueInt(ICAP_UNITS, nval); //界面能够直接响应
+
+	UpdateControls();
+
+	Invalidate(); //先刷新标尺
+	//int paperIndex = m_pUI->GetCurrentCapIndex(ICAP_SUPPORTEDSIZES);
+	//int paperval = FindPaperSize(paperIndex);
+	//UpdatePicRectangle(paperval, nval, 0, 0);
+}

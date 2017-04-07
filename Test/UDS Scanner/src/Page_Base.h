@@ -4,6 +4,10 @@
 #include "afxwin.h"
 #include "Dlg_Profile.h"
 #include "Page_Custom.h"
+#include "Base_AutoColor.h"
+#include "Base_Tab_Color.h"
+#include "Base_Tab_Gray.h"
+#include "Base_Tab_BW.h"
 
 class MFC_UI;
 // CPage_Base 对话框
@@ -44,13 +48,7 @@ public:
 	void SetFlat(void); ///< 设置扫描模式为平板时，只能为单面。
 
 	void SetMultistream(void); ///<设置多流输出配套参数
-	void SetColorGrayImage(void); ///<设置彩色和灰度，亮度、对比度可用
-	void SetBWImage(void); ///<设置黑白图片时二值化可用
-	int FindPaperSize(int index); ///<寻找index对应的纸张大小,返回index对应的纸张大小
 
-	void PreView();  //预览按钮实际功能实现
-
-	void SetBinarization(void); ///<设置二值化分别选择不同值时，该显示“去除斑点”还是“底色保留”
 
 	//bool MyBrowseForSignalImage(PTCHAR strFilePath);
 	/**
@@ -59,32 +57,18 @@ public:
 	*/
 	vector<string> MyBrowseForMultiImages();
 
-	void DrawImage(void); ///<OnPaint中画图，需要时刷新即可
-	void GetBmpFilePath(); ///<为成员变量m_bmpFilePath赋值
-	bool GetTempSavePath(TCHAR* pszPath); ///<获取临时文件夹
-	bool CreateDir(const CString& strPath); ///<创建文件夹
-
-	//DrawToHdc系列函数
-	void DrawToHDC(HDC hDCDst, RECT* pDstRect, IplImage* img); //在指定dDCDst根据pDstRect绘图。
-	void FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin); ///<为bmi写入信息头和调色板。
-	void Show(IplImage* img, HDC dc, int x, int y, int w, int h, int from_x, int from_y);	 ///<使用DIB位图和颜色数据对与目标设备环境相关的设备在dc上的指定矩形中的像素进行设置
-	CvRect RectToCvRect(RECT sr); ///<将Rect类型转为CvRect类型
-	RECT NormalizeRect(RECT r); ///<标准化处理输入rect，防止左侧坐标大于右侧坐标，上侧坐标大于下侧坐标
+	//2.0版本
+	void SetSpiltimage();
+	void SetBlank(void);
+	void SetScroll();
+	void SetDenoise(); //设置去噪声
+	void SetCapMulti(); //设置多流生效
+	void SetTabCtrl(); //设置图像类型选择时，Tab选中哪一页
 
 private:
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
-	CComboBox m_combo_resolution;  ///< 分辨率:  50/100/200/.../600
-	CComboBox m_combo_binarization; ///<二值化：固定阈值。动态阈值、半色调
 
-	CSliderCtrl m_slider_contrast;  ///< 对比度:  -100~+100
-	CSliderCtrl m_slider_brightness;  ///< 亮度:  -100~+100
-	CSliderCtrl m_slider_threshold; ///<阈值/去除斑点 
-
-	CEdit m_edit_contrast;  ///< 用于同步显示m_slider_contrast值
-	CEdit m_edit_brightness;   ///< 用于同步显示m_slider_brightness值
-	CEdit m_edit_threshold; ///< 用于同步显示m_slider_threshold值
-
-	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板 CButton m_radiobtn_scanmode_auto;
+	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板 
 	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
 
 	CButton m_check_frontcolor;
@@ -101,23 +85,27 @@ private:
 	CButton m_btn_backgray;
 	CButton m_btn_backbw;
 
-	CStatic m_base_picture;
+	CComboBox m_combo_rotate;
+	CComboBox m_combo_splitimage;
+	CSliderCtrl m_slider_gamma;
+	CEdit m_edit_gamma;
+	CSliderCtrl m_slider_removeblank;
+	CEdit m_edit_removeblank;
+	CButton m_check_removeblank;
 
 	MAP_CAP m_basemap;  ///<用于保存参数改变后的值
 
 	TCHAR m_bmpFilePath[PATH_MAX]; ///<预览图保存路径
-	
-	afx_msg void OnNMCustomdrawBase_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawBase_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawBase_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult);
 
-	afx_msg void OnEnChangeBase_Edit_Contrast();
-	afx_msg void OnEnChangeBase_Edit_Brightness();
-	afx_msg void OnEnChangeBase_Edit_Threshold();
+	CTabCtrl m_base_tab;
+	CRect m_tabRect; // 标签Tab控件客户区的Rect
+
+	CScrollBar m_scroll_noisenum;
+	CScrollBar m_scroll_noiserange;
+	CEdit m_edit_noisenum;
+	CEdit m_edit_noiserange;
 
 	afx_msg void OnCbnSelchangeBase_Combo_Colormode();
-	afx_msg void OnCbnSelchangeBase_Combo_Resolution();
-	afx_msg void OnCbnSelchangeBase_Combo_Binarization();
 
 	afx_msg void OnBase_Btn_Newprofile();
 
@@ -132,10 +120,37 @@ private:
 	afx_msg void OnBase_Btn_Check_BackColor();
 	afx_msg void OnBase_Btn_Check_BackGray();
 	afx_msg void OnBase_Btn_Check_BackBw();
-	afx_msg void OnPaint();
+//	afx_msg void OnPaint();
 
+	afx_msg void OnTcnSelchangeBase_Tab(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnCbnSelchangeBase_Combo_Rotate();	
+	afx_msg void OnCbnSelchangeBase_Combo_SpiltImage();	
+	afx_msg void OnNMCustomdrawBase_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult);	
+	afx_msg void OnEnChangeBase_Edit_Gamma();	
+	afx_msg void OnNMCustomdrawBase_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeBase_Edit_Removeblank();	
+	afx_msg void OnBase_Btn_Check_RemoveBlank();
+
+	afx_msg void OnBase_Btn_FrontColor();
+	afx_msg void OnBase_Btn_Backcolor();
+	afx_msg void OnBase_Btn_Frontgray();
+	afx_msg void OnBase_Btn_Backgray();
+	afx_msg void OnBase_Btn_Frontbw();
+	afx_msg void OnBase_Btn_Backbw();
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+
+	afx_msg void OnEnChangeBase_Edit_NoiseNum();
+	afx_msg void OnEnChangeBase_Edit_NoiseRange();
+	
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;	
 	CPage_Custom* m_pPaperPage;	
+	
+	//Tab对话框类
+	CBase_AutoColor *m_pTabAutoColor;
+	CBase_Tab_Color *m_pTabColor;
+	CBase_Tab_Gray *m_pTabGray;
+	CBase_Tab_BW *m_pTabBW;
+	
 };

@@ -177,6 +177,21 @@
     <ClCompile Include="src\Dlg_Device.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Base_AutoColor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Base_Tab_BW.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Base_Tab_Color.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Base_Tab_Gray.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page_Filter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -318,6 +333,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Dlg_Device.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Base_AutoColor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Base_Tab_BW.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Base_Tab_Color.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Base_Tab_Gray.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Page_Filter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

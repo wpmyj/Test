@@ -57,4 +57,6 @@ protected:
 	void ShowComputerAndScannerInfo();  ///< 显示用户电脑配置信息与扫描仪硬件信息
 	bool LoadDLL();
 	
+public:
+	virtual BOOL OnSetActive();
 };

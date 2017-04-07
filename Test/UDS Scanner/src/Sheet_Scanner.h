@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "MFC_UI.h"
 #include "Page_Profile.h"
 #include "Page_Base.h"
@@ -9,9 +8,11 @@
 #include "Page_Paper.h"
 #include "Page_Set.h"
 #include "Page_Info.h"
-
-//#include "Page_Muiltstream.h"
-//#include "Page_ImageProcess.h"
+#include "Page_Filter.h"
+#include "Base_AutoColor.h"
+#include "Base_Tab_BW.h"
+#include "Base_Tab_Color.h"
+#include "Base_Tab_Gray.h"
 
 class MFC_UI;
 // CSheet_Scanner
@@ -39,9 +40,13 @@ public:
 	CPage_Paper    *m_p_page_paper;
 	CPage_Set      *m_p_page_set;
 	CPage_Info     *m_p_page_info;
-	//CPage_Muiltstream *m_p_page_muilstream;
-	//CPage_ImageProcess *m_p_page_imageprocess;
+	CPage_Filter   *m_p_page_filter;
 
+	CBase_AutoColor *m_p_baseTab_autocolor;
+	CBase_Tab_BW    *m_p_baseTab_bw;
+	CBase_Tab_Color *m_p_baseTab_color;
+	CBase_Tab_Gray  *m_p_baseTab_gray;
+	
 	CButton m_btn_help; // Ù–‘“≥…œ°∞∞Ô÷˙°±∞¥≈•
 	CButton m_btn_preview; // Ù–‘“≥…œ°∞‘§¿¿°±∞¥≈•
 

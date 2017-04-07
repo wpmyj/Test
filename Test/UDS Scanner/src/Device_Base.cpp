@@ -74,10 +74,19 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fSavePowerValue     = settings.m_fSavePowerValue;
 	m_bOffTime            = settings.m_bOffTime;
 	m_fOffTimeValue       = settings.m_fOffTimeValue;
+
+	m_bTurnVideo          = settings.m_bTurnVideo;
+	m_nCutMethod          = settings.m_nCutMethod;
+
+	m_fNoiseNum           = settings.m_fNoiseNum;
+	m_fNoiseRange         = settings.m_fNoiseRange;
+
+	m_nFilterColor        = settings.m_nFilterColor;
+	m_nFilterMode         = settings.m_nFilterMode;
+	m_fFilterLevel        = settings.m_fFilterLevel;
 }
 
 CDevice_Base* CDevice_Base::getSetting() const
 {
-	//return (CDevice_Base)(*this);
 	return (CDevice_Base*)(this);
 }

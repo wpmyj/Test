@@ -497,3 +497,9 @@ bool CPage_Info::LoadDLL()
 
 	return true;
 }
+BOOL CPage_Info::OnSetActive()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	m_pUI->PreViewStatus();
+	return __super::OnSetActive();
+}

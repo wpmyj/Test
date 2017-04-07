@@ -56,4 +56,8 @@ private:
 	CSliderCtrl m_slider_offtime;
 	CSliderCtrl m_slider_savepower;
 
+public:
+	afx_msg void OnSet_Btn_Check_TurnVideo();
+	CButton m_check_turnvideo;
+	virtual BOOL OnSetActive();
 };

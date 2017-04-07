@@ -31,6 +31,7 @@ void CPage_Set::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SET_SLIDER_SAVEPOWER, m_slider_savepower);
 	//  DDX_Control(pDX, IDC_SET_EDIT_SAVEPOWER, m_edit_savepower);
 	//  DDX_Control(pDX, IDC_SET_EDIT_OFFTIME, m_edit_offtime);
+	DDX_Control(pDX, IDC_SET_CHECK_TURNVIDEO, m_check_turnvideo);
 }
 
 
@@ -42,6 +43,7 @@ BEGIN_MESSAGE_MAP(CPage_Set, CPropertyPage)
 //	ON_WM_HSCROLL()
 //ON_EN_CHANGE(IDC_SET_EDIT_SAVEPOWER, &CPage_Set::OnEnChangeSet_Edit_Savepower)
 //ON_EN_CHANGE(IDC_SET_EDIT_OFFTIME, &CPage_Set::OnEnChangeSet_Edit_Offtime)
+ON_BN_CLICKED(IDC_SET_CHECK_TURNVIDEO, &CPage_Set::OnSet_Btn_Check_TurnVideo)
 END_MESSAGE_MAP()
 
 
@@ -59,6 +61,7 @@ void CPage_Set::SetCapValue(void)
 		{
 		case UDSCAP_SAVEPOWER: //节电模式
 		case UDSCAP_OFFTIME: //关机时间
+		case UDSCAP_TURNVIDEO: //扫描仪无纸时转高拍仪
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
@@ -101,6 +104,9 @@ void CPage_Set::UpdateControls(void)
 	SetDlgItemText(IDC_SET_STATIC_OFFTIME, strText);
 	m_setmap[UDSCAP_OFFTIME_VALUE] = float(nCapValue);
 
+	//关机时间
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_TURNVIDEO));
+	m_check_turnvideo.SetCheck(nCapValue);
 }
 
 
@@ -233,3 +239,28 @@ void CPage_Set::SetOffTime(void)
 	}
 }
 
+
+
+void CPage_Set::OnSet_Btn_Check_TurnVideo()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_turnvideo.GetCheck())
+	{
+		nval = TWTV_AUTO;
+	} 
+	else
+	{
+		nval = TWTV_DISABLE;
+	}
+	m_setmap[UDSCAP_TURNVIDEO] = (float)nval;
+}
+
+
+BOOL CPage_Set::OnSetActive()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	m_pUI->PreViewStatus();
+	UpdateControls();
+	return __super::OnSetActive();
+}

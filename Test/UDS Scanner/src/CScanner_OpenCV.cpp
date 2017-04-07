@@ -103,7 +103,7 @@ bool CScanner_OpenCV::resetScanner()
 
 	//Advanced界面
 	m_nOrientation        = TWOR_ROT0; //zhu 纸张方向-纵向
-	m_nStandardsizes      = TWSS_USLETTER; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-TWSS_USLETTER
+	m_nStandardsizes      = TWSS_A4; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-A4
 	m_nUnits              = TWUN_INCHES;  //zhu 单位-英寸
 
 	m_nWidth              = 0;
@@ -153,6 +153,16 @@ bool CScanner_OpenCV::resetScanner()
 	m_fSavePowerValue     = 15.0;
 	m_bOffTime            = TRUE;
 	m_fOffTimeValue       = 240.0;
+
+	m_bTurnVideo          = TRUE;
+	m_nCutMethod          = TWCT_NONE;
+
+	m_fNoiseNum           = 0.0;
+	m_fNoiseRange         = 1.0;
+
+	m_nFilterColor        = TWFL_NONE;
+	m_nFilterMode         = TWFM_AUTO;
+	m_fFilterLevel        = 10.0;
 	
 	m_byte_image = NULL;
 	if (false == m_mat_image.empty())
@@ -493,7 +503,8 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 
 	//自动裁切与校正
-	if(m_bAutoCrop == TWAC_AUTO) 
+	//if(m_bAutoCrop == TWAC_AUTO) 
+	if(m_nCutMethod == TWCT_AUTO)
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect();//先自动校正	

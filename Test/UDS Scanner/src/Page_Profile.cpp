@@ -48,6 +48,7 @@ void CPage_Profile::OnOK()
 	m_pBasePage->SetCapValue();
 	m_pAdPage->SetCapValue();
 	m_pPaperPage->SetCapValue();
+	m_pFilterPage->SetCapValue();
 	m_pSetPage->SetCapValue();
 
 	int index = m_list_template.GetCurSel();
@@ -175,6 +176,10 @@ void CPage_Profile::LoadTemplate()
 	m_pAdPage->UpdateControls();//高级设置界面参数也更新
 	m_pPaperPage->UpdateControls();
 	m_pSetPage->UpdateControls();
+	m_pBaseTabAutoColor->UpdateControls();
+	m_pBaseTabColor->UpdateControls();
+	m_pBaseTabGray->UpdateControls();
+	m_pBaseTabBW->UpdateControls();
 
 	UpdateData(FALSE);
 }

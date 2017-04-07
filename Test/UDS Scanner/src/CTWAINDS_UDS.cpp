@@ -444,16 +444,19 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_YPOS,0,TWON_ONEVALUE);
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COLORFLIP,0,TWON_ONEVALUE); //色彩翻转
-
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_AUTO,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0,TWON_ONEVALUE);
-
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER,0,TWON_ONEVALUE); //节电模式
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER_VALUE,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME_VALUE,0,TWON_ONEVALUE);
+    bResult = bResult && StoreCapInStream(DsData,UDSCAP_TURNVIDEO,0,TWON_ONEVALUE); //高拍转高扫
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CUTMETHOD,0,TWON_ONEVALUE);  //图像裁切方式
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NOISENUM,0,TWON_ONEVALUE);  //去除噪声-噪声数目
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NOISERANGE,0,TWON_ONEVALUE);  //去除噪声-噪声范围
+
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_FILTERCOLOR,0,TWON_ONEVALUE); //滤除颜色
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_FILTERMODE,0,TWON_ONEVALUE); //滤除模式
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_FILTERLEVEL,0,TWON_ONEVALUE); //滤除程度
 
 	return bResult;
 }
@@ -514,16 +517,19 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_YPOS,0); 
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COLORFLIP,0);  //色彩翻转
-
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE,0); 
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_AUTO,0); 
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_PAPERNUM,0); 
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CACHEMODE_MEMORYSIZE,0); 
-
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER,0); //节电模式
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER_VALUE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME_VALUE,0);
+    bResult = bResult && ReadCapFromStream(DsData,UDSCAP_TURNVIDEO,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CUTMETHOD,0);
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NOISENUM,0);  //去除噪声-噪声数目
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NOISERANGE,0); //去除噪声-噪声范围
+
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FILTERCOLOR,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FILTERMODE,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_FILTERLEVEL,0);
 
   return bResult;
 }
@@ -605,14 +611,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_XPOS)
 	 || !pnCap->Add(UDSCAP_YPOS)
 	 || !pnCap->Add(UDSCAP_COLORFLIP)
-	 || !pnCap->Add(UDSCAP_CACHEMODE)
-	 || !pnCap->Add(UDSCAP_CACHEMODE_AUTO)
-	 || !pnCap->Add(UDSCAP_CACHEMODE_PAPERNUM)
-	 || !pnCap->Add(UDSCAP_CACHEMODE_MEMORYSIZE)
 	 || !pnCap->Add(UDSCAP_SAVEPOWER)
 	 || !pnCap->Add(UDSCAP_SAVEPOWER_VALUE)
 	 || !pnCap->Add(UDSCAP_OFFTIME)
 	 || !pnCap->Add(UDSCAP_OFFTIME_VALUE)
+     || !pnCap->Add(UDSCAP_TURNVIDEO)	 
+	 || !pnCap->Add(UDSCAP_CUTMETHOD)	 
+	 || !pnCap->Add(UDSCAP_NOISENUM)	
+	 || !pnCap->Add(UDSCAP_NOISERANGE)
+	 || !pnCap->Add(UDSCAP_FILTERCOLOR)	 
+	 || !pnCap->Add(UDSCAP_FILTERMODE)	
+	 || !pnCap->Add(UDSCAP_FILTERLEVEL)	
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -620,6 +629,82 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
+
+	//扫描仪无纸时转高拍仪
+	m_IndependantCapMap[UDSCAP_TURNVIDEO] = new CTWAINContainerBool(UDSCAP_TURNVIDEO, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_TURNVIDEO]))
+		|| !pbCap->Add(FALSE)
+		|| !pbCap->Add(TRUE, true) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_TURNVIDEO !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//滤除颜色
+	m_IndependantCapMap[UDSCAP_FILTERCOLOR] = new CTWAINContainerInt(UDSCAP_FILTERCOLOR, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_FILTERCOLOR]))
+		|| !pnCap->Add(TWFL_NONE, true)
+		|| !pnCap->Add(TWFL_RED)
+		|| !pnCap->Add(TWFL_GREEN)
+		|| !pnCap->Add(TWFL_BLUE)
+		|| !pnCap->Add(TWFL_AUTO))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FILTERCOLOR !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//滤除模式
+	m_IndependantCapMap[UDSCAP_FILTERMODE] = new CTWAINContainerInt(UDSCAP_FILTERMODE, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_FILTERMODE]))
+		|| !pnCap->Add(TWFM_AUTO, true)
+		|| !pnCap->Add(TWFM_DEFINED))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FILTERMODE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//滤除程度
+	fRange.fCurrentValue = 10.0f; 
+	fRange.fMaxValue = 20.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	//去除噪声-噪声数目
+	m_IndependantCapMap[UDSCAP_FILTERLEVEL] = new CTWAINContainerFix32Range(UDSCAP_FILTERLEVEL,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_FILTERLEVEL]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FILTERLEVEL !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 0.0f; 
+	fRange.fMaxValue = 3600.0f;
+	fRange.fMinValue = 0.0f;
+	fRange.fStepSize = 1.0f;
+	//去除噪声-噪声数目
+	m_IndependantCapMap[UDSCAP_NOISENUM] = new CTWAINContainerFix32Range(UDSCAP_NOISENUM,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_NOISENUM]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NOISENUM !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	fRange.fCurrentValue = 1.0f; 
+	fRange.fMaxValue = 30.0f;
+	fRange.fMinValue = 1.0f;
+	fRange.fStepSize = 1.0f;
+	//去除噪声-噪声范围
+	m_IndependantCapMap[UDSCAP_NOISERANGE] = new CTWAINContainerFix32Range(UDSCAP_NOISERANGE,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_NOISERANGE]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NOISERANGE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 
 	//节电模式
 	m_IndependantCapMap[UDSCAP_SAVEPOWER] = new CTWAINContainerBool(UDSCAP_SAVEPOWER, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
@@ -678,58 +763,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     setConditionCode(TWCC_LOWMEMORY);
     return TWRC_FAILURE;
   }
-
-	//缓存模式
-	m_IndependantCapMap[UDSCAP_CACHEMODE] = new CTWAINContainerInt(UDSCAP_CACHEMODE, TWTY_UINT16, TWON_ENUMERATION);
-	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_CACHEMODE]))
-		|| !pnCap->Add(TWCM_NONE, true) 
-		|| !pnCap->Add(TWCM_PAPERNUM)
-		|| !pnCap->Add(TWCM_MEMORYSIZE)
-		)
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COLORFLIP !"),MB_CAPTION,MB_OK);
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
-
-	fRange.fCurrentValue = 0.0f; 
-	fRange.fMaxValue = 100.0f;
-	fRange.fMinValue = 0.0f;
-	fRange.fStepSize = 1.0f;
-	//缓存模式-自动
-	m_IndependantCapMap[UDSCAP_CACHEMODE_AUTO] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_AUTO,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_AUTO]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_AUTO !"),MB_CAPTION,MB_OK);
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
-
-	fRange.fCurrentValue = 1.0f; 
-	fRange.fMaxValue = 25.0f;
-	fRange.fMinValue = 1.0;
-	fRange.fStepSize = 1.0f;
-	//缓存模式--纸张数量
-	m_IndependantCapMap[UDSCAP_CACHEMODE_PAPERNUM] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_PAPERNUM,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_PAPERNUM]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_PAPERNUM !"),MB_CAPTION,MB_OK);
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
-
-	fRange.fCurrentValue = 0.0f; 
-	fRange.fMaxValue = 1024.0f;
-	fRange.fMinValue = 0.0f;
-	fRange.fStepSize = 1.0f;
-	//缓存模式-内存大小
-	m_IndependantCapMap[UDSCAP_CACHEMODE_MEMORYSIZE] = new CTWAINContainerFix32Range(UDSCAP_CACHEMODE_MEMORYSIZE,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_CACHEMODE_MEMORYSIZE]))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CACHEMODE_MEMORYSIZE !"),MB_CAPTION,MB_OK);
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
 
   m_IndependantCapMap[ICAP_PLANARCHUNKY] = new CTWAINContainerInt(ICAP_PLANARCHUNKY, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_PLANARCHUNKY]))
@@ -952,14 +985,14 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//zhu 二值化
 	m_IndependantCapMap[UDSCAP_BINARIZATION] = new CTWAINContainerInt(UDSCAP_BINARIZATION, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_BINARIZATION]))
-		//|| !pnCap->Add(TWBZ_DYNATHRESHOLD) //默认动态阈值
+	    || !pnCap->Add(TWBZ_DYNATHRESHOLD) //默认动态阈值
 		|| !pnCap->Add(TWBZ_FIXEDTHRESHOLD, true)
-		//|| !pnCap->Add(TWBZ_HALFTONE1)
-		//|| !pnCap->Add(TWBZ_HALFTONE2)
-		//|| !pnCap->Add(TWBZ_HALFTONE3)
-		//|| !pnCap->Add(TWBZ_HALFTONE4)
-		//|| !pnCap->Add(TWBZ_HALFTONE5)
-		//|| !pnCap->Add(TWBZ_ERRORDIFF)
+		|| !pnCap->Add(TWBZ_HALFTONE1)
+		|| !pnCap->Add(TWBZ_HALFTONE2)
+		|| !pnCap->Add(TWBZ_HALFTONE3)
+		|| !pnCap->Add(TWBZ_HALFTONE4)
+		|| !pnCap->Add(TWBZ_HALFTONE5)
+		|| !pnCap->Add(TWBZ_ERRORDIFF)
 		)  
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_BINARIZATION !"),MB_CAPTION,MB_OK);
@@ -1281,6 +1314,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		return TWRC_FAILURE;
 	}
 
+    //图像裁切方式
+	m_IndependantCapMap[UDSCAP_CUTMETHOD] = new CTWAINContainerInt(UDSCAP_CUTMETHOD, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_CUTMETHOD]))
+		|| !pnCap->Add(TWCT_NONE)
+		|| !pnCap->Add(TWCT_AUTO, true)
+		|| !pnCap->Add(TWCT_SPECIFY) )
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_CUTMETHOD !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
 //FLOAT_RANGE fRange;
   fRange.fCurrentValue = 128.0f; 
   fRange.fMaxValue = 255.0f;
@@ -2218,6 +2262,86 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nCompress = nVal;
 	}
 
+    //图像裁切方式
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_CUTMETHOD))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_CUTMETHOD!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCutMethod = nVal;
+	}
+
+	//扫描仪无纸时转高拍仪
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_TURNVIDEO))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_TURNVIDEO!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bTurnVideo = bVal;
+	}
+
+	//去除噪声-噪声范围
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_NOISERANGE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NOISERANGE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fNoiseRange = fVal;
+	}
+
+	//去除噪声-噪声数目
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_NOISENUM))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NOISENUM!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fNoiseNum = fVal;
+	}
+	//滤除颜色
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_FILTERCOLOR))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_FILTERCOLOR!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nFilterColor = nVal;
+	}
+	//滤除模式
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_FILTERMODE))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_FILTERMODE!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nFilterMode = nVal;
+	}
+	//滤除程度
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_FILTERLEVEL))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_FILTERLEVEL!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fFilterLevel= fVal;
+	}
 	//节电模式
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_SAVEPOWER))))
 	{

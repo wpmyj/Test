@@ -13,10 +13,10 @@
 #define UDSCAP_BINARIZATION             CAP_CUSTOMBASE+3  /**< 二值化 */
 #define UDSCAP_SPLITIMAGE               CAP_CUSTOMBASE+4  /**< 图像分割 */
 #define UDSCAP_REMOVESPOTS              CAP_CUSTOMBASE+5  /**< 去除斑点 共用一个slider，但CAP分为两部分*/
-#define UDSCAP_SENSITIVETHRESHOLD_COLORRETENT       CAP_CUSTOMBASE+8  /**< 底色保留 */
+#define UDSCAP_SENSITIVETHRESHOLD_COLORRETENT       CAP_CUSTOMBASE+6  /**< 底色保留 */
 
-#define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+6  /**< 去除穿孔 */
-#define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+7  /**< 图像锐化 */
+#define UDSCAP_PUNCHHOLEREMOVEL         CAP_CUSTOMBASE+7  /**< 去除穿孔 */
+#define UDSCAP_SHARPEN                  CAP_CUSTOMBASE+8  /**< 图像锐化 */
 
 #define UDSCAP_MIRROR                   CAP_CUSTOMBASE+9  /**< 图像镜像处理 */
 #define UDSCAP_REMOVEBACKGROUND         CAP_CUSTOMBASE+10 /**< 去除背景 */
@@ -25,37 +25,42 @@
 #define UDSCAP_AUTOCROP                 CAP_CUSTOMBASE+13 /**< 自动裁切校正 */
 
 #define UDSCAP_MULTIFEEDDETECT          CAP_CUSTOMBASE+14 /**< 重张检测 */
-#define UDSCAP_MULTIFEEDDETECT_VALUE    CAP_CUSTOMBASE+30 /**< 重张检测故障值 */
+#define UDSCAP_MULTIFEEDDETECT_VALUE    CAP_CUSTOMBASE+15 /**< 重张检测故障值 */
 
-#define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+15 /**< 多流输出 */
+#define UDSCAP_MULTISTREAM              CAP_CUSTOMBASE+16 /**< 多流输出 */
 
-#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+16 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */
-#define UDSCAP_MULTISTREAM_VALUE        CAP_CUSTOMBASE+17 /**< 多流输出选项值 */
+#define UDSCAP_REMOVEBLANK              CAP_CUSTOMBASE+17 /**< 去除空白页 用来记录CheckBox的状态，TWAIN自带的用来记录滑动条值 */
+#define UDSCAP_MULTISTREAM_VALUE        CAP_CUSTOMBASE+18 /**< 多流输出选项值 */
 
 //#define UDSCAP_SPLITIMAGE_VH            CAP_CUSTOMBASE+18 /**< 图像分割自定义是垂直、水平*/
 
-#define UDSCAP_EDGE_UP                  CAP_CUSTOMBASE+18   /**< 边缘扩充上下左右 */
-#define UDSCAP_EDGE_DOWN                CAP_CUSTOMBASE+19
-#define UDSCAP_EDGE_LEFT                CAP_CUSTOMBASE+20
-#define UDSCAP_EDGE_RIGHT               CAP_CUSTOMBASE+21
+#define UDSCAP_EDGE_UP                  CAP_CUSTOMBASE+19   /**< 边缘扩充上下左右 */
+#define UDSCAP_EDGE_DOWN                CAP_CUSTOMBASE+20
+#define UDSCAP_EDGE_LEFT                CAP_CUSTOMBASE+21
+#define UDSCAP_EDGE_RIGHT               CAP_CUSTOMBASE+22
 
-#define UDSCAP_XPOS                     CAP_CUSTOMBASE+22  /**< X偏移量 */
-#define UDSCAP_YPOS                     CAP_CUSTOMBASE+23
+#define UDSCAP_XPOS                     CAP_CUSTOMBASE+23  /**< X偏移量 */
+#define UDSCAP_YPOS                     CAP_CUSTOMBASE+24
 
-#define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+24  /**< 压缩比 */
-#define UDSCAP_COLORFLIP                CAP_CUSTOMBASE+25  /**< 色彩翻转 */
+#define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+25  /**< 压缩比 */
+#define UDSCAP_COLORFLIP                CAP_CUSTOMBASE+26  /**< 色彩翻转 */
 
-#define UDSCAP_CACHEMODE                CAP_CUSTOMBASE+26  /**< 缓存模式 */
-#define UDSCAP_CACHEMODE_AUTO           CAP_CUSTOMBASE+27  /**< 缓存模式选项-自动 */
-#define UDSCAP_CACHEMODE_PAPERNUM       CAP_CUSTOMBASE+28  /**< 缓存模式选项-纸张数量 */
-#define UDSCAP_CACHEMODE_MEMORYSIZE     CAP_CUSTOMBASE+29  /**< 缓存模式选项-内存大小 */
+#define UDSCAP_SAVEPOWER                CAP_CUSTOMBASE+27  /**< 节电模式 */
+#define UDSCAP_SAVEPOWER_VALUE          CAP_CUSTOMBASE+28  /**< 节电模式值：时间 */
 
-#define UDSCAP_SAVEPOWER                CAP_CUSTOMBASE+31  /**< 节电模式 */
-#define UDSCAP_SAVEPOWER_VALUE          CAP_CUSTOMBASE+32  /**< 节电模式值：时间 */
+#define UDSCAP_OFFTIME                  CAP_CUSTOMBASE+29  /**< 关机时间 */
+#define UDSCAP_OFFTIME_VALUE            CAP_CUSTOMBASE+30  /**< 关机时间值：时间 */
 
-#define UDSCAP_OFFTIME                  CAP_CUSTOMBASE+33  /**< 关机时间 */
-#define UDSCAP_OFFTIME_VALUE            CAP_CUSTOMBASE+34  /**< 关机时间值：时间 */
+#define UDSCAP_TURNVIDEO                CAP_CUSTOMBASE+31  /**< 扫描仪无纸时转高拍仪 */
 
+#define UDSCAP_CUTMETHOD                CAP_CUSTOMBASE+32  /**< 图像裁切方式 */
+
+#define UDSCAP_NOISENUM                 CAP_CUSTOMBASE+33  /**< 去除噪声-噪声数目 */
+#define UDSCAP_NOISERANGE               CAP_CUSTOMBASE+34  /**< 去除噪声-噪声范围 */
+
+#define UDSCAP_FILTERCOLOR              CAP_CUSTOMBASE+35  /**< 滤除颜色 */
+#define UDSCAP_FILTERMODE               CAP_CUSTOMBASE+36  /**< 滤除模式 */
+#define UDSCAP_FILTERLEVEL              CAP_CUSTOMBASE+37  /**< 滤除程度 */
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -149,3 +154,23 @@
 /* UDSCAP_OFFTIME values (OT_ means OFFTIME)关机时间。*/
 #define TWOT_DISABLE              FALSE
 #define TWOT_AUTO                 TRUE
+
+/* UDSCAP_TURNVIDEO values (TV_ means TURNVIDEO)扫描仪无纸时转高拍仪。*/
+#define TWTV_DISABLE              FALSE
+#define TWTV_AUTO                 TRUE
+
+/* UDSCAP_CUTMETHOD values (CT_ means UDSCAP_CUTMETHOD)图像裁切方式*/
+#define TWCT_NONE                 0  //不裁切
+#define TWCT_AUTO                 1  //自动裁切与纠偏
+#define TWCT_SPECIFY              2  //指定长度、宽度
+
+/* UDSCAP_FILTERCOLOR values (FL_ means UDSCAP_FILTERCOLOR)滤除颜色*/
+#define TWFL_NONE                 0  //不滤除
+#define TWFL_RED                  1  //红
+#define TWFL_GREEN                2  //绿
+#define TWFL_BLUE                 3  //蓝
+#define TWFL_AUTO                 4  //自动
+
+/* UDSCAP_FILTERMODE values (FM_ means UDSCAP_FILTERMODE)滤除模式*/
+#define TWFM_AUTO                 0  //自动
+#define TWFM_DEFINED              1  //自定义
