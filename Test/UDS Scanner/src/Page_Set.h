@@ -3,10 +3,11 @@
 #include "MFC_UI.h"
 #include "afxwin.h"
 #include "Page_Custom.h"
+#include "GL1.h"
 
 class MFC_UI;
 
-// CPage_Set 对话框
+// CPage_Set 露脭禄掳驴貌
 
 class CPage_Set : public CPropertyPage, public CPage_Custom
 {
@@ -16,31 +17,31 @@ public:
 	CPage_Set(MFC_UI *pUI);
 	virtual ~CPage_Set();
 
-// 对话框数据
+// 露脭禄掳驴貌脢媒戮脻
 	enum { IDD = IDD_PROPPAGE_SET };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 脰搂鲁脰
 
 	DECLARE_MESSAGE_MAP()
 
 private:
 	/**
-	* @brief 主界面
+	* @brief 脰梅陆莽脙忙
 	* @see  MFC_UI::DisplayTWAINGUI()
-	* @note 从外部接收值
+	* @note 麓脫脥芒虏驴陆脫脢脮脰碌
 	*/
 	MFC_UI  *m_pUI;
-
+	HMODULE m_hDLL;
 public:
-	void UpdateControls(void);  ///< 更新控件状态
-	void InitSliderCtrl();  ///< 初始化滑动条控件
-	void SetCapValue(void); ///<设置参数
-	void SetSavePower(void); ///<设置节点模式滑动条是否可用
-	void SetOffTime(void); ///<设置关机时间滑动条是否可用
-
+	void UpdateControls(void);  ///< 赂眉脨脗驴脴录镁脳麓脤卢
+	void InitSliderCtrl();  ///< 鲁玫脢录禄炉禄卢露炉脤玫驴脴录镁
+	void SetCapValue(void); ///<脡猫脰脙虏脦脢媒
+	void SetSavePower(void); ///<脡猫脰脙陆脷碌茫脛拢脢陆禄卢露炉脤玫脢脟路帽驴脡脫脙
+	void SetOffTime(void); ///<脡猫脰脙鹿脴禄煤脢卤录盲禄卢露炉脤玫脢脟路帽驴脡脫脙
+	
 private:
-	MAP_CAP m_setmap;  ///<用于保存参数改变后的值
+	MAP_CAP m_setmap;  ///<脫脙脫脷卤拢麓忙虏脦脢媒赂脛卤盲潞贸碌脛脰碌
 
 
 private:
@@ -48,16 +49,23 @@ private:
 	afx_msg void OnSet_Btn_Check_OffTime();
 	afx_msg void OnNMCustomdrawSet_Slider_SavePower(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawSet_Slider_Offtime(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnSet_Btn_Check_TurnVideo();
 	virtual BOOL OnInitDialog();
-
+	virtual BOOL OnSetActive();
 private:
 	CButton m_check_savepower;
 	CButton m_check_offtime;
 	CSliderCtrl m_slider_offtime;
 	CSliderCtrl m_slider_savepower;
-
-public:
-	afx_msg void OnSet_Btn_Check_TurnVideo();
 	CButton m_check_turnvideo;
-	virtual BOOL OnSetActive();
+		
+private:
+	bool LoadDLL();   ///< 录脫脭脴G6400禄貌G6600露脭脫娄碌脛dll
+
+	InitializeDriverProc               InitializeDriver;
+	InitializeScannerProc              InitializeScanner;
+	TerminateDriverProc                TerminateDriver;
+	ReadNVMDataProc                    ReadNVMData;
+	SetNVRAMValueProc                  SetNVRAMValue;  // 脡猫脰脙麓媒禄煤脢卤录盲隆垄鹿脴禄煤脢卤录盲
+
 };

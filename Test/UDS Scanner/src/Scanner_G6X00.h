@@ -323,6 +323,7 @@ protected:
 	ReadNVMDataProc                    ReadNVMData;
 	SetBatchScanParameterProc          SetBatchScanParameter;
 	SetSpeedModeProc                   SetSpeedMode;
+	SetNVRAMValueProc                  SetNVRAMValue;  // 设置待机时间、关机时间
 
 protected:
 	short             m_nDocCount;              /**< number of documents waiting to transfer */

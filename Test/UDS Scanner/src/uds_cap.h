@@ -45,11 +45,11 @@
 #define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+25  /**< 压缩比 */
 #define UDSCAP_COLORFLIP                CAP_CUSTOMBASE+26  /**< 色彩翻转 */
 
-#define UDSCAP_SAVEPOWER                CAP_CUSTOMBASE+27  /**< 节电模式 */
-#define UDSCAP_SAVEPOWER_VALUE          CAP_CUSTOMBASE+28  /**< 节电模式值：时间 */
+#define UDSCAP_POWERSAVING                CAP_CUSTOMBASE+27  /**< 节电模式 */
+#define UDSCAP_POWERSAVING_TIME          CAP_CUSTOMBASE+28  /**< 节电模式值：时间 */
 
-#define UDSCAP_OFFTIME                  CAP_CUSTOMBASE+29  /**< 关机时间 */
-#define UDSCAP_OFFTIME_VALUE            CAP_CUSTOMBASE+30  /**< 关机时间值：时间 */
+#define UDSCAP_POWEROFF                  CAP_CUSTOMBASE+29  /**< 关机时间 */
+#define UDSCAP_POWEROFF_TIME            CAP_CUSTOMBASE+30  /**< 关机时间值：时间 */
 
 #define UDSCAP_TURNVIDEO                CAP_CUSTOMBASE+31  /**< 扫描仪无纸时转高拍仪 */
 
@@ -147,11 +147,11 @@
 #define TWCM_PAPERNUM              1 //纸张数量
 #define TWCM_MEMORYSIZE            2 //缓存大小
 
-/* UDSCAP_SAVEPOWER values (SP_ means SAVEPOWER)节电模式。*/
+/* UDSCAP_POWERSAVING values (SP_ means SAVEPOWER)节电模式。*/
 #define TWSP_DISABLE              FALSE
 #define TWSP_AUTO                 TRUE
 
-/* UDSCAP_OFFTIME values (OT_ means OFFTIME)关机时间。*/
+/* UDSCAP_POWEROFF values (OT_ means OFFTIME)关机时间。*/
 #define TWOT_DISABLE              FALSE
 #define TWOT_AUTO                 TRUE
 

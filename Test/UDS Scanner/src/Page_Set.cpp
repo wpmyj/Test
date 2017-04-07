@@ -6,7 +6,8 @@
 #include "Page_Set.h"
 #include "afxdialogex.h"
 
-
+extern int g_nDeviceNumber;
+extern void GetFilePath( char* szFileName, char* szFilePath);
 // CPage_Set 对话框
 
 IMPLEMENT_DYNAMIC(CPage_Set, CPropertyPage)
@@ -14,7 +15,7 @@ IMPLEMENT_DYNAMIC(CPage_Set, CPropertyPage)
 CPage_Set::CPage_Set(MFC_UI *pUI)
 	: m_pUI(pUI), CPropertyPage(CPage_Set::IDD)
 {
-
+	m_hDLL = NULL;
 }
 
 CPage_Set::~CPage_Set()
@@ -59,22 +60,48 @@ void CPage_Set::SetCapValue(void)
 	{
 		switch(iter->first)
 		{
-		case UDSCAP_SAVEPOWER: //节电模式
-		case UDSCAP_OFFTIME: //关机时间
+		case UDSCAP_POWERSAVING: //节电模式
+		case UDSCAP_POWEROFF: //关机时间
 		case UDSCAP_TURNVIDEO: //扫描仪无纸时转高拍仪
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
 			}	
 
-		case UDSCAP_SAVEPOWER_VALUE: //节电模式值
-		case UDSCAP_OFFTIME_VALUE: //关机时间值
+		case UDSCAP_POWERSAVING_TIME: //节电模式值
+		case UDSCAP_POWEROFF_TIME: //关机时间值
 			{			
 				m_pUI->SetCapValueFloat(iter->first,iter->second);
 				break;
 			}
 		}
 	}
+
+	// 设置待机时间与关机时间
+	if (false == LoadDLL())
+	{
+		return;
+	}
+	BOOL bPowerSaving = static_cast<BOOL>(m_setmap[UDSCAP_POWERSAVING]);
+	BOOL bPowerOff =  static_cast<BOOL>(m_setmap[UDSCAP_POWEROFF]);
+	WORD dwPowerSaving = static_cast<WORD>(m_setmap[UDSCAP_POWERSAVING_TIME]);
+	WORD dwPowerOff = static_cast<WORD>(m_setmap[UDSCAP_POWEROFF_TIME]);
+
+	if (FALSE == bPowerSaving)
+	{
+		dwPowerSaving = 0;
+	}
+
+	if (FALSE == bPowerOff)
+	{
+		dwPowerOff = 0;
+	}
+
+	SetNVRAMValue( &dwPowerSaving, sizeof(dwPowerSaving), 0x000A);
+	SetNVRAMValue( &dwPowerOff, sizeof(dwPowerOff), 0x0010);
+	TerminateDriver();
+	FreeLibrary(m_hDLL);
+
 }
 
 
@@ -85,24 +112,26 @@ void CPage_Set::UpdateControls(void)
 	CString strText;
 
 	//节电模式
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_SAVEPOWER));
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWERSAVING));
 	m_check_savepower.SetCheck(nCapValue);
 	SetSavePower();
+    m_setmap[UDSCAP_POWERSAVING] = float(nCapValue);
 	//节电模式值
-	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_SAVEPOWER_VALUE));
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_POWERSAVING_TIME));
 	m_slider_savepower.SetPos(nCapValue);
 	SetDlgItemText(IDC_SET_STATIC_SAVEPOWER, strText);
-	m_setmap[UDSCAP_SAVEPOWER_VALUE] = float(nCapValue);
+	m_setmap[UDSCAP_POWERSAVING_TIME] = float(nCapValue);
 
 	//关机时间
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_OFFTIME));
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWEROFF));
 	m_check_offtime.SetCheck(nCapValue);
 	SetOffTime();
+    m_setmap[UDSCAP_POWEROFF] = float(nCapValue);
 	//关机时间值
-	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_OFFTIME_VALUE));
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_POWEROFF_TIME));
 	m_slider_offtime.SetPos(nCapValue);
 	SetDlgItemText(IDC_SET_STATIC_OFFTIME, strText);
-	m_setmap[UDSCAP_OFFTIME_VALUE] = float(nCapValue);
+	m_setmap[UDSCAP_POWEROFF_TIME] = float(nCapValue);
 
 	//关机时间
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_TURNVIDEO));
@@ -126,11 +155,11 @@ BOOL CPage_Set::OnInitDialog()
 void CPage_Set::InitSliderCtrl()
 {
 	float fMin,fMax,fStep;
-	m_pUI->GetCapRangeFloat(UDSCAP_SAVEPOWER_VALUE, fMin, fMax, fStep);
+	m_pUI->GetCapRangeFloat(UDSCAP_POWERSAVING_TIME, fMin, fMax, fStep);
 	m_slider_savepower.SetRange((int)fMin, (int)fMax, TRUE);
 	m_slider_savepower.SetTicFreq((int)fStep); //步长
 
-	m_pUI->GetCapRangeFloat(UDSCAP_OFFTIME_VALUE, fMin, fMax, fStep);
+	m_pUI->GetCapRangeFloat(UDSCAP_POWEROFF_TIME, fMin, fMax, fStep);
 	m_slider_offtime.SetRange((int)fMin, (int)fMax, TRUE);
 	m_slider_offtime.SetTicFreq((int)fStep); //步长
 
@@ -150,7 +179,7 @@ void CPage_Set::OnSet_Btn_Check_SavePower()
 	{
 		nval = TWSP_DISABLE;
 	}
-	m_setmap[UDSCAP_SAVEPOWER] = (float)nval;
+	m_setmap[UDSCAP_POWERSAVING] = (float)nval;
 	SetSavePower();
 }
 
@@ -167,7 +196,7 @@ void CPage_Set::OnSet_Btn_Check_OffTime()
 	{
 		nval = TWOT_DISABLE;
 	}
-	m_setmap[UDSCAP_OFFTIME] = (float)nval;
+	m_setmap[UDSCAP_POWEROFF] = (float)nval;
 	SetOffTime();
 }
 
@@ -179,7 +208,7 @@ void CPage_Set::OnNMCustomdrawSet_Slider_SavePower(NMHDR *pNMHDR, LRESULT *pResu
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_savepower.GetPos();  // 获取滑块当前位置
-	m_setmap[UDSCAP_SAVEPOWER_VALUE] = (float)sldValue;
+	m_setmap[UDSCAP_POWERSAVING_TIME] = (float)sldValue;
 
 	str.Format("%d分", sldValue);
 	SetDlgItemText(IDC_SET_STATIC_SAVEPOWER, str);
@@ -204,7 +233,7 @@ void CPage_Set::OnNMCustomdrawSet_Slider_Offtime(NMHDR *pNMHDR, LRESULT *pResult
 		//m_slider_offtime.SetPos(sldValue);
 	}
 	
-	m_setmap[UDSCAP_OFFTIME_VALUE] = (float)sldValue;
+	m_setmap[UDSCAP_POWEROFF_TIME] = (float)sldValue;
 	
 	str.Format("%d分", sldValue);
 	SetDlgItemText(IDC_SET_STATIC_OFFTIME, str);
@@ -240,6 +269,76 @@ void CPage_Set::SetOffTime(void)
 }
 
 
+bool CPage_Set::LoadDLL()
+{
+	//::MessageBox(g_hwndDLG,TEXT("Into LoadDLL!"),MB_CAPTION,MB_OK);
+	TCHAR DllPath[MAX_PATH];
+
+	if (DEVICE_G6400 == g_nDeviceNumber)
+	{
+		GetFilePath(FILENAME_DLL_GL1, DllPath);
+	} 
+	else
+	{
+		GetFilePath(FILENAME_DLL_GL2, DllPath);
+	}
+
+	m_hDLL = LoadLibrary(DllPath);
+	if(m_hDLL == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load Dll Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	InitializeDriver = (InitializeDriverProc)GetProcAddress(m_hDLL, "InitializeDriver");
+	if(InitializeDriver == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load InitializeDriver Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	InitializeScanner = (InitializeScannerProc)GetProcAddress(m_hDLL, "InitializeScanner");
+	if(InitializeScanner == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load InitializeScanner Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+	
+	TerminateDriver = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
+	if(TerminateDriver == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load TerminateDriver Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	ReadNVMData = (ReadNVMDataProc)GetProcAddress(m_hDLL, "ReadNVMData");
+	if(ReadNVMData == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load ReadNVMData Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+	
+	SetNVRAMValue = (SetNVRAMValueProc)GetProcAddress(m_hDLL, "SetNVRAMValue");
+	if(SetNVRAMValue == NULL)
+	{
+		::MessageBox(NULL, TEXT("Load SetNVRAMValue Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	if (FALSE == InitializeDriver())
+	{
+		::MessageBox(NULL, TEXT("Run InitializeDriver Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	if(FALSE == InitializeScanner())
+	{
+		::MessageBox(NULL, TEXT("Run InitializeScanner Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	return true;
+}
 
 void CPage_Set::OnSet_Btn_Check_TurnVideo()
 {

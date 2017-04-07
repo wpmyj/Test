@@ -444,10 +444,10 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_YPOS,0,TWON_ONEVALUE);
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COLORFLIP,0,TWON_ONEVALUE); //色彩翻转
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER,0,TWON_ONEVALUE); //节电模式
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_SAVEPOWER_VALUE,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_OFFTIME_VALUE,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_POWERSAVING,0,TWON_ONEVALUE); //节电模式
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_POWERSAVING_TIME,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_POWEROFF,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_POWEROFF_TIME,0,TWON_ONEVALUE);
     bResult = bResult && StoreCapInStream(DsData,UDSCAP_TURNVIDEO,0,TWON_ONEVALUE); //高拍转高扫
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_CUTMETHOD,0,TWON_ONEVALUE);  //图像裁切方式
 
@@ -517,10 +517,10 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_YPOS,0); 
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COLORFLIP,0);  //色彩翻转
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER,0); //节电模式
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_SAVEPOWER_VALUE,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_OFFTIME_VALUE,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_POWERSAVING,0); //节电模式
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_POWERSAVING_TIME,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_POWEROFF,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_POWEROFF_TIME,0);
     bResult = bResult && ReadCapFromStream(DsData,UDSCAP_TURNVIDEO,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_CUTMETHOD,0);
 
@@ -611,10 +611,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_XPOS)
 	 || !pnCap->Add(UDSCAP_YPOS)
 	 || !pnCap->Add(UDSCAP_COLORFLIP)
-	 || !pnCap->Add(UDSCAP_SAVEPOWER)
-	 || !pnCap->Add(UDSCAP_SAVEPOWER_VALUE)
-	 || !pnCap->Add(UDSCAP_OFFTIME)
-	 || !pnCap->Add(UDSCAP_OFFTIME_VALUE)
+	 || !pnCap->Add(UDSCAP_POWERSAVING)
+	 || !pnCap->Add(UDSCAP_POWERSAVING_TIME)
+	 || !pnCap->Add(UDSCAP_POWEROFF)
+	 || !pnCap->Add(UDSCAP_POWEROFF_TIME)
      || !pnCap->Add(UDSCAP_TURNVIDEO)	 
 	 || !pnCap->Add(UDSCAP_CUTMETHOD)	 
 	 || !pnCap->Add(UDSCAP_NOISENUM)	
@@ -707,12 +707,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	}
 
 	//节电模式
-	m_IndependantCapMap[UDSCAP_SAVEPOWER] = new CTWAINContainerBool(UDSCAP_SAVEPOWER, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_SAVEPOWER]))
+	m_IndependantCapMap[UDSCAP_POWERSAVING] = new CTWAINContainerBool(UDSCAP_POWERSAVING, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_POWERSAVING]))
 		|| !pbCap->Add(FALSE)
 		|| !pbCap->Add(TRUE, true) )
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SAVEPOWER !"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_POWERSAVING !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -722,21 +722,21 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	fRange.fMinValue = 1.0f;
 	fRange.fStepSize = 1.0f;
 	//节电模式值
-	m_IndependantCapMap[UDSCAP_SAVEPOWER_VALUE] = new CTWAINContainerFix32Range(UDSCAP_SAVEPOWER_VALUE,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_SAVEPOWER_VALUE]))
+	m_IndependantCapMap[UDSCAP_POWERSAVING_TIME] = new CTWAINContainerFix32Range(UDSCAP_POWERSAVING_TIME,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_POWERSAVING_TIME]))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_SAVEPOWER_VALUE !"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_POWERSAVING_TIME !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
 
 	//关机时间
-	m_IndependantCapMap[UDSCAP_OFFTIME] = new CTWAINContainerBool(UDSCAP_OFFTIME, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_OFFTIME]))
+	m_IndependantCapMap[UDSCAP_POWEROFF] = new CTWAINContainerBool(UDSCAP_POWEROFF, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_POWEROFF]))
 		|| !pbCap->Add(FALSE)
 		|| !pbCap->Add(TRUE, true) )
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_OFFTIME !"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_POWEROFF !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -746,10 +746,10 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	fRange.fMinValue = 1.0f;
 	fRange.fStepSize = 1.0f;
 	//关机时间值
-	m_IndependantCapMap[UDSCAP_OFFTIME_VALUE] = new CTWAINContainerFix32Range(UDSCAP_OFFTIME_VALUE,fRange, TWQC_ALL);
-	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_OFFTIME_VALUE]))
+	m_IndependantCapMap[UDSCAP_POWEROFF_TIME] = new CTWAINContainerFix32Range(UDSCAP_POWEROFF_TIME,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_POWEROFF_TIME]))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_OFFTIME_VALUE !"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_POWEROFF_TIME !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -2343,9 +2343,9 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_fFilterLevel= fVal;
 	}
 	//节电模式
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_SAVEPOWER))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_POWERSAVING))))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SAVEPOWER!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_POWERSAVING!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2354,9 +2354,9 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bSavePower = bVal;
 	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_SAVEPOWER_VALUE))))
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_POWERSAVING_TIME))))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_SAVEPOWER_VALUE!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_POWERSAVING_TIME!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2366,9 +2366,9 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}
 
 	//关机时间
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_OFFTIME))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_POWEROFF))))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_OFFTIME!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_POWEROFF!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2377,9 +2377,9 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_bOffTime = bVal;
 	}
 
-	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_OFFTIME_VALUE))))
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_POWEROFF_TIME))))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_OFFTIME_VALUE!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_POWEROFF_TIME!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
