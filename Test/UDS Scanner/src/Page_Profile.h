@@ -44,8 +44,7 @@ public:
 	afx_msg void OnProfile_Btn_Import();
 	afx_msg void OnProfile_Btn_Export();
 
-	afx_msg void OnLbnSelchangeProfile_List_Template();
-
+	afx_msg void OnItemchangeProfile_List_Profile(NMHDR *pNMHDR, LRESULT *pResult);
 public:
 	/**
 	* @brief 加载模板，将模板名显示在listbox中
@@ -71,8 +70,8 @@ public:
 		int duplexenabled, int resolution = 200);
 
 public:	
-	CListBox m_list_template;
-	
+	CListCtrl m_list_profile;
+
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pBasePage;
@@ -85,4 +84,5 @@ public:
 	CPage_Custom* m_pBaseTabColor;
 	CPage_Custom* m_pBaseTabGray;
 	CPage_Custom* m_pBaseTabBW;
+
 };

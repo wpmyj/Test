@@ -300,40 +300,34 @@ bool CPage_Set::LoadDLL()
 	InitializeScanner = (InitializeScannerProc)GetProcAddress(m_hDLL, "InitializeScanner");
 	if(InitializeScanner == NULL)
 	{
-		::MessageBox(NULL, TEXT("Load InitializeScanner Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 	
 	TerminateDriver = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
 	if(TerminateDriver == NULL)
 	{
-		::MessageBox(NULL, TEXT("Load TerminateDriver Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	ReadNVMData = (ReadNVMDataProc)GetProcAddress(m_hDLL, "ReadNVMData");
 	if(ReadNVMData == NULL)
 	{
-		::MessageBox(NULL, TEXT("Load ReadNVMData Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 	
 	SetNVRAMValue = (SetNVRAMValueProc)GetProcAddress(m_hDLL, "SetNVRAMValue");
 	if(SetNVRAMValue == NULL)
 	{
-		::MessageBox(NULL, TEXT("Load SetNVRAMValue Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	if (FALSE == InitializeDriver())
 	{
-		::MessageBox(NULL, TEXT("Run InitializeDriver Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	if(FALSE == InitializeScanner())
 	{
-		::MessageBox(NULL, TEXT("Run InitializeScanner Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 

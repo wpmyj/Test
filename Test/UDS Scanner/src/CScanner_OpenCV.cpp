@@ -163,6 +163,26 @@ bool CScanner_OpenCV::resetScanner()
 	m_nFilterColor        = TWFL_NONE;
 	m_nFilterMode         = TWFM_AUTO;
 	m_fFilterLevel        = 10.0;
+
+	for(int i=0; i<6; i++)
+	{
+		m_fBright[i]  = m_fBrightness;
+		m_fResolu[i]  = m_fXResolution;
+		m_nCompre[i]  = m_nCompress;
+		m_fCompVal[i] = m_fCompressValue;
+	}
+
+	for(int i=0; i<4; i++)
+	{
+		m_fContra[i] = m_fContrast;
+	}
+
+	for(int i=0; i<2; i++)
+	{
+		m_nBinari[i] = m_nBinarization;
+		m_fThres[i]  = m_fThreshold;
+		m_fRemovespots[i] = m_fSensitiveThreshold_removespots;
+	}
 	
 	m_byte_image = NULL;
 	if (false == m_mat_image.empty())
@@ -299,8 +319,63 @@ bool CScanner_OpenCV::preScanPrep()
 	long lXDPI = 200; //获得图像x轴分辨率
 	long lYDPI = 200;
 
-	double dFx = (double)m_fXResolution/lXDPI;
-	double dFy = (double)m_fYResolution/lYDPI;
+	double dFx;
+	double dFy;
+	BYTE value;
+	//if(!m_bMultiStream)
+	{
+		dFx = (double)m_fXResolution/lXDPI;
+		dFy = (double)m_fYResolution/lYDPI;
+	}
+	//else
+	{/*
+		value = m_byteMultiValue;
+		for(unsigned int i = 0; i < 7; i++)
+		{
+			switch(i)
+			{
+			case 0:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+
+					}
+				}
+				break;
+			case 1:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+					}
+				}
+			case 2:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+					}
+				}
+				break;
+			case 4:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+					}
+				}
+				break;
+			case 5:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+					}
+				}
+				break;
+			case 6:
+				{
+					if ( 0x01 == (value & 0x01) ) {
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			value = value >> 1; // 始终比较最低位
+		}*/
+	}
 
 	WORD unNewWidth = (WORD)(m_nSourceWidth * dFx); //1770 ;根据DPI需要调节图像大小
 	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy); //2200

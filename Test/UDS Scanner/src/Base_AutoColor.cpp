@@ -194,8 +194,6 @@ void CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Resolution()
 	m_combo_resolution.GetLBText(nIndex, strCBText);
 	int nval = _ttoi(strCBText);  // CString ת int
 
-//	m_TabAutoColormap[ICAP_XRESOLUTION] = (float)nval;
-	//m_TabAutoColormap[ICAP_YRESOLUTION] = (float)nval;
 	m_pUI->SetCapValueInt(ICAP_XRESOLUTION, nval); 
 	m_pUI->SetCapValueInt(ICAP_YRESOLUTION, nval); 
 	m_combo_resolution.SetCurSel(nIndex);

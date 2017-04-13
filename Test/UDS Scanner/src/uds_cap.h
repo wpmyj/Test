@@ -45,7 +45,7 @@
 #define UDSCAP_COMPRESSVALUE            CAP_CUSTOMBASE+25  /**< 压缩比 */
 #define UDSCAP_COLORFLIP                CAP_CUSTOMBASE+26  /**< 色彩翻转 */
 
-#define UDSCAP_POWERSAVING                CAP_CUSTOMBASE+27  /**< 节电模式 */
+#define UDSCAP_POWERSAVING               CAP_CUSTOMBASE+27  /**< 节电模式 */
 #define UDSCAP_POWERSAVING_TIME          CAP_CUSTOMBASE+28  /**< 节电模式值：时间 */
 
 #define UDSCAP_POWEROFF                  CAP_CUSTOMBASE+29  /**< 关机时间 */
@@ -61,6 +61,55 @@
 #define UDSCAP_FILTERCOLOR              CAP_CUSTOMBASE+35  /**< 滤除颜色 */
 #define UDSCAP_FILTERMODE               CAP_CUSTOMBASE+36  /**< 滤除模式 */
 #define UDSCAP_FILTERLEVEL              CAP_CUSTOMBASE+37  /**< 滤除程度 */
+
+//多流亮度 Brightness
+#define UDSCAP_BRIGHTNESSFC                 CAP_CUSTOMBASE+38
+#define UDSCAP_BRIGHTNESSFG                 CAP_CUSTOMBASE+39
+#define UDSCAP_BRIGHTNESSFB                 CAP_CUSTOMBASE+40
+#define UDSCAP_BRIGHTNESSBC                 CAP_CUSTOMBASE+41
+#define UDSCAP_BRIGHTNESSBG                 CAP_CUSTOMBASE+42
+#define UDSCAP_BRIGHTNESSBB                 CAP_CUSTOMBASE+43
+
+//多流分辨率 Resolution
+#define UDSCAP_RESOLUTIONFC                 CAP_CUSTOMBASE+44
+#define UDSCAP_RESOLUTIONFG                 CAP_CUSTOMBASE+45
+#define UDSCAP_RESOLUTIONFB                 CAP_CUSTOMBASE+46
+#define UDSCAP_RESOLUTIONBC                 CAP_CUSTOMBASE+47
+#define UDSCAP_RESOLUTIONBG                 CAP_CUSTOMBASE+48
+#define UDSCAP_RESOLUTIONBB                 CAP_CUSTOMBASE+49
+
+//多流对比度 Contrast
+#define UDSCAP_CONTRASTFC                   CAP_CUSTOMBASE+50
+#define UDSCAP_CONTRASTFG                   CAP_CUSTOMBASE+51
+#define UDSCAP_CONTRASTBC                   CAP_CUSTOMBASE+52
+#define UDSCAP_CONTRASTBG                   CAP_CUSTOMBASE+53
+
+//多流压缩  ICAP_COMPRESSION
+#define UDSCAP_COMPRESSIONFC                 CAP_CUSTOMBASE+54
+#define UDSCAP_COMPRESSIONFG                 CAP_CUSTOMBASE+55
+#define UDSCAP_COMPRESSIONFB                 CAP_CUSTOMBASE+56
+#define UDSCAP_COMPRESSIONBC                 CAP_CUSTOMBASE+57
+#define UDSCAP_COMPRESSIONBG                 CAP_CUSTOMBASE+58
+#define UDSCAP_COMPRESSIONBB                 CAP_CUSTOMBASE+59
+
+//多流压缩比的值  ICAP_COMPRESSIONVALUE
+#define UDSCAP_COMPRESSIONVALUEFC            CAP_CUSTOMBASE+60
+#define UDSCAP_COMPRESSIONVALUEFG            CAP_CUSTOMBASE+61
+#define UDSCAP_COMPRESSIONVALUEFB            CAP_CUSTOMBASE+62
+#define UDSCAP_COMPRESSIONVALUEBC            CAP_CUSTOMBASE+63
+#define UDSCAP_COMPRESSIONVALUEBG            CAP_CUSTOMBASE+64
+#define UDSCAP_COMPRESSIONVALUEBB            CAP_CUSTOMBASE+65
+
+//多流二值化(仅黑白)
+#define UDSCAP_BINARIZATIONFB                CAP_CUSTOMBASE+66
+#define UDSCAP_BINARIZATIONBB                CAP_CUSTOMBASE+67
+//阈值
+#define UDSCAP_THRESHOLDFB                   CAP_CUSTOMBASE+68
+#define UDSCAP_THRESHOLDBB                   CAP_CUSTOMBASE+69
+//去除斑点
+#define UDSCAP_REMOVESPOTSFB                 CAP_CUSTOMBASE+70
+#define UDSCAP_REMOVESPOTSBB                 CAP_CUSTOMBASE+71
+
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0

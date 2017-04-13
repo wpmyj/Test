@@ -25,18 +25,18 @@ CPage_Profile::~CPage_Profile()
 void CPage_Profile::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_PROFILE_LIST_TEMPLATE, m_list_template);
+	DDX_Control(pDX, IDC_PROFILE_LIST_PROFILE, m_list_profile);
 }
 
 
 BEGIN_MESSAGE_MAP(CPage_Profile, CPropertyPage)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_RESET, &CPage_Profile::OnProfile_Btn_Reset)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_DELETE, &CPage_Profile::OnProfile_Btn_Delete)
-	ON_LBN_SELCHANGE(IDC_PROFILE_LIST_TEMPLATE, &CPage_Profile::OnLbnSelchangeProfile_List_Template)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_NEW, &CPage_Profile::OnProfile_Btn_New)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_RENAME, &CPage_Profile::OnProfile_Btn_Rename)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_IMPORT, &CPage_Profile::OnProfile_Btn_Import)
 	ON_BN_CLICKED(IDC_PROFILE_BTN_EXPORT, &CPage_Profile::OnProfile_Btn_Export)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_PROFILE_LIST_PROFILE, &CPage_Profile::OnItemchangeProfile_List_Profile)
 END_MESSAGE_MAP()
 
 
@@ -51,15 +51,17 @@ void CPage_Profile::OnOK()
 	m_pFilterPage->SetCapValue();
 	m_pSetPage->SetCapValue();
 
-	int index = m_list_template.GetCurSel();
+	int index = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
+
 	CString str;
-	m_list_template.GetText(index, str);
+	str = m_list_profile.GetItemText(index,0); //(i,j)行，列
 	if (str.Find("UDS") >= 0 || str.Find("默认模板") >= 0 || str.Find("上次使用") >= 0){}
 	else{
 		m_pUI->TW_SaveProfileToFile(str.GetBuffer()); //不是上述类型模板时，保存当前选中模板
 	}
 	m_pUI->TW_SaveProfileToFile("上次使用模板");//再次保存“上次使用模板”
 	m_pUI->TW_SaveProfileToFile("模板备份");//保存一份备份
+
 	
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
@@ -89,7 +91,7 @@ void CPage_Profile::OnCancel()
 
 		if(strTemp.Find("上次使用模板") >=0 ) 
 		{
-			m_list_template.SetCurSel(unIndex);
+			m_list_profile.SetItemState(unIndex, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED); 
 			LoadTemplate();
 			status = true;	
 		}
@@ -99,6 +101,7 @@ void CPage_Profile::OnCancel()
 	if(!status) //没找见上次使用模板
 	{
 		m_pUI->ResetAllCaps();
+		m_list_profile.SetItemState(0, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
 	}
 
 	m_pUI->Cancel();
@@ -121,9 +124,20 @@ BOOL CPage_Profile::OnInitDialog()
 
 void CPage_Profile::InitTemplate()
 {
-	m_list_template.ResetContent();
-	m_list_template.InsertString(0,"默认模板");
-	m_list_template.SetCurSel(0); //设置为默认模板
+	m_list_profile.SetExtendedStyle( LVS_EX_FULLROWSELECT); // 表示选中整行，而非某一列
+	//设置扩展风格为：网格形式、整行选取
+	m_list_profile.ShowScrollBar(SB_VERT,TRUE); // 只显示垂直滚动条
+	CImageList m_image; 
+	m_image.Create(1,20,ILC_COLOR32,1,0); 
+	m_list_profile.SetImageList(&m_image, LVSIL_SMALL);
+	m_list_profile.DeleteAllItems(); // 清空
+
+	CRect rect;   //必须插入列，否则InserItem失败
+	m_list_profile.GetClientRect(rect);
+	m_list_profile.InsertColumn(0, "", LVCFMT_LEFT, rect.Width());
+
+	m_list_profile.InsertItem(0, "默认模板");
+	m_list_profile.SetItemState(0,LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED); //设置行index为选中并高亮（如果未设置Focuse，被选中行会变为灰色）
 
 	NewTemplate();
 	SetLastTemplate();
@@ -145,22 +159,25 @@ void CPage_Profile::SetLastTemplate()
 		if(strTemp.Find("模板备份") >= 0){}
 		else
 		{
-			m_list_template.InsertString(unIndex, strTemp);
-
+			m_list_profile.InsertItem(unIndex, strTemp);
+			
 			if(strTemp.Find("上次使用") >=0 ) {
-				m_list_template.SetCurSel(unIndex);
+				m_list_profile.SetItemState(unIndex, LVIS_FOCUSED|LVIS_SELECTED, LVIS_FOCUSED|LVIS_SELECTED);			
 				LoadTemplate();
 			}
-			unIndex ++;
+			unIndex++;
 		}
 	}
+	m_list_profile.SetRedraw(true);  // 重绘
+	m_list_profile.Invalidate();
 }
 
 
 void CPage_Profile::LoadTemplate()
 {
 	UpdateData(TRUE);  // 接收数据
-	int nIndex = m_list_template.GetCurSel();
+	int nIndex = m_list_profile.GetNextItem(-1,LVIS_SELECTED);
+
 	if(0 == nIndex)  // 默认模板，重置驱动参数
 	{
 		m_pUI->ResetAllCaps();
@@ -168,7 +185,7 @@ void CPage_Profile::LoadTemplate()
 	else  // 其它模板
 	{	
 		CString strProfile; 
-		m_list_template.GetText(nIndex, strProfile);
+		strProfile = m_list_profile.GetItemText(nIndex, 0);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()); //会m_pDS->SetGustomDSData
 	}
 
@@ -187,9 +204,9 @@ void CPage_Profile::LoadTemplate()
 
 void CPage_Profile::SetDelete(void)
 {
-	int nIndex = m_list_template.GetCurSel();
+	int nIndex = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
 	CString strCBText; 
-	m_list_template.GetText( nIndex, strCBText);
+	strCBText = m_list_profile.GetItemText(nIndex, 0);
 	if (strCBText.Find("UDS") >= 0 || strCBText.Find("默认模板") >= 0)
 	{
 		GetDlgItem(IDC_PROFILE_BTN_DELETE)->EnableWindow(FALSE);
@@ -203,9 +220,10 @@ void CPage_Profile::SetDelete(void)
 
 void CPage_Profile::SetRename(void)
 {
-	int nIndex = m_list_template.GetCurSel();
+	int nIndex = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
+
 	CString strCBText; 
-	m_list_template.GetText( nIndex, strCBText);
+	strCBText = m_list_profile.GetItemText(nIndex,0);
 	if (strCBText.Find("UDS") >= 0 || strCBText.Find("默认模板") >= 0 
 		|| strCBText.Find("上次使用") >= 0)
 	{
@@ -295,15 +313,6 @@ bool CPage_Profile::CreateNewTemplate(std::string profilename, int pixeltype,
 }
 
 
-void CPage_Profile::OnLbnSelchangeProfile_List_Template()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	LoadTemplate();	
-	SetDelete();
-	SetRename();
-}
-
-
 //新建模板
 void CPage_Profile::OnProfile_Btn_New()
 {
@@ -327,11 +336,9 @@ void CPage_Profile::OnProfile_Btn_New()
 	int renameindex; //重名的序号
 	// 判断新建模板名是否已存在
 	CString strCombo;  
-	int nLength;   
-	for (int i = 0; i < m_list_template.GetCount(); i++)
+	for (int i = 0; i < m_list_profile.GetItemCount(); i++)
 	{        
-		nLength = m_list_template.GetTextLen( i );  // 获取Combobox内容长度
-		m_list_template.GetText( i, strCombo.GetBuffer(nLength));
+		strCombo = m_list_profile.GetItemText(i, 0);
 		if(strCombo == strExistName)
 		{
 			renameindex = i;
@@ -356,18 +363,17 @@ void CPage_Profile::OnProfile_Btn_New()
 	{	
 		if(!recreate)
 		{
-			m_list_template.AddString(strName);
-			m_list_template.SetCurSel(m_list_template.GetCount()-1);
+			m_list_profile.InsertItem(m_list_profile.GetItemCount(),strName);//此时m_list_profile.GetItemCount()已经增加
+			m_list_profile.SetItemState(m_list_profile.GetItemCount()-1, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED); 		
 		}
 		else
 		{
-			m_list_template.SetCurSel(renameindex);
+			m_list_profile.SetItemState(renameindex, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED); 
 		}
 	}
 	
 	SetDelete();
 	SetRename();
-	UpdateData(FALSE);
 }
 
 
@@ -394,10 +400,9 @@ void CPage_Profile::OnProfile_Btn_Rename()
 	// 判断新名称是否已存在
 	CString strCombo;  
 	int nLength;   
-	for (int i = 0; i < m_list_template.GetCount(); i++)
-	{        
-		nLength = m_list_template.GetTextLen( i );  // 获取Combobox内容长度
-		m_list_template.GetText( i, strCombo.GetBuffer(nLength));
+	for (int i = 0; i < m_list_profile.GetItemCount(); i++)
+	{       
+		strCombo = m_list_profile.GetItemText(i,0);
 		if (strCombo == strExistName)
 		{
 			renameindex = i;
@@ -415,10 +420,10 @@ void CPage_Profile::OnProfile_Btn_Rename()
 		strCombo.ReleaseBuffer();      
 	}
 
-	int index = m_list_template.GetCurSel();
+	int index = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
 
 	CString strOldName;
-	m_list_template.GetText(index, strOldName);
+	strOldName = m_list_profile.GetItemText(index,0);
 	string OldName = strOldName.GetBuffer();// CString->string
 	strOldName.ReleaseBuffer();
 
@@ -430,18 +435,18 @@ void CPage_Profile::OnProfile_Btn_Rename()
 	{		
 		if(!recreate)
 		{
-			m_list_template.DeleteString(index); //删除原有选中项	
-			m_list_template.InsertString(index, strNewName);
-			m_list_template.SetCurSel(index);
+			m_list_profile.DeleteItem(index); //删除原有选中项	
+			m_list_profile.InsertItem(index, strNewName);
+			m_list_profile.SetItemState(index, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED); 
 		}
 	}
 	else
 	{
 		if(recreate)
-		{
-			m_list_template.DeleteString(index); //删除原有选中项	
+		{	
+			m_list_profile.DeleteItem(index); //删除原有选中项	
 			m_pUI->TW_DeleteProfile(OldName); //还需删除本地原重名模板
-			m_list_template.SetCurSel(renameindex); //设置已有名选中
+			m_list_profile.SetItemState(renameindex, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
 		}	
 	}
 
@@ -456,16 +461,17 @@ void CPage_Profile::OnProfile_Btn_Delete()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);  // 接收数据
-	int nIndex = m_list_template.GetCurSel();
+	int nIndex = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
 	CString strProfile; 
-	m_list_template.GetText( nIndex, strProfile);
+	strProfile = m_list_profile.GetItemText(nIndex,0);
 
 	if(m_pUI->TW_DeleteProfile(strProfile.GetBuffer()))
 	{
-		m_list_template.DeleteString(nIndex);
+		m_list_profile.DeleteItem(nIndex);
 	}
 
-	m_list_template.SetCurSel(0);  // 切换到默认模板
+	m_list_profile.SetItemState(0, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
+
 	LoadTemplate();
 	SetDelete();
 	UpdateData(FALSE);  
@@ -476,9 +482,8 @@ void CPage_Profile::OnProfile_Btn_Delete()
 void CPage_Profile::OnProfile_Btn_Reset()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//m_pUI->ResetAllCaps();
-	m_list_template.SetCurSel(0);
-
+	m_pUI->ResetAllCaps();
+	m_list_profile.SetItemState(0, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
 	LoadTemplate();
 }
 
@@ -499,12 +504,12 @@ void CPage_Profile::OnProfile_Btn_Import()
 		CString filename = fileDlg.GetFileName();   //GetFileName( ) 得到完整的文件名，包括扩展名 
 		strPath = strPath + filename; 
 		if(CopyFile(strReadFilePath,strPath,TRUE))  
-		{
-			int num = m_list_template.GetCount(); 
+		{ 
+			int num = m_list_profile.GetItemCount(); 
 			CString strProfile;
 			strProfile = fileDlg.GetFileTitle();
-			m_list_template.InsertString(num,strProfile); //GetFileTitle得到完整的文件名，不包括目录名和扩展名
-			m_list_template.SetCurSel(num);
+			m_list_profile.InsertItem(num,strProfile); //GetFileTitle得到完整的文件名，不包括目录名和扩展名
+			m_list_profile.SetItemState(num, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
 
 			//加载新模板
 			if(m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()))
@@ -587,9 +592,10 @@ void CPage_Profile::OnProfile_Btn_Export()
 		pMalloc->Release();   
 	*/
 
-	int index = m_list_template.GetCurSel();
+	int index = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
+
 	CString strTemplate;
-	m_list_template.GetText(index, strTemplate);
+	strTemplate = m_list_profile.GetItemText(index,0);
 
 	string str = m_pUI->GetProfileNamePath(); 
 	CString strPath = str.c_str() + strTemplate + ".dsp"; //strPath为模板原存放路径
@@ -616,4 +622,15 @@ BOOL CPage_Profile::OnSetActive()
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pUI->PreViewStatus();	
 	return __super::OnSetActive();
+}
+
+
+void CPage_Profile::OnItemchangeProfile_List_Profile(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	LoadTemplate();	
+	SetDelete();
+	SetRename();
+	*pResult = 0;
 }

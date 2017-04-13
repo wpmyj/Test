@@ -52,6 +52,5 @@ public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	virtual BOOL OnInitDialog();
-	
-	
+
 };

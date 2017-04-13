@@ -144,7 +144,6 @@ public:
 	bool              m_bBackGray;     /**< 灰度背面 */
 	bool              m_bBackBW;       /**< 黑白背面 */
 
-
 	float             m_fRemoveBlank;           /**< 去除空白页 */
 	bool              m_bRemoveBlank;           /**< 去除空白页的checkBox */
 	bool              m_bRemovePunch;           /**< 去除穿孔 */
@@ -188,6 +187,15 @@ public:
 	int               m_nFilterColor;           /**< 滤除颜色 */
 	int               m_nFilterMode;            /**< 滤除模式 */
 	float             m_fFilterLevel;           /**< 滤除程度 */
+
+	float             m_fBright[6];             /**< 多流亮度 */
+	float             m_fResolu[6];             /**< 多流分辨率 */
+	float             m_fContra[4];             /**< 多流对比度 */
+	int               m_nCompre[6];             /**< 多流压缩格式 */
+	float             m_fCompVal[6];            /**< 多流压缩比的值 */
+	int               m_nBinari[2];             /**< 多流黑白二值化 */
+	float             m_fThres[2];              /**< 多流黑白阈值 */
+	float             m_fRemovespots[2];        /**< 多流黑白去除斑点 */
 
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0

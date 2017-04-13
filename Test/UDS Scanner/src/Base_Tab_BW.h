@@ -52,9 +52,11 @@ public:
 	CEdit m_edit_brightness;
 	CSliderCtrl m_slider_threshold;
 	CComboBox m_combo_binarization;
+
 	afx_msg void OnNMCustomdrawTabbw_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabbw_Edit_Brightness();
 	afx_msg void OnNMCustomdrawTabbw_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabbw_Edit_Threshold();
 	afx_msg void OnCbnSelchangeTabbw_Combo_Binarization();
+	
 };

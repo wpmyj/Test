@@ -103,6 +103,51 @@ bool CScanner_G6X00::resetScanner()
 
 	m_nImageNumber        = 0;
 
+    //2.0°æ±¾
+	m_nCompress           = TRUE;
+	m_fCompressValue      = 0.0;
+
+	m_bColorFlip          = FALSE;
+
+	m_nCacheMode          = TWCM_NONE; //×Ô¶¯
+	m_fCMAuto             = 1.0;
+	m_fCMPaperNum         = 1.0;
+	m_fCMMemorySize       = 1.0;
+
+	m_bSavePower          = TRUE;
+	m_fSavePowerValue     = 15.0;
+	m_bOffTime            = TRUE;
+	m_fOffTimeValue       = 240.0;
+
+	m_bTurnVideo          = TRUE;
+	m_nCutMethod          = TWCT_NONE;
+
+	m_fNoiseNum           = 0.0;
+	m_fNoiseRange         = 1.0;
+
+	m_nFilterColor        = TWFL_NONE;
+	m_nFilterMode         = TWFM_AUTO;
+	m_fFilterLevel        = 10.0;
+
+	for(int i=0; i<6; i++)
+	{
+		m_fBright[i]  = m_fBrightness;
+		m_fResolu[i]  = m_fXResolution;
+		m_nCompre[i]  = m_nCompress;
+		m_fCompVal[i] = m_fCompressValue;
+	}
+
+	for(int i=0; i<4; i++)
+	{
+		m_fContra[i] = m_fContrast;
+	}
+
+	for(int i=0; i<2; i++)
+	{
+		m_nBinari[i] = m_nBinarization;
+		m_fThres[i]  = m_fThreshold;
+		m_fRemovespots[i] = m_fSensitiveThreshold_removespots;
+	}
 	m_byte_image = NULL;
 	//m_bSkip = false;
 	if (false == m_mat_image.empty())

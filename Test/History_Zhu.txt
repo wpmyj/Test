@@ -381,3 +381,43 @@ date 17.04.07
 1、增加base类函数SetTabCtrl，用来设置选择图像类型时，对应的Tab选中哪一页。
 2、移至高级界面的图片预览功能到现预览界面，解决不显示图片的问题，初始化时未给成员变量m_endrect赋值，在paper类中使用UpdatePicRectangle（）为之赋值。
 3、由于几个基类均用到FindPaperSize与FindUnit函数，因此将这两个函数改为父类CPage_Custom的成员。
+4、基本完成界面参数的设置，最终融合新的代码与宛云龙的的代码。
+
+date 17.04.10
+
+------------------------------------------------------------
+@author zhu
+1、为了统一界面分割，将模板界面的原listbox改为与信息界面相同的listctrl控件。关联变量m_list_profile，增加消息响应OnItemchangeProfile_List_Profile（），其中进行LoadTemplate()的操作。
+2、解决InsertItem无效的问题：在插入之前必须先InsertColumn（插入列），只插入行无效。
+3、解决界面SetItemState为选中后，但是界面不设置高亮，即使加入LVNI_FOCUSED | LVIS_SELECTED,也不行；使用代码m_list_profile.SetFocus()亦无效。
+最后直接在对话框中，设置always show selection参数为true(表示即使控件没有焦点，总是显示选中内容）。
+4、解决GetSelectionMark获得选中行的行标一直为0的Bug：调试未发现具体问题在哪，最后使用另一种办法获取选中行行号：m_list_profile.GetNextItem(-1,LVIS_SELECTED);GetNextItem若返回为-1，表示没有选项选中，若为其他值就是选中行的行号。
+
+date 17.04.11
+
+------------------------------------------------------------
+@author zhu
+1、为实现多流功能：每一分流可以设置不同的亮度、对比度、分辨率等参数，综合考虑代码冗余性，在新增三个类与新增十几个Cap两种方案中选择新增Cap的方法。
+2、测试并完成多流亮度的设置：新增六个Cap：UDSCAP_BRIGHTFC、UDSCAP_BRIGHTFG、UDSCAP_BRIGHTFB、UDSCAP_BRIGHTBC、UDSCAP_BRIGHTBG、UDSCAP_BRIGHTBB（记录六个亮度的值）；CDevice_Base 类中新增数组成员记录模板的当前亮度值float  m_fBright[6]；CTWAINDS_UDS类的Initialize函数中添加add操作及其updateScannerFromCaps操作。
+3、CPage_Custom类新增int basebutton变量，记录基本界面上哪个多流按钮正被选中（注：只记录按钮，不记录checkbox）,正面为0，背面为1。
+4、CBase_Tab_Color/CBase_Tab_Gray/CBase_Tab_BW三个类的UpdateControls（）以及相应的edit、slider的响应函数中，均要根据basebutton的值设置对应Cap生效。
+5、 最终实现参数亮度的多流设置。注：单面时根据图像类型，设置ICAP_BRIGHTNESS；双面时，如果没有选择多流，就按照单双面相同参数扫描。
+
+
+date 17.04.12
+
+------------------------------------------------------------
+@author zhu
+1、同样新增六个多流分辨率的Cap：UDSCAP_RESOLUTIONFC、UDSCAP_RESOLUTIONFG、UDSCAP_RESOLUTIONFB、UDSCAP_RESOLUTIONBC、UDSCAP_RESOLUTIONBG、UDSCAP_RESOLUTIONBB；CDevice_Base 类的成员变量float m_fResolu[6]; CTWAINDS_UDS类的Initialize函数中add为CTWAINContainerFix32类型，与分辨率一致。
+2、解决新增多流分辨率后，程序直接崩溃的Bug：在CTWAINDS_UDS::findCapability中，对于CTWAINContainerFix32类型需要额外处理，直接使用CTWAINDS_Base::findCapability也不能找到，因此需要在findCapability中额外增加这几个Cap的处理。
+3、同样完成彩色与灰度所需参数对比度的多流模板设置。新增Cap为：UDSCAP_CONTRASTFC、UDSCAP_CONTRASTFG、UDSCAP_CONTRASTBC、UDSCAP_CONTRASTBG。成员变量为float m_fContra[4]。
+4、同样完成彩色、灰度、黑白的压缩选项与压缩比的值的多流模板设置。
+
+date 17.04.13
+
+------------------------------------------------------------
+@author zhu
+1、完成黑白特定选项：二值化、阈值、去除斑点三个参数的多流模板设置。
+2、解决Bug：阈值与去除斑点是共用一个滑动条，因此slider的范围需要根据static的值做改变。在SetBinarization函数中，m_slider_threshold.SetTicFreq会响应slider改变的响应事件，导致本该设置UDSCAP_REMOVESPOTSFB,但此时却设置了另一else中的值（m_pUI->SetCapValueFloat(UDSCAP_REMOVESPOTSBB, (float)sldValue);）
+解决方案：将SetTicFreq的操作只在初始化中进行，不随着static改变时设置。
+3、添加设置：不允许Tab控件点击来切换多流页面，只能通过多流的按钮来控制tab页面。删除tab的响应事件，同时控制tab的Disabled属性为true.

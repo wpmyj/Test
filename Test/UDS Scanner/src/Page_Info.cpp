@@ -33,13 +33,11 @@ CPage_Info::~CPage_Info()
 void CPage_Info::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);	
-	//  DDX_Control(pDX, IDC_INFO_LIST_INFORMATION, m_list_infomation);
 	DDX_Control(pDX, IDC_INFO_LIST_INFORMATION, m_list_infomation);
 }
 
 
 BEGIN_MESSAGE_MAP(CPage_Info, CPropertyPage)
-//	ON_LBN_SELCHANGE(IDC_INFO_LIST_INFORMATION, &CPage_Info::OnLbnSelchangeInfo_List_Information)
 	ON_BN_CLICKED(IDC_INFO_BTN_REPORT, &CPage_Info::OnInfo_Btn_Report)
 	ON_BN_CLICKED(IDC_INFO_BUTTON_CLEARDICIDE, &CPage_Info::OnInfo_Btn_ClearDicideNum)
 	ON_BN_CLICKED(IDC_INFO_BUTTON_CLEARFEED, &CPage_Info::OnInfo_Btn_ClearFeedNum)
@@ -47,12 +45,6 @@ END_MESSAGE_MAP()
 
 
 // CPage_Info 消息处理程序
-
-
-//void CPage_Info::OnLbnSelchangeInfo_List_Information()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//}
 
 
 void CPage_Info::OnInfo_Btn_Report()
@@ -457,14 +449,12 @@ bool CPage_Info::LoadDLL()
 	InitializeDriver = (InitializeDriverProc)GetProcAddress(m_hDLL, "InitializeDriver");
 	if(InitializeDriver == NULL)
 	{
-		::MessageBox(g_hwndDLG, TEXT("Load InitializeDriver Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	InitializeScanner = (InitializeScannerProc)GetProcAddress(m_hDLL, "InitializeScanner");
 	if(InitializeScanner == NULL)
 	{
-		::MessageBox(g_hwndDLG, TEXT("Load InitializeScanner Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
@@ -472,26 +462,22 @@ bool CPage_Info::LoadDLL()
 	TerminateDriver  = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
 	if(TerminateDriver  == NULL)
 	{
-		::MessageBox(g_hwndDLG, TEXT("Load TerminateDriver Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	ReadNVMData = (ReadNVMDataProc)GetProcAddress(m_hDLL, "ReadNVMData");
 	if(ReadNVMData == NULL)
 	{
-		::MessageBox(g_hwndDLG, TEXT("Load ReadNVMData Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	if (FALSE == InitializeDriver())
 	{
-		::MessageBox(g_hwndDLG, TEXT("Run InitializeDriver Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
 	if(FALSE == InitializeScanner())
 	{
-		::MessageBox(g_hwndDLG, TEXT("Run InitializeScanner Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 

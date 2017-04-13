@@ -84,6 +84,26 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_nFilterColor        = settings.m_nFilterColor;
 	m_nFilterMode         = settings.m_nFilterMode;
 	m_fFilterLevel        = settings.m_fFilterLevel;
+
+	for(int i=0; i<6; i++)
+	{
+		m_fBright[i]  = settings.m_fBright[i];
+		m_fResolu[i]  = settings.m_fResolu[i];
+		m_nCompre[i]  = settings.m_nCompre[i];
+		m_fCompVal[i] = settings.m_fCompVal[i];
+	}
+
+	for(int i=0; i<4; i++)
+	{
+		m_fContra[i] = settings.m_fContra[i];
+	}
+
+	for(int i=0; i<2; i++)
+	{
+		m_nBinari[i] = settings.m_nBinari[i];
+		m_fThres[i]  = settings.m_fThres[i];
+		m_fRemovespots[i] = settings.m_fRemovespots[i];
+	}
 }
 
 CDevice_Base* CDevice_Base::getSetting() const
