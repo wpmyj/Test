@@ -86,8 +86,11 @@ public:
 
 	/**
 	*  @brief  执行扫描
+	*  @param[in]  inArgName 
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
 	*/
-  void RunScan();
+  bool RunScan();
 
 protected:
 	/**
@@ -149,8 +152,10 @@ protected:
 
 	/**
 	*  @brief  调整参数，将UI得到的值赋值给成员变量 
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
 	*/
-	void AdjustParameter();
+	bool AdjustParameter();
 
   /**
 	*  @brief  设置参数
@@ -294,6 +299,29 @@ protected:
 	*/
 	bool RemoveBlank(Mat src_img, float fValue);
 
+	/**
+	*  @brief  设置多流输出
+	*  @param[in]  src 原图 
+	*  @param[in]  muilt BYTE类型的数据
+	*  @param[out] dst 目标图像 
+	*/
+	Mat SetMuiltStream(Mat src_img, BYTE muilt);
+
+	/**
+	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1
+	*  @param[in]  src 原图 
+	*  @note 仅有为1的那一位还是1，其他均为0
+	*  return  被选中的那位
+	*/
+	BYTE SwitchBYTE(const BYTE src);
+
+	/**
+	*  @brief 求十进制n的二进制表示中1的个数
+	*  @param[in]  n  十进制数
+	*  @param[out] n 该十进制数的二进制表示中1的个数 
+	*/
+	int BitCount(BYTE n);
+
 protected:
 	InitializeDriverProc               InitializeDriver;
 	InitializeScannerProc              InitializeScanner;
@@ -346,6 +374,8 @@ protected:
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 
 	bool              m_bSkip;                  /**< 是否跳过下次扫描 */
+	bool              m_bMultiSkip;
+
 private:
 	BYTE* m_pGammaTable;
 	BYTE* m_pSaveBuffer;
@@ -358,6 +388,10 @@ private:
 	SCANNERABILITY m_scannerAbility;
 	SCANPARAMETER m_scanParameter;
   HMODULE m_hDLL;
+	
 
+	int   m_nMultiTotal;  /**< 多流总的纸张数 */
+	int   m_nMultiBack;   /**< 多流背面纸张数 */
+	int   m_nMultiFront;  /**< 多流正面纸张数 */
 };
 

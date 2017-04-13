@@ -1789,7 +1789,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			//m_pGUI->TW_LoadProfileFromFile("上次使用模板");
 			if(!updateScannerFromCaps())
 			{
-				::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
+				//::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while prepping the image for scanning !"),MB_CAPTION,MB_OK);
 				//cerr << "ds: There was an error while prepping the image for scanning" << endl;
 				setConditionCode(TWCC_BADVALUE);
 				return TWRC_FAILURE;
@@ -1805,7 +1805,7 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 
 			if(!m_pScanner->acquireImage())
 			{
-				::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
+				//::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
 				//cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
 				m_CurrentState = dsState_Open;
 				setConditionCode(TWCC_SEQERROR);
@@ -2155,9 +2155,10 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
 			//::MessageBox(g_hwndDLG," endXfer: acquireImage()! ",MB_CAPTION,MB_OK);
       if(!m_pScanner->acquireImage())
       {
-				::MessageBox(g_hwndDLG,TEXT("endXfer: There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
+				//::MessageBox(g_hwndDLG,TEXT("endXfer: There was an error while prepping the image for scanning!"),MB_CAPTION,MB_OK);
         //cerr << "ds: There was an error while prepping the image for scanning" << endl;
         setConditionCode(TWCC_BUMMER);
+				m_Xfers.Count = 0;  // 重张检测时，若未加这句程序会崩溃
         twrc = TWRC_FAILURE;
       }
     }

@@ -30,6 +30,10 @@ CScanner_G6X00::CScanner_G6X00(void)
 	, m_nScanLine(0)
 	, m_nDestBytesPerRow(0)
 	, m_bSkip(false)
+	, m_bMultiSkip(false)
+	, m_nMultiTotal(0) 
+  , m_nMultiBack(0) 
+  , m_nMultiFront(0)    
 {
 	// set default cap value
 	resetScanner();
@@ -160,31 +164,42 @@ short CScanner_G6X00::getDocumentCount() const
 
 bool CScanner_G6X00::acquireImage()
 {
-	//::MessageBox(g_hwndDLG,TEXT("CScanner_G6X00::acquireImage!"),MB_CAPTION,MB_OK);
-	//GetADFStatus(&m_byteADFStatus);
-	//if ( (m_byteADFStatus & 0x1 ) != 1)
-	//{
-	//	::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
-	//	return false;
-	//}
-	int pixeltype;
-	if(m_nPixelType == TWPT_BW)
+	//::MessageBox(g_hwndDLG,TEXT("acquireImage!"),MB_CAPTION,MB_OK);
+	
+	if (true == m_bMultiStream)
 	{
-		m_nPixelType = TWPT_GRAY;
-		pixeltype = TWPT_GRAY;
+		if(false == m_bMultiSkip)  // 则同一张纸需要跳过扫描
+		{
+			if (false == RunScan())
+			{
+				return false;
+			}
+		}
 	}
-	
-	
-	if(false == m_bSkip)  // 若拆分，则同一张纸需要跳过扫描
+	else
 	{
-		RunScan();
+		// 黑白图像以灰度模式扫描
+		bool bChanged = false;  // 标志位，用于判断是否将黑白转灰度扫
+		if(m_nPixelType == TWPT_BW)
+		{
+			m_nPixelType = TWPT_GRAY;
+			bChanged = true;
+		}
+
+		if(false == m_bSkip)  // 若拆分，则同一张纸需要跳过扫描
+		{
+			if (false == RunScan())
+			{
+				return false;
+			}
+		}
+		// 黑白图像以灰度模式扫描，扫描后将图像类型更改为黑白
+		if(true == bChanged)
+		{
+			m_nPixelType = TWPT_BW;
+		}
 	}
 
-
-	if(pixeltype == TWPT_GRAY)
-	{
-		m_nPixelType = TWPT_BW;
-	}
 
 	//Document scanned, remove it from simulated intray
 	//m_nDocCount --;
@@ -208,49 +223,104 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 
 bool CScanner_G6X00::preScanPrep()
 {
-	//int nWidth = m_scanParameter.PixelNum; 
-	//int	nHeight = m_scanParameter.LineNum;
-	//int	nHeight = ios1.dwEffectiveLines;
-
-	//if(m_nWidth <= 0 || m_nHeight <= 0)
-	{
-		m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
-		m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
-		if(m_bAutoCrop == TWAC_AUTO) // 自动裁切先给定有效长度
-		{
-			m_nHeight = m_nSourceHeight = m_ioStatus.dwEffectiveLines;  
-		}
-	}
-	//else
+	
+	m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
+	m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
+	// 屏蔽原因：多流扫描存在问题
+	//if(m_bAutoCrop == TWAC_AUTO) // 自动裁切先给定有效长度
 	//{
-	//	// 获取影像的宽高，都以像素为单位 
-	//	m_nSourceWidth   = m_scanParameter.PixelNum;
-	//	m_nSourceHeight  = m_scanParameter.LineNum;
+	//	m_nHeight = m_nSourceHeight = m_ioStatus.dwEffectiveLines;  
 	//}
-
+	
 	m_dRat = (double)m_nSourceWidth/m_nSourceHeight;
 
-	int nType = CV_8UC3;
-	switch(m_nPixelType)
+	//多流输出
+	if(m_bMultiStream)
 	{
-	case TWPT_BW:
-		nType = CV_8UC1; // 黑白与灰度相同
-		break;
-	case TWPT_GRAY:
-		nType = CV_8UC1;
-		break;
-	case TWPT_RGB:
-		nType = CV_8UC3;
-		break;
-	default:
-		nType = CV_8UC3;
-		break;
+		BYTE byteLow = m_byteMultiValue;
+		byteLow = byteLow & 0x0F;
+		m_nMultiFront = BitCount(byteLow); //低四位中1的个数(正面)
+
+		BYTE byteHigh = m_byteMultiValue;
+		byteHigh = byteHigh & 0xF0;   
+		m_nMultiBack = BitCount(byteHigh); //高四位中1的个数（背面）
+
+		m_nMultiTotal = BitCount(m_byteMultiValue); //所有1的个数
+		static int nTempCount = m_nMultiTotal;
+
+		static bool bSet = false;
+		if (true == bSet)  // 每扫一次，重新赋值待扫张数
+		{
+			nTempCount = m_nMultiTotal;  // 重新赋值
+		}
+
+		if (nTempCount > 0)
+		{
+			Mat matMuilt(m_nSourceHeight, m_nSourceWidth, CV_8UC3, m_pSaveBuffer, m_dwBytesPerRow); // 多流都是按彩色扫描
+
+			BYTE m_byteMuilt = m_byteMultiValue;
+			m_byteMuilt = SwitchBYTE(m_byteMuilt);  // 判断哪面哪种颜色（总共6种）
+			m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
+			nTempCount --;
+
+			if ((0 == m_nMultiFront) || (0 == m_nMultiBack)) // 只有一面选中
+			{
+				m_bMultiSkip = true;  // 下一张不扫
+			} 
+			else  // 双面选中
+			{
+				if (nTempCount == m_nMultiFront)  // 先传正面（低4位），再传背面(高4位)
+				{
+					m_bMultiSkip = false;  // 获取背面
+				}
+				else
+				{
+					m_bMultiSkip = true;  // 下一张不扫
+				}
+			}
+
+			if (0 == nTempCount)  // 传输完毕
+			{
+				bSet = true;
+				m_bMultiSkip = false;
+				GetADFStatus(&m_byteADFStatus);
+				if ( (m_byteADFStatus & 0x1) != 1)  // ADF中无纸，则停止扫描
+				{
+					m_nDocCount = 0; 
+					EndScanJob ();
+				}	
+			}
+			else  // 传输未完毕
+			{
+				bSet = false;
+			}
+		}	
 	}
-	
+	else  // 非多流扫描
 	{
-		Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
-		iMat.copyTo(m_mat_image);
+		int nType = CV_8UC3;
+		switch(m_nPixelType)
+		{
+		case TWPT_BW:
+			nType = CV_8UC1; // 黑白与灰度相同
+			break;
+		case TWPT_GRAY:
+			nType = CV_8UC1;
+			break;
+		case TWPT_RGB:
+			nType = CV_8UC3;
+			break;
+		default:
+			nType = CV_8UC3;
+			break;
+		}
+
+		{
+			Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
+			iMat.copyTo(m_mat_image);
+		}
 	}
+
 
 	if(m_nPixelType == TWPT_BW)
 	{
@@ -896,7 +966,7 @@ void CScanner_G6X00::CalGammaTable(LPBYTE GammaTable, int Brightness, int Contra
 	}
 }
 
-void CScanner_G6X00::AdjustParameter()
+bool CScanner_G6X00::AdjustParameter()
 {
 
 	m_scanParameter.Left = static_cast<WORD>(m_fXPos);
@@ -919,13 +989,31 @@ void CScanner_G6X00::AdjustParameter()
 
 	if(m_bMultiStream)  // 多流选中
 	{
-		//BYTE m_tempMuilt;
-		//m_tempMuilt = m_byteMultiValue;
+		BYTE byteTemp, byteFront, byteRear;
+		byteTemp = m_byteMultiValue;
 
-		//if (m_tempMuilt & 0X0F != 0X00) // 正面选中
-		//{
+		byteFront = byteTemp & 0X0F;  // 正面
+		byteTemp = m_byteMultiValue;
+		byteRear = byteTemp & 0XF0;   // 背面
 
-		//}
+		if ( (byteFront != 0X00) && (byteRear != 0X00) ) 	 // 正面与背面都选中
+		{
+			m_scanParameter.ScanMethod = SME_DUPLEX;
+		}
+		else if ((byteFront != 0X00) && (byteRear == 0X00)) // 正面选中，背面未选中
+		{
+			m_scanParameter.ScanMethod = SME_ADFFRONT;
+		}
+		else if ((byteFront == 0X00) && (byteRear != 0X00)) // 正面未选中，背面选中
+		{
+			m_scanParameter.ScanMethod = SME_ADFREAR;
+		}
+		else
+		{
+			::MessageBox(g_hwndDLG,TEXT("没有多流扫描选项被选中!"),MB_CAPTION,MB_OK);
+			return false;
+		}
+		m_scanParameter.ScanMode = SMO_COLOR_1PASS;  // 多流时按彩色扫描
 	}
 	else  // 单/双面 扫
 	{
@@ -1033,6 +1121,7 @@ void CScanner_G6X00::AdjustParameter()
 	m_dwBytesPerRow = m_scanParameter.PixelNum * m_scanParameter.BitsPerPixel / 8; // 一行所占的字节数	
 	m_dwTotal = m_dwBytesPerRow * m_scanParameter.LineNum ;
 
+	return true;
 }
 
 void CScanner_G6X00::SetParameter()
@@ -2532,22 +2621,31 @@ const TCHAR* CScanner_G6X00::TranslateError(const long error)
 	return szError;
 }
 
-void CScanner_G6X00::RunScan()
+bool CScanner_G6X00::RunScan()
 {
-	static bool bFlag = false;
+	//GetADFStatus(&m_byteADFStatus);
+	//if ( (m_byteADFStatus & 0x1 ) != 1)
+	//{
+	//	::MessageBox(g_hwndDLG,TEXT("No Paper!"),MB_CAPTION,MB_OK);
+	//	return false;
+	//}
+
+	//static bool bFlag = false;
 	//if (!bFlag)  // 屏蔽原因：EndScanJob()执行后，必须先再次执行StartScanJob()，否则会出错。
 	{
 		StartScanJob();
-		AdjustParameter();
+		if (!AdjustParameter())
+		{
+			return false;
+		}
 		SetParameter();
-		bFlag = true;
+		//bFlag = true;
 	}
 
 	if(m_pTempBuffer)                                 
 	{
 		delete []m_pTempBuffer;     
 		m_pTempBuffer = NULL;
-		//::MessageBox(g_hwndDLG,TEXT("RunScan()__delete []m_pTempBuffer!"),MB_CAPTION,MB_OK);
 	}
 
 	m_pTempBuffer = new BYTE[m_dwTotal];    
@@ -2574,6 +2672,7 @@ void CScanner_G6X00::RunScan()
 			::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);						
 			m_nDocCount = 0;
 			EndScanJob ();
+			return false;
 		}
 	}
 
@@ -2594,8 +2693,8 @@ void CScanner_G6X00::RunScan()
 		}
 	}
 
-	// 不拆分，则ADF中无纸时停止扫描
-	if (m_nSpiltImage  == TWSI_NONE )
+	// 非多流扫描模式，则ADF中无纸时停止扫描
+	if (false == m_bMultiStream)
 	{
 		GetADFStatus(&m_byteADFStatus);
 		if ( (m_byteADFStatus & 0x1) != 1)
@@ -2610,6 +2709,213 @@ void CScanner_G6X00::RunScan()
 		delete []m_pGammaTable;
 		m_pGammaTable = NULL;
 	}
+
+	return true;
+}
+
+cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
+{
+	Mat dst_img;
+	switch(muilt)
+	{
+		//正面
+	case 0x01:  //彩色单张
+	case 0x10:
+		{
+			m_nPixelType = TWPT_RGB;	
+			src_img.copyTo(dst_img);
+			//::MessageBox(g_hwndDLG,TEXT("彩色单张!"),MB_CAPTION,MB_OK);
+		}	
+		break;
+	case 0x02:  //灰度单张
+	case 0x20:
+		{
+			m_nPixelType = TWPT_GRAY;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(dst_img);
+			//::MessageBox(g_hwndDLG,TEXT("灰度单张!"),MB_CAPTION,MB_OK);
+		}		
+		break;
+	case 0x03:  //灰度、彩色
+	case 0x30:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+
+	case 0x04:  //黑白单张
+	case 0x40:
+		{	
+			m_nPixelType = TWPT_BW;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x05:  //黑白、彩色
+	case 0x50:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x06:  //黑白、灰度
+	case 0x60:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x07:  //黑白、灰度、彩色
+	case 0x70:
+		{
+			if(2 == m_nDocCount) //三张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+			}
+			else if(1 == m_nDocCount) //三张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+			}
+			else if(0 == m_nDocCount) //三张中的第三张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	}
+
+	return dst_img;
+}
+
+BYTE CScanner_G6X00::SwitchBYTE(const BYTE src)
+{
+	static BYTE tempbyte = src;
+
+	if (0x00 == tempbyte)
+	{
+		tempbyte = src;
+	}
+	if((tempbyte & 0x01) == 0x01)
+	{
+		tempbyte = tempbyte & 0xFE;
+		return 0x01;
+	}
+	else if((tempbyte & 0x02) == 0x02)
+	{
+		tempbyte = tempbyte & 0xFD;
+		return 0x02;
+	}
+	else if((tempbyte & 0x03) == 0x03)
+	{
+		tempbyte = tempbyte & 0xFC;
+		return 0x03;
+	}
+	else if((tempbyte & 0x04) == 0x04)
+	{
+		tempbyte = tempbyte & 0xFB;
+		return 0x04;
+	}
+	else if((tempbyte & 0x05) == 0x05)
+	{
+		tempbyte = tempbyte & 0xFA;
+		return 0x05;
+	}
+	else if((tempbyte & 0x06) == 0x06)
+	{
+		tempbyte = tempbyte & 0xF9;
+		return 0x06;
+	} 
+	else if((tempbyte & 0x07) == 0x07)
+	{
+		tempbyte = tempbyte & 0xF8;
+		return 0x07;
+	}
+	else if((tempbyte & 0x10) == 0x10)
+	{
+		tempbyte = tempbyte & 0xEF;
+		return 0x10;
+	}
+	else if((tempbyte & 0x20) == 0x20)
+	{
+		tempbyte = tempbyte & 0xDF;
+		return 0x20;
+	}
+	else if((tempbyte & 0x30) == 0x30)
+	{
+		tempbyte = tempbyte & 0xCF;
+		return 0x30;
+	}
+	else if((tempbyte & 0x40) == 0x40)
+	{
+		tempbyte = tempbyte & 0xBF;
+		return 0x40;
+	}
+	else if((tempbyte & 0x50) == 0x50)
+	{
+		tempbyte = tempbyte & 0xAF;
+		return 0x50;
+	}
+	if((tempbyte & 0x60) == 0x60)
+	{
+		tempbyte = tempbyte & 0x9F;
+		return 0x60;
+	}
+	else if((tempbyte & 0x70) == 0x70)
+	{
+		tempbyte = tempbyte & 0x8F;
+		return 0x70;
+	}
+	else
+	{
+		return 0x00;
+	}
+}
+
+int CScanner_G6X00::BitCount(BYTE n)
+{
+	unsigned int c = 0;
+	for(c = 0; n; ++c)
+	{
+		n &= (n - 1) ; // 清除最低位的1 等同于n = n&(n-1);
+	}
+	return c;
 }
 
 

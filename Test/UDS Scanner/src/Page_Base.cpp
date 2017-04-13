@@ -484,10 +484,10 @@ BOOL CPage_Base::OnInitDialog()
 	
 	InitComboPixType(); //初始化图像类型下拉框值对应的亮度等值是否可用,需在SetBinarization后
 	
-	if(g_nDeviceNumber != 1)//不为虚拟扫描仪，禁用多流
-	{
-		GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE); //禁用多流
-	}
+	//if(g_nDeviceNumber != 1)//不为虚拟扫描仪，禁用多流
+	//{
+	//	GetDlgItem(IDC_BASE_RADIO_DUPLEX_MUILTSTREAM)->EnableWindow(FALSE); //禁用多流
+	//}
 
 	GetDlgItem(IDC_BASE_RADIO_SCANMODE_Flatbed)->ShowWindow(FALSE); //暂时隐藏平板。
 	 
