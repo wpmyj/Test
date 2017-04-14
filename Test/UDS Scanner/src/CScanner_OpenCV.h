@@ -281,9 +281,12 @@ protected:
 	*  @brief  设置多流输出
 	*  @param[in]  src 原图 
 	*  @param[in]  muilt BYTE类型的数据
+	*  @param[out] resol 分辨率
+	*  @param[out] bright 亮度
+	*  @param[out] contra 对比度
 	*  @param[out] dst 目标图像 
 	*/
-	Mat SetMuiltStream(Mat img, BYTE muilt);
+	Mat SetMuiltStream(Mat img, BYTE muilt, float& resol, float& bright, float& contra);
 
 	/**
 	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1
@@ -347,6 +350,7 @@ protected:
 
 	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
+
 }; 
 
 #endif// __CSCANNER_OPENCV_H__

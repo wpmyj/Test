@@ -33,7 +33,6 @@ void CBase_Tab_BW::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABBW_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_TABBW_SLIDER_THRESHOLD, m_slider_threshold);
 	DDX_Control(pDX, IDC_TABBW_COMBO_BINARIZATION, m_combo_binarization);
-	//  DDX_Control(pDX, IDC_BASETABBW_STATIC_THRESHOLD, m_static_threshold);
 }
 
 
@@ -62,7 +61,6 @@ void CBase_Tab_BW::UpdateControls(void)
 	CString strText;
 	int nval;
 
-	InitSliderCtrl();
 	//多流输出：默认不使用
 	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 
@@ -284,6 +282,7 @@ BOOL CBase_Tab_BW::OnInitDialog()
 	__super::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化	
+	InitSliderCtrl();
 	UpdateControls();
 
 	return TRUE;  // return TRUE unless you set the focus to a control

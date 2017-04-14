@@ -29,11 +29,17 @@ private:
 	*/
 	MFC_UI  *m_pUI; 
 public:
+	virtual BOOL OnInitDialog();
+
 	afx_msg void OnCbnSelchangeTabgray_Combo_Compress();	
 	afx_msg void OnNMCustomdrawTabgray_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);	
 	afx_msg void OnEnChangeTabgray_Edit_Compressvalue();	
 	afx_msg void OnCbnSelchangeTabgray_Combo_Resolution();
-	
+	afx_msg void OnNMCustomdrawTabgray_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawTabgray_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabgray_Edit_Contrast();
+	afx_msg void OnEnChangeTabgray_Edit_Brightness();
+
 	CComboBox m_combo_compress;
 	CComboBox m_combo_resolution;
 
@@ -48,10 +54,5 @@ public:
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-	virtual BOOL OnInitDialog();
 	
-	afx_msg void OnNMCustomdrawTabgray_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawTabgray_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeTabgray_Edit_Contrast();
-	afx_msg void OnEnChangeTabgray_Edit_Brightness();
 };

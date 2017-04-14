@@ -421,3 +421,11 @@ date 17.04.13
 2、解决Bug：阈值与去除斑点是共用一个滑动条，因此slider的范围需要根据static的值做改变。在SetBinarization函数中，m_slider_threshold.SetTicFreq会响应slider改变的响应事件，导致本该设置UDSCAP_REMOVESPOTSFB,但此时却设置了另一else中的值（m_pUI->SetCapValueFloat(UDSCAP_REMOVESPOTSBB, (float)sldValue);）
 解决方案：将SetTicFreq的操作只在初始化中进行，不随着static改变时设置。
 3、添加设置：不允许Tab控件点击来切换多流页面，只能通过多流的按钮来控制tab页面。删除tab的响应事件，同时控制tab的Disabled属性为true.
+
+date 17.04.13
+
+------------------------------------------------------------
+@author zhu
+1、继续调试多流Tab参数的功能实现：最终确定方案为修改CScanner_OpenCV类的SetMuiltStream（）函数，改为Mat SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra)，增加了后面三个形参，以后其他参数亦在此处添加。在SetMuiltStream函数中根据正面/背面以及不同的图像类型从而给preScanPrep函数中指定变量赋值。最终完成多流亮度、对比、分辨率的多流功能，即每一流都能够设置这些参数不同的值。
+2、调试解决bug，对话框数组成员变量m_fContra[4],取值超了范围。
+3、遗留Bug：在preScanPrep中现需要将多流操作放置最开始，才能对XReso赋值，resize图像，但在程序后面调节多流灰度的对比度亮度（ContrastAndBright）时，程序直接退出。最后找见问题在于ContrastAndBright函数中，数据溢出，但是未找到问题根本。暂时遗留。

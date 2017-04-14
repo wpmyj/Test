@@ -59,7 +59,6 @@ void CBase_Tab_Gray::UpdateControls(void)
 	int nCapValue;
 	CString strText;
 	int nval;
-	InitSliderCtrl();
 
 	//多流输出：默认不使用
 	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));\
@@ -200,6 +199,7 @@ BOOL CBase_Tab_Gray::OnInitDialog()
 	__super::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
+	InitSliderCtrl();
 	UpdateControls();
 
 	return TRUE;  // return TRUE unless you set the focus to a control

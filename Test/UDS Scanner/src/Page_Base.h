@@ -120,9 +120,7 @@ private:
 	afx_msg void OnBase_Btn_Check_BackColor();
 	afx_msg void OnBase_Btn_Check_BackGray();
 	afx_msg void OnBase_Btn_Check_BackBw();
-//	afx_msg void OnPaint();
 
-//	afx_msg void OnTcnSelchangeBase_Tab(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnCbnSelchangeBase_Combo_Rotate();	
 	afx_msg void OnCbnSelchangeBase_Combo_SpiltImage();	
 	afx_msg void OnNMCustomdrawBase_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult);	

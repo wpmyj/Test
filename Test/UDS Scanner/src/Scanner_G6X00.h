@@ -148,7 +148,7 @@ protected:
 	*  @param[in] Gamma Gamma：10 - 999 (means 0.1 - 99.9)
 	*  @param[out] outArgName   
 	*/
-	void CalGammaTable(LPBYTE GammaTable, int Brightness, int Contrast, BYTE Highlight, BYTE Shadow,float Gamma);
+	void CalGammaTable(LPBYTE GammaTable, int Brightness, int Contrast, BYTE Highlight, BYTE Shadow, float Gamma);
 
 	/**
 	*  @brief  调整参数，将UI得到的值赋值给成员变量 

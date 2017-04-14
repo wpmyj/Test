@@ -31,32 +31,33 @@ private:
 	MFC_UI  *m_pUI;  
 
 public:
-	afx_msg void OnCbnSelchangeTabbw_Combo_Compress();
-	CComboBox m_combo_compress;
-	afx_msg void OnNMCustomdrawTabbw_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
-	CSliderCtrl m_slider_compressvalue;
-	afx_msg void OnEnChangeTabbw_Edit_Compressvalue();
-	CEdit m_edit_compressvalue;
-	afx_msg void OnCbnSelchangeTabbw_Combo_Resolution();
-	CComboBox m_combo_resolution;
-
-public:
-	void UpdateControls(void);  ///< 更新控件状态
-	void InitSliderCtrl();  ///< 初始化滑动条控件
-
-	void SetBinarization(void);
-
 	virtual BOOL OnInitDialog();
+
+	afx_msg void OnCbnSelchangeTabbw_Combo_Compress();
+	afx_msg void OnNMCustomdrawTabbw_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabbw_Edit_Compressvalue();
+	afx_msg void OnCbnSelchangeTabbw_Combo_Resolution();
+	
+	afx_msg void OnNMCustomdrawTabbw_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabbw_Edit_Brightness();
+	afx_msg void OnNMCustomdrawTabbw_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabbw_Edit_Threshold();
+	afx_msg void OnCbnSelchangeTabbw_Combo_Binarization();
+
+	CComboBox m_combo_resolution;
+	CComboBox m_combo_compress;
+	CSliderCtrl m_slider_compressvalue;
+	CEdit m_edit_compressvalue;
+
 	CSliderCtrl m_slider_brightness;
 	CEdit m_edit_threshold;
 	CEdit m_edit_brightness;
 	CSliderCtrl m_slider_threshold;
 	CComboBox m_combo_binarization;
 
-	afx_msg void OnNMCustomdrawTabbw_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeTabbw_Edit_Brightness();
-	afx_msg void OnNMCustomdrawTabbw_Slider_Threshold(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeTabbw_Edit_Threshold();
-	afx_msg void OnCbnSelchangeTabbw_Combo_Binarization();
+public:
+	void UpdateControls(void);  ///< 更新控件状态
+	void InitSliderCtrl();  ///< 初始化滑动条控件
+	void SetBinarization(void);
 	
 };
