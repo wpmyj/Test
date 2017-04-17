@@ -65,6 +65,13 @@ public:
 	void SetCapMulti(); //设置多流生效
 	void SetTabCtrl(); //设置图像类型选择时，Tab选中哪一页
 
+	void SetFrontColor();
+	void SetFrontGray();
+	void SetFrontBW();
+	void SetBackColor();
+	void SetBackGray();
+	void SetBackBW();
+
 private:
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
 

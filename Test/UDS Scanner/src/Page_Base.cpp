@@ -274,6 +274,7 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_colormode.SetCurSel(nCapIndex);
 	InitComboPixType();
+	SetTabCtrl();
 	
 	//2.0版本
 	//图像设置-图像旋转
@@ -374,6 +375,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_frontcolor.SetCheck(TRUE);
+						SetFrontColor();						
 					}
 					else {
 						m_check_frontcolor.SetCheck(FALSE);
@@ -384,6 +386,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_frontgray.SetCheck(TRUE);
+						SetFrontGray();
 					}
 					else {
 						m_check_frontgray.SetCheck(FALSE);
@@ -393,6 +396,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_frontbw.SetCheck(TRUE);
+						SetFrontBW();
 					}
 					else {
 						m_check_frontbw.SetCheck(FALSE);
@@ -403,6 +407,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backcolor.SetCheck(TRUE);
+						SetBackColor();
 					}
 					else {
 						m_check_backcolor.SetCheck(FALSE);
@@ -413,6 +418,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backgray.SetCheck(TRUE);
+						SetBackGray();
 					}
 					else {
 						m_check_backgray.SetCheck(FALSE);
@@ -423,6 +429,7 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backbw.SetCheck(TRUE);
+						SetBackBW();
 					}
 					else {
 						m_check_backbw.SetCheck(FALSE);
@@ -442,7 +449,7 @@ void CPage_Base::UpdateControls(void)
 		m_radiobtn_duplex = nCapIndex; //0为单面，1为双面
 	}
 	SetMultistream();
-	SetDenoise();
+	SetDenoise();	
 }
 
 
@@ -454,7 +461,7 @@ void CPage_Base::InitBasemap(void)
 	m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex; //初始化时只为map插入“单双面”的值，特例
 
 	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-	m_basemap[UDSCAP_MULTISTREAM_VALUE] = (float)nCapValue;
+	m_basemap[UDSCAP_MULTISTREAM] = (float)nCapValue;
 
 	float value = m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
 	m_basemap[UDSCAP_MULTISTREAM_VALUE] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
@@ -515,12 +522,6 @@ BOOL CPage_Base::OnInitDialog()
 	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 	SetTabCtrl();
-
-	m_pTabBW->UpdateControls();
-	m_pTabGray->UpdateControls();
-	m_pTabColor->UpdateControls();
-
-	
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -1314,18 +1315,72 @@ void CPage_Base::SetBlank(void)
 	}
 }
 
-
-void CPage_Base::OnBase_Btn_FrontColor()
+void CPage_Base::SetFrontColor()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	SetDenoise();
 	m_base_tab.SetCurSel(0);
 	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
 	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
 	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-  m_pTabColor->basebutton = 0;
+	m_pTabColor->basebutton = 0;
 	m_pTabColor->UpdateControls();
+}
+void CPage_Base::SetFrontGray()
+{
+	m_base_tab.SetCurSel(1);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+	m_pTabGray->basebutton = 0;
+	m_pTabGray->UpdateControls();
+}
+void CPage_Base::SetFrontBW()
+{
+	m_base_tab.SetCurSel(2);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
+	m_pTabBW->basebutton = 0;
+	m_pTabBW->UpdateControls();
+}
+void CPage_Base::SetBackColor()
+{
+	m_base_tab.SetCurSel(0);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabColor->basebutton = 1;
+	m_pTabColor->UpdateControls();
+}
+void CPage_Base::SetBackGray()
+{
+	m_base_tab.SetCurSel(1);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+	m_pTabGray->basebutton = 1;
+	m_pTabGray->UpdateControls();
+}
+void CPage_Base::SetBackBW()
+{
+	m_base_tab.SetCurSel(2);
+	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
+	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
+	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
+	m_pTabBW->basebutton = 1;
+	m_pTabBW->UpdateControls();
+}
+
+void CPage_Base::OnBase_Btn_FrontColor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDenoise();
+	SetFrontColor();
 }
 
 
@@ -1333,13 +1388,7 @@ void CPage_Base::OnBase_Btn_Backcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDenoise();
-	m_base_tab.SetCurSel(0);
-	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
-	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
-	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-  m_pTabColor->basebutton = 1;
-	m_pTabColor->UpdateControls();
+	SetBackColor();
 }
 
 
@@ -1347,13 +1396,7 @@ void CPage_Base::OnBase_Btn_Frontgray()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDenoise();
-	m_base_tab.SetCurSel(1);
-	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
-	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
-	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
-  m_pTabGray->basebutton = 0;
-	m_pTabGray->UpdateControls();
+	SetFrontGray();
 }
 
 
@@ -1361,13 +1404,7 @@ void CPage_Base::OnBase_Btn_Backgray()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDenoise();
-	m_base_tab.SetCurSel(1);
-	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
-	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
-	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
-  m_pTabGray->basebutton = 1;
-	m_pTabGray->UpdateControls();
+	SetBackGray();
 }
 
 
@@ -1375,13 +1412,7 @@ void CPage_Base::OnBase_Btn_Frontbw()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDenoise();
-	m_base_tab.SetCurSel(2);
-	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
-	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
-  m_pTabBW->basebutton = 0;
-	m_pTabBW->UpdateControls();
+	SetFrontBW();
 }
 
 
@@ -1389,13 +1420,7 @@ void CPage_Base::OnBase_Btn_Backbw()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SetDenoise();
-	m_base_tab.SetCurSel(2);
-	//m_pTabAutoColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);     
-	m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
-	m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
-  m_pTabBW->basebutton = 1;
-	m_pTabBW->UpdateControls();
+	SetBackBW();
 }
 
 
@@ -1553,13 +1578,15 @@ void CPage_Base::SetTabCtrl()
 		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW); 
-	
+		m_pTabBW->UpdateControls();
+		
 		break;
 	case 1:
 		m_base_tab.SetCurSel(1);
 		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
 		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
+		m_pTabGray->UpdateControls();
 		
 		break;
 	case 2:
@@ -1567,7 +1594,7 @@ void CPage_Base::SetTabCtrl()
 		m_pTabColor->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_SHOWWINDOW);  
 		m_pTabGray->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW);  
 		m_pTabBW->SetWindowPos(NULL, m_tabRect.left, m_tabRect.top, m_tabRect.Width(), m_tabRect.Height(), SWP_HIDEWINDOW); 
-		
+		m_pTabColor->UpdateControls();
 		break;
 	}	
 }

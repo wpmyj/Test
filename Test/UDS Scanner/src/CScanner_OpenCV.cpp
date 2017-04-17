@@ -321,6 +321,11 @@ bool CScanner_OpenCV::preScanPrep()
 	float YReso;
 	float Bright;
 	float Contra;
+	int Compre;
+	float CompVal;
+	int Binari;
+	float Thres;
+	float Removespots;
 
 	//多流输出
 	if(m_bMultiStream)
@@ -329,7 +334,8 @@ bool CScanner_OpenCV::preScanPrep()
 		m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
 		BYTE m_byteMuilt = m_byteMultiValue;
 		m_byteMuilt = SwitchBYTE(m_byteMuilt);
-		m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt, XReso, Bright, Contra);
+		m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt, 
+			XReso, Bright, Contra, Compre, CompVal, Binari, Thres, Removespots);
 		YReso = XReso;
 	}
 	else//多流输出不使用时
@@ -890,7 +896,8 @@ BYTE CScanner_OpenCV::SwitchBYTE(const BYTE src)
 	}
 }
 
-Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra)
+Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra,
+	int &compre, float &compval, int &binari, float &thres, float &removespots)
 {
 	Mat dst_img;
 	switch(muilt)
@@ -904,6 +911,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[0];
 			bright = m_fBright[0];
 			contra = m_fContra[0];
+			compre = m_nCompre[0];
+			compval = m_fCompVal[0];
 		}
 		break;
 	case 0x10:
@@ -914,6 +923,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[3];
 			bright = m_fBright[3];
 			contra = m_fContra[2];
+			compre = m_nCompre[3];
+			compval = m_fCompVal[3];
 		}	
 		break;
 	
@@ -927,6 +938,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[1];
 			bright = m_fBright[1];
 			contra = m_fContra[1];
+			compre = m_nCompre[1];
+			compval = m_fCompVal[1];
 		}		
 		break;
 	case 0x20:
@@ -938,6 +951,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[4];
 			bright = m_fBright[4];
 			contra = m_fContra[3];
+			compre = m_nCompre[4];
+			compval = m_fCompVal[4];
 		}		
 		break;
 
@@ -951,6 +966,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[0];
 				bright = m_fBright[0];
 				contra = m_fContra[0];
+				compre = m_nCompre[0];
+				compval = m_fCompVal[0];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -960,6 +977,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[1];
 				bright = m_fBright[1];
 				contra = m_fContra[1];
+				compre = m_nCompre[1];
+				compval = m_fCompVal[1];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -974,6 +993,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[3];
 				bright = m_fBright[3];
 				contra = m_fContra[2];
+				compre = m_nCompre[3];
+				compval = m_fCompVal[3];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -983,6 +1004,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[4];
 				bright = m_fBright[4];
 				contra = m_fContra[3];
+				compre = m_nCompre[4];
+				compval = m_fCompVal[4];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1000,6 +1023,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[2];
 			bright = m_fBright[2];
 			//contra = m_fContra[2]; 黑白无对比度
+			compre = m_nCompre[2];
+			compval = m_fCompVal[2];
+
+			binari = m_nBinari[0];
+			thres = m_fThres[0];
+			removespots = m_fRemovespots[0];
 		}	
 		break;
 	case 0x40: //背面
@@ -1012,6 +1041,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 			resol = m_fResolu[5];
 			bright = m_fBright[5];
 			//contra = m_fContra[5];
+			compre = m_nCompre[5];
+			compval = m_fCompVal[5];
+
+			binari = m_nBinari[1];
+			thres = m_fThres[1];
+			removespots = m_fRemovespots[1];
 		}	
 		break;
 
@@ -1025,6 +1060,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[0];
 				bright = m_fBright[0];
 				contra = m_fContra[0];
+				compre = m_nCompre[0];
+				compval = m_fCompVal[0];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -1035,6 +1072,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[2];
 				bright = m_fBright[2];
 				//contra = m_fContra[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+
+				binari = m_nBinari[0];
+				thres = m_fThres[0];
+				removespots = m_fRemovespots[0];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1049,6 +1092,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[3];
 				bright = m_fBright[3];
 				contra = m_fContra[2];
+				compre = m_nCompre[3];
+				compval = m_fCompVal[3];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -1059,6 +1104,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[5];
 				bright = m_fBright[5];
 				//contra = m_fContra[5];
+				compre = m_nCompre[5];
+				compval = m_fCompVal[5];
+
+				binari = m_nBinari[1];
+				thres = m_fThres[1];
+				removespots = m_fRemovespots[1];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1076,6 +1127,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[1];
 				bright = m_fBright[1];
 				contra = m_fContra[1];
+				compre = m_nCompre[1];
+				compval = m_fCompVal[1];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -1086,6 +1139,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[2];
 				bright = m_fBright[2];
 				//contra = m_fContra[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+
+				binari = m_nBinari[0];
+				thres = m_fThres[0];
+				removespots = m_fRemovespots[0];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1101,6 +1160,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[4];
 				bright = m_fBright[4];
 				contra = m_fContra[3];
+				compre = m_nCompre[4];
+				compval = m_fCompVal[4];
 			}
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
@@ -1111,6 +1172,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[5];
 				bright = m_fBright[5];
 				//contra = m_fContra[5];
+				compre = m_nCompre[5];
+				compval = m_fCompVal[5];
+
+				binari = m_nBinari[1];
+				thres = m_fThres[1];
+				removespots = m_fRemovespots[1];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1127,6 +1194,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[0];
 				bright = m_fBright[0];
 				contra = m_fContra[0];
+				compre = m_nCompre[0];
+				compval = m_fCompVal[0];
 			}
 			else if(1 == m_nDocCount) //三张中的第二张
 			{
@@ -1136,6 +1205,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[1];
 				bright = m_fBright[1];
 				contra = m_fContra[1];
+				compre = m_nCompre[1];
+				compval = m_fCompVal[1];
 			}
 			else if(0 == m_nDocCount) //三张中的第三张
 			{
@@ -1146,6 +1217,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[2];
 				bright = m_fBright[2];
 				//contra = m_fContra[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+
+				binari = m_nBinari[0];
+				thres = m_fThres[0];
+				removespots = m_fRemovespots[0];
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -1160,6 +1237,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[3];
 				bright = m_fBright[3];
 				contra = m_fContra[2];
+				compre = m_nCompre[3];
+				compval = m_fCompVal[3];
 			}
 			else if(1 == m_nDocCount) //三张中的第二张
 			{
@@ -1169,6 +1248,8 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[4];
 				bright = m_fBright[4];
 				contra = m_fContra[3];
+				compre = m_nCompre[4];
+				compval = m_fCompVal[4];
 			}
 			else if(0 == m_nDocCount) //三张中的第三张
 			{
@@ -1179,6 +1260,12 @@ Mat CScanner_OpenCV::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float
 				resol = m_fResolu[5];
 				bright = m_fBright[5];
 				//contra = m_fContra[5];
+				compre = m_nCompre[5];
+				compval = m_fCompVal[5];
+
+				binari = m_nBinari[1];
+				thres = m_fThres[1];
+				removespots = m_fRemovespots[1];
 			}
 			else{}
 			src_img.copyTo(dst_img);

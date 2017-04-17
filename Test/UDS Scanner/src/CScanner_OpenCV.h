@@ -281,12 +281,20 @@ protected:
 	*  @brief  设置多流输出
 	*  @param[in]  src 原图 
 	*  @param[in]  muilt BYTE类型的数据
+
 	*  @param[out] resol 分辨率
 	*  @param[out] bright 亮度
 	*  @param[out] contra 对比度
-	*  @param[out] dst 目标图像 
+	*  @param[out] compre 压缩选项
+	*  @param[out] compval 压缩值
+	*  @param[out] binari 二值化
+	*  @param[out] thres 阈值
+	*  @param[out] removespots 去除斑点
+
+	*  @param[out] mat 目标图像 
 	*/
-	Mat SetMuiltStream(Mat img, BYTE muilt, float& resol, float& bright, float& contra);
+	Mat SetMuiltStream(Mat img, BYTE muilt, float& resol, float& bright, float& contra, 
+		int &compre, float &compval, int &binari, float &thres, float &removespots);
 
 	/**
 	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1
