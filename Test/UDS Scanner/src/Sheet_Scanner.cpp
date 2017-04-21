@@ -25,11 +25,11 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
 
-	m_p_page_filter = new CPage_Filter(pUI);
-	AddPage(m_p_page_filter);
+	/*m_p_page_filter = new CPage_Filter(pUI);
+	AddPage(m_p_page_filter);*/
 
-	m_p_page_paper = new CPage_Paper(pUI);
-	AddPage(m_p_page_paper);
+	/*m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);*/
 
 	m_p_page_set = new CPage_Set(pUI);
 	AddPage(m_p_page_set);
@@ -46,15 +46,15 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, UINT nIDCaption, CWnd* pParentWnd, U
 	m_p_baseTab_gray = new CBase_Tab_Gray(pUI);
 
 	m_p_page_base->m_pAdPage = m_p_page_advanced; //用于基本与高级之间参数同步
-	m_p_page_base->m_pPaperPage = m_p_page_paper;
+	//m_p_page_base->m_pPaperPage = m_p_page_paper;
 
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
 	
 	m_p_page_profile->m_pBasePage = m_p_page_base;
 	m_p_page_profile->m_pAdPage = m_p_page_advanced;
-	m_p_page_profile->m_pPaperPage = m_p_page_paper;
+	//m_p_page_profile->m_pPaperPage = m_p_page_paper;
 	m_p_page_profile->m_pSetPage = m_p_page_set;
-	m_p_page_profile->m_pFilterPage = m_p_page_filter;
+	//m_p_page_profile->m_pFilterPage = m_p_page_filter;
 	//base类上的Tab；
 	m_p_page_profile->m_pBaseTabAutoColor = m_p_baseTab_autocolor;
 	m_p_page_profile->m_pBaseTabColor = m_p_baseTab_color;
@@ -76,11 +76,11 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	m_p_page_advanced = new CPage_Advanced(pUI);
 	AddPage(m_p_page_advanced);
 
-	m_p_page_filter = new CPage_Filter(pUI);
-	AddPage(m_p_page_filter);
+	/*m_p_page_filter = new CPage_Filter(pUI);
+	AddPage(m_p_page_filter);*/
 
-	m_p_page_paper = new CPage_Paper(pUI);
-	AddPage(m_p_page_paper);
+	/*m_p_page_paper = new CPage_Paper(pUI);
+	AddPage(m_p_page_paper);*/
 
 	m_p_page_set = new CPage_Set(pUI);
 	AddPage(m_p_page_set);
@@ -97,15 +97,15 @@ CSheet_Scanner::CSheet_Scanner(MFC_UI* pUI, LPCTSTR pszCaption, CWnd* pParentWnd
 	m_p_baseTab_gray = new CBase_Tab_Gray(pUI);
 
 	m_p_page_base->m_pAdPage = m_p_page_advanced;
-	m_p_page_base->m_pPaperPage = m_p_page_paper;
+	//m_p_page_base->m_pPaperPage = m_p_page_paper;
 
 	m_p_page_advanced->m_pBasePage = m_p_page_base;
 
 	m_p_page_profile->m_pBasePage = m_p_page_base;
 	m_p_page_profile->m_pAdPage = m_p_page_advanced;
-	m_p_page_profile->m_pPaperPage = m_p_page_paper;
+	//m_p_page_profile->m_pPaperPage = m_p_page_paper;
 	m_p_page_profile->m_pSetPage = m_p_page_set;
-	m_p_page_profile->m_pFilterPage = m_p_page_filter;
+	//m_p_page_profile->m_pFilterPage = m_p_page_filter;
 	//base类上的Tab；
 	m_p_page_profile->m_pBaseTabAutoColor = m_p_baseTab_autocolor;
 	m_p_page_profile->m_pBaseTabColor = m_p_baseTab_color;
@@ -127,11 +127,11 @@ CSheet_Scanner::~CSheet_Scanner()
 		m_p_page_base = NULL;
 	}
 
-	if (m_p_page_paper)
+	/*if (m_p_page_paper)
 	{
 		delete m_p_page_paper;
 		m_p_page_paper = NULL;
-	}
+	}*/
 
 	if (m_p_page_advanced)
 	{
@@ -139,11 +139,11 @@ CSheet_Scanner::~CSheet_Scanner()
 		m_p_page_advanced = NULL;
 	}
 
-	if (m_p_page_filter)
+	/*if (m_p_page_filter)
 	{
 		delete m_p_page_filter;
 		m_p_page_filter = NULL;
-	}
+	}*/
 
 	if (m_p_page_set)
 	{
@@ -274,7 +274,8 @@ BOOL CSheet_Scanner::OnInitDialog()
 
 void CSheet_Scanner::SetPreViewStatus()
 {
-	if(4 == GetTabControl()->GetCurFocus()) //纸张界面预览可用
+	//if(3 == GetTabControl()->GetCurFocus() ||1 == GetTabControl()->GetCurFocus()) //纸张界面与基本界面预览可用
+	if(1 == GetTabControl()->GetCurFocus())
 	{
 		m_btn_preview.EnableWindow(TRUE);
 	}
@@ -296,9 +297,13 @@ void CSheet_Scanner::OnButtonHelp()
 
 void CSheet_Scanner::OnButtonPreView() 
 {
-	if(4 == GetTabControl()->GetCurFocus())
+	//if(3 == GetTabControl()->GetCurFocus())
+	//{
+	//	m_p_page_paper->PreView(); //现仅有预览界面（原纸张界面可用）
+	//}
+	if(1 == GetTabControl()->GetCurFocus())
 	{
-		m_p_page_paper->PreView(); //现仅有预览界面（原纸张界面可用）
+		m_p_page_base->PreView(); //基本界面
 	}
 	else{}
 }

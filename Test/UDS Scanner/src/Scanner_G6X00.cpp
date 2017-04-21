@@ -97,6 +97,7 @@ bool CScanner_G6X00::resetScanner()
 	m_fEdgeDown           = 0.0;      // ±ßÔµÀ©³ä 
 	m_fEdgeLeft           = 0.0;      // ±ßÔµÀ©³ä 
 	m_fEdgeRight          = 0.0;      // ±ßÔµÀ©³ä 
+	m_nEdgeColor          = TWEC_BLACK;
 
 	m_fXPos               = 0.0;      // XÆ«ÒÆÁ¿ 
 	m_fYPos               = 0.0;      // YÆ«ÒÆÁ¿ 
@@ -104,8 +105,9 @@ bool CScanner_G6X00::resetScanner()
 	m_nImageNumber        = 0;
 
     //2.0°æ±¾
-	m_nCompress           = TRUE;
+	m_nCompress           = TWCP_NONE;
 	m_fCompressValue      = 0.0;
+	m_nCompressQuality    = TWCQ_BEST;
 
 	m_bColorFlip          = FALSE;
 
@@ -129,12 +131,16 @@ bool CScanner_G6X00::resetScanner()
 	m_nFilterMode         = TWFM_AUTO;
 	m_fFilterLevel        = 10.0;
 
+	m_nNoColor            = TWNC_GRAY;
+	m_fColorThres         = 37.0;
+
 	for(int i=0; i<6; i++)
 	{
 		m_fBright[i]  = m_fBrightness;
 		m_fResolu[i]  = m_fXResolution;
 		m_nCompre[i]  = m_nCompress;
 		m_fCompVal[i] = m_fCompressValue;
+		m_nCompQua[i] = m_nCompressQuality;
 	}
 
 	for(int i=0; i<4; i++)

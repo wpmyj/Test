@@ -396,6 +396,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
   bResult = bResult && StoreCapInStream(DsData,ICAP_BITORDER,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_COMPRESSION,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSVALUE,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITY,0,TWON_ONEVALUE);//压缩质量
   bResult = bResult && StoreCapInStream(DsData,ICAP_FRAMES,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_IMAGEFILEFORMAT,0,TWON_ONEVALUE);
   bResult = bResult && StoreCapInStream(DsData,ICAP_PIXELFLAVOR,0,TWON_ONEVALUE); 
@@ -439,6 +440,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_DOWN,0,TWON_ONEVALUE); // 边缘扩充
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_LEFT,0,TWON_ONEVALUE); // 边缘扩充
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_RIGHT,0,TWON_ONEVALUE); // 边缘扩充
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_COLOR,0,TWON_ONEVALUE); // 扩充颜色
 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_XPOS,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_YPOS,0,TWON_ONEVALUE);
@@ -500,6 +502,17 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	//多流去除斑点
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTSFB,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_REMOVESPOTSBB,0,TWON_ONEVALUE);
+	//非彩色时扫描
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NOCOLOR,0,TWON_ONEVALUE);
+	//色彩阈值
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COLORTHRESHOLD,0,TWON_ONEVALUE);
+	//多流压缩质量
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYFC,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYFG,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYFB,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYBC,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYBG,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_COMPRESSQUALITYBB,0,TWON_ONEVALUE);
 	return bResult;
 }
 
@@ -525,6 +538,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
   bResult = bResult && ReadCapFromStream(DsData,ICAP_IMAGEFILEFORMAT,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_COMPRESSION,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSVALUE,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITY,0);//压缩质量
   bResult = bResult && ReadCapFromStream(DsData,ICAP_CONTRAST,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_BRIGHTNESS,0);
   bResult = bResult && ReadCapFromStream(DsData,ICAP_GAMMA,0);  //gamma校正 
@@ -554,6 +568,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_DOWN,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_LEFT,0); 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_RIGHT,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_COLOR,0); 
 
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_XPOS,0); //X偏移量
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_YPOS,0); 
@@ -614,6 +629,17 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	//多流去除斑点
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTSFB,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_REMOVESPOTSBB,0);
+	//非彩色时扫描
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NOCOLOR,0);
+	//色彩阈值
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COLORTHRESHOLD,0);
+	//多流压缩质量
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYFC,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYFG,0);  
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYFB,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYBC,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYBG,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_COMPRESSQUALITYBB,0);
   return bResult;
 }
 
@@ -649,6 +675,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
    || !pnCap->Add(ICAP_BITORDER)
    || !pnCap->Add(ICAP_COMPRESSION)  //压缩
 	 || !pnCap->Add(UDSCAP_COMPRESSVALUE) //压缩比的值
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITY) //压缩质量
    || !pnCap->Add(ICAP_FRAMES)
    || !pnCap->Add(ICAP_MAXFRAMES)
    || !pnCap->Add(ICAP_IMAGEFILEFORMAT)
@@ -691,6 +718,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_EDGE_DOWN)
 	 || !pnCap->Add(UDSCAP_EDGE_LEFT)
 	 || !pnCap->Add(UDSCAP_EDGE_RIGHT)
+	 || !pnCap->Add(UDSCAP_EDGE_COLOR)
 	 || !pnCap->Add(UDSCAP_XPOS)
 	 || !pnCap->Add(UDSCAP_YPOS)
 	 || !pnCap->Add(UDSCAP_COLORFLIP)
@@ -747,6 +775,15 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	  //多流去除斑点
 	 || !pnCap->Add(UDSCAP_REMOVESPOTSFB)
 	 || !pnCap->Add(UDSCAP_REMOVESPOTSBB)
+	 || !pnCap->Add(UDSCAP_NOCOLOR)
+	 || !pnCap->Add(UDSCAP_COLORTHRESHOLD)
+	 //多流压缩质量
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYFC)
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYFG)
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYFB)
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYBC)
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYBG)
+	 || !pnCap->Add(UDSCAP_COMPRESSQUALITYBB)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -762,6 +799,31 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !pbCap->Add(TRUE, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_TURNVIDEO !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//非彩色时扫描
+	m_IndependantCapMap[UDSCAP_NOCOLOR] = new CTWAINContainerInt(UDSCAP_NOCOLOR, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_NOCOLOR]))
+		|| !pnCap->Add(TWNC_GRAY, true)
+		|| !pnCap->Add(TWNC_BLACK))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NOCOLOR !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//色彩阈值
+	fRange.fCurrentValue = 37.0f; 
+	fRange.fMaxValue = 100.0f;
+	fRange.fMinValue = 1.0f;
+	fRange.fStepSize = 1.0f;
+	//去除噪声-噪声数目
+	m_IndependantCapMap[UDSCAP_COLORTHRESHOLD] = new CTWAINContainerFix32Range(UDSCAP_COLORTHRESHOLD,fRange, TWQC_ALL);
+	if( NULL == dynamic_cast<CTWAINContainerFix32Range*>(m_IndependantCapMap[UDSCAP_COLORTHRESHOLD]))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COLORTHRESHOLD !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -878,16 +940,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
-	
-  //m_IndependantCapMap[ICAP_COMPRESSION] = new CTWAINContainerInt(ICAP_COMPRESSION, TWTY_UINT16, TWON_ENUMERATION);
-  //if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
-  // || !pnCap->Add(TWCP_NONE, true) )
-  //{
-		//::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_COMPRESSION !"),MB_CAPTION,MB_OK);
-  //  //cerr << "Could not create ICAP_COMPRESSION" << endl;
-  //  setConditionCode(TWCC_LOWMEMORY);
-  //  return TWRC_FAILURE;
-  //}
 
   m_IndependantCapMap[ICAP_PLANARCHUNKY] = new CTWAINContainerInt(ICAP_PLANARCHUNKY, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_PLANARCHUNKY]))
@@ -1036,7 +1088,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
-
 
 	//多流输出
 	m_IndependantCapMap[UDSCAP_MULTISTREAM] = new CTWAINContainerBool(UDSCAP_MULTISTREAM, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
@@ -1328,10 +1379,90 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 	
+	//压缩质量
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITY] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITY, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITY]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITY !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	//多流压缩质量
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFC] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYFC, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFC]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYFC !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFG] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYFG, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFG]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYFG !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFB] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYFB, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYFB]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYFB !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBC] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYBC, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBC]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYBC !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBG] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYBG, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBG]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYBG !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+	m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBB] = new CTWAINContainerInt(UDSCAP_COMPRESSQUALITYBB, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSQUALITYBB]))
+		|| !pnCap->Add(TWCQ_BEST, true)
+		|| !pnCap->Add(TWCQ_FINE) 
+		|| !pnCap->Add(TWCQ_JUST)
+		|| !pnCap->Add(TWCQ_DEFINED)) 
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSQUALITYBB !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
 	//压缩
 	m_IndependantCapMap[ICAP_COMPRESSION] = new CTWAINContainerInt(ICAP_COMPRESSION, TWTY_UINT16, TWON_ENUMERATION);
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_COMPRESSION]))
-		|| !pnCap->Add(TWCP_NONE, true)
+		|| !pnCap->Add(TWCP_NONE, true) //自动
 		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
 		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
 	{
@@ -1344,7 +1475,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONFC]))
 		|| !pnCap->Add(TWCP_NONE, true)
 		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
-		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
+		) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONFC !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
@@ -1354,7 +1485,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONFG]))
 		|| !pnCap->Add(TWCP_NONE, true)
 		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
-		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
+		) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONFG !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
@@ -1363,7 +1494,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	m_IndependantCapMap[UDSCAP_COMPRESSIONFB] = new CTWAINContainerInt(UDSCAP_COMPRESSIONFB, TWTY_UINT16, TWON_ENUMERATION);
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONFB]))
 		|| !pnCap->Add(TWCP_NONE, true)
-		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
 		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONFB !"),MB_CAPTION,MB_OK);
@@ -1374,7 +1504,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONBC]))
 		|| !pnCap->Add(TWCP_NONE, true)
 		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
-		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
+		) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONBC !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
@@ -1384,7 +1514,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONBG]))
 		|| !pnCap->Add(TWCP_NONE, true)
 		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
-		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
+		) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONBG !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
@@ -1393,7 +1523,6 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	m_IndependantCapMap[UDSCAP_COMPRESSIONBB] = new CTWAINContainerInt(UDSCAP_COMPRESSIONBB, TWTY_UINT16, TWON_ENUMERATION);
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_COMPRESSIONBB]))
 		|| !pnCap->Add(TWCP_NONE, true)
-		|| !pnCap->Add(TWCP_JPEG) //JPEG压缩
 		|| !pnCap->Add(TWCP_GROUP4)) //G4压缩
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_COMPRESSIONBB !"),MB_CAPTION,MB_OK);
@@ -1901,6 +2030,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !m_ICAP_UNIT_Dependant[UDSCAP_MULTISTREAM_VALUE]->Add(0.0, true) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTISTREAM_VALUE !"),MB_CAPTION,MB_OK);
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	//扩充颜色
+	m_IndependantCapMap[UDSCAP_EDGE_COLOR] = new CTWAINContainerInt(UDSCAP_EDGE_COLOR, TWTY_UINT16, TWON_ENUMERATION);
+	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_EDGE_COLOR]))
+		|| !pnCap->Add(TWEC_WHITE)
+		|| !pnCap->Add(TWEC_BLACK, true))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FILTERCOLOR !"),MB_CAPTION,MB_OK);
 		setConditionCode(TWCC_LOWMEMORY);
 		return TWRC_FAILURE;
 	}
@@ -2708,8 +2848,104 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
   CTWAINContainerInt    *pnCap = 0;
   CTWAINContainerFix32  *pfCap = 0;
   CTWAINContainerFix32Range *pfRCap = 0;
-
 	CTWAINContainerBool* pbCap = 0; //zhu
+
+	//非彩色时扫描
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_NOCOLOR))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NOCOLOR!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nNoColor = nVal;
+	}
+
+	//色彩阈值
+	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_COLORTHRESHOLD))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COLORTHRESHOLD!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pfRCap->GetCurrent(fVal);
+		settings.m_fColorThres = fVal;
+	}
+
+	//压缩质量
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITY))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITY!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompressQuality = nVal;
+	}
+	//多流压缩质量
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYFC))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYFC!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[0] = nVal;
+	}
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYFG))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYFG!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[1] = nVal;
+	}
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYFB))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYFB!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[2] = nVal;
+	}
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYBC))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYBC!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[3] = nVal;
+	}
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYBG))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYBG!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[4] = nVal;
+	}
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYBB))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSQUALITYBB!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nCompQua[5] = nVal;
+	}
 
 	//压缩
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
@@ -2724,10 +2960,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nCompress = nVal;
 	}
 	//多流
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFC))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFC!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2735,10 +2971,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[0] = nVal;
 	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFG))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFG!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2746,10 +2982,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[1] = nVal;
 	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFB))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFC!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2757,10 +2993,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[2] = nVal;
 	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBC))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONBC!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2768,10 +3004,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[3] = nVal;
 	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBG))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONBG!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -2779,10 +3015,10 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[4] = nVal;
 	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_COMPRESSION))))
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBB))))
 	{
 		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get ICAP_COMPRESSION!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONBB!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
@@ -3432,6 +3668,18 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	{
 		pfCap->GetCurrent(fVal);
 		settings.m_byteMultiValue = (BYTE)fVal;
+	}
+
+	//扩充颜色
+	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_EDGE_COLOR))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EDGE_COLOR!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pnCap->GetCurrent(nVal);
+		settings.m_nEdgeColor = nVal;
 	}
 
 	//边缘扩充

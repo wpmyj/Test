@@ -47,8 +47,8 @@ void CPage_Profile::OnOK()
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pBasePage->SetCapValue();
 	m_pAdPage->SetCapValue();
-	m_pPaperPage->SetCapValue();
-	m_pFilterPage->SetCapValue();
+	//m_pPaperPage->SetCapValue();
+	//m_pFilterPage->SetCapValue();
 	m_pSetPage->SetCapValue();
 
 	int index = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
@@ -191,12 +191,7 @@ void CPage_Profile::LoadTemplate()
 
 	m_pBasePage->UpdateControls();
 	m_pAdPage->UpdateControls();//高级设置界面参数也更新
-	m_pPaperPage->UpdateControls();
-	m_pSetPage->UpdateControls();
-	m_pBaseTabAutoColor->UpdateControls();
-	m_pBaseTabColor->UpdateControls();
-	m_pBaseTabGray->UpdateControls();
-	m_pBaseTabBW->UpdateControls();
+	m_pSetPage->UpdateControls();	
 
 	UpdateData(FALSE);
 }

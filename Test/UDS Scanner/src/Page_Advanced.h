@@ -79,6 +79,8 @@ private:
 	int maxinches_width;
 	int maxinches_height;
 
+	int m_radio_edgecolor;
+
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void SetCapValue(void); ///<设置参数
@@ -113,8 +115,11 @@ private:
 	afx_msg void OnEnChangeAdvanced_Edit_EdgeRight();
 	afx_msg void OnEnChangeAdvanced_Edit_EdgeDown();
 
+	afx_msg void OnAdvanced_RadioBtn_Edgecolor();
+
 public:
 	/** Base界面的父类指针*/
 	CPage_Custom* m_pBasePage;
+	
 	
 };

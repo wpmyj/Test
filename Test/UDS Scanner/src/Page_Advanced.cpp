@@ -56,6 +56,7 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_YPOS, m_scroll_ypos);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_CUTMETHOD, m_combo_cutmethod);
+	DDX_Radio(pDX, IDC_ADVANCED_RADIO_EDGECOLOR_WHITE, m_radio_edgecolor);
 }
 
 
@@ -72,13 +73,15 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_STANDARDSIZES, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_UINT, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Uints)
 	ON_WM_VSCROLL()
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_XPOS, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeXpos)
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_YPOS, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeYpos)
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_UP, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeUp)
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_LEFT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeLeft)
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_RIGHT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight)
-ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
-ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_XPOS, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeXpos)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_YPOS, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeYpos)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_UP, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeUp)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_LEFT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeLeft)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_RIGHT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGECOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGECOLOR_BLACK, &CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor)
 END_MESSAGE_MAP()
 
 
@@ -562,6 +565,10 @@ void CPage_Advanced::UpdateControls(void)
 	nval = FindPaperSize(nCapIndex);
 	m_advancedmap[ICAP_SUPPORTEDSIZES] = (float)nval;//不能只更新容器，还要更新CAP;此处必须有
 	SetPaperSize();
+
+	//填充颜色
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_EDGE_COLOR);
+	m_radio_edgecolor = nCapIndex;
 
 }
 
@@ -2117,4 +2124,20 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod()
 	}
 	m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
 
+}
+
+void CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	switch(m_radio_edgecolor)
+	{
+	case 0:
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_COLOR,TWEC_WHITE);
+		break;
+	case 1:
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_COLOR,TWEC_BLACK);
+		break;
+	}
+	UpdateData(FALSE);
 }

@@ -193,6 +193,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClCompile Include="src\Base_Tab_BW.cpp" />
     <ClCompile Include="src\Base_Tab_Color.cpp" />
     <ClCompile Include="src\Base_Tab_Gray.cpp" />
+    <ClCompile Include="src\Base_Tab_Preview.cpp" />
+    <ClCompile Include="src\Base_Tab_Rotateshow.cpp" />
+    <ClCompile Include="src\Base_Tab_Spiltshow.cpp" />
     <ClCompile Include="src\ButtonPublic.cpp" />
     <ClCompile Include="src\Camera_CxImage.cpp" />
     <ClCompile Include="src\CDUDS_Video.cpp" />
@@ -247,6 +250,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_3
     <ClInclude Include="src\Base_Tab_BW.h" />
     <ClInclude Include="src\Base_Tab_Color.h" />
     <ClInclude Include="src\Base_Tab_Gray.h" />
+    <ClInclude Include="src\Base_Tab_Preview.h" />
+    <ClInclude Include="src\Base_Tab_Rotateshow.h" />
+    <ClInclude Include="src\Base_Tab_Spiltshow.h" />
     <ClInclude Include="src\ButtonPublic.h" />
     <ClInclude Include="src\Camera_CxImage.h" />
     <ClInclude Include="src\CDUDS_Video.h" />

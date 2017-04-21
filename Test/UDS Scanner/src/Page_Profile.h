@@ -76,9 +76,9 @@ public:
 	/** ∏∏¿‡÷∏’Î*/
 	CPage_Custom* m_pBasePage;
 	CPage_Custom* m_pAdPage;
-	CPage_Custom* m_pPaperPage;
+	//CPage_Custom* m_pPaperPage;
 	CPage_Custom* m_pSetPage;
-	CPage_Custom* m_pFilterPage;
+	//CPage_Custom* m_pFilterPage;
 
 	CPage_Custom* m_pBaseTabAutoColor;
 	CPage_Custom* m_pBaseTabColor;

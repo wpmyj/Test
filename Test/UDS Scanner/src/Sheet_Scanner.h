@@ -5,10 +5,10 @@
 #include "Page_Base.h"
 #include "Page_Advanced.h"
 #include "Page_About.h"
-#include "Page_Paper.h"
+//#include "Page_Paper.h"
 #include "Page_Set.h"
 #include "Page_Info.h"
-#include "Page_Filter.h"
+//#include "Page_Filter.h"
 #include "Base_AutoColor.h"
 #include "Base_Tab_BW.h"
 #include "Base_Tab_Color.h"
@@ -37,10 +37,10 @@ public:
 	CPage_Base     *m_p_page_base;
 	CPage_Advanced *m_p_page_advanced;
 	CPage_About    *m_p_page_about;
-	CPage_Paper    *m_p_page_paper;
+	//CPage_Paper    *m_p_page_paper;
 	CPage_Set      *m_p_page_set;
 	CPage_Info     *m_p_page_info;
-	CPage_Filter   *m_p_page_filter;
+	//CPage_Filter   *m_p_page_filter;
 
 	CBase_AutoColor *m_p_baseTab_autocolor;
 	CBase_Tab_BW    *m_p_baseTab_bw;

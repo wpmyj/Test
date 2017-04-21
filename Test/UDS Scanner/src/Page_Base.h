@@ -4,10 +4,13 @@
 #include "afxwin.h"
 #include "Dlg_Profile.h"
 #include "Page_Custom.h"
-#include "Base_AutoColor.h"
 #include "Base_Tab_Color.h"
 #include "Base_Tab_Gray.h"
 #include "Base_Tab_BW.h"
+#include "Base_Tab_Preview.h"
+#include "Base_Tab_Rotateshow.h"
+#include "Base_Tab_Spiltshow.h"
+#include "Base_AutoColor.h"
 
 class MFC_UI;
 // CPage_Base 对话框
@@ -42,7 +45,6 @@ private:
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-	void InitComboPixType(void); ///<初始化图像类型编辑框
 	void SetCapValue(void);  ///<设置参数
 	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
 	void SetFlat(void); ///< 设置扫描模式为平板时，只能为单面。
@@ -60,17 +62,19 @@ public:
 	//2.0版本
 	void SetSpiltimage();
 	void SetBlank(void);
-	void SetScroll();
-	void SetDenoise(); //设置去噪声
 	void SetCapMulti(); //设置多流生效
 	void SetTabCtrl(); //设置图像类型选择时，Tab选中哪一页
 
+	void SetAutoFrontColor();
+	void SetAutoBackColor();
 	void SetFrontColor();
 	void SetFrontGray();
 	void SetFrontBW();
 	void SetBackColor();
 	void SetBackGray();
 	void SetBackBW();
+	void PreView();
+	int  GetCheckNum(); ///<得到共几个多流checkbox选中
 
 private:
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
@@ -84,6 +88,8 @@ private:
 	CButton m_check_backbw;
 	CButton m_check_backgray;
 	CButton m_check_backcolor;
+	CButton m_check_autobackcolor;
+	CButton m_check_autofrontcolor;
 
 	CButton m_btn_frontcolor;
 	CButton m_btn_frontgray;
@@ -91,6 +97,10 @@ private:
 	CButton m_btn_backcolor;
 	CButton m_btn_backgray;
 	CButton m_btn_backbw;
+	CButton m_btn_autofrontcolor;
+	CButton m_btn_autobackcolor;
+	CButton m_btn_rotateshow;
+	CButton m_btn_spiltshow;
 
 	CComboBox m_combo_rotate;
 	CComboBox m_combo_splitimage;
@@ -107,11 +117,6 @@ private:
 	CTabCtrl m_base_tab;
 	CRect m_tabRect; // 标签Tab控件客户区的Rect
 
-	CScrollBar m_scroll_noisenum;
-	CScrollBar m_scroll_noiserange;
-	CEdit m_edit_noisenum;
-	CEdit m_edit_noiserange;
-
 	afx_msg void OnCbnSelchangeBase_Combo_Colormode();
 
 	afx_msg void OnBase_Btn_Newprofile();
@@ -127,6 +132,10 @@ private:
 	afx_msg void OnBase_Btn_Check_BackColor();
 	afx_msg void OnBase_Btn_Check_BackGray();
 	afx_msg void OnBase_Btn_Check_BackBw();
+	afx_msg void OnBase_Btn_Autofrontcolor();
+	afx_msg void OnBase_Btn_Autobackcolor();
+	afx_msg void OnBase_Btn_Check_Autofrontcolor();
+	afx_msg void OnBase_Btn_Check_Autobackcolor();
 
 	afx_msg void OnCbnSelchangeBase_Combo_Rotate();	
 	afx_msg void OnCbnSelchangeBase_Combo_SpiltImage();	
@@ -142,20 +151,20 @@ private:
 	afx_msg void OnBase_Btn_Backgray();
 	afx_msg void OnBase_Btn_Frontbw();
 	afx_msg void OnBase_Btn_Backbw();
-	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 
-	afx_msg void OnEnChangeBase_Edit_NoiseNum();
-	afx_msg void OnEnChangeBase_Edit_NoiseRange();
-	
+	afx_msg void OnBase_Btn_RotateShow();
+	afx_msg void OnBase_Btn_SpiltShow();
+
 public:
 	/** 父类指针*/
-	CPage_Custom* m_pAdPage;	
-	CPage_Custom* m_pPaperPage;	
+	CPage_Custom* m_pAdPage;		
 	
 	//Tab对话框类
-	CBase_AutoColor *m_pTabAutoColor;
-	CBase_Tab_Color *m_pTabColor;
-	CBase_Tab_Gray *m_pTabGray;
-	CBase_Tab_BW *m_pTabBW;
-	
+	CBase_Tab_Color *m_pTabColor;  //0
+	CBase_Tab_Gray *m_pTabGray;  //1
+	CBase_Tab_BW *m_pTabBW;  //2
+	CBase_Tab_Preview *m_pTabPreview;  //3
+	CBase_Tab_Rotateshow *m_pTabRotateshow;  //4
+	CBase_Tab_Spiltshow *m_pTabSpiltshow;  //5
+	CBase_AutoColor *m_pTabAutoColor;  //6
 };

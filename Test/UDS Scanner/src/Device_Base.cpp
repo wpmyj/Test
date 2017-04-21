@@ -56,12 +56,14 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fEdgeDown           = settings.m_fEdgeDown;
 	m_fEdgeLeft           = settings.m_fEdgeLeft;
 	m_fEdgeRight          = settings.m_fEdgeRight;
+	m_nEdgeColor          = settings.m_nEdgeColor;
 
 	m_fXPos               = settings.m_fXPos;
 	m_fYPos               = settings.m_fYPos;
 
 	m_nCompress           = settings.m_nCompress;
 	m_fCompressValue      = settings.m_fCompressValue;
+	m_nCompressQuality    = settings.m_nCompressQuality;
 
 	m_bColorFlip          = settings.m_bColorFlip;
 
@@ -85,12 +87,16 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_nFilterMode         = settings.m_nFilterMode;
 	m_fFilterLevel        = settings.m_fFilterLevel;
 
+	m_nNoColor            = settings.m_nNoColor;
+	m_fColorThres         = settings.m_fColorThres;
+
 	for(int i=0; i<6; i++)
 	{
 		m_fBright[i]  = settings.m_fBright[i];
 		m_fResolu[i]  = settings.m_fResolu[i];
 		m_nCompre[i]  = settings.m_nCompre[i];
 		m_fCompVal[i] = settings.m_fCompVal[i];
+		m_nCompQua[i] = settings.m_nCompQua[i];
 	}
 
 	for(int i=0; i<4; i++)
@@ -104,6 +110,8 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 		m_fThres[i]  = settings.m_fThres[i];
 		m_fRemovespots[i] = settings.m_fRemovespots[i];
 	}
+
+	
 }
 
 CDevice_Base* CDevice_Base::getSetting() const

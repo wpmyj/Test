@@ -41,9 +41,17 @@ public:
 	CSliderCtrl m_slider_compressvalue;	
 	CEdit m_edit_compressvalue;
 
+	CComboBox m_combo_nocolor;
+	CEdit m_edit_colorthres;
+	CSliderCtrl m_slider_colorthres;
+
+	virtual BOOL OnInitDialog();
 	afx_msg void OnCbnSelchangeTabautocolor_Combo_Compress();
 	afx_msg void OnNMCustomdrawTabautocolor_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabautocolor_Edit_Compressvalue();
 	afx_msg void OnCbnSelchangeTabautocolor_Combo_Resolution();
-	virtual BOOL OnInitDialog();
+	
+	afx_msg void OnCbnSelchangeTabautocolor_Combo_Nocolor();
+	afx_msg void OnEnChangeTabautocolor_Edit_Colorthres();
+	afx_msg void OnNMCustomdrawTabautocolor_Slider_Colorthres(NMHDR *pNMHDR, LRESULT *pResult);
 };

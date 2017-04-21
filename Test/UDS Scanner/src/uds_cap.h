@@ -110,6 +110,21 @@
 #define UDSCAP_REMOVESPOTSFB                 CAP_CUSTOMBASE+70
 #define UDSCAP_REMOVESPOTSBB                 CAP_CUSTOMBASE+71
 
+#define UDSCAP_EDGE_COLOR                    CAP_CUSTOMBASE+72  /**< 边缘扩充颜色 */
+
+#define UDSCAP_NOCOLOR                       CAP_CUSTOMBASE+73  /**< 非彩色时扫描 */
+#define UDSCAP_COLORTHRESHOLD                CAP_CUSTOMBASE+74  /**< 色彩阈值 */
+
+#define UDSCAP_COMPRESSQUALITY               CAP_CUSTOMBASE+75  /**< 压缩质量 */
+
+//多流压缩质量  UDSCAP_COMPRESSQUALITY
+#define UDSCAP_COMPRESSQUALITYFC             CAP_CUSTOMBASE+76
+#define UDSCAP_COMPRESSQUALITYFG             CAP_CUSTOMBASE+77
+#define UDSCAP_COMPRESSQUALITYFB             CAP_CUSTOMBASE+78
+#define UDSCAP_COMPRESSQUALITYBC             CAP_CUSTOMBASE+79
+#define UDSCAP_COMPRESSQUALITYBG             CAP_CUSTOMBASE+80
+#define UDSCAP_COMPRESSQUALITYBB             CAP_CUSTOMBASE+81
+
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -223,3 +238,17 @@
 /* UDSCAP_FILTERMODE values (FM_ means UDSCAP_FILTERMODE)滤除模式*/
 #define TWFM_AUTO                 0  //自动
 #define TWFM_DEFINED              1  //自定义
+
+/* UDSCAP_COMPRESSQUALITY values (CQ_ means COMPRESSQUALITY)压缩质量*/
+#define TWCQ_BEST                 0  //最佳
+#define TWCQ_FINE                 1  //良好
+#define TWCQ_JUST                 2  //一般
+#define TWCQ_DEFINED              3  //自定义
+
+/* UDSCAP_EDGE_COLOR values (EC_ means EDGE_COLOR )扩充颜色*/
+#define TWEC_WHITE                 0  //白色
+#define TWEC_BLACK                 1  //黑色
+
+/* UDSCAP_NOCOLOR values (NC_ means NOCOLOR )非彩色时扫描*/
+#define TWNC_GRAY                  0  //灰阶
+#define TWNC_BLACK                 1  //黑白

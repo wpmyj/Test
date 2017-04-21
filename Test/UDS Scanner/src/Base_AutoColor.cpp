@@ -18,7 +18,6 @@ CBase_AutoColor::CBase_AutoColor(MFC_UI *pUI)
 
 CBase_AutoColor::~CBase_AutoColor()
 {
-	//m_TabAutoColormap.swap(map<int, float>());  // 清空并释放内存
 }
 
 void CBase_AutoColor::DoDataExchange(CDataExchange* pDX)
@@ -28,6 +27,9 @@ void CBase_AutoColor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABAUTOCOLOR_COMBO_COMPRESS, m_combo_compress);
 	DDX_Control(pDX, IDC_TABAUTOCOLOR_SLIDER_COMPRESSION, m_slider_compressvalue);
 	DDX_Control(pDX, IDC_TABAUTOCOLOR_EDIT_COMPRESSVALUE, m_edit_compressvalue);
+	DDX_Control(pDX, IDC_TABAUTOCOLOR_COMBO_NOCOLOR, m_combo_nocolor);
+	DDX_Control(pDX, IDC_TABAUTOCOLOR_EDIT_COLORTHRES, m_edit_colorthres);
+	DDX_Control(pDX, IDC_TABAUTOCOLOR_SLIDER_COLORTHRES, m_slider_colorthres);
 }
 
 
@@ -36,6 +38,9 @@ BEGIN_MESSAGE_MAP(CBase_AutoColor, CPropertyPage)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABAUTOCOLOR_SLIDER_COMPRESSION, &CBase_AutoColor::OnNMCustomdrawTabautocolor_Slider_Compressionvalue)
 	ON_EN_CHANGE(IDC_TABAUTOCOLOR_EDIT_COMPRESSVALUE, &CBase_AutoColor::OnEnChangeTabautocolor_Edit_Compressvalue)
 	ON_CBN_SELCHANGE(IDC_TABAUTOCOLOR_COMBO_RESOLUTION, &CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Resolution)
+	ON_CBN_SELCHANGE(IDC_TABAUTOCOLOR_COMBO_NOCOLOR, &CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Nocolor)
+	ON_EN_CHANGE(IDC_TABAUTOCOLOR_EDIT_COLORTHRES, &CBase_AutoColor::OnEnChangeTabautocolor_Edit_Colorthres)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABAUTOCOLOR_SLIDER_COLORTHRES, &CBase_AutoColor::OnNMCustomdrawTabautocolor_Slider_Colorthres)
 END_MESSAGE_MAP()
 
 
@@ -49,7 +54,32 @@ void CBase_AutoColor::UpdateControls(void)
 	float fCapValue;
 	int nCapValue;
 	CString strText;
-	int nval;
+
+	//非彩色时扫描
+	m_combo_nocolor.ResetContent();  // 清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NOCOLOR);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_NOCOLOR);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWNC_GRAY:
+			m_combo_nocolor.InsertString(i,"灰阶"); 
+			break;
+		case TWNC_BLACK:
+			m_combo_nocolor.InsertString(i,"黑白"); 
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_nocolor.SetCurSel(nCapIndex);
+
+	// 色彩阈值 
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COLORTHRESHOLD)); 
+	m_slider_colorthres.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	SetDlgItemText(IDC_TABAUTOCOLOR_EDIT_COLORTHRES,strText);
 
 	//压缩
 	m_combo_compress.ResetContent();  // 清空内容
@@ -73,7 +103,6 @@ void CBase_AutoColor::UpdateControls(void)
 		}
 	}
 	m_combo_compress.SetCurSel(nCapIndex);
-	nval = (int)lstCapValues->at(nCapIndex);
 
 	// 压缩比 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
@@ -92,7 +121,6 @@ void CBase_AutoColor::UpdateControls(void)
 		m_combo_resolution.InsertString(i,strTemp);
 	}
 	m_combo_resolution.SetCurSel(nCapIndex);
-	nval = (int)lstCapValuesFlt->at(nCapIndex);
 
 }
 
@@ -116,6 +144,10 @@ void CBase_AutoColor::InitSliderCtrl()
 	m_pUI->GetCapRangeFloat(UDSCAP_COMPRESSVALUE, fMin, fMax, fStep);
 	m_slider_compressvalue.SetRange((int)fMin, (int)fMax);
 	m_slider_compressvalue.SetTicFreq((int)fStep);
+
+	m_pUI->GetCapRangeFloat(UDSCAP_COLORTHRESHOLD, fMin, fMax, fStep);
+	m_slider_colorthres.SetRange((int)fMin, (int)fMax);
+	m_slider_colorthres.SetTicFreq((int)fStep);
 }
 
 
@@ -140,7 +172,6 @@ void CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Compress()
 	} 
 	else
 	{}
-	//m_TabAutoColormap[ICAP_COMPRESSION] = nval;
 	m_pUI->SetCapValueInt(ICAP_COMPRESSION, nval); 
 	m_combo_compress.SetCurSel(nIndex);
 }
@@ -153,7 +184,6 @@ void CBase_AutoColor::OnNMCustomdrawTabautocolor_Slider_Compressionvalue(NMHDR *
 	UpdateData(TRUE);  // 接收数据
 	CString str;
 	int sldValue = m_slider_compressvalue.GetPos();  // 获取滑块当前位置
-	//m_TabAutoColormap[UDSCAP_COMPRESSVALUE] = sldValue;
 	m_pUI->SetCapValueInt(UDSCAP_COMPRESSVALUE, sldValue); 
 
 	str.Format("%d", sldValue);
@@ -177,7 +207,6 @@ void CBase_AutoColor::OnEnChangeTabautocolor_Edit_Compressvalue()
 	int nval = _ttoi(str);
 	m_slider_compressvalue.SetPos(nval);
 
-	//m_TabAutoColormap[UDSCAP_COMPRESSVALUE] = (float)nval;
 	m_pUI->SetCapValueFloat(UDSCAP_COMPRESSVALUE, (float)nval);
 
 	m_edit_compressvalue.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -199,5 +228,61 @@ void CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Resolution()
 	m_combo_resolution.SetCurSel(nIndex);
 }
 
+void CBase_AutoColor::OnCbnSelchangeTabautocolor_Combo_Nocolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_nocolor.GetCurSel();
+	CString strCBText; 
+	m_combo_nocolor.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("灰阶") >= 0)
+	{
+		nval = TWNC_GRAY;
+	}
+	else if(strCBText.Find("黑白") >= 0)
+	{
+		nval = TWNC_BLACK; 
+	}
+	else
+	{}
+	m_pUI->SetCapValueInt(UDSCAP_NOCOLOR, nval); 
+	m_combo_nocolor.SetCurSel(nIndex);
+}
 
 
+void CBase_AutoColor::OnEnChangeTabautocolor_Edit_Colorthres()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_colorthres.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_colorthres.SetPos(nval);
+
+	m_pUI->SetCapValueFloat(UDSCAP_COLORTHRESHOLD, (float)nval);
+
+	m_edit_colorthres.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CBase_AutoColor::OnNMCustomdrawTabautocolor_Slider_Colorthres(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_colorthres.GetPos();  // 获取滑块当前位置
+	m_pUI->SetCapValueInt(UDSCAP_COLORTHRESHOLD, sldValue); 
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_TABAUTOCOLOR_EDIT_COLORTHRES, str);
+
+	*pResult = 0;
+}

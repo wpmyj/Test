@@ -30,17 +30,18 @@ private:
 	MFC_UI  *m_pUI;  
 
 public:
-	afx_msg void OnCbnSelchangeTabcolor_Combo_Compress();
+	virtual BOOL OnInitDialog();
 	afx_msg void OnNMCustomdrawTabcolor_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);	
 	afx_msg void OnEnChangeTabcolor_Edit_Compressvalue();	
-	afx_msg void OnCbnSelchangeTabcolor_Combo_Resolution();
 	afx_msg void OnNMCustomdrawTabcolor_Slider_Contrast(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawTabcolor_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabcolor_Edit_Contrast();
 	afx_msg void OnEnChangeTabcolor_Edit_Brightness();
+	afx_msg void OnCbnSelchangeTabcolor_Combo_Resolution();
+	afx_msg void OnTabColor_RadioBtn_Compress();
+	afx_msg void OnCbnSelchangeTabcolor_Combo_Compressquality();
 
 	CComboBox m_combo_resolution;
-	CComboBox m_combo_compress;
 	CSliderCtrl m_slider_compressvalue;
 	CEdit m_edit_compressvalue;
 	CSliderCtrl m_slider_contrast;
@@ -48,9 +49,12 @@ public:
 	CSliderCtrl m_slider_brightness;
 	CEdit m_edit_brightness;
 
+	int m_radio_compress;
+	CComboBox m_combo_compressquality;
+
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
-	virtual BOOL OnInitDialog();
-
+	void SetCompressValue();  ///<设置压缩值滑动条是否可用	
+	
 };

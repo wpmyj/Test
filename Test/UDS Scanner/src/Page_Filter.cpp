@@ -88,58 +88,6 @@ void CPage_Filter::UpdateControls(void)
 	int nCapValue;
 	CString strText;
 
-	//滤除颜色
-	m_combo_filtercolor.ResetContent(); 
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_FILTERCOLOR);
-	lstCapValues = m_pUI->GetValidCap(UDSCAP_FILTERCOLOR);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWFL_NONE:
-			m_combo_filtercolor.InsertString(i,"不滤除"); 
-			break;
-		case TWFL_RED:
-			m_combo_filtercolor.InsertString(i,"红色"); 
-			break;
-		case TWFL_GREEN:
-			m_combo_filtercolor.InsertString(i,"绿色"); 
-			break;
-		case TWFL_BLUE:
-			m_combo_filtercolor.InsertString(i,"蓝色"); 
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_filtercolor.SetCurSel(nCapIndex);
-
-	//滤除模式
-	m_combo_filtermode.ResetContent(); 
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_FILTERMODE);
-	lstCapValues = m_pUI->GetValidCap(UDSCAP_FILTERMODE);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWFL_NONE:
-			m_combo_filtermode.InsertString(i,"自动"); 
-			break;
-		case TWFL_RED:
-			m_combo_filtermode.InsertString(i,"自定义"); 
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_filtermode.SetCurSel(nCapIndex);
-
-	//滤除程度
-	nCapValue = (int)m_pUI->GetCapValueFloat(UDSCAP_FILTERLEVEL);
-	m_slider_filterlevel.SetPos(nCapValue);
-	strText.Format("%d",nCapValue);
-	SetDlgItemText(IDC_FILTERCOLOR_EDIT_FILTERLEVEL,strText);
-
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	if(nCapValue == 1) //多流选中
@@ -451,7 +399,6 @@ BOOL CPage_Filter::OnInitDialog()
 	UpdateControls();
 	InitFiltermap();
 	
-
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -478,58 +425,14 @@ BOOL CPage_Filter::OnSetActive()
 void CPage_Filter::OnCbnSelchangeFilter_Combo_FilterColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_filtercolor.GetCurSel();
-	CString strCBText; 
-	m_combo_filtercolor.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("不滤除") >= 0)
-	{
-		nval = TWFL_NONE;
-	}
-	else if(strCBText.Find("红色") >= 0)
-	{
-		nval = TWFL_RED; 
-	}
-	else if(strCBText.Find("绿色") >= 0)
-	{
-		nval = TWFL_GREEN; 
-	}
-	else if(strCBText.Find("蓝色") >= 0)
-	{
-		nval = TWFL_BLUE; 
-	}
-	else if(strCBText.Find("自动") >= 0)
-	{
-		nval = TWFL_AUTO; 
-	}
-	else
-	{}
-
-	m_pUI->SetCapValueInt(UDSCAP_FILTERCOLOR,nval); 
-	m_combo_filtercolor.SetCurSel(nIndex);
+	
 }
 
 
 void CPage_Filter::OnCbnSelchangeFilter_Combo_FilterMode()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_filtermode.GetCurSel();
-	CString strCBText; 
-	m_combo_filtermode.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("自动") >= 0)
-	{
-		nval = TWFM_AUTO;
-	}
-	else if(strCBText.Find("自定义") >= 0)
-	{
-		nval = TWFM_DEFINED; 
-	}
-	else
-	{}
-
-	m_pUI->SetCapValueInt(UDSCAP_FILTERMODE,nval); 
-	m_combo_filtermode.SetCurSel(nIndex);
+	
 }
 
 
@@ -537,12 +440,7 @@ void CPage_Filter::OnNMCustomdrawFilter_Slider_Filterlevel(NMHDR *pNMHDR, LRESUL
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	int sldValue = m_slider_filterlevel.GetPos();  // 获取滑块当前位置
-	str.Format("%d",sldValue);
-	SetDlgItemText(IDC_FILTERCOLOR_EDIT_FILTERLEVEL, str);// 在编辑框同步显示滚动条值
-	UpdateData(FALSE);  // 更新控件
+
 
 	*pResult = 0;
 }
@@ -556,13 +454,5 @@ void CPage_Filter::OnEnChangeFilter_Edit_Filterlevel()
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-	UpdateData(TRUE);  // 接收数据
-	CString str;
-	m_edit_filterlevel.GetWindowText(str);
-	int nval = _ttoi(str);
-	m_slider_filterlevel.SetPos(nval);
-	m_pUI->SetCapValueFloat(UDSCAP_FILTERLEVEL,(float)nval);
-	
-	m_edit_filterlevel.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
-	UpdateData(FALSE);  // 更新控件
+
 }

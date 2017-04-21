@@ -159,12 +159,14 @@ public:
 	float             m_fEdgeDown;              /**< 边缘扩充 */
 	float             m_fEdgeLeft;              /**< 边缘扩充 */
 	float             m_fEdgeRight;             /**< 边缘扩充 */
+	int               m_nEdgeColor;             /**< 扩充颜色 */
 
 	float             m_fXPos;                  /**< X偏移量 */
 	float             m_fYPos;                  /**< X偏移量 */
 
 	int               m_nCompress;              /**< 压缩格式*/
 	float             m_fCompressValue;         /**< 压缩比的值*/
+	int               m_nCompressQuality;       /**< 压缩质量*/
 
 	bool              m_bColorFlip;             /**< 色彩翻转 */
 
@@ -196,6 +198,12 @@ public:
 	int               m_nBinari[2];             /**< 多流黑白二值化 */
 	float             m_fThres[2];              /**< 多流黑白阈值 */
 	float             m_fRemovespots[2];        /**< 多流黑白去除斑点 */
+
+	int               m_nNoColor;               /**< 非彩色时扫描 */
+	float             m_fColorThres;            /**< 色彩阈值 */
+
+	int               m_nCompQua[6];            /**< 多流压缩质量*/
+
 
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0

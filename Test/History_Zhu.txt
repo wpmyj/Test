@@ -436,3 +436,45 @@ date 17.04.17
 ------------------------------------------------------------
 @author zhu
 1、解决第二次打开驱动时Tab控件不更新的Bug:添加六个成员函数SetFrontColor（）等，base类中的button响应事件中调用对应的成员函数。另外在CPage_Base::UpdateControls中，仅在末尾更新Tab不严谨，应该是在得到多流选项值后，设置checkBox选中与否时分别设置更新，即响应新增的成员函数。
+2、Base类中，将InsertItem的操作移除，仅在需要插入的时候插入，插入之前使用DeleteAllItems清除其他Item。不用再添加对话框，就使用当前三个对话框即可。最终效果为：点击多流按钮时，右侧仅显示对应Tab，其他Tab（包括item的名字）实际是隐藏的。
+3、将原Base类的去除噪声的两个选项移至TabBW界面。包括UpdateControls、以及对应edit输入响应和Scroll滚动响应。删除base类的InitComboPixType()/SetScroll()/SetDenoise()，TabBW类增加SetScroll()。
+4、修改TabBW界面的压缩选项：黑白图像的压缩选项仅有自动与G4压缩，无JPEG压缩，由combox改为两个radio，也没有slider控制压缩选项值。
+
+date 17.04.18
+
+------------------------------------------------------------
+@author zhu
+1、解决TabBW类，radio压缩模板不生效的bug:一组Radio添加了int成员变量后，共用一个消息响应，必须在BEGIN_MESSAGE_MAP里手动添加其他radio的响应。 
+2、解决原设置为多流、再次扫描直接重置模板为默认模板时，不出图的Bug；
+原因：UpdateControls时，虽然界面已经变为默认单面，但是并没有设置模板生效，也没有设置多流不可用，因此重置后，再次打开DS界面更新为多流选中，但六个多流选项均没有选中，因此无图。
+修改方案：CPage_Base::UpdateControls中，当更新为单双面时，往map里存值m_basemap[CAP_DUPLEXENABLED] = (float)nCapIndex;m_basemap[UDSCAP_MULTISTREAM] = 0.0;问题解决。
+3、为TabGray与TabColor两个类添加压缩参数：压缩选项仅有自动与JPEG压缩，无G4压缩。但是改为Radio后，模板值保存都有效，但是为radio变量赋int型值，界面的不改变，调试未找到原因。问题遗留。
+4、为灰度TabGray、黑白TabBW类增加滤色的选项，彩色TabColor没有滤色选项，并完成模板的测试。
+
+date 17.04.19
+
+------------------------------------------------------------
+@author zhu
+1、新建预览对话框CBase_Tab_Preview类，继承于CDialog与CPage_Custom。增加PreView()函数，在CPage_Base类中，点击预览按钮时，Tab切换到预览对话框，并调用CBase_Tab_Preview::PreView()显示预览图。
+2、移除滤色与预览界面。
+3、为彩色、灰度、黑白三个Tab页面增加一个新选项：压缩质量，选值有最佳、良好、一般、自定义。仅有选择自定义时，JPEG品质滑动条与编辑框才可用。对应模板新增Cap为UDSCAP_COMPRESSQUALITY，完成该参数的模板设置。
+4、在页面控制界面的边缘扩充出增加参数：边缘扩充颜色，添加对应的模板设置以及变量、消息响应。
+5、新增两个对话框，分比用来显示旋转与拆分的演示图。同时CPage_Base类增加两个按钮，按钮响应OnBase_Btn_RotateShow中显示对应Tab。
+
+date 17.04.20
+
+------------------------------------------------------------
+@author zhu
+1、CPage_Base类增加成员函数int GetCheckNum();用来得到基本界面共几个多流checkbox选中，返回选中数。在多流的checkbox点击响应事件中，若选中数小于1时（即之前只有这一个选中时），不允许该checkbox不选中，即手动又SetCheck(TRUE);
+2、解决从多流状态回到单双面状态时，Tab页为灰度正面的Bug：在OnBase_RadioBtn_Duplex响应中，单双面时需要SetTabCtrl()，根据图像类型设置Tab。
+3、解决显示拆分演示界面后，再回到彩色Tab界面时，界面只刷新，不出现的Bug：某一个Tab页显示时，必须要把其他页面全部隐藏，否则会相互影响。
+4、解决之前遗留的Bug：radio时而不选中，时而选择错误的Bug：之前在UpdateControls（）函数中更新UpdateData(FALSE);会出现不支持尝试的操作的提示，因此在Tab的几个UpdateControls（）中均没有更新。为修改上述Bug，尝试增加UpdateData(FALSE)，问题解决。但是仍有提示。
+解决方法：三个Tab的更新是在CPage_Base::SetTabCtrl()中，因此在更新时增加条件：仅有图像类型可用时才更新。虽然解决了弹出提示的Bug，但是在回到默认模板时，Tab不能回到初始的页面；以及从多流回到单双面时，不能刷新Tab；两个问题冲突了，暂时遗留不能刷新Tab的Bug；
+5、应产品部需求，暂时在界面增加了自动彩色的checkbox与button,以及对应点击后显示的Tab。该Tab上新增了两个Cap：非彩色时扫描UDSCAP_NOCOLOR，取值灰阶TWNC_GRAY与黑白TWNC_BLACK；色彩阈值UDSCAP_COLORTHRESHOLD，fix32float型。
+
+date 17.04.21
+
+------------------------------------------------------------
+@author zhu
+1、增加Tab页面，多流压缩质量Cap：UDSCAP_COMPRESSQUALITYFC等，在CBase_Tab_BW类、CBase_Tab_Gray类与CBase_Tab_Color类中，根据多流选中哪一个，设置该参数不同的值。
+2、修改多流按钮响应的条件，只有在前面的checkbox选中时才能响应。
