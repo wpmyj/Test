@@ -188,10 +188,9 @@ void CPage_Profile::LoadTemplate()
 		strProfile = m_list_profile.GetItemText(nIndex, 0);
 		m_pUI->TW_LoadProfileFromFile(strProfile.GetBuffer()); //会m_pDS->SetGustomDSData
 	}
-
-	m_pBasePage->UpdateControls();
-	m_pAdPage->UpdateControls();//高级设置界面参数也更新
-	m_pSetPage->UpdateControls();	
+	//m_pBasePage->UpdateControls();
+	//m_pAdPage->UpdateControls();//高级设置界面参数也更新
+	//m_pSetPage->UpdateControls();	
 
 	UpdateData(FALSE);
 }

@@ -203,7 +203,16 @@ public:
 	float             m_fColorThres;            /**< 色彩阈值 */
 
 	int               m_nCompQua[6];            /**< 多流压缩质量*/
+	int               m_nColorCorrect;          /**< 色彩校正*/ 
 
+	//新界面新增
+	int               m_nRotateMode;                /**< 图像旋转--模式 */
+	int               m_nBackImgRotate;             /**< 图像旋转--背面图像旋转 */
+	int               m_nJoinImage;                 /**< 图像拼接 */
+	int               m_nBackProcess;               /**< 背景处理 */
+	int               m_nBackProMode;               /**< 背景处理模式 */
+	int               m_nBackProFill;               /**< 背景处理填补颜色 */
+	float             m_fBackProStrenth;            /**< 背景处理强度 */
 
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0

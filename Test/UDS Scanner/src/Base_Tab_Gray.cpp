@@ -28,7 +28,7 @@ void CBase_Tab_Gray::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABGRAY_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_BRIGHTNESS, m_edit_brightness);
-	DDX_Radio(pDX, IDC_TABGRAY_RADIO_COMPRESS_AUTO, m_radio_compress);
+	//  DDX_Radio(pDX, IDC_TABGRAY_RADIO_COMPRESS_AUTO, m_radio_compress);
 	DDX_Control(pDX, IDC_TABGRAY_SLIDER_COMPRESSION, m_slider_compressvalue);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_COMPRESSVALUE, m_edit_compressvalue);
 	DDX_Control(pDX, IDC_TABGRAY_COMBO_COLOR, m_combo_filtercolor);
@@ -45,8 +45,8 @@ BEGIN_MESSAGE_MAP(CBase_Tab_Gray, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABGRAY_SLIDER_BRIGHTNESS, &CBase_Tab_Gray::OnNMCustomdrawTabgray_Slider_Brightness)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_CONTRAST, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Contrast)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_BRIGHTNESS, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Brightness)
-	ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_AUTO, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
-	ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_JPEG, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
+//	ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_AUTO, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
+	//ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_JPEG, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABGRAY_SLIDER_COMPRESSION, &CBase_Tab_Gray::OnNMCustomdrawTabgray_Slider_Compressionvalue)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_COMPRESSVALUE, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Compressvalue)
 	ON_CBN_SELCHANGE(IDC_TABGRAY_COMBO_COLOR, &CBase_Tab_Gray::OnCbnSelchangeTabGray_Combo_FilterColor)
@@ -62,7 +62,6 @@ END_MESSAGE_MAP()
 
 void CBase_Tab_Gray::UpdateControls(void)
 {
-	UpdateData(TRUE);
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
@@ -275,15 +274,14 @@ void CBase_Tab_Gray::UpdateControls(void)
 			break;
 		}
 	}	
-	if(nCapIndex==2)
-	{
-		m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
-	}	
-	else
-	{
-		m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
-	}
-	UpdateData(FALSE);
+	//if(nCapIndex==2)
+	//{
+	//	m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
+	//}	
+	//else
+	//{
+	//	m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
+	//}
 }
 
 
@@ -610,53 +608,53 @@ void CBase_Tab_Gray::OnEnChangeTabgray_Edit_Contrast()
 }
 
 
-void CBase_Tab_Gray::OnTabGray_RadioBtn_Compress()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-	switch(m_radio_compress)
-	{
-	case 0:
-		if(MultiCapValue == 0) //多流未选中
-		{
-			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
-		}
-		else
-		{
-			switch(basebutton)
-			{
-			case 0: //正面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_NONE); 
-				break;
-			case 1: //背面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_NONE); 
-				break;
-			}
-		}
-
-		break;
-	case 1:
-		if(MultiCapValue == 0) //多流未选中
-		{
-			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_JPEG); 
-		}
-		else
-		{
-			switch(basebutton)
-			{
-			case 0: //正面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_JPEG); 
-				break;
-			case 1: //背面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_JPEG); 
-				break;
-			}
-		}
-		break;
-	}
-	UpdateData(FALSE);
-}
+//void CBase_Tab_Gray::OnTabGray_RadioBtn_Compress()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+//	switch(m_radio_compress)
+//	{
+//	case 0:
+//		if(MultiCapValue == 0) //多流未选中
+//		{
+//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
+//		}
+//		else
+//		{
+//			switch(basebutton)
+//			{
+//			case 0: //正面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_NONE); 
+//				break;
+//			case 1: //背面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_NONE); 
+//				break;
+//			}
+//		}
+//
+//		break;
+//	case 1:
+//		if(MultiCapValue == 0) //多流未选中
+//		{
+//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_JPEG); 
+//		}
+//		else
+//		{
+//			switch(basebutton)
+//			{
+//			case 0: //正面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_JPEG); 
+//				break;
+//			case 1: //背面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_JPEG); 
+//				break;
+//			}
+//		}
+//		break;
+//	}
+//	UpdateData(FALSE);
+//}
 
 
 void CBase_Tab_Gray::OnCbnSelchangeTabGray_Combo_FilterColor()

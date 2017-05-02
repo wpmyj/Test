@@ -341,7 +341,7 @@ protected:
   WORD              m_nSourceWidth;           /**< Width of image in FreeImage */
   WORD              m_nSourceHeight;          /**< Height of image in FreeImage */
  
-	char              m_szSourceImagePath[PATH_MAX];  /**< image used with FreeImage */
+ //char              m_szSourceImagePath[PATH_MAX];  /**< image used with FreeImage */
 	char              m_szIniPath[PATH_MAX];    /**< INI配置文件路径 */   
 	vector<std::string>    m_vector_string_imagepath;  /**< 多张图片路径 */
 
@@ -350,7 +350,7 @@ protected:
 	double            m_dRat;                   /**< 宽/高 */
 	Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
 
-	char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
+	//char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
 
 	int               m_totalImageCount;        /**< 多流输出的总数 */
 	int               m_frontImageCount;        /**< 多流输出中“正面图片”输出的数量，背面的相减 */

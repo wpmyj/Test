@@ -33,7 +33,7 @@ void CBase_Tab_BW::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABBW_EDIT_NOISERANGE, m_edit_noiserange);
 	DDX_Control(pDX, IDC_TABBW_SCROLLBAR_NOISENUM, m_scroll_noisenum);
 	DDX_Control(pDX, IDC_TABBW_SCROLLBAR_NOISERANGE, m_scroll_noiserange);
-	DDX_Radio(pDX, IDC_TABBW_RADIO_COMPRESS_AUTO, m_radio_compress);
+	//  DDX_Radio(pDX, IDC_TABBW_RADIO_COMPRESS_AUTO, m_radio_compress);
 	DDX_Control(pDX, IDC_TABBW_COMBO_COLOR, m_combo_filtercolor);
 	DDX_Control(pDX, IDC_TABBW_COMBO_FILTERMODE, m_combo_filtermode);
 	DDX_Control(pDX, IDC_TABBW_EDIT_FILTERLEVEL, m_edit_filterlevel);
@@ -52,8 +52,8 @@ BEGIN_MESSAGE_MAP(CBase_Tab_BW, CPropertyPage)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_NOISENUM, &CBase_Tab_BW::OnEnChangeTabbw_Edit_NoiseNum)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_NOISERANGE, &CBase_Tab_BW::OnEnChangeTabbw_Edit_NoiseRange)
 	ON_WM_VSCROLL()
-	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_AUTO, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
-	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_G4, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
+//	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_AUTO, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
+	//ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_G4, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
 	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_COLOR, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterColor)
 	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_FILTERMODE, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterMode)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABBW_SLIDER_FILTERLEVEL, &CBase_Tab_BW::OnNMCustomdrawTabBW_Slider_Filterlevel)
@@ -66,7 +66,6 @@ END_MESSAGE_MAP()
 
 void CBase_Tab_BW::UpdateControls(void)
 {
-	UpdateData(TRUE);
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
@@ -350,15 +349,14 @@ void CBase_Tab_BW::UpdateControls(void)
 			break;
 		}
 	}	
-	if(nCapIndex==2)
-	{
-		m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
-	}	
-	else
-	{
-		m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
-	}
-	UpdateData(FALSE);
+	//if(nCapIndex==2)
+	//{
+	//	m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
+	//}	
+	//else
+	//{
+	//	m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
+	//}
 }
 
 
@@ -369,6 +367,7 @@ BOOL CBase_Tab_BW::OnInitDialog()
 	// TODO:  在此添加额外的初始化	
 	InitSliderCtrl();
 	UpdateControls();
+	GetDlgItem(IDC_TABGRAY_COMBO_COMPRESSQUALITY)->ShowWindow(FALSE); 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -905,53 +904,53 @@ void CBase_Tab_BW::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 
-void CBase_Tab_BW::OnTabBW_RadioBtn_Compress()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-	switch(m_radio_compress)
-	{
-	case 0:
-		if(MultiCapValue == 0) //多流未选中
-		{
-			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
-		}
-		else
-		{
-			switch(basebutton)
-			{
-			case 0: //正面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_NONE); 
-				break;
-			case 1: //背面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_NONE); 
-				break;
-			}
-		}
-		
-		break;
-	case 1:
-		if(MultiCapValue == 0) //多流未选中
-		{
-			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_GROUP4); 
-		}
-		else
-		{
-			switch(basebutton)
-			{
-			case 0: //正面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_GROUP4); 
-				break;
-			case 1: //背面
-				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_GROUP4); 
-				break;
-			}
-		}
-		break;
-	}
-	UpdateData(FALSE);
-}
+//void CBase_Tab_BW::OnTabBW_RadioBtn_Compress()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+//	switch(m_radio_compress)
+//	{
+//	case 0:
+//		if(MultiCapValue == 0) //多流未选中
+//		{
+//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
+//		}
+//		else
+//		{
+//			switch(basebutton)
+//			{
+//			case 0: //正面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_NONE); 
+//				break;
+//			case 1: //背面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_NONE); 
+//				break;
+//			}
+//		}
+//		
+//		break;
+//	case 1:
+//		if(MultiCapValue == 0) //多流未选中
+//		{
+//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_GROUP4); 
+//		}
+//		else
+//		{
+//			switch(basebutton)
+//			{
+//			case 0: //正面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_GROUP4); 
+//				break;
+//			case 1: //背面
+//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_GROUP4); 
+//				break;
+//			}
+//		}
+//		break;
+//	}
+//	UpdateData(FALSE);
+//}
 
 void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterColor()
 {

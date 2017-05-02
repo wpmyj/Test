@@ -7,7 +7,8 @@
 #include "ximage.h"  // CXImage
 
 extern HWND g_hwndDLG;
-
+char m_szSourceImagePath[PATH_MAX];  /**< image used with FreeImage */
+char szTWAIN_DS_DIR[PATH_MAX];     /**< Çý¶¯DSµÄÂ·¾¶ */
 /**
 * Environment vars to get the Xfer Count.  Create this enviroment Varable on your system to simulate the 
 * number of pages sitting in the scanner waiting to be scanned.

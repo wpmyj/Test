@@ -162,7 +162,9 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\SmartImage.dll" "c:\windows\twain
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\GdiPlus.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\ComputerInfo.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
 copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\FindDevice.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
-copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\UDS_Skin.dll" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Rotate.jpg" "c:\windows\twain_32\UDS Universal TWAIN DS"
+copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\UDS Universal TWAIN DS"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制DS相关文件到 windows\twain_32\UDS General TWAIN DS 文件夹</Message>

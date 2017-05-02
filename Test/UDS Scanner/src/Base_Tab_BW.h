@@ -43,9 +43,9 @@ public:
 	afx_msg void OnCbnSelchangeTabbw_Combo_Binarization();
 	afx_msg void OnEnChangeTabbw_Edit_NoiseNum();
 	afx_msg void OnEnChangeTabbw_Edit_NoiseRange();
-	afx_msg void OnTabBW_RadioBtn_Compress();
+//	afx_msg void OnTabBW_RadioBtn_Compress();
 
-	int m_radio_compress;
+//	int m_radio_compress;
 
 	CComboBox m_combo_resolution;
 

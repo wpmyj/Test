@@ -71,7 +71,6 @@ BOOL CPage_Info::OnInitDialog()
 	__super::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	
 	CRect rect(0,0,120,25);
 
 	DWORD dwStyle = BS_PUSHBUTTON|WS_CHILD|WS_VISIBLE|WS_TABSTOP; 

@@ -49,7 +49,7 @@
 #define UDSCAP_POWERSAVING_TIME          CAP_CUSTOMBASE+28  /**< 节电模式值：时间 */
 
 #define UDSCAP_POWEROFF                  CAP_CUSTOMBASE+29  /**< 关机时间 */
-#define UDSCAP_POWEROFF_TIME            CAP_CUSTOMBASE+30  /**< 关机时间值：时间 */
+#define UDSCAP_POWEROFF_TIME             CAP_CUSTOMBASE+30  /**< 关机时间值：时间 */
 
 #define UDSCAP_TURNVIDEO                CAP_CUSTOMBASE+31  /**< 扫描仪无纸时转高拍仪 */
 
@@ -115,7 +115,7 @@
 #define UDSCAP_NOCOLOR                       CAP_CUSTOMBASE+73  /**< 非彩色时扫描 */
 #define UDSCAP_COLORTHRESHOLD                CAP_CUSTOMBASE+74  /**< 色彩阈值 */
 
-#define UDSCAP_COMPRESSQUALITY               CAP_CUSTOMBASE+75  /**< 压缩质量 */
+#define UDSCAP_COMPRESSQUALITY               CAP_CUSTOMBASE+75  /**< 压缩质量 */                   
 
 //多流压缩质量  UDSCAP_COMPRESSQUALITY
 #define UDSCAP_COMPRESSQUALITYFC             CAP_CUSTOMBASE+76
@@ -124,6 +124,20 @@
 #define UDSCAP_COMPRESSQUALITYBC             CAP_CUSTOMBASE+79
 #define UDSCAP_COMPRESSQUALITYBG             CAP_CUSTOMBASE+80
 #define UDSCAP_COMPRESSQUALITYBB             CAP_CUSTOMBASE+81
+
+#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+82  /**< 色彩校正 */  
+
+//新界面增加参数
+//（图像处理部分）
+#define UDSCAP_ROTATEMODE                    CAP_CUSTOMBASE+83 /**< 图像旋转--模式 */
+#define UDSCAP_BACKIMGROTATE                 CAP_CUSTOMBASE+84 /**< 图像旋转--背面图像旋转 */
+
+#define UDSCAP_JOINIMAGE                     CAP_CUSTOMBASE+85 /**< 图像拼接 */
+
+#define UDSCAP_BACKPROCESS                   CAP_CUSTOMBASE+86 /**< 背景处理 */
+#define UDSCAP_BACKPROSTRENTH                CAP_CUSTOMBASE+87 /**< 背景处理强度 */
+#define UDSCAP_BACKPROMODE                   CAP_CUSTOMBASE+88 /**< 背景处理模式 */
+#define UDSCAP_BACKPROFILLCOLOR              CAP_CUSTOMBASE+89 /**< 背景处理填补颜色 */
 
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
@@ -202,7 +216,7 @@
 #define TWBB_DISABLE              FALSE 
 #define TWBB_AUTO                 TRUE 
 
-/* UDSCAP_COLORFLIP values (CF_ means COLORFLIP)去除背景。*/
+/* UDSCAP_COLORFLIP values (CF_ means COLORFLIP)色彩翻转。*/
 #define TWCF_DISABLE              FALSE
 #define TWCF_AUTO                 TRUE
 
@@ -252,3 +266,46 @@
 /* UDSCAP_NOCOLOR values (NC_ means NOCOLOR )非彩色时扫描*/
 #define TWNC_GRAY                  0  //灰阶
 #define TWNC_BLACK                 1  //黑白
+
+/* UDSCAP_COLORCORRECT values (CC_ means UDSCAP_COLORCORRECT )色彩校正*/
+#define TWCC_AUTO                  0  //自动
+#define TWCC_IMG                   1  //图片
+#define TWCC_WORD                  2  //文字
+#define TWCC_IMGTEXT               3  //图文模式
+
+//新界面新增
+/* UDSCAP_ROTATEMODE values (RM_ means UDSCAP_ROTATEMODE )图像旋转--模式*/
+#define TWRM_FAST                  0  //快速
+#define TWRM_ALL                   1  //全文
+#define TWRM_SLOW                  2  //复杂
+
+/* UDSCAP_BACKIMGROTATE values (BI_ means UDSCAP_BACKIMGROTATE ) 图像旋转--背面图像旋转*/
+#define TWBI_SAME                  0 //相同朝向
+#define TWBI_DIFF                  1 //相反朝向
+
+/* UDSCAP_JOINIMAGE values (JI_ means UDSCAP_JOINIMAGE )图像拼接*/
+#define TWJI_LEFTRIGHT               0  //左右拼接
+#define TWJI_UPDOWN                  1  //上下拼接
+#define TWJI_UPDOWNBACKTURN          2  //上下拼接（背面倒转）
+
+/* UDSCAP_BACKPROCESS values (BS_ means UDSCAP_BACKPROCESS )背景处理*/
+#define TWBS_NONE                    0  //无
+#define TWBS_SMOOTH                  1  //平滑
+#define TWBS_FILTER                  2  //滤除
+
+/* UDSCAP_BACKPROMODE values (BM_ means UDSCAP_BACKPROMODE )背景处理模式*/
+#define TWBM_AUTO                    0  //自动
+#define TWBI_SCREEN                  1  //网纹
+
+/* UDSCAP_BACKPROFILLCOLOR values (BF_ means UDSCAP_BACKPROFILLCOLOR )背景处理填补颜色*/
+#define TWBF_AUTO                    0  //自动
+#define TWBF_WHITE                   1  //白色 
+
+        
+
+            
+
+          
+          
+               
+        

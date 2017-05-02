@@ -89,6 +89,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 
 	m_nNoColor            = settings.m_nNoColor;
 	m_fColorThres         = settings.m_fColorThres;
+	m_nColorCorrect       = settings.m_nColorCorrect;
 
 	for(int i=0; i<6; i++)
 	{
@@ -111,6 +112,14 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 		m_fRemovespots[i] = settings.m_fRemovespots[i];
 	}
 
+	//新界面新增
+	m_nRotateMode             = settings.m_nRotateMode;
+	m_nBackImgRotate          = settings.m_nBackImgRotate;
+	m_nJoinImage              = settings.m_nJoinImage;
+	m_nBackProcess            = settings.m_nBackProcess;
+	m_nBackProMode            = settings.m_nBackProMode;
+	m_nBackProFill            = settings.m_nBackProFill;
+	m_fBackProStrenth         = settings.m_fBackProStrenth;
 	
 }
 

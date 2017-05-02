@@ -12,6 +12,7 @@
 #include "Base_Tab_Spiltshow.h"
 #include "Base_AutoColor.h"
 
+
 class MFC_UI;
 // CPage_Base 对话框
 
@@ -76,6 +77,9 @@ public:
 	void PreView();
 	int  GetCheckNum(); ///<得到共几个多流checkbox选中
 
+	void UpdateButton(int nIDCtrl, CString str);///<更新按钮背景、字的颜色
+	void SwitchCheckBtn(); ///<不选中checkbox时，循环判断其他几个几个checkbox的状态。
+
 private:
 	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
 
@@ -117,6 +121,10 @@ private:
 	CTabCtrl m_base_tab;
 	CRect m_tabRect; // 标签Tab控件客户区的Rect
 
+	CMFCButton *m_mfcBtn;
+
+	CComboBox m_combo_colorcorrect;
+
 	afx_msg void OnCbnSelchangeBase_Combo_Colormode();
 
 	afx_msg void OnBase_Btn_Newprofile();
@@ -154,6 +162,7 @@ private:
 
 	afx_msg void OnBase_Btn_RotateShow();
 	afx_msg void OnBase_Btn_SpiltShow();
+	afx_msg void OnCbnSelchangeBase_Combo_Colorcorrect();
 
 public:
 	/** 父类指针*/
@@ -167,4 +176,15 @@ public:
 	CBase_Tab_Rotateshow *m_pTabRotateshow;  //4
 	CBase_Tab_Spiltshow *m_pTabSpiltshow;  //5
 	CBase_AutoColor *m_pTabAutoColor;  //6
+
+	CComboBox m_combo_joinimage;
+	CComboBox m_combo_backprocess;
+	CComboBox m_combo_backpromode;
+	CEdit m_edit_backprostrenth;
+	CSliderCtrl m_slider_backprostrenth;
+	afx_msg void OnCbnSelchangeBase_Combo_Joinimg();
+	afx_msg void OnCbnSelchangeBase_Combo_Backprocess();
+	afx_msg void OnCbnSelchangeBase_Combo_BackproMode();
+	afx_msg void OnNMCustomdrawBase_Slider_BackkproStrength(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeBase_Edit_BackkproStrength();
 };

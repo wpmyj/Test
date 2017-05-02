@@ -121,5 +121,4 @@ public:
 	/** Base界面的父类指针*/
 	CPage_Custom* m_pBasePage;
 	
-	
 };

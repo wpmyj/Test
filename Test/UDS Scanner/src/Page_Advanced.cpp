@@ -18,6 +18,7 @@ IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
 CPage_Advanced::CPage_Advanced(MFC_UI *pUI)
 	: m_pUI(pUI), CPropertyPage(CPage_Advanced::IDD)
 {
+	m_radio_edgecolor = 0;
 }
 
 CPage_Advanced::~CPage_Advanced()
@@ -81,7 +82,6 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGECOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor)
-	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGECOLOR_BLACK, &CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor)
 END_MESSAGE_MAP()
 
 
@@ -585,6 +585,14 @@ BOOL CPage_Advanced::OnInitDialog()
 	const FloatVector* lstCapValuesFlt = m_pUI->GetValidCapFloat(ICAP_XRESOLUTION);
 	int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
 	m_resolution = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
+
+	GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->ShowWindow(FALSE); 
+	GetDlgItem(IDC_CHECK_SHARPEN)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_MIRROR)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_REMOVEBACK)->ShowWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_CHECK_COLORFLIP)->ShowWindow(FALSE);
+	m_check_mdvalue.ShowWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -2141,3 +2149,5 @@ void CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor()
 	}
 	UpdateData(FALSE);
 }
+
+

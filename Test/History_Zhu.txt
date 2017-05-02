@@ -478,3 +478,40 @@ date 17.04.21
 @author zhu
 1、增加Tab页面，多流压缩质量Cap：UDSCAP_COMPRESSQUALITYFC等，在CBase_Tab_BW类、CBase_Tab_Gray类与CBase_Tab_Color类中，根据多流选中哪一个，设置该参数不同的值。
 2、修改多流按钮响应的条件，只有在前面的checkbox选中时才能响应。
+3、为CPage_Base类增加成员CPage_Base::UpdateButton(int nIDCtrl, CString str)，nIDCtrl为按钮的ID，str为按钮显示的text。该函数借助CMFCButton类实现选择ID的按钮，改变背景颜色的功能。但是该功能使用过程中存在Bug：连续选中多个checkbox时，会出现几个按钮均颜色改变的问题，但是按钮点击时，背景色改变正常。
+
+date 17.04.24
+
+------------------------------------------------------------
+@author zhu
+1、新增CAP色彩校正：UDSCAP_COLORCORRECT，对应三个取值：自动TWCC_AUTO、图文模式TWCC_IMGTEXT、文档TWCC_WORD；模板内存为CTWAINContainerInt类型，对应变量为m_nColorCorrect。
+
+
+date 17.04.25
+
+------------------------------------------------------------
+@author zhu
+1、位CBase_Tab_Spiltshow与CBase_Tab_Rotateshow类增加相同的函数DrawImgOnCtrl()，OnPaint中使用CxImage在两个界面显示对应的图示。图片适应控件的大小，不失真的显示。
+
+date 17.04.26
+
+------------------------------------------------------------
+@author zhu
+?1、继续总结参数，并归类图像处理与页面控制，在此基础上重新设计了界面布局。图像处理部分包括：旋转、拆分、拼接、Gamma校正、去除空白页、背面图像旋转、背景处理、色彩翻转、水平镜像；页面控制包括：图像裁切方式、纸张大小、单位、宽高、XY偏移量、去除装订孔、预先进纸等；多流Tab页，自动彩色与彩色增加色彩优化，其他参数不变。
+?2、解决自动彩色，选择“非彩色时扫描”参数为黑白或灰度时，不能设置参数的冲突：在自动彩色界面CBase_AutoColor的下方添加static，看情况关联对话框：CBase_Tab_Color、CBase_Tab_Gray、CBase_Tab_BW；当checkbox未选中时，关联彩色；参数选为黑白时，关联黑白；参数选为灰度时，关联灰度。
+?3、基本完成所有参数的重新布局，基本整理后（功能还未添加），重新交与产品部。
+
+date 17.04.27
+
+------------------------------------------------------------
+@author zhu
+1、解决当模板选中多流彩色正面时，再次打开驱动失败，并且弹出“不支持尝试的操作”的提示的Bug。原因：在CPage_Base类的UpdateControls中，某个多流选中时会对应设置Tab页面，如SetFrontColor。而在这些操作中也不能UpdateData（FALSE）；该Bug实际应该是前两天修改代码产生的，但是没有运行到此处，因此没有出现Bug。另外一个Bug是UpdateButton（）失败，使程序闪退。原因是该函数中会Create对话框，this句柄冲突。因此修改为：在模板类中不UpdateControls其他界面类（Base与Advanced）,而是在每个类的界面切换函数OnSetActive中更新。
+2、按产品部建议，又修改了部分界面排版。
+
+date 17.04.28
+
+------------------------------------------------------------
+@author zhu
+1、最后与产品部沟通，确认好界面所有参数的排版。
+2、填充界面数据，新增了七个Cap：UDSCAP_ROTATEMODE(图像旋转--模式)、UDSCAP_BACKIMGROTATE(背面图像旋转)、UDSCAP_JOINIMAGE(图像拼接)、UDSCAP_BACKPROCESS(背景处理)、UDSCAP_BACKPROSTRENTH(背景处理强度)、UDSCAP_BACKPROMODE(背景处理模式)、UDSCAP_BACKPROFILLCOLOR(背景处理填补颜色).
+3、完成图像拼接、背景处理相关模板设置以及界面消息响应的功能。

@@ -73,6 +73,11 @@ CPage_Base::~CPage_Base()
 		m_pTabSpiltshow = NULL;
 	}
 
+	if(m_mfcBtn)
+	{
+		delete m_mfcBtn;
+		m_mfcBtn = NULL;
+	}
 }
 
 void CPage_Base::DoDataExchange(CDataExchange* pDX)
@@ -107,6 +112,12 @@ void CPage_Base::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BASE_BUTTON_AUTOBACKCOLOR, m_btn_autobackcolor);
 	DDX_Control(pDX, IDC_CHECK_AUTOBACKCOLOR, m_check_autobackcolor);
 	DDX_Control(pDX, IDC_CHECK_AUTOFRONTCOLOR, m_check_autofrontcolor);
+	DDX_Control(pDX, IDC_BASE_COMBO_COLORCORRECT, m_combo_colorcorrect);
+	DDX_Control(pDX, IDC_BASE_COMBO_JOINIMG, m_combo_joinimage);
+	DDX_Control(pDX, IDC_BASE_COMBO_BACKPROCESS, m_combo_backprocess);
+	DDX_Control(pDX, IDC_BASE_COMBO_BACKKPRO_MODE, m_combo_backpromode);
+	DDX_Control(pDX, IDC_BASE_EDIT_BACKKPRO_STRENGTH, m_edit_backprostrenth);
+	DDX_Control(pDX, IDC_BASE_SLIDER_BACKKPRO_STRENGTH, m_slider_backprostrenth);
 }
 
 
@@ -142,11 +153,16 @@ BEGIN_MESSAGE_MAP(CPage_Base, CPropertyPage)
 	ON_BN_CLICKED(IDC_BASE_BUTTON_AUTOBACKCOLOR, &CPage_Base::OnBase_Btn_Autobackcolor)
 	ON_BN_CLICKED(IDC_CHECK_AUTOFRONTCOLOR, &CPage_Base::OnBase_Btn_Check_Autofrontcolor)
 	ON_BN_CLICKED(IDC_CHECK_AUTOBACKCOLOR, &CPage_Base::OnBase_Btn_Check_Autobackcolor)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_COLORCORRECT, &CPage_Base::OnCbnSelchangeBase_Combo_Colorcorrect)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_JOINIMG, &CPage_Base::OnCbnSelchangeBase_Combo_Joinimg)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BACKPROCESS, &CPage_Base::OnCbnSelchangeBase_Combo_Backprocess)
+	ON_CBN_SELCHANGE(IDC_BASE_COMBO_BACKPRO_MODE, &CPage_Base::OnCbnSelchangeBase_Combo_BackproMode)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_BACKKPRO_STRENGTH, &CPage_Base::OnNMCustomdrawBase_Slider_BackkproStrength)
+	ON_EN_CHANGE(IDC_BASE_EDIT_BACKKPRO_STRENGTH, &CPage_Base::OnEnChangeBase_Edit_BackkproStrength)
 END_MESSAGE_MAP()
 
 
 // CPage_Base 消息处理程序
-
 void CPage_Base::SetCapValue(void)
 {
 	MAP_CAP::iterator iter; 
@@ -335,7 +351,34 @@ void CPage_Base::UpdateControls(void)
 	}
 	m_combo_splitimage.SetCurSel(nCapIndex);
 
-	//Gamma校正 
+	//图像设置-色彩校正
+	m_combo_colorcorrect.ResetContent(); //清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COLORCORRECT);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_COLORCORRECT);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWCC_AUTO:
+			m_combo_colorcorrect.InsertString(i,"自动");
+			break;
+		case TWCC_IMG:
+			m_combo_colorcorrect.InsertString(i,"图片");
+			break;
+		case TWCC_WORD:
+			m_combo_colorcorrect.InsertString(i,"文字");
+			break;
+		case TWCC_IMGTEXT:
+			m_combo_colorcorrect.InsertString(i,"图文模式"); 
+			break;
+		
+		default:
+			continue;
+		}
+	}
+	m_combo_colorcorrect.SetCurSel(nCapIndex);
+
+	////Gamma校正 
 	nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_GAMMA)); //GetCapValueFloat能否得到CTWAINContainerFix32类型	
 	m_slider_gamma.SetPos(nCapValue);
 	float valueTemp = ((float)nCapValue)/100;
@@ -389,6 +432,98 @@ void CPage_Base::UpdateControls(void)
 	m_combo_colormode.SetCurSel(nCapIndex);
 	SetTabCtrl();
 
+	//新界面新增
+	//图像拼接
+	m_combo_joinimage.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_JOINIMAGE);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_JOINIMAGE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWJI_LEFTRIGHT:
+			m_combo_joinimage.InsertString(i,"左右拼接");
+			break;
+		case TWJI_UPDOWN:
+			m_combo_joinimage.InsertString(i,"上下拼接");
+			break;
+		case TWJI_UPDOWNBACKTURN:
+			m_combo_joinimage.InsertString(i,"上下拼接（背面倒转）");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_joinimage.SetCurSel(nCapIndex);
+	//背景处理
+	m_combo_backprocess.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_BACKPROCESS);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_BACKPROCESS);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWBS_NONE:
+			m_combo_backprocess.InsertString(i,"无");
+			break;
+		case TWBS_SMOOTH:
+			m_combo_backprocess.InsertString(i,"平滑");
+			break;
+		case TWBS_FILTER:
+			m_combo_backprocess.InsertString(i,"滤除");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_backprocess.SetCurSel(nCapIndex);
+	//背景处理模式
+	m_combo_backpromode.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_BACKPROMODE);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_BACKPROMODE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWBM_AUTO:
+			m_combo_backpromode.InsertString(i,"自动");
+			break;
+		case TWBI_SCREEN:
+			m_combo_backpromode.InsertString(i,"网纹");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_backpromode.SetCurSel(nCapIndex);
+	//背景处理填补颜色
+	m_combo_backpromode.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_BACKPROFILLCOLOR);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_BACKPROFILLCOLOR);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWBF_AUTO:
+			m_combo_backpromode.InsertString(i,"自动");
+			break;
+		case TWBF_WHITE:
+			m_combo_backpromode.InsertString(i,"白色");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_backpromode.SetCurSel(nCapIndex);
+
+	//背景处理强度
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_BACKPROSTRENTH)); 
+	m_slider_backprostrenth.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	SetDlgItemText(IDC_BASE_EDIT_BACKKPRO_STRENGTH, strText);
+
+	//end新增
+
 	//多流输出：默认不使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	if(nCapValue == 1) //多流选中
@@ -404,7 +539,9 @@ void CPage_Base::UpdateControls(void)
 			case 0:
 				{
 					if ( 0x01 == (value & 0x01) ) {
-						m_check_frontcolor.SetCheck(TRUE);					
+						m_check_frontcolor.SetCheck(TRUE);	
+						SetFrontColor();
+						UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色");
 					}
 					else {
 						m_check_frontcolor.SetCheck(FALSE);
@@ -415,6 +552,8 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_frontgray.SetCheck(TRUE);
+						SetFrontGray();
+						UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度");
 					}
 					else {
 						m_check_frontgray.SetCheck(FALSE);
@@ -424,6 +563,8 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_frontbw.SetCheck(TRUE);
+						SetFrontBW();
+						UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白");
 					}
 					else {
 						m_check_frontbw.SetCheck(FALSE);
@@ -434,6 +575,8 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backcolor.SetCheck(TRUE);
+						SetBackColor();
+						UpdateButton(IDC_BASE_BUTTON_BACKCOLOR,"彩色");
 					}
 					else {
 						m_check_backcolor.SetCheck(FALSE);
@@ -444,6 +587,8 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backgray.SetCheck(TRUE);
+						SetBackGray();
+						UpdateButton(IDC_BASE_BUTTON_BACKGRAY,"灰度");
 					}
 					else {
 						m_check_backgray.SetCheck(FALSE);
@@ -454,6 +599,8 @@ void CPage_Base::UpdateControls(void)
 				{
 					if ( 0x01 == (value & 0x01) ) {
 						m_check_backbw.SetCheck(TRUE);
+						SetBackBW();
+						UpdateButton(IDC_BASE_BUTTON_BACKBW,"黑白");
 					}
 					else {
 						m_check_backbw.SetCheck(FALSE);
@@ -475,40 +622,7 @@ void CPage_Base::UpdateControls(void)
 		m_basemap[UDSCAP_MULTISTREAM] = 0.0;
 	}
 	SetMultistream();
-	
-	if(m_check_backbw.GetCheck())
-	{
-		SetBackBW();	
-	}
-	if(m_check_frontbw.GetCheck())
-	{
-		SetFrontBW();	
-	}
-	if(m_check_backgray.GetCheck())
-	{
-		SetBackGray();	
-	}
-	if(m_check_frontgray.GetCheck())
-	{
-		SetFrontGray();	
-	}
-	if(m_check_backcolor.GetCheck())
-	{
-		SetBackColor();	
-	}
-	if(m_check_frontcolor.GetCheck())
-	{
-		SetFrontColor();	
-	}	
-	if(m_check_autobackcolor.GetCheck())
-	{
-		SetAutoBackColor();	
-	}	
-	if(m_check_autofrontcolor.GetCheck())
-	{
-		SetAutoFrontColor();	
-	}	
-	
+
 }
 
 
@@ -539,7 +653,7 @@ BOOL CPage_Base::OnInitDialog()
 	m_pTabPreview->Create(IDD_BASETAB_PREVIEW, &m_base_tab);
 	m_pTabRotateshow->Create(IDD_BASETAB_ROTATESHOW, &m_base_tab);
 	m_pTabSpiltshow->Create(IDD_BASETAB_SPILTSHOW, &m_base_tab);
-	m_pTabAutoColor->Create(IDD_BASETAB_AUTOCOLOR, &m_base_tab);    
+	m_pTabAutoColor->Create(IDD_BASETAB_AUTOCOLOR, &m_base_tab);   
 
 	m_base_tab.GetClientRect(&m_tabRect);    // 获取标签控件客户区Rect     
 	// 调整tabRect，使其覆盖范围适合放置标签页     
@@ -547,7 +661,7 @@ BOOL CPage_Base::OnInitDialog()
 	m_tabRect.right -= 1;     
 	m_tabRect.top += 25;     
 	m_tabRect.bottom -= 1;   
-	
+
 	InitBasemap();
 	InitSliderCtrl();
 	UpdateControls();
@@ -565,12 +679,20 @@ BOOL CPage_Base::OnInitDialog()
 
 	GetDlgItem(IDC_BASE_RADIO_SCANMODE_Flatbed)->ShowWindow(FALSE); //暂时隐藏平板。
 	//禁用自动彩色
-	m_check_autofrontcolor.SetCheck(FALSE);
+	/*m_check_autofrontcolor.SetCheck(FALSE);
 	m_check_autobackcolor.SetCheck(FALSE);
 	m_check_autofrontcolor.EnableWindow(FALSE);
 	m_check_autobackcolor.EnableWindow(FALSE);
 	m_btn_autobackcolor.EnableWindow(FALSE);
-	m_btn_autofrontcolor.EnableWindow(FALSE);
+	m_btn_autofrontcolor.EnableWindow(FALSE);*/
+
+	GetDlgItem(IDC_BASE_RADIO_SCANMODE_AUTO)->ShowWindow(FALSE); 
+	GetDlgItem(IDC_BASE_COMBO_COLORMODE)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_DAN)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_RADIO_DUPLEX_SHUANG)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_COMBO_COLORCORRECT)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_SLIDER_GAMMA)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_EDIT_GAMMA)->ShowWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -587,6 +709,10 @@ void CPage_Base::InitSliderCtrl()
 	m_pUI->GetCapRangeFloat(ICAP_AUTODISCARDBLANKPAGES, fMin, fMax, fStep);
 	m_slider_removeblank.SetRange((int)fMin, (int)fMax);
 	m_slider_removeblank.SetTicFreq((int)fStep); //步长
+
+	m_pUI->GetCapRangeFloat(UDSCAP_BACKPROSTRENTH, fMin, fMax, fStep);
+	m_slider_backprostrenth.SetRange((int)fMin, (int)fMax);
+	m_slider_backprostrenth.SetTicFreq((int)fStep); //步长
 
 	UpdateData(FALSE);  // 更新控件，刷新当前对话框
 }
@@ -798,6 +924,7 @@ void CPage_Base::OnBase_RadioBtn_Duplex()
 		
 		m_check_frontcolor.SetCheck(TRUE);
 		SetFrontColor();
+		//SwitchCheckBtn();
 
 		break;
 	}
@@ -869,9 +996,112 @@ void CPage_Base::SetMultistream(void)
 }
 
 
+void CPage_Base::UpdateButton(int nIDCtrl, CString str)
+{
+	m_mfcBtn = new CMFCButton; //MFCButton
+	CRect rect;
+	GetDlgItem(nIDCtrl)->GetWindowRect(rect);
+	ScreenToClient(rect); //Screen(屏幕坐标) 到 Client(客户区坐标)的转换
+	m_mfcBtn->Create(_T(str),WS_VISIBLE,rect,this,nIDCtrl);
+	m_mfcBtn->SetFaceColor(RGB(153, 217, 234)); //  更改背景颜色
+	//m_mfcBtn->SetTextColor(RGB(255, 255, 255)); //  更改字体颜色
+	m_mfcBtn->SetTextHotColor(RGB(63, 72, 204)); //  更改高亮颜色
+
+}
+
+void CPage_Base::SwitchCheckBtn()
+{
+	if(m_check_backbw.GetCheck())
+	{
+		SetBackBW();
+		UpdateButton(IDC_BASE_BUTTON_BACKBW,"黑白");
+	}
+	else if(m_check_frontbw.GetCheck())
+	{
+		SetFrontBW();
+		UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白");
+	}
+	else if(m_check_backgray.GetCheck())
+	{
+		SetBackGray();
+		UpdateButton(IDC_BASE_BUTTON_BACKGRAY,"灰度");
+	}
+	else if(m_check_frontgray.GetCheck())
+	{	
+		SetFrontGray();
+		UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度");
+	}
+	else if(m_check_backcolor.GetCheck())
+	{	
+		SetBackColor();
+		UpdateButton(IDC_BASE_BUTTON_BACKCOLOR,"彩色");
+	}
+	else if(m_check_frontcolor.GetCheck())
+	{	
+		SetFrontColor();
+		UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色");
+	}	
+	else if(m_check_autobackcolor.GetCheck())
+	{
+		SetAutoBackColor();	
+		UpdateButton(IDC_BASE_BUTTON_AUTOBACKCOLOR,"自动彩色");
+	}	
+	else if(m_check_autofrontcolor.GetCheck())
+	{
+		SetAutoFrontColor();	
+		UpdateButton(IDC_BASE_BUTTON_AUTOFRONTCOLOR,"自动彩色");
+	}	
+	else{}
+}
+
+void CPage_Base::OnBase_Btn_Check_Autofrontcolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	if(m_check_frontgray.GetCheck())
+	{
+		m_btn_autofrontcolor.SetFocus();
+		m_btn_autofrontcolor.SetState(TRUE);
+		m_btn_autofrontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//SetCapMulti();
+		SetAutoFrontColor();
+	}
+	else
+	{
+		m_btn_autofrontcolor.SetState(FALSE);
+		SwitchCheckBtn();
+	}
+
+	UpdateData(FALSE);
+}
+
+void CPage_Base::OnBase_Btn_Check_Autobackcolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	if(m_btn_autobackcolor.GetCheck())
+	{
+		m_btn_autobackcolor.SetFocus();
+		m_btn_autobackcolor.SetState(TRUE);
+		m_btn_autobackcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//SetCapMulti();
+		SetAutoBackColor();
+	}
+	else
+	{
+		m_btn_autobackcolor.SetState(FALSE);
+		SwitchCheckBtn();
+	}
+
+	UpdateData(FALSE);
+}
+
 void CPage_Base::OnBase_Btn_Check_FrontColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -883,58 +1113,23 @@ void CPage_Base::OnBase_Btn_Check_FrontColor()
 		m_btn_frontcolor.SetFocus();
 		m_btn_frontcolor.SetState(TRUE);
 		m_btn_frontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色正面");
+		SetCapMulti();
+		SetFrontColor();
 	}
 	else
 	{
 		m_btn_frontcolor.SetState(FALSE);
+		SwitchCheckBtn();
 	}
-
-	SetCapMulti();
-	SetFrontColor();
+	UpdateData(FALSE);
 }
-
-
-void CPage_Base::OnBase_Btn_Check_Autofrontcolor()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if(m_check_frontgray.GetCheck())
-	{
-		m_btn_autofrontcolor.SetFocus();
-		m_btn_autofrontcolor.SetState(TRUE);
-		m_btn_autofrontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
-	}
-	else
-	{
-		m_btn_autofrontcolor.SetState(FALSE);
-	}
-
-	//SetCapMulti();
-	SetAutoFrontColor();
-}
-
-
-void CPage_Base::OnBase_Btn_Check_Autobackcolor()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if(m_btn_autobackcolor.GetCheck())
-	{
-		m_btn_autobackcolor.SetFocus();
-		m_btn_autobackcolor.SetState(TRUE);
-		m_btn_autobackcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
-	}
-	else
-	{
-		m_btn_autobackcolor.SetState(FALSE);
-	}
-
-	//SetCapMulti();
-	SetAutoBackColor();
-}
-
 
 void CPage_Base::OnBase_Btn_Check_FrontGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -946,20 +1141,24 @@ void CPage_Base::OnBase_Btn_Check_FrontGray()
 		m_btn_frontgray.SetFocus();
 		m_btn_frontgray.SetState(TRUE);
 		m_btn_frontgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+		
+		SetCapMulti();
+		SetFrontGray();
+		//UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度正面");
 	}
 	else
 	{
 		m_btn_frontgray.SetState(FALSE);
-	}
-
-	SetCapMulti();
-	SetFrontGray();
+		SwitchCheckBtn();
+	}	
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_FrontBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -971,20 +1170,24 @@ void CPage_Base::OnBase_Btn_Check_FrontBw()
 		m_btn_frontbw.SetFocus();
 		m_btn_frontbw.SetState(TRUE);
 		m_btn_frontbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白正面");
+		SetCapMulti();
+		SetFrontBW();	
 	}
 	else
 	{
 		m_btn_frontbw.SetState(FALSE);
+		SwitchCheckBtn();
 	}
-
-	SetCapMulti();
-	SetFrontBW();
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -996,19 +1199,24 @@ void CPage_Base::OnBase_Btn_Check_BackColor()
 		m_btn_backcolor.SetFocus();
 		m_btn_backcolor.SetState(TRUE);
 		m_btn_backcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//UpdateButton(IDC_BASE_BUTTON_BACKCOLOR,"彩色背面");
+		SetCapMulti();
+		SetBackColor();
 	}
 	else
 	{
 		m_btn_backcolor.SetState(FALSE);
+		SwitchCheckBtn();
 	}
-	SetCapMulti();
-	SetBackColor();
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackGray()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -1020,19 +1228,24 @@ void CPage_Base::OnBase_Btn_Check_BackGray()
 		m_btn_backgray.SetFocus();
 		m_btn_backgray.SetState(TRUE);
 		m_btn_backgray.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//UpdateButton(IDC_BASE_BUTTON_BACKGRAY,"灰度背面");
+		SetCapMulti();
+		SetBackGray();
 	}
 	else
 	{
 		m_btn_backgray.SetState(FALSE);
+		SwitchCheckBtn();
 	}
-	SetCapMulti();
-	SetBackGray();
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Check_BackBw()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
 	int num=GetCheckNum();
 	if(num<1)
 	{
@@ -1044,14 +1257,19 @@ void CPage_Base::OnBase_Btn_Check_BackBw()
 		m_btn_backbw.SetFocus();
 		m_btn_backbw.SetState(TRUE);
 		m_btn_backbw.SetButtonStyle(BS_DEFPUSHBUTTON);
+
+		//UpdateButton(IDC_BASE_BUTTON_BACKBW,"黑白背面");
+		SetCapMulti();
+		SetBackBW();
 	}
 	else
 	{
 		m_btn_backbw.SetState(FALSE);
+		SwitchCheckBtn();
 	}
-	SetCapMulti();
-	SetBackBW();
+	UpdateData(FALSE);
 }
+
 
 BOOL CPage_Base::OnSetActive()
 {
@@ -1356,7 +1574,7 @@ void CPage_Base::SetBlank(void)
 
 void CPage_Base::SetAutoFrontColor()
 {
-	if(m_check_autofrontcolor.GetCheck())
+	//if(m_check_autofrontcolor.GetCheck())
 	{
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(6, _T("正面自动彩色"));
@@ -1374,7 +1592,7 @@ void CPage_Base::SetAutoFrontColor()
 }
 void CPage_Base::SetAutoBackColor()
 {
-	if(m_check_autobackcolor.GetCheck())
+	//if(m_check_autobackcolor.GetCheck())
 	{
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(6, _T("背面自动彩色"));
@@ -1392,8 +1610,9 @@ void CPage_Base::SetAutoBackColor()
 }
 void CPage_Base::SetFrontColor()
 {
-	if(m_check_frontcolor.GetCheck())
+	//if(m_check_frontcolor.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色正面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(0, _T("彩色正面"));
 		m_base_tab.SetCurSel(0);
@@ -1410,8 +1629,9 @@ void CPage_Base::SetFrontColor()
 }
 void CPage_Base::SetFrontGray()
 {
-	if(m_check_frontgray.GetCheck())
+	//if(m_check_frontgray.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度正面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(1, _T("灰度正面"));
 		m_base_tab.SetCurSel(1);
@@ -1425,11 +1645,16 @@ void CPage_Base::SetFrontGray()
 		m_pTabGray->basebutton = 0;
 		m_pTabGray->UpdateControls();
 	}
+	/*else
+	{
+		delete m_mfcBtn;
+	}*/
 }
 void CPage_Base::SetFrontBW()
 {
-	if(m_check_frontbw.GetCheck())
+	//if(m_check_frontbw.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白正面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(2, _T("黑白正面"));
 		m_base_tab.SetCurSel(2);
@@ -1446,8 +1671,9 @@ void CPage_Base::SetFrontBW()
 }
 void CPage_Base::SetBackColor()
 {
-	if(m_check_backcolor.GetCheck())
+	//if(m_check_backcolor.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_BACKCOLOR,"彩色背面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(0, _T("彩色背面"));
 		m_base_tab.SetCurSel(0);
@@ -1462,10 +1688,12 @@ void CPage_Base::SetBackColor()
 		m_pTabColor->UpdateControls();
 	}
 }
+
 void CPage_Base::SetBackGray()
 {
-	if(m_check_backgray.GetCheck())
+	//if(m_check_backgray.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_BACKGRAY,"灰度背面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(1, _T("灰度背面"));
 		m_base_tab.SetCurSel(1);
@@ -1482,8 +1710,9 @@ void CPage_Base::SetBackGray()
 }
 void CPage_Base::SetBackBW()
 {
-	if(m_check_frontbw.GetCheck())
+	//if(m_check_frontbw.GetCheck())
 	{
+		//UpdateButton(IDC_BASE_BUTTON_BACKBW,"黑白背面");
 		m_base_tab.DeleteAllItems();
 		m_base_tab.InsertItem(2, _T("黑白背面"));
 		m_base_tab.SetCurSel(2);
@@ -1515,42 +1744,78 @@ void CPage_Base::OnBase_Btn_Autobackcolor()
 void CPage_Base::OnBase_Btn_FrontColor()
 {
 	// TODO: 在此添加控件通知处理程序代码	
-	SetFrontColor();
+	UpdateData(TRUE);
+	if(m_check_frontcolor.GetCheck())
+	{
+		SetFrontColor();
+		UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色");
+	}
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Backcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetBackColor();
+	UpdateData(TRUE);
+	if(m_check_backcolor.GetCheck())
+	{
+		SetBackColor();
+		UpdateButton(IDC_BASE_BUTTON_BACKCOLOR,"彩色");
+	}
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Frontgray()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetFrontGray();
+	UpdateData(TRUE);
+	if(m_check_frontgray.GetCheck())
+	{
+		SetFrontGray();
+		UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度");
+	}
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Backgray()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetBackGray();
+	UpdateData(TRUE);
+	if(m_check_backgray.GetCheck())
+	{
+		SetBackGray();
+		UpdateButton(IDC_BASE_BUTTON_BACKGRAY,"灰度");
+	}
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Frontbw()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetFrontBW();
+	UpdateData(TRUE);
+	if(m_check_frontbw.GetCheck())
+	{
+		SetFrontBW();
+		UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白");
+	}
+	UpdateData(FALSE);
 }
 
 
 void CPage_Base::OnBase_Btn_Backbw()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetBackBW();
+	UpdateData(TRUE);
+	if(m_check_frontbw.GetCheck())
+	{
+		SetBackBW();
+		UpdateButton(IDC_BASE_BUTTON_BACKBW,"黑白");
+	}
+	UpdateData(FALSE);
 }
 
 void CPage_Base::SetTabCtrl()
@@ -1693,3 +1958,167 @@ int CPage_Base::GetCheckNum()
 	return num;
 }
 
+void CPage_Base::OnCbnSelchangeBase_Combo_Colorcorrect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_colorcorrect.GetCurSel();
+	CString strCBText; 
+	m_combo_colorcorrect.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("自动") >= 0)
+	{
+		nval = TWCC_AUTO;
+	}
+	else if(strCBText.Find("图片") >= 0)
+	{
+		nval = TWCC_IMG; 
+	}
+	else if(strCBText.Find("文字") >= 0)
+	{
+		nval = TWCC_WORD; 
+	}
+	else if(strCBText.Find("图文模式") >= 0)
+	{
+		nval = TWCC_IMGTEXT; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_COLORCORRECT,nval); 
+	m_combo_colorcorrect.SetCurSel(nIndex);
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_Joinimg()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_joinimage.GetCurSel();
+	CString strCBText; 
+	m_combo_joinimage.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("左右拼接") >= 0)
+	{
+		nval = TWJI_LEFTRIGHT;
+	}
+	else if(strCBText.Find("上下拼接") >= 0)
+	{
+		nval = TWJI_UPDOWN; 
+	}
+	else if(strCBText.Find("上下拼接（背面倒转）") >= 0)
+	{
+		nval = TWJI_UPDOWNBACKTURN; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_JOINIMAGE,nval); 
+	m_combo_joinimage.SetCurSel(nIndex);
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_Backprocess()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_backprocess.GetCurSel();
+	CString strCBText; 
+	m_combo_backprocess.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("无") >= 0)
+	{
+		nval = TWBS_NONE;
+	}
+	else if(strCBText.Find("平滑") >= 0)
+	{
+		nval = TWBS_SMOOTH; 
+	}
+	else if(strCBText.Find("滤除") >= 0)
+	{
+		nval = TWBS_FILTER; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_BACKPROCESS,nval); 
+	m_combo_backprocess.SetCurSel(nIndex);
+}
+
+
+void CPage_Base::OnCbnSelchangeBase_Combo_BackproMode()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_backpromode.GetCurSel();
+	CString strCBText; 
+	m_combo_backpromode.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("自动") >= 0)
+	{
+		nval = TWBM_AUTO;
+	}
+	else if(strCBText.Find("网纹") >= 0)
+	{
+		nval = TWBI_SCREEN; 
+	}
+	else
+	{}
+	m_pUI->SetCapValueInt(UDSCAP_BACKPROMODE,nval); 
+	m_combo_backpromode.SetCurSel(nIndex);
+	/*
+	if (strCBText.Find("自动") >= 0)
+	{
+	nval = TWBF_AUTO;
+	}
+	else if(strCBText.Find("白色") >= 0)
+	{
+	nval = TWBF_WHITE; 
+	}
+	else
+	{}
+	m_pUI->SetCapValueInt(UDSCAP_BACKPROFILLCOLOR,nval); 
+	m_combo_backpromode.SetCurSel(nIndex);
+	*/
+
+}
+
+
+void CPage_Base::OnNMCustomdrawBase_Slider_BackkproStrength(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_backprostrenth.GetPos();  // 获取滑块当前位置
+
+	if(m_slider_backprostrenth.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueFloat(UDSCAP_BACKPROSTRENTH,(float)sldValue);
+	}	
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_BASE_EDIT_BACKKPRO_STRENGTH, str);
+	UpdateData(FALSE);  // 更新控件
+	*pResult = 0;
+}
+
+
+void CPage_Base::OnEnChangeBase_Edit_BackkproStrength()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_backprostrenth.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_backprostrenth.SetPos(nval);
+
+	if(m_slider_backprostrenth.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueFloat(UDSCAP_BACKPROSTRENTH,(float)nval);
+	}	
+
+	m_edit_backprostrenth.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+}

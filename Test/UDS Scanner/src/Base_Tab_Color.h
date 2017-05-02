@@ -38,7 +38,7 @@ public:
 	afx_msg void OnEnChangeTabcolor_Edit_Contrast();
 	afx_msg void OnEnChangeTabcolor_Edit_Brightness();
 	afx_msg void OnCbnSelchangeTabcolor_Combo_Resolution();
-	afx_msg void OnTabColor_RadioBtn_Compress();
+//	afx_msg void OnTabColor_RadioBtn_Compress();
 	afx_msg void OnCbnSelchangeTabcolor_Combo_Compressquality();
 
 	CComboBox m_combo_resolution;
@@ -49,7 +49,7 @@ public:
 	CSliderCtrl m_slider_brightness;
 	CEdit m_edit_brightness;
 
-	int m_radio_compress;
+//	int m_radio_compress;
 	CComboBox m_combo_compressquality;
 
 public:

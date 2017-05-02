@@ -36,7 +36,7 @@ public:
 	afx_msg void OnNMCustomdrawTabgray_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabgray_Edit_Contrast();
 	afx_msg void OnEnChangeTabgray_Edit_Brightness();
-	afx_msg void OnTabGray_RadioBtn_Compress();
+//	afx_msg void OnTabGray_RadioBtn_Compress();
 	afx_msg void OnNMCustomdrawTabgray_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabgray_Edit_Compressvalue();
 
@@ -53,7 +53,7 @@ public:
 	CSliderCtrl m_slider_contrast;
 	CEdit m_edit_contrast;
 	
-	int m_radio_compress;
+//	int m_radio_compress;
 	CSliderCtrl m_slider_compressvalue;
 	CEdit m_edit_compressvalue;
 	CComboBox m_combo_filtercolor;
