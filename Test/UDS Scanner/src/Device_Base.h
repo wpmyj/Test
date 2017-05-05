@@ -123,7 +123,7 @@ public:
 	float             m_fThreshold;             /**< Threshold */
 
 	bool              m_bMultifeedDetection;    /**<重张检测 */
-	bool              m_bMD_value;              /**<重张检测故障值 */
+	int               m_nMD_value;              /**<重张检测故障值 */
 
 	int               m_nOrientation; //zhu     /**< 纸张方向 */
 	int               m_nStandardsizes; //zhu   /**< 纸张大小 */
@@ -160,6 +160,8 @@ public:
 	float             m_fEdgeLeft;              /**< 边缘扩充 */
 	float             m_fEdgeRight;             /**< 边缘扩充 */
 	int               m_nEdgeColor;             /**< 扩充颜色 */
+	int               m_nEdgeOrientation;       /**< 扩充方向 */
+	int               m_nEdgeCornercolor;       /**< 边缘扩充--未扫描部分边角填充颜色*/
 
 	float             m_fXPos;                  /**< X偏移量 */
 	float             m_fYPos;                  /**< X偏移量 */
@@ -167,7 +169,7 @@ public:
 	int               m_nCompress;              /**< 压缩格式*/
 	float             m_fCompressValue;         /**< 压缩比的值*/
 	int               m_nCompressQuality;       /**< 压缩质量*/
-
+	
 	bool              m_bColorFlip;             /**< 色彩翻转 */
 
 	int               m_nCacheMode;             /**< 缓存模式 */
@@ -214,6 +216,18 @@ public:
 	int               m_nBackProFill;               /**< 背景处理填补颜色 */
 	float             m_fBackProStrenth;            /**< 背景处理强度 */
 
+	bool              m_bNativeSave[4];             /**< 本地保存 */
+
+	bool              m_bOverLength;                /**< 超出预定长度检测 */
+	bool              m_bSeperatePage;              /**< 分隔页 */
+	bool              m_bPreFeed;                   /**< 预先进纸 */
+	bool              m_bCodeIdentity;              /**< 一二维码识别 */
+	float             m_fOverLengthValue;           /**< 超出预定长度检测值 */  
+	float             m_fPreFeedValue;              /**< 预先进纸值 */
+	float             m_fWaitTime;                  /**< 连续扫描等待放纸时间 */
+	int               m_nCodeStandard;              /**< 条码格式 */       
+
+	bool              m_bIndicators;                /**< 扫描进度 */
 	/**********************************************************
 	*  高4位 ： 7    6   5    4      低四位 ： 3    2   1    0
 	* （背面） 保留 黑白 灰度 彩色    （正面）  保留 黑白 灰度 彩色

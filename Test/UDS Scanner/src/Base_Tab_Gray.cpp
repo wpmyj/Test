@@ -28,7 +28,6 @@ void CBase_Tab_Gray::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABGRAY_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_CONTRAST, m_edit_contrast);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_BRIGHTNESS, m_edit_brightness);
-	//  DDX_Radio(pDX, IDC_TABGRAY_RADIO_COMPRESS_AUTO, m_radio_compress);
 	DDX_Control(pDX, IDC_TABGRAY_SLIDER_COMPRESSION, m_slider_compressvalue);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_COMPRESSVALUE, m_edit_compressvalue);
 	DDX_Control(pDX, IDC_TABGRAY_COMBO_COLOR, m_combo_filtercolor);
@@ -36,6 +35,7 @@ void CBase_Tab_Gray::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABGRAY_SLIDER_FILTERLEVEL, m_slider_filterlevel);
 	DDX_Control(pDX, IDC_TABGRAY_EDIT_FILTERLEVEL, m_edit_filterlevel);
 	DDX_Control(pDX, IDC_TABGRAY_COMBO_COMPRESSQUALITY, m_combo_compressquality);
+	DDX_Control(pDX, IDC_BASETAB_COLOR_CHECK_NATIVESAVE, m_check_nativesave);
 }
 
 
@@ -45,8 +45,6 @@ BEGIN_MESSAGE_MAP(CBase_Tab_Gray, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABGRAY_SLIDER_BRIGHTNESS, &CBase_Tab_Gray::OnNMCustomdrawTabgray_Slider_Brightness)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_CONTRAST, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Contrast)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_BRIGHTNESS, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Brightness)
-//	ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_AUTO, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
-	//ON_BN_CLICKED(IDC_TABGRAY_RADIO_COMPRESS_JPEG, &CBase_Tab_Gray::OnTabGray_RadioBtn_Compress)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABGRAY_SLIDER_COMPRESSION, &CBase_Tab_Gray::OnNMCustomdrawTabgray_Slider_Compressionvalue)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_COMPRESSVALUE, &CBase_Tab_Gray::OnEnChangeTabgray_Edit_Compressvalue)
 	ON_CBN_SELCHANGE(IDC_TABGRAY_COMBO_COLOR, &CBase_Tab_Gray::OnCbnSelchangeTabGray_Combo_FilterColor)
@@ -54,6 +52,7 @@ BEGIN_MESSAGE_MAP(CBase_Tab_Gray, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABGRAY_SLIDER_FILTERLEVEL, &CBase_Tab_Gray::OnNMCustomdrawTabGray_Slider_Filterlevel)
 	ON_EN_CHANGE(IDC_TABGRAY_EDIT_FILTERLEVEL, &CBase_Tab_Gray::OnEnChangeTabGray_Edit_Filterlevel)
 	ON_CBN_SELCHANGE(IDC_TABGRAY_COMBO_COMPRESSQUALITY, &CBase_Tab_Gray::OnCbnSelchangeTabgray_Combo_Compressquality)
+	ON_BN_CLICKED(IDC_BASETAB_COLOR_CHECK_NATIVESAVE, &CBase_Tab_Gray::OnBaseTab_Gray_Btn_Check_Nativesave)
 END_MESSAGE_MAP()
 
 
@@ -257,31 +256,25 @@ void CBase_Tab_Gray::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_TABGRAY_EDIT_COMPRESSVALUE,strText);
 
-	//压缩
+	//本地保存
 	if(MultiCapValue == 0) //多流未选中
 	{
-		nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_COMPRESSION);
+		nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFG);
 	}
 	else
 	{
 		switch(basebutton)
 		{
 		case 0: //正面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONFG);	
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFG);
 			break;
 		case 1: //背面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONBG);
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEBG);
 			break;
 		}
-	}	
-	//if(nCapIndex==2)
-	//{
-	//	m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
-	//}	
-	//else
-	//{
-	//	m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
-	//}
+	}
+	m_check_nativesave.SetCheck(nCapIndex);
+
 }
 
 
@@ -318,51 +311,6 @@ void CBase_Tab_Gray::InitSliderCtrl()
 	m_slider_filterlevel.SetRange((int)fMin, (int)fMax);
 	m_slider_filterlevel.SetTicFreq((int)fStep); //步长
 }
-
-
-//void CBase_Tab_Gray::OnCbnSelchangeTabgray_Combo_Compress()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	int nIndex = m_combo_compress.GetCurSel();
-//	CString strCBText; 
-//	m_combo_compress.GetLBText( nIndex, strCBText);
-//	int nval;
-//	if (strCBText.Find("自动") >= 0)
-//	{
-//		nval = TWCP_NONE;
-//	}
-//	else if(strCBText.Find("JPEG") >= 0)
-//	{
-//		nval = TWCP_JPEG; 
-//	}
-//	else if(strCBText.Find("G4") >= 0)
-//	{
-//		nval = TWCP_GROUP4; 
-//	} 
-//	else
-//	{}
-//
-//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-//	if(MultiCapValue == 0) //多流未选中
-//	{ 
-//		m_pUI->SetCapValueInt(ICAP_COMPRESSION, nval); 
-//	}
-//	else
-//	{
-//		switch(basebutton)
-//		{
-//		case 0: //正面
-//			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG, nval); 
-//			break;
-//		case 1: //背面
-//			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG, nval); 
-//			break;
-//		}
-//	}
-//
-//	m_combo_compress.SetCurSel(nIndex);
-//}
-
 
 void CBase_Tab_Gray::OnNMCustomdrawTabgray_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult)
 {
@@ -607,56 +555,6 @@ void CBase_Tab_Gray::OnEnChangeTabgray_Edit_Contrast()
 	UpdateData(FALSE);  // 更新控件
 }
 
-
-//void CBase_Tab_Gray::OnTabGray_RadioBtn_Compress()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-//	switch(m_radio_compress)
-//	{
-//	case 0:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_NONE); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_NONE); 
-//				break;
-//			}
-//		}
-//
-//		break;
-//	case 1:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_JPEG); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFG,TWCP_JPEG); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBG,TWCP_JPEG); 
-//				break;
-//			}
-//		}
-//		break;
-//	}
-//	UpdateData(FALSE);
-//}
-
-
 void CBase_Tab_Gray::OnCbnSelchangeTabGray_Combo_FilterColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -757,17 +655,27 @@ void CBase_Tab_Gray::OnCbnSelchangeTabgray_Combo_Compressquality()
 	CString strCBText; 
 	m_combo_compressquality.GetLBText( nIndex, strCBText);
 	int nval;
+	CString str;
 	if (strCBText.Find("最佳") >= 0) 
 	{
 		nval = TWCQ_BEST;	
+		m_slider_compressvalue.SetPos(100);
+		str.Format("%d", 100);
+		SetDlgItemText(IDC_TABGRAY_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("良好") >= 0) 
 	{
 		nval = TWCQ_FINE; 
+		m_slider_compressvalue.SetPos(80);
+		str.Format("%d", 80);
+		SetDlgItemText(IDC_TABGRAY_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("一般") >= 0) 
 	{
 		nval = TWCQ_JUST; 
+		m_slider_compressvalue.SetPos(60);
+		str.Format("%d", 60);
+		SetDlgItemText(IDC_TABGRAY_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("自定义") >= 0) 
 	{
@@ -808,5 +716,36 @@ void CBase_Tab_Gray::SetCompressValue()
 	{
 		m_slider_compressvalue.EnableWindow(FALSE);
 		m_edit_compressvalue.EnableWindow(FALSE);
+	}
+}
+
+void CBase_Tab_Gray::OnBaseTab_Gray_Btn_Check_Nativesave()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_nativesave.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(MultiCapValue == 0) //多流未选中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval);
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0: //正面
+			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval); 
+			break;
+		case 1: //背面
+			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBG,nval); 
+			break;
+		}
 	}
 }

@@ -32,22 +32,12 @@ private:
 	*/
 	MFC_UI  *m_pUI; 
 
-private:  
-	CButton m_check_removepunch;
-	CButton m_check_sharpen;
-	CButton m_check_mirror;
-	CButton m_check_removeback;
-	CButton m_check_removedescreen;
-	CButton m_check_removedenoise;
-	CButton m_check_colorflip;
-
-	CButton m_check_multifeeddetect;
-	CButton m_check_mdvalue;
-
+private: 
 	MAP_CAP m_advancedmap;  ///<用于保存参数改变后的值
-
 	TW_FRAME frame;
 
+	CButton m_check_multifeeddetect;
+	
 	//2.0版本
 	CComboBox m_combo_standardsizes;
 	CComboBox m_combo_uints;
@@ -68,6 +58,18 @@ private:
 	CScrollBar m_scroll_xpos;
 	CScrollBar m_scroll_ypos;
 	CComboBox m_combo_cutmethod;
+	int m_radio_edgeorientation;
+	int m_radio_cornercolor;
+	CComboBox m_combo_edgecolor;
+	CComboBox m_combo_mdvalue;
+	CButton m_check_overlength;
+	CButton m_check_codeidentity;
+	CButton m_check_prefeed;
+	CButton m_check_separatepage;
+	CButton m_check_removepunch;
+	CComboBox m_combo_codestandard;
+	CSliderCtrl m_slider_waittime;
+	CEdit m_edit_waittime;
 
 	int m_resolution; ///<当前分辨率
 	
@@ -78,8 +80,13 @@ private:
 	int maxinches_leftright;
 	int maxinches_width;
 	int maxinches_height;
+	int maxinches_overlength;
+	int maxinches_prefeed;
 
-	int m_radio_edgecolor;
+	CScrollBar m_scroll_overlength;
+	CScrollBar m_scroll_prefeed;
+	CEdit m_edit_overlength;
+	CEdit m_edit_prefeed;
 
 public:
 	void UpdateControls(void);  ///< 更新控件状态
@@ -88,6 +95,8 @@ public:
 	void SetPaperSize(void);
 	void SetXYPos(void); ///<设置XY偏移量是否可用。
 	void SetScroll(); ///<根据edit的值更新滚动条的值;以及根据单位设定宽、高滚动条的范围;
+	void SetPrefeed(); ///<设置预先进纸编辑框是否可用
+	void SetOverlength(); ///<设置超出预定长度是否可用
 
 private:
 	virtual BOOL OnInitDialog();
@@ -95,14 +104,7 @@ private:
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 
 	afx_msg void OnAdvanced_Btn_Check_RemovePunch();
-	afx_msg void OnAdvanced_Btn_Check_Sharpen();
-	afx_msg void OnAdvanced_Btn_Check_Mirror();
-	afx_msg void OnAdvanced_Btn_Check_RemoveBack();
-	afx_msg void OnAdvanced_Btn_Check_RemoveDenoise();
-	afx_msg void OnAdvanced_Btn_Check_RemoveDescreen();
 	afx_msg void OnClicked_Check_Multifeeddetect();
-	afx_msg void OnAdvanced_Btn_Check_Colorflip();
-	afx_msg void OnClicked_Check_MdValue();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Standardsizes();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Cutmethod();
 
@@ -115,7 +117,19 @@ private:
 	afx_msg void OnEnChangeAdvanced_Edit_EdgeRight();
 	afx_msg void OnEnChangeAdvanced_Edit_EdgeDown();
 
-	afx_msg void OnAdvanced_RadioBtn_Edgecolor();
+	afx_msg void OnAdvanced_RadioBtn_Edgeorientation();
+	afx_msg void OnAdvanced_RadioBtn_Cornercolor();
+	afx_msg void OnCbnSelchangeAdvanced_Combo_Edgecolor();
+	afx_msg void OnCbnSelchangeAdvanced_Combo_Findoverlay();
+	afx_msg void OnAdvanced_Btn_Check_Overlength();
+	afx_msg void OnAdvanced_Btn_Check_Prefeed();
+	afx_msg void OnAdvanced_Btn_Check_Separatepage();
+	afx_msg void OnAdvanced_Btn_Check_Codeidentity();
+	afx_msg void OnCbnSelchangeAdvanced_ComboCodestand();
+	afx_msg void OnNMCustomdrawBase_Slider_Waittime(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeBase_Edit_Waittime();
+	afx_msg void OnEnChangeAdvanced_Edit_Overlength();	
+	afx_msg void OnEnChangeAdvanced_Edit_Prefeed();
 
 public:
 	/** Base界面的父类指针*/

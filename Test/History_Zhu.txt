@@ -515,3 +515,40 @@ date 17.04.28
 1、最后与产品部沟通，确认好界面所有参数的排版。
 2、填充界面数据，新增了七个Cap：UDSCAP_ROTATEMODE(图像旋转--模式)、UDSCAP_BACKIMGROTATE(背面图像旋转)、UDSCAP_JOINIMAGE(图像拼接)、UDSCAP_BACKPROCESS(背景处理)、UDSCAP_BACKPROSTRENTH(背景处理强度)、UDSCAP_BACKPROMODE(背景处理模式)、UDSCAP_BACKPROFILLCOLOR(背景处理填补颜色).
 3、完成图像拼接、背景处理相关模板设置以及界面消息响应的功能。
+
+date 17.05.02
+
+------------------------------------------------------------
+@autho， zhu
+1、完成基本界面的参数：水平镜像checkbox、色彩翻转Radio、图像旋转模式Radio、背面图像旋转Radio几个参数数据的填充与模板的实现。
+2、设置背景处理的参数联动，增加函数SetBackProcess（）；根据背景处理的选项，更新另一个combox的值，为模式或者填补颜色。但调试出现问题，第一次直接扫描时没有问题，再次扫描或者是第三次直接扫描时偶尔崩溃，调试未找到原因。问题遗留。
+3、增加色彩优化的多流设置，色彩优化仅对彩色图像设置。
+4、增加四个多流本地保存Cap：UDSCAP_NATIVESAVEFC等，完成事件响应以及模板保存。
+5、解决刷新默认模板时
+，Tab页面参数不更新的Bug：必须在base的UpdateControls()时也更新Tab页。
+
+date 17.05.03
+
+------------------------------------------------------------
+@author zhu
+1、完成多流黑白正面的压缩相关参数的模板设置以及参数联动
+2、新增8个Cap，对应超出预定长度检测、预先进纸等：UDSCAP_OVERLENGTH、UDSCAP_OVERLENGTHVALUE、UDSCAP_SEPARATEPAGE、UDSCAP_CODEIDENTITY、UDSCAP_PREFEED、UDSCAP_WAITTIME等。添加了对应checkbox、滑动条、编辑框的消息响应，但是在模板加载过程中，程序崩溃，未找见Bug位置。调试中。
+
+date 17.05.04
+
+------------------------------------------------------------
+@author zhu
+1、解决昨天遗留Bug，其中有两个参数是CTWAINContainerFix32类型，这个类型的Cap在findCapability时需要再次添加case，否则找不见该Cap。
+2、添加设置界面参数：显示扫描进度，对应Cap为TWAIN自带的CAP_INDICATORS，默认值为TRUE。完成模板的设置。
+3、为超出预定长度的edit填充数据，该值需要根据单位选择做转换。因此需要在SetScroll中根绝单位设置滚动条范围。
+4、为高级界面预先进纸对应编辑框填充数据。该值不需要随单位改变，但是有Bug,最大值设置为5.0，但是编辑框最大只能调节到2.0.
+
+date 17.05.05
+
+------------------------------------------------------------
+@author zhu
+1、解决预先进纸数据只能调到2.0的Bug：在SetScrol前，数据正确，进入SetScrol后，设置滚动条位置为_ttof(str) * 100，得到数据错误，改为强制转换为int也不对，最后改为_ttof(str) * 100.00，在SetScrollPos时再强制转换为int型，正确。
+2、高级界面新增两函数SetPrefeed（）与SetOverlength（），用来根据checkbox状态设置对应编辑框是否可用。
+3、解决高级界面单位有英寸变为像素或厘米后，再改为英寸时，值不是原值的Bug：原因是往模板写值时直接保存为了编辑框中的值，应该始终保存英寸值。方法：在SetCapValueFloat之前，将fval使用ConvertUnits转换。
+4、去除多流、单双面按钮，只保留八个多流按钮，重新整理多流相关功能实现。
+5、基本完成界面的所有数据填充，删除所有无用的控件。

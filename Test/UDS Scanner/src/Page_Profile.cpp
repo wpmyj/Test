@@ -62,13 +62,13 @@ void CPage_Profile::OnOK()
 	m_pUI->TW_SaveProfileToFile("上次使用模板");//再次保存“上次使用模板”
 	m_pUI->TW_SaveProfileToFile("模板备份");//保存一份备份
 
-	
 	if(m_pUI->m_bSetup)  // EnableDSOnly
 	{
 		m_pUI->Save();
 	}
 	else  
 	{
+		//AfxMessageBox("m_pUI->Scan();");
 		m_pUI->Scan();
 	}
 

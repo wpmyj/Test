@@ -101,7 +101,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_fBrightness         = 0.0; //亮度-0.0
 	m_fThreshold          = 128.0; //阈值-128.0 ，虚拟默认128.G6400默认230
 	m_bMultifeedDetection = true; //重张检测-选中
-
+	m_nMD_value           = TWMV_PAUSE;
 	//Advanced界面
 	m_nOrientation        = TWOR_ROT0; //zhu 纸张方向-纵向
 	m_nStandardsizes      = TWSS_A4; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-A4
@@ -116,7 +116,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_bMirror             = TWMR_DISABLE; //镜像-不选中
 
 	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
-	m_bMultiStream        = false; //多流输出-不选中
+	m_bMultiStream        = true; //多流输出-不选中
 	m_fSensitiveThreshold_removespots = 0.0; //去除斑点-0.0
 	m_fSensitiveThreshold_colorretent = 128.0; //底色保留-128.0
 
@@ -133,12 +133,14 @@ bool CScanner_OpenCV::resetScanner()
 
 	//2017新增
 	m_nMaxDocCount        = 1;
-	m_byteMultiValue      = 0.0;
+	m_byteMultiValue      = 1.0; //表示只有正面彩色选中
 	m_fEdgeUp             = 0.0;
 	m_fEdgeDown           = 0.0;
 	m_fEdgeLeft           = 0.0;
 	m_fEdgeRight          = 0.0;
 	m_nEdgeColor          = TWEC_BLACK;
+	m_nEdgeOrientation    = TWEO_OUT;
+	m_nEdgeCornercolor    = TWEN_BLACK;
 
 	m_fXPos               = 0.0;
 	m_fYPos               = 0.0;
@@ -171,6 +173,17 @@ bool CScanner_OpenCV::resetScanner()
 	m_nNoColor            = TWNC_GRAY;
 	m_fColorThres         = 37.0;
 
+	m_bOverLength           = FALSE;
+	m_bSeperatePage         = FALSE;
+	m_bPreFeed              = FALSE;
+	m_bCodeIdentity         = FALSE;
+	m_fOverLengthValue      = 0.00;
+	m_fPreFeedValue         = 2.0;
+	m_fWaitTime             = 0;
+	m_nCodeStandard         = TWCS_1D;
+
+	m_bIndicators           = TRUE;
+
 	for(int i=0; i<6; i++)
 	{
 		m_fBright[i]  = m_fBrightness;
@@ -183,6 +196,7 @@ bool CScanner_OpenCV::resetScanner()
 	for(int i=0; i<4; i++)
 	{
 		m_fContra[i] = m_fContrast;
+		m_bNativeSave[i] = FALSE;
 	}
 
 	for(int i=0; i<2; i++)
@@ -323,7 +337,6 @@ bool CScanner_OpenCV::preScanPrep()
 	//long lXDPI = pImage->GetXDPI(); //获得图像x轴分辨率
 	//long lYDPI = pImage->GetYDPI();
 	//::delete pImage;
-
 	
 	float XReso;
 	float YReso;
@@ -381,6 +394,7 @@ bool CScanner_OpenCV::preScanPrep()
 
 	long lXDPI = 200; //获得图像x轴分辨率
 	long lYDPI = 200;
+	
 	double dFx = (double)XReso/lXDPI;
 	double dFy = (double)YReso/lYDPI;
 

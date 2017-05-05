@@ -68,4 +68,7 @@ private:
 	ReadNVMDataProc                    ReadNVMData;
 	SetNVRAMValueProc                  SetNVRAMValue;  // ÉèÖÃ´ý»úÊ±¼ä¡¢¹Ø»úÊ±¼ä
 
+public:
+	CButton m_check_indicator;
+	afx_msg void OnSet_Btn_Check_Showschedule();
 };

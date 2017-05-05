@@ -33,12 +33,14 @@ void CBase_Tab_BW::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABBW_EDIT_NOISERANGE, m_edit_noiserange);
 	DDX_Control(pDX, IDC_TABBW_SCROLLBAR_NOISENUM, m_scroll_noisenum);
 	DDX_Control(pDX, IDC_TABBW_SCROLLBAR_NOISERANGE, m_scroll_noiserange);
-	//  DDX_Radio(pDX, IDC_TABBW_RADIO_COMPRESS_AUTO, m_radio_compress);
 	DDX_Control(pDX, IDC_TABBW_COMBO_COLOR, m_combo_filtercolor);
 	DDX_Control(pDX, IDC_TABBW_COMBO_FILTERMODE, m_combo_filtermode);
 	DDX_Control(pDX, IDC_TABBW_EDIT_FILTERLEVEL, m_edit_filterlevel);
 	DDX_Control(pDX, IDC_TABBW_SLIDER_FILTERLEVEL, m_slider_filterlevel);
-	DDX_Control(pDX, IDC_TABGRAY_COMBO_COMPRESSQUALITY, m_combo_compressquality);
+	DDX_Radio(pDX, IDC_TABBW_RADIO_COMPRESS_G4, m_radio_compress);
+	DDX_Control(pDX, IDC_TABBW_COMBO_COMPRESSQUALITY, m_combo_compressquality);
+	DDX_Control(pDX, IDC_TABBW_SLIDER_COMPRESSION, m_slider_compressvalue);
+	DDX_Control(pDX, IDC_TABBW_EDIT_COMPRESSVALUE, m_edit_compressvalue);
 }
 
 
@@ -52,13 +54,15 @@ BEGIN_MESSAGE_MAP(CBase_Tab_BW, CPropertyPage)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_NOISENUM, &CBase_Tab_BW::OnEnChangeTabbw_Edit_NoiseNum)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_NOISERANGE, &CBase_Tab_BW::OnEnChangeTabbw_Edit_NoiseRange)
 	ON_WM_VSCROLL()
-//	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_AUTO, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
-	//ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_G4, &CBase_Tab_BW::OnTabBW_RadioBtn_Compress)
 	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_COLOR, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterColor)
 	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_FILTERMODE, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterMode)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABBW_SLIDER_FILTERLEVEL, &CBase_Tab_BW::OnNMCustomdrawTabBW_Slider_Filterlevel)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_FILTERLEVEL, &CBase_Tab_BW::OnEnChangeTabBW_Edit_Filterlevel)
-	ON_CBN_SELCHANGE(IDC_TABGRAY_COMBO_COMPRESSQUALITY, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality)
+	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_G4, &CBase_Tab_BW::OnTabBW_RadioBtn_CompressG4)
+	ON_BN_CLICKED(IDC_TABBW_RADIO_COMPRESS_JPEG, &CBase_Tab_BW::OnTabBW_RadioBtn_CompressG4)
+	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_COMPRESSQUALITY, &CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABBW_SLIDER_COMPRESSION, &CBase_Tab_BW::OnNMCustomdrawTabbw_Slider_Compressionvalue)
+	ON_EN_CHANGE(IDC_TABBW_EDIT_COMPRESSVALUE, &CBase_Tab_BW::OnEnChangeTabbw_Edit_Compressvalue)
 END_MESSAGE_MAP()
 
 
@@ -66,6 +70,7 @@ END_MESSAGE_MAP()
 
 void CBase_Tab_BW::UpdateControls(void)
 {
+	UpdateData(TRUE);
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
@@ -331,11 +336,13 @@ void CBase_Tab_BW::UpdateControls(void)
 		}
 	}
 	m_combo_compressquality.SetCurSel(nCapIndex);
+	SetCompressValue();
 
 	//压缩
 	if(MultiCapValue == 0) //多流未选中
 	{
 		nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_COMPRESSION);
+		m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
 	}
 	else
 	{
@@ -348,15 +355,31 @@ void CBase_Tab_BW::UpdateControls(void)
 			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONBB);
 			break;
 		}
+		m_radio_compress = nCapIndex;
 	}	
-	//if(nCapIndex==2)
-	//{
-	//	m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
-	//}	
-	//else
-	//{
-	//	m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
-	//}
+
+	// 压缩比 
+	if(MultiCapValue == 0) //多流未选中
+	{
+		nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSVALUE)); 
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0: //正面
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSIONVALUEFG)); 
+			break;
+		case 1: //背面
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_COMPRESSIONVALUEBG));
+			break;
+		}
+}
+	m_slider_compressvalue.SetPos(nCapValue);
+	strText.Format("%d",nCapValue);
+	SetDlgItemText(IDC_TABBW_EDIT_COMPRESSVALUE,strText);
+
+	UpdateData(FALSE);
 }
 
 
@@ -367,7 +390,6 @@ BOOL CBase_Tab_BW::OnInitDialog()
 	// TODO:  在此添加额外的初始化	
 	InitSliderCtrl();
 	UpdateControls();
-	GetDlgItem(IDC_TABGRAY_COMBO_COMPRESSQUALITY)->ShowWindow(FALSE); 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -388,6 +410,11 @@ void CBase_Tab_BW::InitSliderCtrl()
 	m_pUI->GetCapRangeFloat(UDSCAP_FILTERLEVEL, fMin, fMax, fStep);
 	m_slider_filterlevel.SetRange((int)fMin, (int)fMax);
 	m_slider_filterlevel.SetTicFreq((int)fStep); //步长
+
+	m_pUI->GetCapRangeFloat(UDSCAP_COMPRESSIONVALUEFG, fMin, fMax, fStep);
+	m_slider_compressvalue.SetRange((int)fMin, (int)fMax);
+	m_slider_compressvalue.SetTicFreq((int)fStep); //步长
+	
 }
 
 void CBase_Tab_BW::OnCbnSelchangeTabbw_Combo_Resolution()
@@ -690,88 +717,77 @@ void CBase_Tab_BW::SetBinarization(void)
 
 	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 
-	//if(m_radiobtn_duplex == 0 || m_radiobtn_duplex == 1 || m_check_frontbw.GetCheck() || m_check_backbw.GetCheck())
+	CString strCBText;
+	GetDlgItemText(IDC_TABBW_COMBO_BINARIZATION,strCBText);
+	if (strCBText.Find("动态阈值") >= 0)
 	{
-	//	m_slider_threshold.EnableWindow(TRUE);
-	//	m_edit_threshold.EnableWindow(TRUE); 
+		//设置此时亮度不可用
+		m_slider_brightness.EnableWindow(FALSE);
+		m_edit_brightness.EnableWindow(FALSE); 
 
-		CString strCBText;
-		GetDlgItemText(IDC_TABBW_COMBO_BINARIZATION,strCBText);
-		if (strCBText.Find("动态阈值") >= 0)
+		m_slider_threshold.EnableWindow(TRUE);
+		m_edit_threshold.EnableWindow(TRUE);
+
+		SetDlgItemText(IDC_BASETABBW_STATIC_THRESHOLD, TEXT("去除斑点:"));
+		m_pUI->GetCapRangeFloat(UDSCAP_REMOVESPOTS, fMin, fMax, fStep);
+		m_slider_threshold.SetRange((int)fMin, (int)fMax);
+
+		if(MultiCapValue == 0) //多流未选中
+		{ 
+			nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
+		}
+		else
 		{
-			//设置此时亮度不可用
-			m_slider_brightness.EnableWindow(FALSE);
-			m_edit_brightness.EnableWindow(FALSE); 
-
-			m_slider_threshold.EnableWindow(TRUE);
-			m_edit_threshold.EnableWindow(TRUE);
-
-			SetDlgItemText(IDC_BASETABBW_STATIC_THRESHOLD, TEXT("去除斑点:"));
-			m_pUI->GetCapRangeFloat(UDSCAP_REMOVESPOTS, fMin, fMax, fStep);
-			m_slider_threshold.SetRange((int)fMin, (int)fMax);
-
-			if(MultiCapValue == 0) //多流未选中
-			{ 
-				nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTS)); 
-			}
-			else
+			switch(basebutton)
 			{
-				switch(basebutton)
-				{
-				case 0: //正面
-					nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTSFB)); 
-					break;
-				case 1: //背面
-					nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTSBB)); 
-					break;
-				}
+			case 0: //正面
+				nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTSFB)); 
+				break;
+			case 1: //背面
+				nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_REMOVESPOTSBB)); 
+				break;
 			}
-			m_slider_threshold.SetPos(nCapValue);
-		} 
-		else if(strCBText.Find("固定阈值") >= 0)
-		{
-			m_slider_threshold.EnableWindow(TRUE);
-			m_edit_threshold.EnableWindow(TRUE);
-			//设置此时亮度可用
-			m_slider_brightness.EnableWindow(TRUE);
-			m_edit_brightness.EnableWindow(TRUE);
+		}
+		m_slider_threshold.SetPos(nCapValue);
+	} 
+	else if(strCBText.Find("固定阈值") >= 0)
+	{
+		m_slider_threshold.EnableWindow(TRUE);
+		m_edit_threshold.EnableWindow(TRUE);
+		//设置此时亮度可用
+		m_slider_brightness.EnableWindow(TRUE);
+		m_edit_brightness.EnableWindow(TRUE);
 			
-			SetDlgItemText(IDC_BASETABBW_STATIC_THRESHOLD, TEXT("阈值:"));
-			m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
-			m_slider_threshold.SetRange((int)fMin, (int)fMax);
+		SetDlgItemText(IDC_BASETABBW_STATIC_THRESHOLD, TEXT("阈值:"));
+		m_pUI->GetCapRangeFloat(ICAP_THRESHOLD, fMin, fMax, fStep);
+		m_slider_threshold.SetRange((int)fMin, (int)fMax);
 
-			if(MultiCapValue == 0) //多流未选中
-			{  
-				nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
-			}
-			else
-			{
-				switch(basebutton)
-				{
-				case 0: //正面
-					nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_THRESHOLDFB)); 
-					break;
-				case 1: //背面
-					nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_THRESHOLDBB)); 
-					break;
-				}
-			}
-			m_slider_threshold.SetPos(nCapValue);
+		if(MultiCapValue == 0) //多流未选中
+		{  
+			nCapValue = (int)(m_pUI->GetCapValueFloat(ICAP_THRESHOLD));
 		}
-		else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
+		else
 		{
-			m_slider_threshold.EnableWindow(FALSE);
-			m_edit_threshold.EnableWindow(FALSE);
-
-			//设置此时亮度可用
-			m_slider_brightness.EnableWindow(TRUE);
-			m_edit_brightness.EnableWindow(TRUE);
+			switch(basebutton)
+			{
+			case 0: //正面
+					nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_THRESHOLDFB)); 
+				break;
+			case 1: //背面
+				nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_THRESHOLDBB)); 
+				break;
+			}
 		}
+		m_slider_threshold.SetPos(nCapValue);
 	}
-	//else
+	else if(strCBText.Find("半色调") >= 0 || strCBText.Find("误差扩散") >= 0)
 	{
-		//m_slider_threshold.EnableWindow(FALSE);
-		//m_edit_threshold.EnableWindow(FALSE);
+		m_slider_threshold.EnableWindow(FALSE);
+		m_edit_threshold.EnableWindow(FALSE);
+
+		//设置此时亮度可用
+		m_slider_brightness.EnableWindow(TRUE);
+		m_edit_brightness.EnableWindow(TRUE);
 	}
 }
 
@@ -904,54 +920,6 @@ void CBase_Tab_BW::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 
-//void CBase_Tab_BW::OnTabBW_RadioBtn_Compress()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-//	switch(m_radio_compress)
-//	{
-//	case 0:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_NONE); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_NONE); 
-//				break;
-//			}
-//		}
-//		
-//		break;
-//	case 1:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_GROUP4); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_GROUP4); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_GROUP4); 
-//				break;
-//			}
-//		}
-//		break;
-//	}
-//	UpdateData(FALSE);
-//}
-
 void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_FilterColor()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -1044,6 +1012,54 @@ void CBase_Tab_BW::OnEnChangeTabBW_Edit_Filterlevel()
 	UpdateData(FALSE);  // 更新控件
 }
 
+void CBase_Tab_BW::OnTabBW_RadioBtn_CompressG4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE); //将radio的状态值更新给关联的变量
+	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	switch(m_radio_compress)
+	{
+	case 0:
+		if(MultiCapValue == 0) //多流未选中
+		{
+			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_GROUP4); 
+		}
+		else
+		{
+			switch(basebutton)
+			{
+			case 0: //正面
+				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_GROUP4); 
+				break;
+			case 1: //背面
+				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_GROUP4); 
+				break;
+			}
+		}
+			
+		break;
+	case 1:
+		if(MultiCapValue == 0) //多流未选中
+		{
+			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_JPEG); 
+		}
+		else
+		{
+			switch(basebutton)
+			{
+			case 0: //正面
+				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFB,TWCP_JPEG); 
+				break;
+			case 1: //背面
+				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBB,TWCP_JPEG); 
+				break;
+			}
+		}
+		break;
+	}
+	UpdateData(FALSE);
+}
+
 
 void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality()
 {
@@ -1053,17 +1069,27 @@ void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality()
 	CString strCBText; 
 	m_combo_compressquality.GetLBText( nIndex, strCBText);
 	int nval;
+	CString str;
 	if (strCBText.Find("最佳") >= 0) 
 	{
 		nval = TWCQ_BEST;	
+		m_slider_compressvalue.SetPos(100);
+		str.Format("%d", 100);
+		SetDlgItemText(IDC_TABBW_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("良好") >= 0) 
 	{
 		nval = TWCQ_FINE; 
+		m_slider_compressvalue.SetPos(80);
+		str.Format("%d", 80);
+		SetDlgItemText(IDC_TABBW_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("一般") >= 0) 
 	{
 		nval = TWCQ_JUST; 
+		m_slider_compressvalue.SetPos(60);
+		str.Format("%d", 60);
+		SetDlgItemText(IDC_TABBW_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("自定义") >= 0) 
 	{
@@ -1071,7 +1097,7 @@ void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality()
 	}
 	else
 	{}
-
+	
 	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
 	if(MultiCapValue == 0) //多流未选中
 	{
@@ -1090,4 +1116,91 @@ void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality()
 		}
 	}
 	m_combo_compressquality.SetCurSel(nIndex);
+	SetCompressValue();
+}
+
+void CBase_Tab_BW::SetCompressValue()
+{
+	int nIndex = m_combo_compressquality.GetCurSel();
+	if(nIndex == 3)
+	{
+		m_slider_compressvalue.EnableWindow(TRUE);
+		m_edit_compressvalue.EnableWindow(TRUE);
+	}
+	else
+	{
+		m_slider_compressvalue.EnableWindow(FALSE);
+		m_edit_compressvalue.EnableWindow(FALSE);
+	}
+}
+
+
+void CBase_Tab_BW::OnNMCustomdrawTabbw_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	int sldValue = m_slider_compressvalue.GetPos();  // 获取滑块当前位置
+
+	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(nCapValue == 0) //多流未选中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_COMPRESSVALUE, sldValue); 
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0:
+			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONVALUEFG, sldValue);
+			break;
+		case 1:
+			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONVALUEBG, sldValue);
+			break;
+		}
+	}
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_TABBW_EDIT_COMPRESSVALUE, str);
+
+	*pResult = 0;
+}
+
+
+void CBase_Tab_BW::OnEnChangeTabbw_Edit_Compressvalue()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_compressvalue.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_compressvalue.SetPos(nval);
+
+	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(nCapValue == 0) //多流未选中
+	{
+		m_pUI->SetCapValueFloat(UDSCAP_COMPRESSVALUE, (float)nval);
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0:
+			m_pUI->SetCapValueFloat(UDSCAP_COMPRESSIONVALUEFG, (float)nval);
+			break;
+		case 1:
+			m_pUI->SetCapValueFloat(UDSCAP_COMPRESSIONVALUEBG, (float)nval);
+			break;
+		}
+	}
+
+	m_edit_compressvalue.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
 }

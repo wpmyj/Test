@@ -28,7 +28,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fBrightness					= settings.m_fBrightness;
 	m_fThreshold					= settings.m_fThreshold;
 	m_bMultifeedDetection = settings.m_bMultifeedDetection;
-	m_bMD_value           = settings.m_bMD_value;
+	m_nMD_value           = settings.m_nMD_value;
 
 	m_fRotation						= settings.m_fRotation; //zhu
 	m_nOrientation				= settings.m_nOrientation; //zhu
@@ -57,6 +57,8 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fEdgeLeft           = settings.m_fEdgeLeft;
 	m_fEdgeRight          = settings.m_fEdgeRight;
 	m_nEdgeColor          = settings.m_nEdgeColor;
+	m_nEdgeOrientation    = settings.m_nEdgeOrientation;
+	m_nEdgeCornercolor    = settings.m_nEdgeCornercolor;
 
 	m_fXPos               = settings.m_fXPos;
 	m_fYPos               = settings.m_fYPos;
@@ -91,6 +93,15 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fColorThres         = settings.m_fColorThres;
 	m_nColorCorrect       = settings.m_nColorCorrect;
 
+	m_bOverLength          = settings.m_bOverLength;
+	m_bSeperatePage        = settings.m_bSeperatePage;
+	m_bPreFeed             = settings.m_bPreFeed;
+	m_bCodeIdentity        = settings.m_bCodeIdentity;
+	m_fOverLengthValue     = settings.m_fOverLengthValue;
+	m_fPreFeedValue        = settings.m_fPreFeedValue;
+	m_fWaitTime            = settings.m_fWaitTime;
+	m_nCodeStandard        = settings.m_nCodeStandard;
+
 	for(int i=0; i<6; i++)
 	{
 		m_fBright[i]  = settings.m_fBright[i];
@@ -103,6 +114,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	for(int i=0; i<4; i++)
 	{
 		m_fContra[i] = settings.m_fContra[i];
+		m_bNativeSave[i] = settings.m_bNativeSave[i];
 	}
 
 	for(int i=0; i<2; i++)
@@ -120,7 +132,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_nBackProMode            = settings.m_nBackProMode;
 	m_nBackProFill            = settings.m_nBackProFill;
 	m_fBackProStrenth         = settings.m_fBackProStrenth;
-	
+	m_bIndicators             = settings.m_bIndicators;
 }
 
 CDevice_Base* CDevice_Base::getSetting() const

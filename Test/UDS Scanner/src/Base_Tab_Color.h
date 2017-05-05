@@ -38,8 +38,9 @@ public:
 	afx_msg void OnEnChangeTabcolor_Edit_Contrast();
 	afx_msg void OnEnChangeTabcolor_Edit_Brightness();
 	afx_msg void OnCbnSelchangeTabcolor_Combo_Resolution();
-//	afx_msg void OnTabColor_RadioBtn_Compress();
 	afx_msg void OnCbnSelchangeTabcolor_Combo_Compressquality();
+	afx_msg void OnCbnSelchangeBase_ComboColoropti();
+	afx_msg void OnBaseTab_Color_Btn_Check_Nativesave();
 
 	CComboBox m_combo_resolution;
 	CSliderCtrl m_slider_compressvalue;
@@ -48,13 +49,13 @@ public:
 	CEdit m_edit_contrast;	
 	CSliderCtrl m_slider_brightness;
 	CEdit m_edit_brightness;
-
-//	int m_radio_compress;
 	CComboBox m_combo_compressquality;
+	CComboBox m_combo_colorcorrect;
+	CButton m_check_nativesave;
 
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void SetCompressValue();  ///<设置压缩值滑动条是否可用	
-	
+
 };

@@ -36,7 +36,6 @@ public:
 	afx_msg void OnNMCustomdrawTabgray_Slider_Brightness(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabgray_Edit_Contrast();
 	afx_msg void OnEnChangeTabgray_Edit_Brightness();
-//	afx_msg void OnTabGray_RadioBtn_Compress();
 	afx_msg void OnNMCustomdrawTabgray_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabgray_Edit_Compressvalue();
 
@@ -45,6 +44,7 @@ public:
 	afx_msg void OnNMCustomdrawTabGray_Slider_Filterlevel(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeTabGray_Edit_Filterlevel();
 	afx_msg void OnCbnSelchangeTabgray_Combo_Compressquality();
+	afx_msg void OnBaseTab_Gray_Btn_Check_Nativesave();
 
 	CComboBox m_combo_resolution;
 
@@ -53,7 +53,6 @@ public:
 	CSliderCtrl m_slider_contrast;
 	CEdit m_edit_contrast;
 	
-//	int m_radio_compress;
 	CSliderCtrl m_slider_compressvalue;
 	CEdit m_edit_compressvalue;
 	CComboBox m_combo_filtercolor;
@@ -62,9 +61,11 @@ public:
 	CEdit m_edit_filterlevel;
 
 	CComboBox m_combo_compressquality;
+	CButton m_check_nativesave;
 
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void SetCompressValue();  ///<设置压缩值滑动条是否可用	
+
 };

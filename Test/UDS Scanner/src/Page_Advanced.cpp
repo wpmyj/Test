@@ -18,7 +18,6 @@ IMPLEMENT_DYNAMIC(CPage_Advanced, CPropertyPage)
 CPage_Advanced::CPage_Advanced(MFC_UI *pUI)
 	: m_pUI(pUI), CPropertyPage(CPage_Advanced::IDD)
 {
-	m_radio_edgecolor = 0;
 }
 
 CPage_Advanced::~CPage_Advanced()
@@ -29,15 +28,7 @@ CPage_Advanced::~CPage_Advanced()
 void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_CHECK_REMOVEPUNCH, m_check_removepunch);
-	DDX_Control(pDX, IDC_CHECK_SHARPEN, m_check_sharpen);
-	DDX_Control(pDX, IDC_CHECK_MIRROR, m_check_mirror);
-	DDX_Control(pDX, IDC_CHECK_REMOVEBACK, m_check_removeback);
-	DDX_Control(pDX, IDC_CHECK_REMOVEDESCREEN, m_check_removedescreen);
-	DDX_Control(pDX, IDC_CHECK_REMOVEDEMOISE, m_check_removedenoise);
 	DDX_Control(pDX, IDC_CHECK_MULTIFEEDDETECT, m_check_multifeeddetect);
-	DDX_Control(pDX, IDC_ADVANCED_CHECK_COLORFLIP, m_check_colorflip);
-	DDX_Control(pDX, IDC_CHECK_MULTIFEEDDETECT_VALUE, m_check_mdvalue);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_STANDARDSIZES, m_combo_standardsizes);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_UINT, m_combo_uints);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_HEIGHT, m_scroll_height);
@@ -57,20 +48,28 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_YPOS, m_scroll_ypos);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_CUTMETHOD, m_combo_cutmethod);
-	DDX_Radio(pDX, IDC_ADVANCED_RADIO_EDGECOLOR_WHITE, m_radio_edgecolor);
+	DDX_Radio(pDX, IDC_ADVANCED_RADIO_EDGEMETHOD_IN, m_radio_edgeorientation);
+	DDX_Radio(pDX, IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, m_radio_cornercolor);
+	DDX_Control(pDX, IDC_ADVANCED_COMBO_EDGECOLOR, m_combo_edgecolor);
+	DDX_Control(pDX, IDC_ADVANCED_COMBO_MUILTSTREAM_FINDOVERLAY, m_combo_mdvalue);
+	DDX_Control(pDX, IDC_CHECK_OVERLENGTH, m_check_overlength);
+	DDX_Control(pDX, IDC_CHECK_QRCODE, m_check_codeidentity);
+	DDX_Control(pDX, IDC_CHECK_PREFEED, m_check_prefeed);
+	DDX_Control(pDX, IDC_ADVANCED_COMBO_CODESTAND, m_combo_codestandard);
+	DDX_Control(pDX, IDC_BASE_SLIDER_WAITTIME, m_slider_waittime);
+	DDX_Control(pDX, IDC_BASE_EDIT_WAITTIME, m_edit_waittime);
+	DDX_Control(pDX, IDC_CHECK_SEPARATE, m_check_separatepage);
+	DDX_Control(pDX, IDC_CHECK_REMOVEPUNCH, m_check_removepunch);
+	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_OVERLENGTH, m_scroll_overlength);
+	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_PREFEED, m_scroll_prefeed);
+	DDX_Control(pDX, IDC_ADVANCED_EDIT_OVERLENGTH, m_edit_overlength);
+	DDX_Control(pDX, IDC_ADVANCED_EDIT_PREFEED, m_edit_prefeed);
 }
 
 
 BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHECK_REMOVEPUNCH, &CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch)
-	ON_BN_CLICKED(IDC_CHECK_SHARPEN, &CPage_Advanced::OnAdvanced_Btn_Check_Sharpen)
-	ON_BN_CLICKED(IDC_CHECK_MIRROR, &CPage_Advanced::OnAdvanced_Btn_Check_Mirror)
-	ON_BN_CLICKED(IDC_CHECK_REMOVEBACK, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack)
-	ON_BN_CLICKED(IDC_CHECK_REMOVEDEMOISE, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise)
-	ON_BN_CLICKED(IDC_CHECK_REMOVEDESCREEN, &CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen)
 	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT, &CPage_Advanced::OnClicked_Check_Multifeeddetect)
-	ON_BN_CLICKED(IDC_ADVANCED_CHECK_COLORFLIP, &CPage_Advanced::OnAdvanced_Btn_Check_Colorflip)
-	ON_BN_CLICKED(IDC_CHECK_MULTIFEEDDETECT_VALUE, &CPage_Advanced::OnClicked_Check_MdValue)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_STANDARDSIZES, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_UINT, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Uints)
 	ON_WM_VSCROLL()
@@ -81,7 +80,21 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_RIGHT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
 	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
-	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGECOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_IN, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_OUT, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Cornercolor)
+	ON_BN_CLICKED(IDC_ADVANCED_RADIO_CORNERCOLOR_BLACK, &CPage_Advanced::OnAdvanced_RadioBtn_Cornercolor)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_EDGECOLOR, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Edgecolor)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_MUILTSTREAM_FINDOVERLAY, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Findoverlay)
+	ON_BN_CLICKED(IDC_CHECK_OVERLENGTH, &CPage_Advanced::OnAdvanced_Btn_Check_Overlength)
+	ON_BN_CLICKED(IDC_CHECK_PREFEED, &CPage_Advanced::OnAdvanced_Btn_Check_Prefeed)
+	ON_BN_CLICKED(IDC_CHECK_SEPARATE, &CPage_Advanced::OnAdvanced_Btn_Check_Separatepage)
+	ON_BN_CLICKED(IDC_CHECK_QRCODE, &CPage_Advanced::OnAdvanced_Btn_Check_Codeidentity)
+	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CODESTAND, &CPage_Advanced::OnCbnSelchangeAdvanced_ComboCodestand)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_BASE_SLIDER_WAITTIME, &CPage_Advanced::OnNMCustomdrawBase_Slider_Waittime)
+	ON_EN_CHANGE(IDC_BASE_EDIT_WAITTIME, &CPage_Advanced::OnEnChangeBase_Edit_Waittime)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_OVERLENGTH, &CPage_Advanced::OnEnChangeAdvanced_Edit_Overlength)
+	ON_EN_CHANGE(IDC_ADVANCED_EDIT_PREFEED, &CPage_Advanced::OnEnChangeAdvanced_Edit_Prefeed)
 END_MESSAGE_MAP()
 
 
@@ -113,6 +126,7 @@ void CPage_Advanced::SetCapValue(void)
 
 void CPage_Advanced::UpdateControls(void)
 {
+	UpdateData(TRUE);
 	int nCapIndex;
 	const IntVector* lstCapValues;
 	const FloatVector* lstCapValuesFlt;
@@ -147,39 +161,25 @@ void CPage_Advanced::UpdateControls(void)
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
 	m_check_multifeeddetect.SetCheck(nCapValue);
-	if(nCapValue == 1)
-	{
-		m_check_mdvalue.EnableWindow(TRUE);
-	}
-	else
-	{
-		m_check_mdvalue.EnableWindow(FALSE);
-	}
 	//重张检测故障值
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT_VALUE));
-	m_check_mdvalue.SetCheck(nCapValue);
-	
-	//去除穿孔等
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PUNCHHOLEREMOVEL));
-	m_check_removepunch.SetCheck(nCapValue);
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_SHARPEN));
-	m_check_sharpen.SetCheck(nCapValue);
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MIRROR));
-	m_check_mirror.SetCheck(nCapValue);
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_REMOVEBACKGROUND));
-	m_check_removeback.SetCheck(nCapValue);
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DESCREEN));
-	m_check_removedescreen.SetCheck(nCapValue);
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_DENOISE));
-	m_check_removedenoise.SetCheck(nCapValue); 
-
-	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_COLORFLIP));
-	m_check_colorflip.SetCheck(nCapValue);
+	m_combo_mdvalue.ResetContent();
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_MULTIFEEDDETECT_VALUE);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_MULTIFEEDDETECT_VALUE);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWMV_PAUSE:
+			m_combo_mdvalue.InsertString(i,"停止扫描");
+			break;
+		case TWMV_CONTINUE:
+			m_combo_mdvalue.InsertString(i,"继续扫描，结束后提醒");
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_mdvalue.SetCurSel(nCapIndex);
 
 	//V2.0版本
 	//纸张设置-单位
@@ -204,7 +204,6 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_uints.SetCurSel(nCapIndex);
-	nval = FindUnit(nCapIndex);
 
 	SetScroll();
 	// 自定义宽与高
@@ -302,7 +301,20 @@ void CPage_Advanced::UpdateControls(void)
 			else{}		
 			strText.Format("%0.2f",fCapValue);
 			SetDlgItemText(IDC_ADVANCED_EDIT_YPOS,strText);
-
+		
+			//超出预定长度值
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_OVERLENGTHVALUE);
+			if(fCapValue > (float)maxinches_overlength)
+			{
+				fCapValue = (float)maxinches_overlength;
+			}
+			else if(fCapValue < 0.00)
+			{
+				fCapValue = 0.00;
+			}
+			else{}		
+			strText.Format("%0.2f",fCapValue);
+			SetDlgItemText(IDC_ADVANCED_EDIT_OVERLENGTH,strText);
 			break;
 		}
 	case TWUN_CENTIMETERS:
@@ -402,6 +414,21 @@ void CPage_Advanced::UpdateControls(void)
 			strText.Format("%0.2f",fvalue);
 			SetDlgItemText(IDC_ADVANCED_EDIT_YPOS,strText);
 
+			//
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_OVERLENGTHVALUE);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			if(fvalue > (float)maxinches_overlength)
+			{
+				fvalue = (float)maxinches_overlength;
+			}
+			else if(fvalue < 0.00)
+			{
+				fvalue = 0.00;
+			}
+			else{}	
+			strText.Format("%0.2f",fvalue);
+			SetDlgItemText(IDC_ADVANCED_EDIT_OVERLENGTH,strText);
+
 			break;
 		}
 	case TWUN_PIXELS:
@@ -500,10 +527,38 @@ void CPage_Advanced::UpdateControls(void)
 			strText.Format("%d",nvalue);
 			SetDlgItemText(IDC_ADVANCED_EDIT_YPOS,strText);
 
+			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_OVERLENGTHVALUE);
+			nvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_PIXELS, m_resolution);
+			if(nvalue > maxinches_overlength)
+			{
+				nvalue = maxinches_overlength;
+			}
+			else if(nvalue < 0)
+			{
+				nvalue = 0;
+			}
+			else{}	
+			strText.Format("%d",nvalue);
+			SetDlgItemText(IDC_ADVANCED_EDIT_OVERLENGTH,strText);
+
 			break;
 		}
 	}
 
+	//预先进纸
+	fCapValue = m_pUI->GetCapValueFloat(UDSCAP_PREFEEDVALUE);
+	if(fCapValue > (float)maxinches_prefeed)
+	{
+		fCapValue = (float)maxinches_prefeed;
+	}
+	else if(fCapValue < 0.00)
+	{
+		fCapValue = 0.00;
+	}
+	else{}		
+	strText.Format("%0.2f",fCapValue);
+	SetDlgItemText(IDC_ADVANCED_EDIT_PREFEED,strText);
+	
 	//纸张设置-纸张大小
 	m_combo_standardsizes.ResetContent();  // 清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_SUPPORTEDSIZES);
@@ -567,9 +622,78 @@ void CPage_Advanced::UpdateControls(void)
 	SetPaperSize();
 
 	//填充颜色
+	m_combo_edgecolor.ResetContent();  // 清空内容
 	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_EDGE_COLOR);
-	m_radio_edgecolor = nCapIndex;
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_EDGE_COLOR);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWEC_WHITE:
+			m_combo_edgecolor.InsertString(i,"白色");
+			break;
+		case TWEC_BLACK:
+			m_combo_edgecolor.InsertString(i,"黑色"); 
+			break;
+		case TWEC_DEFINED:
+			m_combo_edgecolor.InsertString(i,"自定义");  //216mm x 356mm
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_edgecolor.SetCurSel(nCapIndex);  //显示默认值
+	
+	//超出预定长度检测
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_OVERLENGTH));
+	m_check_overlength.SetCheck(nCapValue);
+	SetOverlength();
+	//分隔页
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_SEPARATEPAGE));
+	m_check_separatepage.SetCheck(nCapValue);
+	//一二维码识别
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_CODEIDENTITY));
+	m_check_codeidentity.SetCheck(nCapValue);
+	//预先进纸
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_PREFEED));
+	m_check_prefeed.SetCheck(nCapValue);
+	SetPrefeed();
+	
+	//条码格式
+	m_combo_codestandard.ResetContent();  // 清空内容
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_CODESTANDARD);
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_CODESTANDARD);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWCS_1D:
+			m_combo_codestandard.InsertString(i,"一维"); //英寸
+			break;
+		case TWCS_2D:
+			m_combo_codestandard.InsertString(i,"二维"); //像素
+			break;
+		default:
+			continue;
+		}
+	}
+	m_combo_codestandard.SetCurSel(nCapIndex);
 
+	//连续扫描等待放纸时间
+	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_WAITTIME));
+	m_slider_waittime.SetPos(nCapValue);
+	strText.Format("%d", nCapValue);
+	SetDlgItemText(IDC_BASE_EDIT_WAITTIME, strText);
+	
+	//radio要放在SetDlgItemText后面，否则模板重置时失败
+	//边缘扩充--未扫描部分边角填充颜色
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_EDGE_CORNERCOLOR);
+	m_radio_cornercolor = nCapIndex;
+	//扩充方向
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_EDGE_ORIENTATION);
+	m_radio_edgeorientation = nCapIndex;
+
+	UpdateData(FALSE);
 }
 
 
@@ -586,13 +710,10 @@ BOOL CPage_Advanced::OnInitDialog()
 	int nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_XRESOLUTION);
 	m_resolution = (int)lstCapValuesFlt->at(nCapIndex); //x分辨率
 
-	GetDlgItem(IDC_CHECK_REMOVEDEMOISE)->ShowWindow(FALSE); 
-	GetDlgItem(IDC_CHECK_SHARPEN)->ShowWindow(FALSE);
-	GetDlgItem(IDC_CHECK_MIRROR)->ShowWindow(FALSE);
-	GetDlgItem(IDC_CHECK_REMOVEDESCREEN)->ShowWindow(FALSE);
-	GetDlgItem(IDC_CHECK_REMOVEBACK)->ShowWindow(FALSE);
-	GetDlgItem(IDC_ADVANCED_CHECK_COLORFLIP)->ShowWindow(FALSE);
-	m_check_mdvalue.ShowWindow(FALSE);
+	float fMin,fMax,fStep;
+	m_pUI->GetCapRangeFloat(UDSCAP_WAITTIME, fMin, fMax, fStep);
+	m_slider_waittime.SetRange((int)fMin, (int)fMax);
+	m_slider_waittime.SetTicFreq((int)fStep); //步长
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -648,107 +769,6 @@ void CPage_Advanced::OnAdvanced_Btn_Check_RemovePunch()
 	}
 	m_pUI->SetCapValueInt(UDSCAP_PUNCHHOLEREMOVEL,nval);
 }
-
-
-//锐化图像
-void CPage_Advanced::OnAdvanced_Btn_Check_Sharpen()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_sharpen.GetCheck())
-	{
-		nval = TWSN_AUTO;
-	} 
-	else
-	{
-		nval = TWSN_DISABLE;
-	} 
-	m_pUI->SetCapValueInt(UDSCAP_SHARPEN,nval);
-}
-
-
-//图像镜像处理
-void CPage_Advanced::OnAdvanced_Btn_Check_Mirror()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_mirror.GetCheck())
-	{
-		nval = TWMR_AUTO;
-	} 
-	else
-	{
-		nval = TWMR_DISABLE;
-	}
-	m_pUI->SetCapValueInt(UDSCAP_MIRROR,nval);
-}
-
-
-//去除背景
-void CPage_Advanced::OnAdvanced_Btn_Check_RemoveBack()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_removeback.GetCheck())
-	{
-		nval = TWRB_AUTO;
-	} 
-	else
-	{
-		nval = TWRB_DISABLE;
-	}
-	m_pUI->SetCapValueInt(UDSCAP_REMOVEBACKGROUND,nval);
-}
-
-
-//去除网纹
-void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDescreen()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_removedescreen.GetCheck())
-	{
-		nval = TWDS_AUTO;
-	} 
-	else
-	{
-		nval = TWDS_DISABLE;
-	}
-	m_pUI->SetCapValueInt(UDSCAP_DESCREEN,nval);
-}
-
-
-//去除噪声
-void CPage_Advanced::OnAdvanced_Btn_Check_RemoveDenoise()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_removedenoise.GetCheck())
-	{
-		nval = TWDN_AUTO;
-	} 
-	else
-	{
-		nval = TWDN_DISABLE;
-	}
-	m_pUI->SetCapValueInt(UDSCAP_DENOISE,nval);
-}
-
-void CPage_Advanced::OnAdvanced_Btn_Check_Colorflip()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nval;
-	if (m_check_colorflip.GetCheck())
-	{
-		nval = TWCF_AUTO;
-	} 
-	else
-	{
-		nval = TWCF_DISABLE;
-	}
-	m_pUI->SetCapValueInt(UDSCAP_COLORFLIP,nval);
-}
-
 
 //PreTranslateMessage返回TRUE时，不会把消息发送给窗口函数处理
 BOOL CPage_Advanced::PreTranslateMessage(MSG* pMsg)
@@ -1013,31 +1033,13 @@ void CPage_Advanced::OnClicked_Check_Multifeeddetect()
 	if (m_check_multifeeddetect.GetCheck()) //点中
 	{
 		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,TRUE);
-		m_check_mdvalue.EnableWindow(TRUE);
 	} 
 	else
 	{
 		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,FALSE);
-		m_check_mdvalue.SetCheck(FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,FALSE);
-		m_check_mdvalue.EnableWindow(FALSE);
-	}
-}
-
-
-void CPage_Advanced::OnClicked_Check_MdValue()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if(m_check_mdvalue.GetCheck()) //点中
-	{
-		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,TRUE);
-	} 
-	else
-	{
 		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,FALSE);
 	}
 }
-
 
 BOOL CPage_Advanced::OnSetActive()
 {
@@ -1182,6 +1184,13 @@ void CPage_Advanced::SetScroll()
 	CString str;
 	int nval;
 	float tempinche;
+	float fval;
+	//预先进纸
+	maxinches_prefeed = 500;
+	m_scroll_prefeed.SetScrollRange(0, maxinches_prefeed); 
+	m_edit_prefeed.GetWindowText(str);
+	fval = _ttof(str) * 100.00;
+	m_scroll_prefeed.SetScrollPos((int)fval); //滑动条pos是编辑框值的100倍
 
 	switch(FindUnit(nIndex))
 	{
@@ -1239,6 +1248,13 @@ void CPage_Advanced::SetScroll()
 			nval = _ttof(str) * 100;
 			m_scroll_right.SetScrollPos(nval); 
 
+			//超出预定长度
+			maxinches_overlength = 230;
+			m_scroll_overlength.SetScrollRange(0, maxinches_overlength); 
+			m_edit_overlength.GetWindowText(str); 
+			nval = _ttof(str) * 100;
+			m_scroll_overlength.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
+		
 			break;
 		}
 	case TWUN_CENTIMETERS:
@@ -1300,6 +1316,13 @@ void CPage_Advanced::SetScroll()
 			nval = _ttof(str) * 100;
 			m_scroll_right.SetScrollPos(nval); 
 
+			//超出预定长度
+			maxinches_overlength = (int)ConvertUnits(230, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			m_scroll_overlength.SetScrollRange(0, maxinches_overlength); 
+			m_edit_overlength.GetWindowText(str); 
+			nval = _ttof(str) * 100;
+			m_scroll_overlength.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
+			
 			break;
 		}
 	case TWUN_PIXELS:
@@ -1360,6 +1383,12 @@ void CPage_Advanced::SetScroll()
 			nval = _ttof(str);
 			m_scroll_right.SetScrollPos(nval); 
 
+			//超出预定长度
+			maxinches_overlength = (int)ConvertUnits(230, TWUN_INCHES, TWUN_PIXELS, m_resolution);
+			m_scroll_overlength.SetScrollRange(0, maxinches_overlength); 
+			m_edit_overlength.GetWindowText(str); 
+			nval = _ttof(str) * 100;
+			m_scroll_overlength.SetScrollPos(nval); //滑动条pos是编辑框值的100倍
 			break;
 		}		
 	}//switch	
@@ -1373,7 +1402,7 @@ void CPage_Advanced::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	float editvalue;
 	int nIndex = m_combo_uints.GetCurSel();
 	int nval = FindUnit(nIndex);
-
+	int i;
 	SetScroll(); //初始化范围
 
 	switch(pScrollBar->GetDlgCtrlID())
@@ -1677,7 +1706,71 @@ void CPage_Advanced::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			}	
 		}	
 		SetDlgItemText(IDC_ADVANCED_EDIT_YPOS, str); //设置edit的值
-
+		break;
+		//超出预定长度
+	case IDC_ADVANCED_SCROLLBAR_OVERLENGTH:
+		//高
+		scrollpos = m_scroll_overlength.GetScrollPos(); 
+		switch(nSBCode)
+		{
+		case SB_LINEUP: 
+			scrollpos += 1;
+			break;
+		case SB_LINEDOWN: 
+			scrollpos -= 1; 
+			break;
+		case SB_TOP: //最顶端
+			scrollpos = maxinches_overlength;
+			break;
+		case SB_BOTTOM:
+			scrollpos = 0;
+			break;
+		}
+		// 设置滚动块位置  
+		m_scroll_overlength.SetScrollPos(scrollpos);
+	
+		switch(nval)
+		{
+		case TWUN_INCHES:
+		case TWUN_CENTIMETERS:
+			{
+				editvalue = (float)scrollpos/100.00;
+				str.Format("%0.2f", editvalue);
+				break;
+			}
+		case TWUN_PIXELS:
+			{
+				editvalue = (float)scrollpos;
+				str.Format("%d", scrollpos);
+				break;
+			}	
+		}
+		SetDlgItemText(IDC_ADVANCED_EDIT_OVERLENGTH, str); //设置edit的值
+		break;
+		//预先进纸
+	case IDC_ADVANCED_SCROLLBAR_PREFEED:
+		//高
+		scrollpos = m_scroll_prefeed.GetScrollPos(); 
+		switch(nSBCode)
+		{
+		case SB_LINEUP: 
+			scrollpos += 1;
+			break;
+		case SB_LINEDOWN: 
+			scrollpos -= 1; 
+			break;
+		case SB_TOP: //最顶端
+			scrollpos = maxinches_prefeed;
+			break;
+		case SB_BOTTOM:
+			scrollpos = 0;
+			break;
+		}
+	  // 设置滚动块位置  
+		m_scroll_prefeed.SetScrollPos(scrollpos);
+		editvalue = (float)scrollpos/100.00;
+		str.Format("%0.2f", editvalue);
+		SetDlgItemText(IDC_ADVANCED_EDIT_PREFEED, str); //设置edit的值
 		break;
 
 	default:
@@ -1749,7 +1842,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeXpos()
 			break;
 		}
 	}
-
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_XPOS, fval); 
 
 	m_edit_xpos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -1818,7 +1911,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeYpos()
 			break;
 		}
 	}
-
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_YPOS, fval); 
 
 	m_edit_ypos.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -1886,6 +1979,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeUp()
 			break;
 		}
 	}
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_EDGE_UP, fval);
 
 	m_edit_up.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -1954,6 +2048,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeLeft()
 			break;
 		}
 	}
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_EDGE_LEFT, fval); 
 
 	m_edit_left.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -2021,6 +2116,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight()
 			break;
 		}
 	}
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_EDGE_RIGHT, fval);
 
 	m_edit_right.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -2089,6 +2185,7 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown()
 			break;
 		}
 	}
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
 	m_pUI->SetCapValueFloat(UDSCAP_EDGE_DOWN, fval); 
 
 	m_edit_down.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
@@ -2134,20 +2231,355 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod()
 
 }
 
-void CPage_Advanced::OnAdvanced_RadioBtn_Edgecolor()
+void CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
-	switch(m_radio_edgecolor)
+	switch(m_radio_edgeorientation)
 	{
 	case 0:
-		m_pUI->SetCapValueInt(UDSCAP_EDGE_COLOR,TWEC_WHITE);
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_ORIENTATION,TWEO_IN);
 		break;
 	case 1:
-		m_pUI->SetCapValueInt(UDSCAP_EDGE_COLOR,TWEC_BLACK);
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_ORIENTATION,TWEO_OUT);
 		break;
 	}
 	UpdateData(FALSE);
 }
 
 
+void CPage_Advanced::OnAdvanced_RadioBtn_Cornercolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	switch(m_radio_cornercolor)
+	{
+	case 0:
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_CORNERCOLOR,TWEN_WHITE);
+		break;
+	case 1:
+		m_pUI->SetCapValueInt(UDSCAP_EDGE_CORNERCOLOR,TWEN_BLACK);
+		break;
+	}
+	UpdateData(FALSE);
+}
+
+
+void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Edgecolor()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_edgecolor.GetCurSel();
+	CString strCBText; 
+	m_combo_edgecolor.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("白色") >= 0)
+	{
+		nval = TWEC_WHITE;
+	}
+	else if(strCBText.Find("黑色") >= 0)
+	{
+		nval = TWEC_BLACK; 
+	}
+	else if(strCBText.Find("指定长度、宽度") >= 0)
+	{
+		nval = TWEC_DEFINED; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_EDGE_COLOR,nval); 
+	m_combo_edgecolor.SetCurSel(nIndex);
+}
+
+
+void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Findoverlay()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_mdvalue.GetCurSel();
+	CString strCBText; 
+	m_combo_mdvalue.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("暂停扫描") >= 0)
+	{
+		nval = TWEC_WHITE;
+	}
+	else if(strCBText.Find("继续扫描，结束后提醒") >= 0)
+	{
+		nval = TWMV_CONTINUE;
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,nval); 
+	m_combo_mdvalue.SetCurSel(nIndex);
+}
+
+
+void CPage_Advanced::OnAdvanced_Btn_Check_Overlength()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetOverlength();
+
+	int nval;
+	if (m_check_overlength.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_OVERLENGTH,nval);
+}
+
+
+void CPage_Advanced::OnAdvanced_Btn_Check_Prefeed()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetPrefeed();
+	int nval;
+	if (m_check_prefeed.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_PREFEED,nval);
+}
+
+
+void CPage_Advanced::OnAdvanced_Btn_Check_Separatepage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_separatepage.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_SEPARATEPAGE,nval);
+}
+
+
+void CPage_Advanced::OnAdvanced_Btn_Check_Codeidentity()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_codeidentity.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_CODEIDENTITY,nval);
+}
+
+void CPage_Advanced::OnCbnSelchangeAdvanced_ComboCodestand()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_codestandard.GetCurSel();
+	CString strCBText; 
+	m_combo_codestandard.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("一维") >= 0)
+	{
+		nval = TWCS_1D;
+	}
+	else if(strCBText.Find("二维") >= 0)
+	{
+		nval = TWCS_2D; 
+	}
+	else
+	{}
+
+	m_pUI->SetCapValueInt(UDSCAP_CODESTANDARD,nval); 
+	m_combo_codestandard.SetCurSel(nIndex);
+}
+
+
+void CPage_Advanced::OnNMCustomdrawBase_Slider_Waittime(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据s=
+	CString str;
+	int sldValue = m_slider_waittime.GetPos();  // 获取滑块当前位置
+
+	{
+		m_pUI->SetCapValueFloat(UDSCAP_WAITTIME,(float)sldValue);
+	}	
+
+	str.Format("%d", sldValue);
+	SetDlgItemText(IDC_BASE_EDIT_WAITTIME, str);
+	UpdateData(FALSE);  // 更新控件
+	*pResult = 0;
+}
+
+
+void CPage_Advanced::OnEnChangeBase_Edit_Waittime()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	CString str;
+	m_edit_waittime.GetWindowText(str);
+	int nval = _ttoi(str);
+	m_slider_waittime.SetPos(nval);
+
+	if(m_slider_waittime.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueFloat(UDSCAP_WAITTIME,(float)nval);
+	}	
+
+	m_edit_waittime.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+	UpdateData(FALSE);  // 更新控件
+}
+
+
+void CPage_Advanced::OnEnChangeAdvanced_Edit_Overlength()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	SetScroll();
+
+	CString str;
+	m_edit_overlength.GetWindowText(str);
+	float fval = _ttof(str);
+
+	int nIndex = m_combo_uints.GetCurSel();
+	int nval = FindUnit(nIndex);
+	float editvalue;
+	switch(nval)
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			editvalue = fval * 100;  //需要乘以100
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			editvalue = fval; 
+			break;
+		}
+	}
+
+	if(editvalue > maxinches_overlength)
+	{
+		editvalue = maxinches_overlength;
+	}
+	else if(editvalue < 0)
+	{
+		editvalue = 0;
+	}
+	else{}
+	m_scroll_overlength.SetScrollPos(editvalue);
+	switch(nval)
+	{
+	case TWUN_INCHES:
+	case TWUN_CENTIMETERS:
+		{		
+			fval = (float)(editvalue/100.00);
+			str.Format("%0.2f",fval);	
+			break;
+		}
+	case TWUN_PIXELS:
+		{
+			fval = (float)editvalue;
+			str.Format("%0.2f",(float)editvalue); 
+			break;
+		}
+	}
+	fval = ConvertUnits(fval, nval, TWUN_INCHES, m_resolution);
+	m_pUI->SetCapValueFloat(UDSCAP_OVERLENGTHVALUE, fval); 
+
+	m_edit_overlength.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+}
+
+void CPage_Advanced::SetPrefeed()
+{
+	UpdateData(TRUE);
+	if(m_check_prefeed.GetCheck())
+	{
+		GetDlgItem(IDC_ADVANCED_EDIT_PREFEED)->EnableWindow(TRUE);
+		GetDlgItem(IDC_ADVANCED_SCROLLBAR_PREFEED)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_ADVANCED_EDIT_PREFEED)->EnableWindow(FALSE);
+		GetDlgItem(IDC_ADVANCED_SCROLLBAR_PREFEED)->EnableWindow(FALSE);
+	}
+	UpdateData(FALSE);
+}
+
+void CPage_Advanced::SetOverlength()
+{
+	UpdateData(TRUE);
+	if(m_check_overlength.GetCheck())
+	{
+		GetDlgItem(IDC_ADVANCED_EDIT_OVERLENGTH)->EnableWindow(TRUE);
+		GetDlgItem(IDC_ADVANCED_SCROLLBAR_OVERLENGTH)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_ADVANCED_EDIT_OVERLENGTH)->EnableWindow(FALSE);
+		GetDlgItem(IDC_ADVANCED_SCROLLBAR_OVERLENGTH)->EnableWindow(FALSE);
+	}
+	UpdateData(FALSE);
+}
+
+void CPage_Advanced::OnEnChangeAdvanced_Edit_Prefeed()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 __super::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	UpdateData(TRUE);  // 接收数据
+	SetScroll();
+
+	CString str;
+	m_edit_prefeed.GetWindowText(str);
+	float fval = _ttof(str);
+	float editvalue = fval * 100;  //需要乘以100
+			
+	if(editvalue > maxinches_prefeed)
+	{
+		editvalue = maxinches_prefeed;
+	}
+	else if(editvalue < 0)
+	{
+		editvalue = 0;
+	}
+	else{}
+	m_scroll_prefeed.SetScrollPos(editvalue);
+
+	fval = (float)(editvalue/100.00);
+	str.Format("%0.2f",fval);	
+
+	m_pUI->SetCapValueFloat(UDSCAP_PREFEEDVALUE, fval); 
+	m_edit_prefeed.SetSel(str.GetLength(), str.GetLength(),TRUE);  // 设置编辑框控件范围
+
+	UpdateData(FALSE);  // 更新控件
+	
+}

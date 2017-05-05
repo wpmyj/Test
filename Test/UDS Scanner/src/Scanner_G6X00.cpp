@@ -63,7 +63,7 @@ bool CScanner_G6X00::resetScanner()
 	m_fBrightness         = 0.0; //亮度-0.0
 	m_fThreshold          = 128.0; //阈值-128.0 ，虚拟默认128.G6400默认230
 	m_bMultifeedDetection = true; //重张检测-选中
-	m_bMD_value           = false;
+	m_nMD_value           = TWMV_PAUSE;
 	//Advanced界面
 	m_nOrientation        = TWOR_ROT0; //zhu 纸张方向-纵向
 	m_nStandardsizes      = TWSS_USLETTER; //zhu 对应ICAP_SUPPORTEDSIZES，纸张大小-TWSS_USLETTER
@@ -1090,7 +1090,7 @@ bool CScanner_G6X00::AdjustParameter()
 
 	if (m_bMultifeedDetection)
 	{
-		if (m_bMD_value)  
+		if (m_nMD_value)  
 		{
 			m_scanParameter.ExtScanParam = 0x9018;  //开启重张检测，暂停扫描 
 		} 

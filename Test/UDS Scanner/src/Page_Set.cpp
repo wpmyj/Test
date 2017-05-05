@@ -30,9 +30,8 @@ void CPage_Set::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SET_CHECK_OFFTIME, m_check_offtime);
 	DDX_Control(pDX, IDC_SET_SLIDER_OFFTIME, m_slider_offtime);
 	DDX_Control(pDX, IDC_SET_SLIDER_SAVEPOWER, m_slider_savepower);
-	//  DDX_Control(pDX, IDC_SET_EDIT_SAVEPOWER, m_edit_savepower);
-	//  DDX_Control(pDX, IDC_SET_EDIT_OFFTIME, m_edit_offtime);
 	DDX_Control(pDX, IDC_SET_CHECK_TURNVIDEO, m_check_turnvideo);
+	DDX_Control(pDX, IDC_SET_CHECK_SHOWSCHEDULE, m_check_indicator);
 }
 
 
@@ -41,10 +40,8 @@ BEGIN_MESSAGE_MAP(CPage_Set, CPropertyPage)
 	ON_BN_CLICKED(IDC_SET_CHECK_OFFTIME, &CPage_Set::OnSet_Btn_Check_OffTime)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SET_SLIDER_SAVEPOWER, &CPage_Set::OnNMCustomdrawSet_Slider_SavePower)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SET_SLIDER_OFFTIME, &CPage_Set::OnNMCustomdrawSet_Slider_Offtime)
-//	ON_WM_HSCROLL()
-//ON_EN_CHANGE(IDC_SET_EDIT_SAVEPOWER, &CPage_Set::OnEnChangeSet_Edit_Savepower)
-//ON_EN_CHANGE(IDC_SET_EDIT_OFFTIME, &CPage_Set::OnEnChangeSet_Edit_Offtime)
 ON_BN_CLICKED(IDC_SET_CHECK_TURNVIDEO, &CPage_Set::OnSet_Btn_Check_TurnVideo)
+ON_BN_CLICKED(IDC_SET_CHECK_SHOWSCHEDULE, &CPage_Set::OnSet_Btn_Check_Showschedule)
 END_MESSAGE_MAP()
 
 
@@ -63,6 +60,7 @@ void CPage_Set::SetCapValue(void)
 		case UDSCAP_POWERSAVING: //节电模式
 		case UDSCAP_POWEROFF: //关机时间
 		case UDSCAP_TURNVIDEO: //扫描仪无纸时转高拍仪
+		case CAP_INDICATORS: //显示扫描进度
 			{
 				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
 				break;
@@ -107,6 +105,7 @@ void CPage_Set::SetCapValue(void)
 
 void CPage_Set::UpdateControls(void)
 {
+	UpdateData(TRUE);
 	int nCapValue;
 	int nval;
 	CString strText;
@@ -115,7 +114,7 @@ void CPage_Set::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWERSAVING));
 	m_check_savepower.SetCheck(nCapValue);
 	SetSavePower();
-    m_setmap[UDSCAP_POWERSAVING] = float(nCapValue);
+  m_setmap[UDSCAP_POWERSAVING] = float(nCapValue);
 	//节电模式值
 	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_POWERSAVING_TIME));
 	m_slider_savepower.SetPos(nCapValue);
@@ -126,7 +125,7 @@ void CPage_Set::UpdateControls(void)
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWEROFF));
 	m_check_offtime.SetCheck(nCapValue);
 	SetOffTime();
-    m_setmap[UDSCAP_POWEROFF] = float(nCapValue);
+  m_setmap[UDSCAP_POWEROFF] = float(nCapValue);
 	//关机时间值
 	nCapValue = (int)(m_pUI->GetCapValueFloat(UDSCAP_POWEROFF_TIME));
 	m_slider_offtime.SetPos(nCapValue);
@@ -136,6 +135,12 @@ void CPage_Set::UpdateControls(void)
 	//关机时间
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_TURNVIDEO));
 	m_check_turnvideo.SetCheck(nCapValue);
+	m_setmap[UDSCAP_TURNVIDEO] = float(nCapValue);
+	//显示扫描进度
+	nCapValue = (int)(m_pUI->GetCapValueBool(CAP_INDICATORS));
+	m_check_indicator.SetCheck(nCapValue);
+	m_setmap[CAP_INDICATORS] = float(nCapValue);
+	UpdateData(FALSE);
 }
 
 
@@ -356,4 +361,20 @@ BOOL CPage_Set::OnSetActive()
 	m_pUI->PreViewStatus();
 	UpdateControls();
 	return __super::OnSetActive();
+}
+
+
+void CPage_Set::OnSet_Btn_Check_Showschedule()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if(m_check_indicator.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_setmap[CAP_INDICATORS] = (float)nval;
 }

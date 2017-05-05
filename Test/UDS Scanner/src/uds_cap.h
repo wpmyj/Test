@@ -123,9 +123,7 @@
 #define UDSCAP_COMPRESSQUALITYFB             CAP_CUSTOMBASE+78
 #define UDSCAP_COMPRESSQUALITYBC             CAP_CUSTOMBASE+79
 #define UDSCAP_COMPRESSQUALITYBG             CAP_CUSTOMBASE+80
-#define UDSCAP_COMPRESSQUALITYBB             CAP_CUSTOMBASE+81
-
-#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+82  /**< 色彩校正 */  
+#define UDSCAP_COMPRESSQUALITYBB             CAP_CUSTOMBASE+81 
 
 //新界面增加参数
 //（图像处理部分）
@@ -139,6 +137,31 @@
 #define UDSCAP_BACKPROMODE                   CAP_CUSTOMBASE+88 /**< 背景处理模式 */
 #define UDSCAP_BACKPROFILLCOLOR              CAP_CUSTOMBASE+89 /**< 背景处理填补颜色 */
 
+#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+82  /**< 色彩校正 */ 
+#define UDSCAP_COLORCORRECTFC                CAP_CUSTOMBASE+90  /**<  多流色彩优化*/
+#define UDSCAP_COLORCORRECTBC                CAP_CUSTOMBASE+91  /**<  多流色彩优化*/
+
+#define UDSCAP_NATIVESAVEFC                  CAP_CUSTOMBASE+92  /**<  多流本地保存*/
+#define UDSCAP_NATIVESAVEFG                  CAP_CUSTOMBASE+93  /**<  本地保存*/
+#define UDSCAP_NATIVESAVEBC                  CAP_CUSTOMBASE+94  /**<  本地保存*/
+#define UDSCAP_NATIVESAVEBG                  CAP_CUSTOMBASE+95  /**<  本地保存*/
+
+#define UDSCAP_EDGE_ORIENTATION              CAP_CUSTOMBASE+96 /**<  边缘扩充方向*/
+#define UDSCAP_EDGE_CORNERCOLOR              CAP_CUSTOMBASE+97 /**<  边缘扩充--未扫描部分边角填充颜色*/
+
+#define UDSCAP_OVERLENGTH                    CAP_CUSTOMBASE+98  /**<  超出预定长度检测*/
+#define UDSCAP_OVERLENGTHVALUE               CAP_CUSTOMBASE+99  /**<  超出预定长度检测值*/
+
+#define UDSCAP_SEPARATEPAGE                  CAP_CUSTOMBASE+100  /**<  分隔页*/
+
+#define UDSCAP_CODEIDENTITY                  CAP_CUSTOMBASE+101  /**<  一二维码识别*/
+#define UDSCAP_CODESTANDARD                  CAP_CUSTOMBASE+102  /**<  条码格式*/
+
+#define UDSCAP_PREFEED                       CAP_CUSTOMBASE+103  /**<  预先进纸*/
+#define UDSCAP_PREFEEDVALUE                  CAP_CUSTOMBASE+104  /**<  预先进纸值*/
+
+#define UDSCAP_WAITTIME                      CAP_CUSTOMBASE+105 /**<  连续扫描等待放纸时间*/
+//end 2.0版本
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
 #define TWBZ_DYNATHRESHOLD         0
@@ -262,6 +285,7 @@
 /* UDSCAP_EDGE_COLOR values (EC_ means EDGE_COLOR )扩充颜色*/
 #define TWEC_WHITE                 0  //白色
 #define TWEC_BLACK                 1  //黑色
+#define TWEC_DEFINED               2  //自定义
 
 /* UDSCAP_NOCOLOR values (NC_ means NOCOLOR )非彩色时扫描*/
 #define TWNC_GRAY                  0  //灰阶
@@ -301,9 +325,25 @@
 #define TWBF_AUTO                    0  //自动
 #define TWBF_WHITE                   1  //白色 
 
-        
+/*ICAP_ROTATION values (BF_ means UDSCAP_BACKPROFILLCOLOR )图像旋转添加值*/
+#define TWOR_DEFINED                 7  //自定义
 
-            
+/*UDSCAP_EDGE_ORIENTATION values (EO_ means EDGE_ORIENTATION )边缘扩充方向*/
+#define TWEO_IN                      0  //向内
+#define TWEO_OUT                     1  //向外
+
+/*UDSCAP_EDGE_CORNERCOLOR values (EN_ means EDGE_CORNERCOLOR )边缘扩充--未扫描部分边角填充颜色*/
+#define TWEN_WHITE                     0  //白色
+#define TWEN_BLACK                     1  //黑色
+
+/*UDSCAP_MULTIFEEDDETECT_VALUE values (MV_ means MULTIFEEDDETECT_VALUE )重张选择值*/
+#define TWMV_PAUSE                     0  //暂停
+#define TWMV_CONTINUE                  1  //继续扫描，扫描完后提示
+
+/*UDSCAP_CODESTANDARD values (CS_ means CODESTANDARD )重张选择值*/
+#define TWCS_1D                        0  //1D
+#define TWCS_2D                        1  //2D
+          
 
           
           

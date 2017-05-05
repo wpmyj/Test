@@ -44,38 +44,16 @@ private:
 	CBase_Tab_BW m_dlg_bw;
 
 public:
-	CComboBox m_combo_resolution;
-	
-	CComboBox m_combo_compress;	
-	CSliderCtrl m_slider_compressvalue;	
-	CEdit m_edit_compressvalue;
-
-//	CComboBox m_combo_nocolor;
 	CEdit m_edit_colorthres;
 	CSliderCtrl m_slider_colorthres;
-
 	CStatic m_staic_otherdialog;
-//	CButton m_check_nocolor;
-
-//  CButton m_radio_color;
 	int m_radio_graybw;
+	CButton m_radio_color;
 
 	virtual BOOL OnInitDialog();
-	afx_msg void OnCbnSelchangeTabautocolor_Combo_Compress();
-	afx_msg void OnNMCustomdrawTabautocolor_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeTabautocolor_Edit_Compressvalue();
-	afx_msg void OnCbnSelchangeTabautocolor_Combo_Resolution();
-	
-//	afx_msg void OnCbnSelchangeTabautocolor_Combo_Nocolor();
 	afx_msg void OnEnChangeTabautocolor_Edit_Colorthres();
 	afx_msg void OnNMCustomdrawTabautocolor_Slider_Colorthres(NMHDR *pNMHDR, LRESULT *pResult);
-	
-	
-//	afx_msg void OnBase_Btn_Check_Nocolor();
 	afx_msg void OnAuotoColor_RadioBtn_Nocolor_Gray();
-//	afx_msg void OnBase_Btn_Check_color();
-	
-	CButton m_radio_color;
 	afx_msg void OnBase_Btn_Radio_color();
 	afx_msg void OnAutocolor_Btn_Color();
 	afx_msg void OnAutocolor_Btn_NocolorGray();

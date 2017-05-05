@@ -48,7 +48,6 @@ public:
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void SetCapValue(void);  ///<设置参数
 	void InitBasemap(void); ///<初始化Basemap，主要往里面增加CAP_DUPLEXENABLED的初始化
-	void SetFlat(void); ///< 设置扫描模式为平板时，只能为单面。
 
 	void SetMultistream(void); ///<设置多流输出配套参数
 
@@ -64,7 +63,6 @@ public:
 	void SetSpiltimage();
 	void SetBlank(void);
 	void SetCapMulti(); //设置多流生效
-	void SetTabCtrl(); //设置图像类型选择时，Tab选中哪一页
 
 	void SetAutoFrontColor();
 	void SetAutoBackColor();
@@ -80,11 +78,10 @@ public:
 	void UpdateButton(int nIDCtrl, CString str);///<更新按钮背景、字的颜色
 	void SwitchCheckBtn(); ///<不选中checkbox时，循环判断其他几个几个checkbox的状态。
 
-private:
-	CComboBox m_combo_colormode;  ///< 图像类型:  黑白/灰度/彩色
+	void SetRotate(); ///<设置旋转模式是否可用
+	void SetBackProcess(); ///<设置背景处理下的模式与强度
 
-	int m_radiobtn_scanmode; ///< 扫描方式:  ADF自动进纸器/Flatbed平板 
-	int m_radiobtn_duplex; ///<单双面：单面、双面、多流
+private:
 
 	CButton m_check_frontcolor;
 	CButton m_check_frontgray;
@@ -108,8 +105,6 @@ private:
 
 	CComboBox m_combo_rotate;
 	CComboBox m_combo_splitimage;
-	CSliderCtrl m_slider_gamma;
-	CEdit m_edit_gamma;
 	CSliderCtrl m_slider_removeblank;
 	CEdit m_edit_removeblank;
 	CButton m_check_removeblank;
@@ -123,16 +118,20 @@ private:
 
 	CMFCButton *m_mfcBtn;
 
-	CComboBox m_combo_colorcorrect;
+	CComboBox m_combo_joinimage;
+	CComboBox m_combo_backprocess;
+	CComboBox m_combo_backpromode;
+	CEdit m_edit_backprostrenth;
+	CSliderCtrl m_slider_backprostrenth;
 
-	afx_msg void OnCbnSelchangeBase_Combo_Colormode();
+	int m_radiobtn_rotatemode;
+
+	int m_radiobtn_backimgrotate;
+	int m_radiobtn_colorflip;
+	CButton m_check_mirror;
+
 
 	afx_msg void OnBase_Btn_Newprofile();
-
-	afx_msg void OnBase_RadioBtn_Scanmode_Auto();
-	afx_msg void OnBase_RadioBtn_Scanmode_Flatbed();
-
-	afx_msg void OnBase_RadioBtn_Duplex();
 
 	afx_msg void OnBase_Btn_Check_FrontColor();
 	afx_msg void OnBase_Btn_Check_FrontGray();
@@ -147,8 +146,6 @@ private:
 
 	afx_msg void OnCbnSelchangeBase_Combo_Rotate();	
 	afx_msg void OnCbnSelchangeBase_Combo_SpiltImage();	
-	afx_msg void OnNMCustomdrawBase_Slider_Gamma(NMHDR *pNMHDR, LRESULT *pResult);	
-	afx_msg void OnEnChangeBase_Edit_Gamma();	
 	afx_msg void OnNMCustomdrawBase_Slider_Removeblank(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeBase_Edit_Removeblank();	
 	afx_msg void OnBase_Btn_Check_RemoveBlank();
@@ -162,8 +159,17 @@ private:
 
 	afx_msg void OnBase_Btn_RotateShow();
 	afx_msg void OnBase_Btn_SpiltShow();
-	afx_msg void OnCbnSelchangeBase_Combo_Colorcorrect();
 
+	afx_msg void OnCbnSelchangeBase_Combo_Joinimg();
+	afx_msg void OnCbnSelchangeBase_Combo_Backprocess();
+	afx_msg void OnCbnSelchangeBase_Combo_BackproMode();
+	afx_msg void OnNMCustomdrawBase_Slider_BackkproStrength(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeBase_Edit_BackkproStrength();
+
+	afx_msg void OnBase_RadioBtn_Rotatemode_Fast();	
+	afx_msg void OnBase_RadioBtn_Backrotate_Same();
+	afx_msg void OnBase_RadioBtn_Colorflip_Positive();
+	afx_msg void OnBase_Btn_Check_Hozimirror();
 public:
 	/** 父类指针*/
 	CPage_Custom* m_pAdPage;		
@@ -176,15 +182,5 @@ public:
 	CBase_Tab_Rotateshow *m_pTabRotateshow;  //4
 	CBase_Tab_Spiltshow *m_pTabSpiltshow;  //5
 	CBase_AutoColor *m_pTabAutoColor;  //6
-
-	CComboBox m_combo_joinimage;
-	CComboBox m_combo_backprocess;
-	CComboBox m_combo_backpromode;
-	CEdit m_edit_backprostrenth;
-	CSliderCtrl m_slider_backprostrenth;
-	afx_msg void OnCbnSelchangeBase_Combo_Joinimg();
-	afx_msg void OnCbnSelchangeBase_Combo_Backprocess();
-	afx_msg void OnCbnSelchangeBase_Combo_BackproMode();
-	afx_msg void OnNMCustomdrawBase_Slider_BackkproStrength(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeBase_Edit_BackkproStrength();
+	
 };

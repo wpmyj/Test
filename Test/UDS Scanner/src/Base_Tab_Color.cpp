@@ -31,8 +31,9 @@ void CBase_Tab_Color::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TABCOLOR_EDIT_BRIGHTNESS, m_edit_brightness);
 	DDX_Control(pDX, IDC_TABCOLOR_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_TABCOLOR_COMBO_RESOLUTION, m_combo_resolution);
-	//  DDX_Radio(pDX, IDC_TABCOLOR_RADIO_COMPRESS_AUTO, m_radio_compress);
 	DDX_Control(pDX, IDC_TABCOLOR_COMBO_COMPRESSQUALITY, m_combo_compressquality);
+	DDX_Control(pDX, IDC_TABCOLOR_COMBO_COLOROPTI, m_combo_colorcorrect);
+	DDX_Control(pDX, IDC_BASETAB_COLOR_CHECK_NATIVESAVE, m_check_nativesave);
 }
 
 
@@ -43,10 +44,10 @@ BEGIN_MESSAGE_MAP(CBase_Tab_Color, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABCOLOR_SLIDER_BRIGHTNESS, &CBase_Tab_Color::OnNMCustomdrawTabcolor_Slider_Brightness)
 	ON_EN_CHANGE(IDC_TABCOLOR_EDIT_CONTRAST, &CBase_Tab_Color::OnEnChangeTabcolor_Edit_Contrast)
 	ON_EN_CHANGE(IDC_TABCOLOR_EDIT_BRIGHTNESS, &CBase_Tab_Color::OnEnChangeTabcolor_Edit_Brightness)
-//	ON_BN_CLICKED(IDC_TABCOLOR_RADIO_COMPRESS_AUTO, &CBase_Tab_Color::OnTabColor_RadioBtn_Compress)
-//	ON_BN_CLICKED(IDC_TABCOLOR_RADIO_COMPRESS_JPEG, &CBase_Tab_Color::OnTabColor_RadioBtn_Compress)
 	ON_CBN_SELCHANGE(IDC_TABCOLOR_COMBO_RESOLUTION, &CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Resolution)
 	ON_CBN_SELCHANGE(IDC_TABCOLOR_COMBO_COMPRESSQUALITY, &CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Compressquality)
+	ON_CBN_SELCHANGE(IDC_TABCOLOR_COMBO_COLOROPTI, &CBase_Tab_Color::OnCbnSelchangeBase_ComboColoropti)
+	ON_BN_CLICKED(IDC_BASETAB_COLOR_CHECK_NATIVESAVE, &CBase_Tab_Color::OnBaseTab_Color_Btn_Check_Nativesave)
 END_MESSAGE_MAP()
 
 
@@ -198,30 +199,67 @@ void CBase_Tab_Color::UpdateControls(void)
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_TABCOLOR_EDIT_COMPRESSVALUE,strText);
 
+	// 色彩优化
+	m_combo_colorcorrect.ResetContent(); 
+	lstCapValues = m_pUI->GetValidCap(UDSCAP_COLORCORRECT);
+	for(unsigned int i=0; i<lstCapValues->size();i++)
+	{
+		switch(lstCapValues->at(i))
+		{
+		case TWCC_AUTO:
+			m_combo_colorcorrect.InsertString(i,"自动"); 
+			break;
+		case TWCC_IMG:
+			m_combo_colorcorrect.InsertString(i,"图片"); 
+			break;
+		case TWCC_WORD:
+			m_combo_colorcorrect.InsertString(i,"文字"); 
+			break;
+		case TWCC_IMGTEXT:
+			m_combo_colorcorrect.InsertString(i,"图文模式"); 
+			break;
+		default:
+			continue;
+		}
+	}
 	if(MultiCapValue == 0) //多流未选中
 	{
-		nCapIndex = m_pUI->GetCurrentCapIndex(ICAP_COMPRESSION);
+		nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COLORCORRECT);
 	}
 	else
 	{
 		switch(basebutton)
 		{
 		case 0: //正面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONFC);
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COLORCORRECTFC);
 			break;
 		case 1: //背面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONBC);
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COLORCORRECTBC);
 			break;
-		}		
+		}
 	}
-	//if(nCapIndex==2)
-	//{
-	//	m_radio_compress = nCapIndex - 1; //0为自动、1为JPEG,2为G4
-	//}	
-	//else
-	//{
-	//	m_radio_compress = nCapIndex; //0为自动、1为JPEG，2为G4
-	//}
+	m_combo_colorcorrect.SetCurSel(nCapIndex);
+
+	//本地保存
+	if(MultiCapValue == 0) //多流未选中
+	{
+		nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFC);
+		m_check_nativesave.SetCheck(FALSE);
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0: //正面
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFC);
+			break;
+		case 1: //背面
+			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEBC);
+			break;
+		}
+		m_check_nativesave.SetCheck(nCapIndex);
+	}
+	
 }
 
 
@@ -254,49 +292,6 @@ void CBase_Tab_Color::InitSliderCtrl()
 	m_slider_contrast.SetTicFreq((int)fStep);  // 设置滑动条刻度的频度为1个单位，很重要，若不加这句滑块初始位置不变
 
 }
-
-
-//void CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Compress()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	int nIndex = m_combo_compress.GetCurSel();
-//	CString strCBText; 
-//	m_combo_compress.GetLBText( nIndex, strCBText);
-//	int nval;
-//	if (strCBText.Find("自动") >= 0)
-//	{
-//		nval = TWCP_NONE;
-//	}
-//	else if(strCBText.Find("JPEG") >= 0)
-//	{
-//		nval = TWCP_JPEG; 
-//	}
-//	else if(strCBText.Find("G4") >= 0)
-//	{
-//		nval = TWCP_GROUP4; 
-//	} 
-//	else
-//	{}
-//
-//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-//	if(MultiCapValue == 0) //多流未选中
-//	{ 
-//		m_pUI->SetCapValueInt(ICAP_COMPRESSION, nval); 
-//	}
-//	else
-//	{
-//		switch(basebutton)
-//		{
-//		case 0: //正面
-//			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFC, nval); 
-//			break;
-//		case 1: //背面
-//			m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBC, nval); 
-//			break;
-//		}
-//	}
-//	m_combo_compress.SetCurSel(nIndex);
-//}
 
 
 void CBase_Tab_Color::OnNMCustomdrawTabcolor_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult)
@@ -543,56 +538,6 @@ void CBase_Tab_Color::OnEnChangeTabcolor_Edit_Contrast()
 	UpdateData(FALSE);  // 更新控件
 }
 
-
-//void CBase_Tab_Color::OnTabColor_RadioBtn_Compress()
-//{
-//	// TODO: 在此添加控件通知处理程序代码
-//	UpdateData(TRUE); //将radio的状态值更新给关联的变量
-//	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-//	switch(m_radio_compress)
-//	{
-//	case 0:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_NONE); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFC,TWCP_NONE); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBC,TWCP_NONE); 
-//				break;
-//			}
-//		}
-//
-//		break;
-//	case 1:
-//		if(MultiCapValue == 0) //多流未选中
-//		{
-//			m_pUI->SetCapValueInt(ICAP_COMPRESSION,TWCP_JPEG); 
-//		}
-//		else
-//		{
-//			switch(basebutton)
-//			{
-//			case 0: //正面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONFC,TWCP_JPEG); 
-//				break;
-//			case 1: //背面
-//				m_pUI->SetCapValueInt(UDSCAP_COMPRESSIONBC,TWCP_JPEG); 
-//				break;
-//			}
-//		}
-//		break;
-//	}
-//	UpdateData(FALSE);
-//}
-
-
 void CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Compressquality()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -601,17 +546,28 @@ void CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Compressquality()
 	CString strCBText; 
 	m_combo_compressquality.GetLBText( nIndex, strCBText);
 	int nval;
+	CString str;
+
 	if (strCBText.Find("最佳") >= 0) 
 	{
 		nval = TWCQ_BEST;	
+		m_slider_compressvalue.SetPos(100);
+		str.Format("%d", 100);
+		SetDlgItemText(IDC_TABCOLOR_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("良好") >= 0) 
 	{
 		nval = TWCQ_FINE; 
+		m_slider_compressvalue.SetPos(80);
+		str.Format("%d", 80);
+		SetDlgItemText(IDC_TABCOLOR_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("一般") >= 0) 
 	{
 		nval = TWCQ_JUST; 
+		m_slider_compressvalue.SetPos(60);
+		str.Format("%d", 60);
+		SetDlgItemText(IDC_TABCOLOR_EDIT_COMPRESSVALUE, str);
 	}
 	else if(strCBText.Find("自定义") >= 0) 
 	{
@@ -638,6 +594,7 @@ void CBase_Tab_Color::OnCbnSelchangeTabcolor_Combo_Compressquality()
 		}
 	}
 	m_combo_compressquality.SetCurSel(nIndex);
+
 	SetCompressValue();
 }
 
@@ -653,5 +610,82 @@ void CBase_Tab_Color::SetCompressValue()
 	{
 		m_slider_compressvalue.EnableWindow(FALSE);
 		m_edit_compressvalue.EnableWindow(FALSE);
+	}
+}
+
+void CBase_Tab_Color::OnCbnSelchangeBase_ComboColoropti()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_combo_colorcorrect.GetCurSel();
+	CString strCBText; 
+	m_combo_colorcorrect.GetLBText( nIndex, strCBText);
+	int nval;
+	if (strCBText.Find("自动") >= 0)
+	{
+		nval = TWCC_AUTO;
+	}
+	else if(strCBText.Find("图片") >= 0)
+	{
+		nval = TWCC_IMG; 
+	}
+	else if(strCBText.Find("文字") >= 0)
+	{
+		nval = TWCC_WORD; 
+	}
+	else if(strCBText.Find("图文模式") >= 0)
+	{
+		nval = TWCC_IMGTEXT;
+	}
+	else
+	{}
+
+	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(MultiCapValue == 0) //多流未选中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_COLORCORRECT,nval); 
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0: //正面
+			m_pUI->SetCapValueInt(UDSCAP_COLORCORRECTFC,nval); 
+			break;
+		case 1: //背面
+			m_pUI->SetCapValueInt(UDSCAP_COLORCORRECTBC,nval); 
+			break;
+		}
+	}
+	m_combo_colorcorrect.SetCurSel(nIndex);
+}
+
+void CBase_Tab_Color::OnBaseTab_Color_Btn_Check_Nativesave()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_nativesave.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
+	if(MultiCapValue == 0) //多流未选中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEFC,FALSE);
+	}
+	else
+	{
+		switch(basebutton)
+		{
+		case 0: //正面
+			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEFC,nval); 
+			break;
+		case 1: //背面
+			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval); 
+			break;
+		}
 	}
 }

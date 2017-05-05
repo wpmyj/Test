@@ -43,10 +43,14 @@ public:
 	afx_msg void OnCbnSelchangeTabbw_Combo_Binarization();
 	afx_msg void OnEnChangeTabbw_Edit_NoiseNum();
 	afx_msg void OnEnChangeTabbw_Edit_NoiseRange();
-//	afx_msg void OnTabBW_RadioBtn_Compress();
-
-//	int m_radio_compress;
-
+	afx_msg void OnCbnSelchangeTabBW_Combo_FilterColor();
+	afx_msg void OnCbnSelchangeTabBW_Combo_FilterMode();
+	afx_msg void OnNMCustomdrawTabBW_Slider_Filterlevel(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabBW_Edit_Filterlevel();	
+	afx_msg void OnTabBW_RadioBtn_CompressG4();
+	afx_msg void OnCbnSelchangeTabBW_Combo_Compressquality();
+	afx_msg void OnNMCustomdrawTabbw_Slider_Compressionvalue(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeTabbw_Edit_Compressvalue();
 	CComboBox m_combo_resolution;
 
 	CSliderCtrl m_slider_brightness;
@@ -60,22 +64,22 @@ public:
 	CScrollBar m_scroll_noisenum;
 	CScrollBar m_scroll_noiserange;
 
+	CComboBox m_combo_filtercolor;
+	CComboBox m_combo_filtermode;
+	CEdit m_edit_filterlevel;
+	CSliderCtrl m_slider_filterlevel;
+
+	CComboBox m_combo_compressquality;
+	int m_radio_compress;
+
+	CSliderCtrl m_slider_compressvalue;
+	CEdit m_edit_compressvalue;
+
 public:
 	void UpdateControls(void);  ///< 更新控件状态
 	void InitSliderCtrl();  ///< 初始化滑动条控件
 	void SetBinarization(void);
 	void SetScroll();
-
-	CComboBox m_combo_filtercolor;
-	CComboBox m_combo_filtermode;
-	CEdit m_edit_filterlevel;
-	CSliderCtrl m_slider_filterlevel;
-	CComboBox m_combo_compressquality;
-
-	afx_msg void OnCbnSelchangeTabBW_Combo_FilterColor();
-	afx_msg void OnCbnSelchangeTabBW_Combo_FilterMode();
-	afx_msg void OnNMCustomdrawTabBW_Slider_Filterlevel(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnEnChangeTabBW_Edit_Filterlevel();	
-	afx_msg void OnCbnSelchangeTabBW_Combo_Compressquality();
+	void SetCompressValue();
 
 };
