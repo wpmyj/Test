@@ -40,4 +40,24 @@
 #include <afxdlgs.h>
 #include <afxdisp.h>
 
+/**  用户界面线程消息 */    
+#define   WM_THREADINFO WM_USER+50 
+/** 主线程消息 */    
+#define   WM_MAINTHREAD WM_USER+51  
 
+/** 用户界面线程消息参数 */    
+#define   INDICATORS_SHOWUI    0
+#define   INDICATORS_PROGRESS  1
+#define   INDICATORS_PAGEINFO  2
+#define   INDICATORS_CANCEL    3
+#define   INDICATORS_DESTROY   4
+#define   INDICATORS_SPEED     5
+#define   INDICATORS_DS        6
+
+/** 扫描进度页信息 */    
+struct PageInfo
+{
+	CString strPageCount;
+	CString strPageSize;
+	CString strTotalSize;
+};

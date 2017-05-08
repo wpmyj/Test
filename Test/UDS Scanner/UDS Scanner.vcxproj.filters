@@ -201,6 +201,12 @@
     <ClCompile Include="src\Base_Tab_Spiltshow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Dlg_Indicators.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShowIndicators.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UDS Scanner.h">
@@ -366,6 +372,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Base_Tab_Spiltshow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dlg_Indicators.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShowIndicators.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

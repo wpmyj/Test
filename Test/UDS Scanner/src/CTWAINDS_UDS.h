@@ -16,6 +16,8 @@
 #include "CScanner_OpenCV.h"
 #include "Camera_CxImage.h"
 #include "Scanner_G6X00.h"
+//#include "Dlg_Indicators.h"
+//#include <time.h>
 
 /** 数据源接口唯一标识  */
 #define kCUSTOMDSGUI "{B4FAF845-1383-4036-AEDC-17C3968188B4}"
@@ -193,7 +195,7 @@ public:
   CTWAINContainer* getICAP_BITDEPTH();
   
   bool StartScanning();
-  bool StopScanning(){m_bCanceled = true; return true;};
+  bool StopScanning(){m_bCanceled = true;return true;};
   bool ReadCustomDSdata(stringstream &DsData);
   bool StoreCustomDSdata(stringstream &DsData);
   bool StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx, TW_UINT16 unContType);
@@ -242,6 +244,21 @@ public:
 	*/
 	//void GetImagePathFromINI();
 
+	/**
+	*  @brief  将图片大小转化为对应字符串
+	*  @note 1024 --> "1.00 KBYTES"
+	*  @param[in]  _dwSize 图片大小，单位BYTES
+	*  @param[out] _strSize 对应的字符串 
+	*/
+	void FormatSize(const DWORD _dwSize, CString& _strSize);
+
+	/**
+	*  @brief  更新扫描进度对话框(扫描页相关信息)
+	*/
+	void UpdatePageInfo();
+
+	void CancelScan();
+
 protected:
 	//CScanner_FreeImage        m_Scanner;                 /**< The main scanner. */
 	//CScanner_G6400            m_Scanner;                 /**< The main scanner. */   
@@ -253,6 +270,14 @@ protected:
   TW_IDENTITY m_AppID;
   bool                        m_bCanceled;
   CTWAIN_UI                  *m_pGUI;                   /**< This is the main  UI dialog */
+	
+	// 扫描进度相关变量
+	DWORD                       m_dwTotalSize;            /**< 图片总共大小 */
+	DWORD                       m_dwPageCount;            /**< 扫描页数 */
+	bool                        m_bShowIndicators;        /**< 是否显示扫描进度 */
+	CWinThread                 *m_pUIThread;              /**< 用户界面线程，用于显示扫描进度对话框 */
+	PageInfo                    m_pageInfo;               /**< 扫描页信息 */
+
 };
 
 

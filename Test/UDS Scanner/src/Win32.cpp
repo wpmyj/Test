@@ -78,7 +78,7 @@ static HMODULE GetCurrentModule()
 
   HWND g_hwndDLG = NULL;   
 
-
+	extern TW_IDENTITY g_myIdentity_Chinese;
 // Globals
 /**
 *  @brief  获取指定文件的绝对路径.
@@ -151,7 +151,19 @@ int GetDeviceNumberFromINI()
 	return nDeviceNumber;
 }
 
-
+// Globals
+/**
+* 全局函数，通过INI文件获取当前调用的DS名称
+*/
+bool GetProductNameFromINI(CString& _strName)
+{
+	int nMaxLength = 34;
+	TCHAR szINIPath[MAX_PATH];  // INI文件路径
+	GetFilePath(FILENAME_INI,szINIPath);
+	GetPrivateProfileString(INI_APP_DEVICE,INI_KEY_DSNAME,MB_CAPTION,
+		_strName.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	return true;
+}
 //////////////////////////////////////////////////////////////////////////////
 // This is the main entry point. This function is dlsym'd by the DSM.
 
@@ -167,6 +179,13 @@ DS_Entry( pTW_IDENTITY _pOrigin,
           TW_MEMREF    _pData)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());  // 很重要，导出函数必须添加这一句
+
+	// 从配置文件获取DS名称
+	{
+		CString strDSName;
+		GetProductNameFromINI(strDSName);
+		strcpy( CTWAINDS_Base::m_TheIdentity.ProductName, strDSName.GetBuffer() );
+	}
 
 	//g_nDeviceNumber = GetDeviceNumberFromINI();  // 保存INI中的设备编号
 

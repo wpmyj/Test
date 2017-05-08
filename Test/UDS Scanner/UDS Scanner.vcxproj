@@ -206,6 +206,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
     <ClCompile Include="src\CTWAINDS_UDS.cpp" />
     <ClCompile Include="src\Dlg_Device.cpp" />
+    <ClCompile Include="src\Dlg_Indicators.cpp" />
     <ClCompile Include="src\Dlg_Profile.cpp" />
     <ClCompile Include="src\Dlg_Rename.cpp" />
     <ClCompile Include="src\Dlg_Video.cpp" />
@@ -224,6 +225,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClCompile Include="src\PngButton.cpp" />
     <ClCompile Include="src\Scanner_G6X00.cpp" />
     <ClCompile Include="src\Sheet_Scanner.cpp" />
+    <ClCompile Include="src\ShowIndicators.cpp" />
     <ClCompile Include="src\TWAINContainer.cpp" />
     <ClCompile Include="src\TWAINContainerBool.cpp" />
     <ClCompile Include="src\TWAINContainerFix32.cpp" />
@@ -263,6 +265,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClInclude Include="src\CTWAINDS_Base.h" />
     <ClInclude Include="src\CTWAINDS_UDS.h" />
     <ClInclude Include="src\Dlg_Device.h" />
+    <ClInclude Include="src\Dlg_Indicators.h" />
     <ClInclude Include="src\Dlg_Profile.h" />
     <ClInclude Include="src\Dlg_Rename.h" />
     <ClInclude Include="src\Dlg_Video.h" />
@@ -283,6 +286,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClInclude Include="src\Device_Base.h" />
     <ClInclude Include="src\Scanner_G6X00.h" />
     <ClInclude Include="src\Sheet_Scanner.h" />
+    <ClInclude Include="src\ShowIndicators.h" />
     <ClInclude Include="src\TWAINContainer.h" />
     <ClInclude Include="src\TWAINContainerBool.h" />
     <ClInclude Include="src\TWAINContainerFix32.h" />

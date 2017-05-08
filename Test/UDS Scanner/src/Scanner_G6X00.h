@@ -10,6 +10,8 @@
 #include "GL1.h"
 #include "opencv.hpp"
 #include "CommonDS.h"
+#include <time.h>
+//#include "Dlg_Indicators.h"
 
 using namespace std;
 using namespace cv;
@@ -91,6 +93,11 @@ public:
 	*  @retval false 表示失败  
 	*/
   bool RunScan();
+
+	/**
+	*  @brief  获取当前扫描页大小  
+	*/
+	void GetCurrentPageSize(DWORD& _dwSize);
 
 protected:
 	/**
@@ -352,7 +359,7 @@ protected:
 	SetBatchScanParameterProc          SetBatchScanParameter;
 	SetSpeedModeProc                   SetSpeedMode;
 	SetNVRAMValueProc                  SetNVRAMValue;  // 设置待机时间、关机时间
-
+	DoCancelProc                       DoCancel;
 protected:
 	short             m_nDocCount;              /**< number of documents waiting to transfer */
 	short             m_nMaxDocCount;           /**< Max number of documents waiting to transfer */
@@ -393,5 +400,7 @@ private:
 	int   m_nMultiTotal;  /**< 多流总的纸张数 */
 	int   m_nMultiBack;   /**< 多流背面纸张数 */
 	int   m_nMultiFront;  /**< 多流正面纸张数 */
+public:
+	bool  m_bCancel;
 };
 

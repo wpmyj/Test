@@ -6,9 +6,7 @@
 
 #include "ximage.h"  // CXImage
 
-#define DPI 100
-#define SCANWIDTH_INCH   8.27
-#define SCANLENGTH_INCH  /*118*/11.69 // 长纸模式
+
 
 
 extern HWND g_hwndDLG;
@@ -133,6 +131,15 @@ bool CScanner_G6X00::resetScanner()
 
 	m_nNoColor            = TWNC_GRAY;
 	m_fColorThres         = 37.0;
+
+	m_bCancel             = false;
+	//m_dTotalSize          = 0.0;
+	//m_clock_start         = 0;
+	//m_clock_finish        = 0; 
+	//m_duration            = 0.0;
+	//m_bStart              = false;
+	//m_dlgIndicators       = NULL;
+
 
 	for(int i=0; i<6; i++)
 	{
@@ -935,6 +942,12 @@ bool CScanner_G6X00::LoadDLL()
 		return false;
 	}
 
+	DoCancel = (DoCancelProc)GetProcAddress(m_hDLL, "DoCancel");
+	if(DoCancel == NULL)
+	{
+		::MessageBox(g_hwndDLG, TEXT("Load DoCancel Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
 	if (FALSE == InitializeDriver())
 	{
 		::MessageBox(g_hwndDLG, TEXT("Run InitializeDriver Failed!"), MB_CAPTION, MB_OK);
@@ -1090,7 +1103,7 @@ bool CScanner_G6X00::AdjustParameter()
 
 	if (m_bMultifeedDetection)
 	{
-		if (m_nMD_value)  
+		if (TWMV_PAUSE == m_nMD_value)  
 		{
 			m_scanParameter.ExtScanParam = 0x9018;  //开启重张检测，暂停扫描 
 		} 
@@ -2761,6 +2774,13 @@ bool CScanner_G6X00::RunScan()
 		m_pGammaTable = NULL;
 	}
 
+	if (true == m_bCancel)
+	{
+		m_nDocCount = 0;
+		//DoCancel();
+		//StopScan(); 
+		EndScanJob();
+	}
 	return true;
 }
 
@@ -2969,4 +2989,8 @@ int CScanner_G6X00::BitCount(BYTE n)
 	return c;
 }
 
+void CScanner_G6X00::GetCurrentPageSize(DWORD& _dwSize)
+{
+	_dwSize = m_nDestBytesPerRow * m_nHeight; 
+}
 

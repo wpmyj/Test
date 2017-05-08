@@ -24,6 +24,12 @@
 #include "FindDevice.h"
 
 #include "public.h"
+#include "ShowIndicators.h"
+/** 字节转换定义 */  
+#define KBYTES  1024
+#define GBYTES  1073741824  
+#define MBYTES  1048576    
+#define DKBYTES 1024.0 
 
 
 extern HWND g_hwndDLG;
@@ -114,7 +120,7 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
   m_pGUI = CreateUI(this);
 //	GetImagePathFromINI();  
 
-	CString strNoDeviceUI, strShowOnce;
+	CString strNoDeviceUI;
 	int nMaxLength = 512;
 	TCHAR szINIPath[MAX_PATH];  // INI文件路径
 	GetFilePath(FILENAME_INI,szINIPath);
@@ -184,6 +190,10 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 		}		
 	}
 
+	m_bShowIndicators  = false;
+	m_pUIThread        = NULL;
+	m_dwPageCount      = 0;
+	m_dwTotalSize      = 0;
 	return;
 	
 }
@@ -2740,6 +2750,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   // The application will move to state 5 after this triplet which means that
   // no more capabilities can be set until we are brought back to state 4.
   m_pScanner->Lock();
+	CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
+	bool bIndicators = FALSE;
+	if(pbCap)
+	{
+		pbCap->GetCurrent(bIndicators);
+	} 
 	if (DEVICE_CAMERA != g_nDeviceNumber)  // Camera始终显示界面
 	{
 		if(FALSE == _pData->ShowUI)
@@ -2762,6 +2778,25 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			// need in order to prepare for the next few calls and the scan.
 			// get the scanner to load the image so that image info calls can be done
 
+			if ( (true == bIndicators) && 
+				(DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber) )
+			{
+				m_bShowIndicators = true; 				
+				m_pUIThread = AfxBeginThread(RUNTIME_CLASS(CShowIndicators)); // 创建用户界面线程
+				m_pUIThread->m_bAutoDelete = FALSE;
+				if (m_pUIThread == NULL)
+				{
+					::MessageBox(g_hwndDLG,TEXT("用户界面线程启动失败!"),MB_CAPTION,MB_OK|MB_ICONERROR);
+				}
+				WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
+				m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
+				m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DS, (LPARAM)this); 
+			}
+			else
+			{
+				m_bShowIndicators = false; 
+			}
+
 			if(!m_pScanner->acquireImage())
 			{
 				//::MessageBox(g_hwndDLG,TEXT("enableDS::There was an error while trying to get scanner to acquire image!"),MB_CAPTION,MB_OK);
@@ -2771,6 +2806,10 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 				return TWRC_FAILURE;
 			}
 
+			if (true == m_bShowIndicators)
+			{
+				UpdatePageInfo();
+			}
 			if(! DoXferReadyEvent())
 			{
 				m_CurrentState = dsState_Open;
@@ -2779,12 +2818,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			}
 		}
 	}
-  CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
+/*  CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
   bool bIndicators = FALSE;
   if(pbCap)
   {
     pbCap->GetCurrent(bIndicators);
-  }  
+  } */ 
   if(m_pGUI->DisplayTWAINGUI(*_pData,false,bIndicators)!=TWRC_SUCCESS)
   {
     // A user interface is not supported as of right now because we are
@@ -2979,6 +3018,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
   {
 		DWORD nImageSize = 0;
 		DWORD nDestBytesPerRow = 0;
+		DWORD dwTotalSize = 0;
 		//if (DEVICE_CAMERA == g_nDeviceNumber)
 		//{
 		//	nImageSize = g_dwImageSize;
@@ -2987,6 +3027,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		//{
 			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
 			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
+			dwTotalSize = nImageSize;
 		//}
 		
     //If we had a previous image then get rid of it.
@@ -3006,7 +3047,7 @@ TW_INT16 CTWAINDS_UDS::transfer()
 
 		DWORD       dwRead;
 		DWORD       dwReceived;
-
+		DWORD       dwSize = 0; // 循环接收大小
 		switch (g_nDeviceNumber)
 		{
 		case DEVICE_CAMERA:
@@ -3027,6 +3068,14 @@ TW_INT16 CTWAINDS_UDS::transfer()
 						break;
 					}
 					pImageData += dwReceived;
+
+					if (true == m_bShowIndicators)
+					{
+						dwSize += dwReceived;
+						int pos = dwSize * 100 / dwTotalSize;
+						m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_PROGRESS,  (LPARAM)pos); // 更新进度
+						m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SPEED, (LPARAM)dwSize);  // 传输速度
+					}
 
 					nImageSize -= dwReceived;  //dwReceived=20400 nImageSize=11158800
 				}while(nImageSize>0 && twrc == TWRC_SUCCESS);
@@ -3120,14 +3169,39 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
         m_Xfers.Count = 0;  // 重张检测时，若未加这句程序会崩溃
         twrc = TWRC_FAILURE;
       }
-    }
+			if (true == m_bShowIndicators)
+			{
+				UpdatePageInfo();
+			}
 
+    }
     m_CurrentState = dsState_XferReady;
   }
   else
   {
     m_CurrentState = dsState_Enabled;
     m_pScanner->Unlock();
+
+		if (true == m_bShowIndicators)
+		{
+			//Sleep(2000);  // 等待2秒，再关闭扫描进度对话框
+			m_dwPageCount = 0; // 扫描页数清零
+			m_dwTotalSize = 0; // 清空总共大小
+			m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DESTROY, 1); // 销毁窗口		
+
+			if(m_pUIThread)   
+			{  
+				// 1. 发一个WM_QUIT　消息结　UI　线程  
+				m_pUIThread->PostThreadMessage(WM_QUIT, NULL, NULL);  
+				// 2. 等待　UI　线程正常退出  
+				if (WAIT_OBJECT_0 == WaitForSingleObject(m_pUIThread->m_hThread, INFINITE))  
+				{  
+					 // 3. 删除 UI 线程对象，只有当你设置了m_bAutoDelete = FALSE;　时才调用  
+					   delete   m_pUIThread;   
+				}  
+
+			}
+		}
   }
 
   if( _pXfers == 0 )
@@ -4967,13 +5041,106 @@ bool CTWAINDS_UDS::StartScanning()
     return false;
   }
 	//::MessageBox(g_hwndDLG,"Before acquireImage",MB_CAPTION,MB_OK);
-  return m_pScanner->acquireImage();
+	CTWAINContainerBool *pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS));
+	bool bIndicators = FALSE;
+	if(pbCap)
+	{
+		pbCap->GetCurrent(bIndicators);
+	} 
+
+	if ( (true == bIndicators) && 
+		(DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber) )
+	{
+		m_bShowIndicators = true;
+		m_pUIThread = AfxBeginThread(RUNTIME_CLASS(CShowIndicators)); // 创建用户界面线程
+		m_pUIThread->m_bAutoDelete = FALSE;
+		if (m_pUIThread == NULL)
+		{
+			::MessageBox(g_hwndDLG,TEXT("用户界面线程启动失败!"),MB_CAPTION,MB_OK|MB_ICONERROR);
+		}
+		WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
+		m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
+	}
+	else
+	{
+		m_bShowIndicators = false; 
+	}
+
+  //return m_pScanner->acquireImage();
+	bool ret = m_pScanner->acquireImage();
+
+	if (true == m_bShowIndicators)
+	{
+		UpdatePageInfo();
+	}
+
+	return ret;
 };
 
 
 void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagepath)
 {
 //	m_pScanner->SetImagePath_Multi(vector_string_imagepath);
+}
+
+void CTWAINDS_UDS::FormatSize(const DWORD _dwSize, CString& _strSize)
+{
+	double dSize = 0.0;
+	if (_dwSize >= KBYTES)
+	{
+		dSize = _dwSize/(KBYTES * 1.0);
+		_strSize.Format("%.2f KBYTES",dSize);
+		if(_dwSize >= MBYTES)
+		{
+			dSize = _dwSize/(MBYTES * 1.0);
+			_strSize.Format("%.2f MBYTES",dSize);
+			if(_dwSize >= GBYTES)
+			{
+				dSize = _dwSize/(GBYTES * 1.0);
+				_strSize.Format("%.2f GBYTES",dSize);
+			}
+		}
+	}
+	else
+	{
+		_strSize.Format("%d BYTES",_dwSize);
+	}
+}
+
+void CTWAINDS_UDS::UpdatePageInfo()
+{
+	if (false == m_bShowIndicators)
+	{
+		return;
+	}
+	
+	// 获取数据
+	DWORD dwPageSize = 0;
+	((CScanner_G6X00*)m_pScanner)->GetCurrentPageSize(dwPageSize);
+	m_dwTotalSize += dwPageSize;
+	m_dwPageCount ++;
+
+	// 转化为字符串
+	CString strPageSize, strTotalSize, strPageCount, strElapsedTime;
+	FormatSize(dwPageSize, strPageSize);
+	FormatSize(m_dwTotalSize, strTotalSize);
+	strPageCount.Format("%u", m_dwPageCount);
+
+	// 给结构体赋值
+	m_pageInfo.strPageCount = strPageCount;
+	m_pageInfo.strPageSize = strPageSize;
+	m_pageInfo.strTotalSize = strTotalSize;
+		
+	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_PAGEINFO, (LPARAM)&m_pageInfo);
+	
+}
+
+void CTWAINDS_UDS::CancelScan()
+{
+	if (m_bShowIndicators)
+	{
+		((CScanner_G6X00*)m_pScanner)->m_bCancel = true;
+	}
 }
 
 //void CTWAINDS_UDS::GetImagePathFromINI()
