@@ -54,9 +54,13 @@ float ConvertUnits(float val, int fromUnits, int toUnits, float resolution)
         // nothing to do
         break;
 
-      case TWUN_CENTIMETERS:
+      case TWUN_CENTIMETERS: //ÀåÃ×
         result = val / 2.54; 
         break;
+
+			case TWUN_MILLIMETERS: //ºÁÃ×
+				result = val / 25.4; 
+				break;
 
       case TWUN_PICAS:
         result = val / 6.0; 
@@ -97,6 +101,10 @@ float ConvertUnits(float val, int fromUnits, int toUnits, float resolution)
       case TWUN_CENTIMETERS:
         result *= 2.54; 
         break;
+
+			case TWUN_MILLIMETERS:
+				result *= 25.4; 
+				break;
 
       case TWUN_PICAS:
         result *= 6.0; 

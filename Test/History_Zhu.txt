@@ -552,3 +552,29 @@ date 17.05.05
 3、解决高级界面单位有英寸变为像素或厘米后，再改为英寸时，值不是原值的Bug：原因是往模板写值时直接保存为了编辑框中的值，应该始终保存英寸值。方法：在SetCapValueFloat之前，将fval使用ConvertUnits转换。
 4、去除多流、单双面按钮，只保留八个多流按钮，重新整理多流相关功能实现。
 5、基本完成界面的所有数据填充，删除所有无用的控件。
+
+date 17.05.08
+
+------------------------------------------------------------
+@author zhu
+1、黑白Tab页增加函数SetCompress，设置G4压缩时，压缩质量与压缩率不可用；JPEG压缩时，根据SetCompressValue函数设置是否可用。
+2、高级界面增加SetCutMethod，设置当纸张大小为长纸时，图像裁切方式为“不裁切”，并设置combox不可用。
+3、修改高级界面单位选项：由厘米改为毫米，与纸张大小对应；不在界面修改值，直接在CommonDS.cpp的ConvertUnits函数中增加case TWUN_MILLIMETERS(毫米)的计算；修改CTWAINDS_UDS.cpp初始化时，单位的选值即可。
+4、修改多流的灰度与彩色Tab页中，本地保存对应Cap值的设置，此处仅设置一个Cap：UDSCAP_NATIVESAVE，不根据每一流设置不同。
+5、Bug:选中正面彩色、灰度后扫描，再次打开驱动，直接改为默认模板再次扫描时，仍然出与上次一样的结果。
+原因：由于现在模板界面的LoadTemplate中以及不会更新后面的基本、高级界面。而在CPage_Base::SetCapMulti()中，UDSCAP_MULTISTREAM_VALUE值是正确的，但是在判断checkbox的状态时由于没有更新，仍然认为是选中的，导致Cap的值改变。
+解决方法：在SetCapValue之前先UpdateControls（）。
+修改为：上述修改方法会导致从基本界面扫描时，若选择正面彩色、灰度扫描了，再次使用时，不选中灰度失效，仍然会扫描两张。SetCapValue之前的UpdateControls又把checkbox选中了。
+新的解决方案：在模板的OnOK中，若选中默认模板，将多流值与纸张数设为默认值。
+
+date 17.05.09
+
+------------------------------------------------------------
+@author zhu
+1、解决Bug：虚拟扫描仪时，若选中自动裁切与校正，会换一张图片演示，此时若多流选择超过一张时，其他的灰度或黑白图像数据错误。
+解决方案：CScanner_OpenCV::preScanPrep（）中，当m_nCutMethod == TWCT_AUTO满足时，要根据m_nPixelType参数对数据做cvtColor或threshold处理。
+2、隐藏自动彩色按钮与checkbox、隐藏彩色界面的色彩优化；
+禁用拼接及其图示按钮、禁用分隔页、禁用一二码识别及条码格式；
+数据填充暂时去掉旋转的“自动旋转”、拆分的“自定义”。
+3、Bug：多流正面彩色不选中，但再次打开时仍然选中；
+解决方法：在SetMultistream中当自动彩色未选中时，默认设置了彩色选中。在UpdateControls里，不使用该函数。

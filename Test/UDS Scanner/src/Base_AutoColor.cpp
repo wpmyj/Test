@@ -9,10 +9,10 @@
 
 // CBase_AutoColor ¶Ô»°¿ò
 
-IMPLEMENT_DYNAMIC(CBase_AutoColor, CPropertyPage)
+IMPLEMENT_DYNAMIC(CBase_AutoColor, CDialogEx)
 
 CBase_AutoColor::CBase_AutoColor(MFC_UI *pUI)
-	:m_pUI(pUI),CPropertyPage(CBase_AutoColor::IDD)
+	:m_pUI(pUI),CDialogEx(CBase_AutoColor::IDD)
 	,m_dlg_gray(pUI)
 	,m_dlg_bw(pUI)
 	,m_dlg_color(pUI)
@@ -25,7 +25,7 @@ CBase_AutoColor::~CBase_AutoColor()
 
 void CBase_AutoColor::DoDataExchange(CDataExchange* pDX)
 {
-	CPropertyPage::DoDataExchange(pDX);
+	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TABAUTOCOLOR_EDIT_COLORTHRES, m_edit_colorthres);
 	DDX_Control(pDX, IDC_TABAUTOCOLOR_SLIDER_COLORTHRES, m_slider_colorthres);
 	DDX_Control(pDX, IDC_STATIC_OTHERDIALOG, m_staic_otherdialog);
@@ -34,7 +34,7 @@ void CBase_AutoColor::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CBase_AutoColor, CPropertyPage)
+BEGIN_MESSAGE_MAP(CBase_AutoColor, CDialogEx)
 	ON_EN_CHANGE(IDC_TABAUTOCOLOR_EDIT_COLORTHRES, &CBase_AutoColor::OnEnChangeTabautocolor_Edit_Colorthres)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABAUTOCOLOR_SLIDER_COLORTHRES, &CBase_AutoColor::OnNMCustomdrawTabautocolor_Slider_Colorthres)
 	ON_BN_CLICKED(IDC_AUTOCOLOR_RADIO_NOCOLOR_GRAY, &CBase_AutoColor::OnAuotoColor_RadioBtn_Nocolor_Gray)
@@ -62,6 +62,9 @@ void CBase_AutoColor::UpdateControls(void)
 	m_slider_colorthres.SetPos(nCapValue);
 	strText.Format("%d",nCapValue);
 	SetDlgItemText(IDC_TABAUTOCOLOR_EDIT_COLORTHRES,strText);
+
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NOCOLOR);
+	m_radio_graybw = nCapIndex;
 
 	m_dlg_color.ShowWindow(SW_SHOW);
 	m_dlg_gray.ShowWindow(SW_HIDE);

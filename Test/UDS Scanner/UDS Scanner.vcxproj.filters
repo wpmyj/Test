@@ -150,9 +150,6 @@
     <ClCompile Include="src\Dlg_Rename.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Page_Paper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\Dlg_Video.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -187,9 +184,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Base_Tab_Gray.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Page_Filter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Base_Tab_Preview.cpp">
@@ -311,9 +305,6 @@
     <ClInclude Include="src\Device_Base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Page_Paper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\Page_Profile.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -360,9 +351,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Base_Tab_Gray.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Page_Filter.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Base_Tab_Preview.h">

@@ -127,40 +127,37 @@
 
 //新界面增加参数
 //（图像处理部分）
-#define UDSCAP_ROTATEMODE                    CAP_CUSTOMBASE+83 /**< 图像旋转--模式 */
-#define UDSCAP_BACKIMGROTATE                 CAP_CUSTOMBASE+84 /**< 图像旋转--背面图像旋转 */
+#define UDSCAP_ROTATEMODE                    CAP_CUSTOMBASE+82 /**< 图像旋转--模式 */
+#define UDSCAP_BACKIMGROTATE                 CAP_CUSTOMBASE+83 /**< 图像旋转--背面图像旋转 */
 
-#define UDSCAP_JOINIMAGE                     CAP_CUSTOMBASE+85 /**< 图像拼接 */
+#define UDSCAP_JOINIMAGE                     CAP_CUSTOMBASE+84 /**< 图像拼接 */
 
-#define UDSCAP_BACKPROCESS                   CAP_CUSTOMBASE+86 /**< 背景处理 */
-#define UDSCAP_BACKPROSTRENTH                CAP_CUSTOMBASE+87 /**< 背景处理强度 */
-#define UDSCAP_BACKPROMODE                   CAP_CUSTOMBASE+88 /**< 背景处理模式 */
-#define UDSCAP_BACKPROFILLCOLOR              CAP_CUSTOMBASE+89 /**< 背景处理填补颜色 */
+#define UDSCAP_BACKPROCESS                   CAP_CUSTOMBASE+85 /**< 背景处理 */
+#define UDSCAP_BACKPROSTRENTH                CAP_CUSTOMBASE+86 /**< 背景处理强度 */
+#define UDSCAP_BACKPROMODE                   CAP_CUSTOMBASE+87 /**< 背景处理模式 */
+#define UDSCAP_BACKPROFILLCOLOR              CAP_CUSTOMBASE+88 /**< 背景处理填补颜色 */
 
-#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+82  /**< 色彩校正 */ 
+#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+89  /**< 色彩校正 */ 
 #define UDSCAP_COLORCORRECTFC                CAP_CUSTOMBASE+90  /**<  多流色彩优化*/
 #define UDSCAP_COLORCORRECTBC                CAP_CUSTOMBASE+91  /**<  多流色彩优化*/
 
-#define UDSCAP_NATIVESAVEFC                  CAP_CUSTOMBASE+92  /**<  多流本地保存*/
-#define UDSCAP_NATIVESAVEFG                  CAP_CUSTOMBASE+93  /**<  本地保存*/
-#define UDSCAP_NATIVESAVEBC                  CAP_CUSTOMBASE+94  /**<  本地保存*/
-#define UDSCAP_NATIVESAVEBG                  CAP_CUSTOMBASE+95  /**<  本地保存*/
+#define UDSCAP_NATIVESAVE                    CAP_CUSTOMBASE+92  /**<  本地保存*/
 
-#define UDSCAP_EDGE_ORIENTATION              CAP_CUSTOMBASE+96 /**<  边缘扩充方向*/
-#define UDSCAP_EDGE_CORNERCOLOR              CAP_CUSTOMBASE+97 /**<  边缘扩充--未扫描部分边角填充颜色*/
+#define UDSCAP_EDGE_ORIENTATION              CAP_CUSTOMBASE+93 /**<  边缘扩充方向*/
+#define UDSCAP_EDGE_CORNERCOLOR              CAP_CUSTOMBASE+94 /**<  边缘扩充--未扫描部分边角填充颜色*/
 
-#define UDSCAP_OVERLENGTH                    CAP_CUSTOMBASE+98  /**<  超出预定长度检测*/
-#define UDSCAP_OVERLENGTHVALUE               CAP_CUSTOMBASE+99  /**<  超出预定长度检测值*/
+#define UDSCAP_OVERLENGTH                    CAP_CUSTOMBASE+95  /**<  超出预定长度检测*/
+#define UDSCAP_OVERLENGTHVALUE               CAP_CUSTOMBASE+96  /**<  超出预定长度检测值*/
 
-#define UDSCAP_SEPARATEPAGE                  CAP_CUSTOMBASE+100  /**<  分隔页*/
+#define UDSCAP_SEPARATEPAGE                  CAP_CUSTOMBASE+97  /**<  分隔页*/
 
-#define UDSCAP_CODEIDENTITY                  CAP_CUSTOMBASE+101  /**<  一二维码识别*/
-#define UDSCAP_CODESTANDARD                  CAP_CUSTOMBASE+102  /**<  条码格式*/
+#define UDSCAP_CODEIDENTITY                  CAP_CUSTOMBASE+98  /**<  一二维码识别*/
+#define UDSCAP_CODESTANDARD                  CAP_CUSTOMBASE+99  /**<  条码格式*/
 
-#define UDSCAP_PREFEED                       CAP_CUSTOMBASE+103  /**<  预先进纸*/
-#define UDSCAP_PREFEEDVALUE                  CAP_CUSTOMBASE+104  /**<  预先进纸值*/
+#define UDSCAP_PREFEED                       CAP_CUSTOMBASE+100  /**<  预先进纸*/
+#define UDSCAP_PREFEEDVALUE                  CAP_CUSTOMBASE+101  /**<  预先进纸值*/
 
-#define UDSCAP_WAITTIME                      CAP_CUSTOMBASE+105 /**<  连续扫描等待放纸时间*/
+#define UDSCAP_WAITTIME                      CAP_CUSTOMBASE+102 /**<  连续扫描等待放纸时间*/
 //end 2.0版本
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */

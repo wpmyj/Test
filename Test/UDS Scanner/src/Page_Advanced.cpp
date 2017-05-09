@@ -196,8 +196,8 @@ void CPage_Advanced::UpdateControls(void)
 		case TWUN_PIXELS:
 			m_combo_uints.InsertString(i,"像素Pixels"); //像素
 			break;
-		case TWUN_CENTIMETERS:
-			m_combo_uints.InsertString(i,"厘米Centimeters"); //厘米
+		case TWUN_MILLIMETERS: 
+			m_combo_uints.InsertString(i,"毫米Millimeter"); //毫米
 			break;
 		default:
 			continue;
@@ -317,7 +317,7 @@ void CPage_Advanced::UpdateControls(void)
 			SetDlgItemText(IDC_ADVANCED_EDIT_OVERLENGTH,strText);
 			break;
 		}
-	case TWUN_CENTIMETERS:
+	case TWUN_MILLIMETERS: //厘米，但单位为毫米
 		{
 			frame = m_pUI->GetCurrentFrame();
 			strText.Format("%0.2f",FIX32ToFloat(frame.Right));
@@ -330,7 +330,7 @@ void CPage_Advanced::UpdateControls(void)
 			//边缘扩充 上下左右
 			float fvalue;
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_UP);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_updown)
 			{
 				fvalue = (float)maxinches_updown;
@@ -344,7 +344,7 @@ void CPage_Advanced::UpdateControls(void)
 			SetDlgItemText(IDC_ADVANCED_EDIT_UP,strText);
 
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_DOWN);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_updown)
 			{
 				fvalue = (float)maxinches_updown;
@@ -358,7 +358,7 @@ void CPage_Advanced::UpdateControls(void)
 			SetDlgItemText(IDC_ADVANCED_EDIT_DOWN,strText);
 
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_LEFT);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_leftright)
 			{
 				fvalue = (float)maxinches_leftright;
@@ -372,7 +372,7 @@ void CPage_Advanced::UpdateControls(void)
 			SetDlgItemText(IDC_ADVANCED_EDIT_LEFT,strText);
 
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_EDGE_RIGHT);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_leftright)
 			{
 				fvalue = (float)maxinches_leftright;
@@ -387,7 +387,7 @@ void CPage_Advanced::UpdateControls(void)
 
 			//XY偏移量
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_XPOS);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_xpos)
 			{
 				fvalue = (float)maxinches_xpos;
@@ -401,7 +401,7 @@ void CPage_Advanced::UpdateControls(void)
 			SetDlgItemText(IDC_ADVANCED_EDIT_XPOS,strText);
 
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_YPOS);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_ypos)
 			{
 				fvalue = (float)maxinches_ypos;
@@ -416,7 +416,7 @@ void CPage_Advanced::UpdateControls(void)
 
 			//
 			fCapValue = m_pUI->GetCapValueFloat(UDSCAP_OVERLENGTHVALUE);
-			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_CENTIMETERS, m_resolution);
+			fvalue = ConvertUnits(fCapValue, TWUN_INCHES, TWUN_MILLIMETERS, m_resolution);
 			if(fvalue > (float)maxinches_overlength)
 			{
 				fvalue = (float)maxinches_overlength;
@@ -714,6 +714,14 @@ BOOL CPage_Advanced::OnInitDialog()
 	m_pUI->GetCapRangeFloat(UDSCAP_WAITTIME, fMin, fMax, fStep);
 	m_slider_waittime.SetRange((int)fMin, (int)fMax);
 	m_slider_waittime.SetTicFreq((int)fStep); //步长
+
+	//2.0版本隐藏控件
+	GetDlgItem(IDC_CHECK_SEPARATE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_QRCODE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_COMBO_CODESTAND)->EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_QRCODE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_SEPARATE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_CODESTAND)->EnableWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -1061,10 +1069,30 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	UpdateControls(); //更新宽、高
 }
 
+
+void CPage_Advanced::SetCutMethod()
+{
+	UpdateData(TRUE);
+	int nIndex = m_combo_standardsizes.GetCurSel();
+	int nval = FindPaperSize(nIndex);
+	if(nval == UDSCAP_LONGDOCUMENT) //长纸模式
+	{
+		m_combo_cutmethod.SetCurSel(0);//设置不裁切
+		m_combo_cutmethod.EnableWindow(FALSE);
+	}
+	else
+	{
+		m_combo_cutmethod.EnableWindow(TRUE);
+	}
+	UpdateData(FALSE);
+}
+
+
 void CPage_Advanced::SetPaperSize(void)
 {
 	SetXYPos();
-
+	SetCutMethod();
+	
 	int nIndex = m_combo_standardsizes.GetCurSel(); 
 	int nval = FindPaperSize(nIndex);
 	int nIndex_unit = m_combo_uints.GetCurSel();
@@ -2227,8 +2255,15 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod()
 	{
 		nval = TWAC_DISABLE;
 	}
-	m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
-
+	if(m_combo_cutmethod.IsWindowEnabled())
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
+	}
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+	}
+	
 }
 
 void CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation()
@@ -2299,7 +2334,7 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Findoverlay()
 	CString strCBText; 
 	m_combo_mdvalue.GetLBText( nIndex, strCBText);
 	int nval;
-	if (strCBText.Find("暂停扫描") >= 0)
+	if (strCBText.Find("停止扫描") >= 0)
 	{
 		nval = TWEC_WHITE;
 	}

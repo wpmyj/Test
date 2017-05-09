@@ -116,7 +116,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_bMirror             = TWMR_DISABLE; //镜像-不选中
 
 	m_nBinarization       = TWBZ_DYNATHRESHOLD; //zhu 二值化-动态阈值
-	m_bMultiStream        = true; //多流输出-不选中
+	m_bMultiStream        = true; //多流输出-选中
 	m_fSensitiveThreshold_removespots = 0.0; //去除斑点-0.0
 	m_fSensitiveThreshold_colorretent = 128.0; //底色保留-128.0
 
@@ -183,6 +183,7 @@ bool CScanner_OpenCV::resetScanner()
 	m_nCodeStandard         = TWCS_1D;
 
 	m_bIndicators           = TRUE;
+	m_bNativeSave           = FALSE;
 
 	for(int i=0; i<6; i++)
 	{
@@ -196,7 +197,6 @@ bool CScanner_OpenCV::resetScanner()
 	for(int i=0; i<4; i++)
 	{
 		m_fContra[i] = m_fContrast;
-		m_bNativeSave[i] = FALSE;
 	}
 
 	for(int i=0; i<2; i++)
@@ -337,7 +337,7 @@ bool CScanner_OpenCV::preScanPrep()
 	//long lXDPI = pImage->GetXDPI(); //获得图像x轴分辨率
 	//long lYDPI = pImage->GetYDPI();
 	//::delete pImage;
-	
+
 	float XReso;
 	float YReso;
 	float Bright;
@@ -405,6 +405,8 @@ bool CScanner_OpenCV::preScanPrep()
 	cv::resize(m_mat_image, matTemp, cv::Size(unNewWidth, unNewHeight), 0, 0);		
 	matTemp.copyTo(m_mat_image);  // 深拷贝
 	m_dRat = (double)unNewWidth/unNewHeight;
+	
+	//imwrite("C:\\Users\\Administrator\\Desktop\\resize.bmp", m_mat_image);
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
@@ -460,47 +462,6 @@ bool CScanner_OpenCV::preScanPrep()
 		ColorFlip(m_mat_image, mat_hColorflip);
 		mat_hColorflip.copyTo(m_mat_image);
 	}
-	
-	////多流输出
-	//if(m_bMultiStream)
-	//{
-	//	Mat matMuilt;
-	//	m_mat_image.copyTo(matMuilt); //m_mat_image不管多流选什么，都是彩色图
-	//	BYTE m_byteMuilt = m_byteMultiValue;
-	//	m_byteMuilt = SwitchBYTE(m_byteMuilt);
-	//	m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt, XReso);
-	//	YReso = XReso;
-	//}
-	//else//多流输出不使用时
-	//{
-	//	XReso = (double)m_fXResolution;
-	//	YReso = (double)m_fYResolution;
-
-	//	//颜色
-	//	if(m_nPixelType != TWPT_RGB)//
-	//	{
-	//		Mat dstImage;
-	//		// Apply bit depth color transforms
-	//		switch(m_nPixelType)
-	//		{
-	//			// 黑白为：先将彩色转为灰度,再设置阈值,但是得到的图像大小与灰度相同,
-	//			// BitsPerPixel = 8,黑白应为1.
-	//		case TWPT_BW: {
-	//			dstImage.create(m_mat_image.size(), m_mat_image.type());
-	//			cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
-	//			dstImage.copyTo(m_mat_image);
-	//			threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU); //THRESH_BINARY
-	//			break;
-	//									}		
-	//		case TWPT_GRAY: {			
-	//			dstImage.create(m_mat_image.size(), m_mat_image.type());
-	//			cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
-	//			dstImage.copyTo(m_mat_image);	
-	//			break;
-	//										}	
-	//		}
-	//	}
-	//}
 
 	//Gamma校正
 	if(m_fGamma != 100.0) //zhu
@@ -605,7 +566,6 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 
 	//自动裁切与校正
-	//if(m_bAutoCrop == TWAC_AUTO) 
 	if(m_nCutMethod == TWCT_AUTO)
 	{
 		Mat matAutoCrop; 
@@ -613,6 +573,32 @@ bool CScanner_OpenCV::preScanPrep()
 		matAutoCrop = RemoveBlack(matAutoCrop);
 		matAutoCrop.copyTo(m_mat_image);
 		//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", m_mat_image);
+
+		//颜色
+		if(m_nPixelType != TWPT_RGB)
+		{
+			Mat dstImage;
+			// Apply bit depth color transforms
+			switch(m_nPixelType)
+			{
+				// 黑白为：先将彩色转为灰度,再设置阈值,但是得到的图像大小与灰度相同,
+				// BitsPerPixel = 8,黑白应为1.
+			case TWPT_BW: {
+				dstImage.create(m_mat_image.size(), m_mat_image.type());
+				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
+				dstImage.copyTo(m_mat_image);
+				threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU); //THRESH_BINARY
+				break;
+										}		
+			case TWPT_GRAY: {			
+				dstImage.create(m_mat_image.size(), m_mat_image.type());
+				cvtColor(m_mat_image, dstImage, CV_BGR2GRAY);
+				dstImage.copyTo(m_mat_image);	
+				break;
+											}	
+			}
+		}
+
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 	}

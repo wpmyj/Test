@@ -47,11 +47,14 @@ void CPage_Profile::OnOK()
 	// TODO: 在此添加专用代码和/或调用基类
 	m_pBasePage->SetCapValue();
 	m_pAdPage->SetCapValue();
-	//m_pPaperPage->SetCapValue();
-	//m_pFilterPage->SetCapValue();
 	m_pSetPage->SetCapValue();
 
 	int index = m_list_profile.GetNextItem(-1,LVIS_SELECTED); 
+	if(index == 0)//默认模板
+	{
+		m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,1); // 如果选中默认模板
+		m_pUI->SetCapValueFloat(UDSCAP_MULTISTREAM_VALUE, 1.0);
+	}
 
 	CString str;
 	str = m_list_profile.GetItemText(index,0); //(i,j)行，列

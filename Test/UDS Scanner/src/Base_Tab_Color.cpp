@@ -241,25 +241,9 @@ void CBase_Tab_Color::UpdateControls(void)
 	m_combo_colorcorrect.SetCurSel(nCapIndex);
 
 	//本地保存
-	if(MultiCapValue == 0) //多流未选中
-	{
-		nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFC);
-		m_check_nativesave.SetCheck(FALSE);
-	}
-	else
-	{
-		switch(basebutton)
-		{
-		case 0: //正面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFC);
-			break;
-		case 1: //背面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEBC);
-			break;
-		}
-		m_check_nativesave.SetCheck(nCapIndex);
-	}
-	
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVE);
+	m_check_nativesave.SetCheck(nCapIndex);
+
 }
 
 
@@ -270,6 +254,10 @@ BOOL CBase_Tab_Color::OnInitDialog()
 	// TODO:  在此添加额外的初始化
 	InitSliderCtrl();
 	UpdateControls();
+
+	//2.0版本隐藏控件
+	GetDlgItem(IDC_TABCOLOR_COMBO_COLOROPTI)->ShowWindow(FALSE);
+	GetDlgItem(IDC_STATIC_COLOROPTI)->ShowWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -671,21 +659,6 @@ void CBase_Tab_Color::OnBaseTab_Color_Btn_Check_Nativesave()
 	{
 		nval = FALSE;
 	}
-	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-	if(MultiCapValue == 0) //多流未选中
-	{
-		m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEFC,FALSE);
-	}
-	else
-	{
-		switch(basebutton)
-		{
-		case 0: //正面
-			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEFC,nval); 
-			break;
-		case 1: //背面
-			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval); 
-			break;
-		}
-	}
+	
+	m_pUI->SetCapValueInt(UDSCAP_NATIVESAVE,nval);
 }

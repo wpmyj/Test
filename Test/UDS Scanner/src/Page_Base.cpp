@@ -204,7 +204,9 @@ void CPage_Base::SetCapValue(void)
 
 void CPage_Base::SetCapMulti()
 {
+	UpdateData(TRUE);
 	BYTE temp = (BYTE)m_pUI->GetCapValueFloat(UDSCAP_MULTISTREAM_VALUE);
+
 	unsigned int doc_count = 0;
 
 	/************************************************************
@@ -220,7 +222,7 @@ void CPage_Base::SetCapMulti()
 	else {
 		temp &= (0xFF-0x01);
 	}
-	// 正面彩色
+	// 正面灰度
 	if (m_check_frontgray.GetCheck()) {
 		temp |= 0x02;
 		doc_count++;
@@ -260,9 +262,10 @@ void CPage_Base::SetCapMulti()
 	else {
 		temp &= (0xFF-0x40);
 	}
-
 	m_pUI->SetCapValueFloat(UDSCAP_MULTISTREAM_VALUE, (float)temp); // 保存多流选项值
 	m_pUI->SetCapValueInt(UDSCAP_DOCS_IN_ADF,doc_count); // 设置纸张数
+
+	UpdateData(FALSE);
 }
 
 void CPage_Base::UpdateControls(void)
@@ -495,7 +498,7 @@ void CPage_Base::UpdateControls(void)
 		}
 		value = value >> 1; // 始终比较最低位
 	} // for end
-	SetMultistream();
+	//SetMultistream(); //自动彩色选中时，其他不可用
 
 	m_pTabColor->UpdateControls(); 
 	m_pTabGray->UpdateControls();    
@@ -542,6 +545,16 @@ BOOL CPage_Base::OnInitDialog()
 	InitBasemap();
 	InitSliderCtrl();
 	UpdateControls();
+
+	//2.0版隐藏控件
+	GetDlgItem(IDC_BASE_BUTTON_AUTOFRONTCOLOR)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_BUTTON_AUTOBACKCOLOR)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_AUTOFRONTCOLOR)->ShowWindow(FALSE);
+	GetDlgItem(IDC_CHECK_AUTOBACKCOLOR)->ShowWindow(FALSE);
+	GetDlgItem(IDC_BASE_COMBO_JOINIMG)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BASE_BUTTON_JOINIMG_SHOW)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ADVANCED_STATIC_JOINIMG)->EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_ROTATEMODE)->EnableWindow(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -709,7 +722,6 @@ BOOL CPage_Base::PreTranslateMessage(MSG* pMsg)
 
 void CPage_Base::SetMultistream(void)
 {
-	m_combo_splitimage.EnableWindow(FALSE);	
 	if(m_check_autobackcolor.GetCheck() || m_check_autofrontcolor.GetCheck())
 	{
 		m_check_backbw.SetCheck(FALSE);
@@ -766,6 +778,7 @@ void CPage_Base::UpdateButton(int nIDCtrl, CString str)
 
 void CPage_Base::SwitchCheckBtn()
 {
+	UpdateData(TRUE);
 	if(m_check_backbw.GetCheck())
 	{
 		SetBackBW();
@@ -798,28 +811,32 @@ void CPage_Base::SwitchCheckBtn()
 	}	
 	else if(m_check_autobackcolor.GetCheck())
 	{
-		SetAutoBackColor();	
+		SetAutoBackColor();
 		UpdateButton(IDC_BASE_BUTTON_AUTOBACKCOLOR,"自动彩色");
-	}	
+	}
 	else if(m_check_autofrontcolor.GetCheck())
 	{
-		SetAutoFrontColor();	
+		SetAutoFrontColor();
 		UpdateButton(IDC_BASE_BUTTON_AUTOFRONTCOLOR,"自动彩色");
-	}	
-	else{}
+	}
+	else
+	{
+		SetFrontColor();
+		UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色");
+	}
+	UpdateData(FALSE);
 }
 
 void CPage_Base::OnBase_Btn_Check_Autofrontcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
-	if(m_check_frontgray.GetCheck())
+	if(m_check_autofrontcolor.GetCheck())
 	{
 		m_btn_autofrontcolor.SetFocus();
 		m_btn_autofrontcolor.SetState(TRUE);
 		m_btn_autofrontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
 
-		//SetCapMulti();
 		SetAutoFrontColor();
 	}
 	else
@@ -835,13 +852,12 @@ void CPage_Base::OnBase_Btn_Check_Autobackcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
-	if(m_btn_autobackcolor.GetCheck())
+	if(m_check_autobackcolor.GetCheck())
 	{
 		m_btn_autobackcolor.SetFocus();
 		m_btn_autobackcolor.SetState(TRUE);
 		m_btn_autobackcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
 
-		//SetCapMulti();
 		SetAutoBackColor();
 	}
 	else
@@ -869,7 +885,6 @@ void CPage_Base::OnBase_Btn_Check_FrontColor()
 		m_btn_frontcolor.SetState(TRUE);
 		m_btn_frontcolor.SetButtonStyle(BS_DEFPUSHBUTTON);
 
-		//UpdateButton(IDC_BASE_BUTTON_FRONTCOLOR,"彩色正面");
 		SetCapMulti();
 		SetFrontColor();
 	}
@@ -899,7 +914,6 @@ void CPage_Base::OnBase_Btn_Check_FrontGray()
 		
 		SetCapMulti();
 		SetFrontGray();
-		//UpdateButton(IDC_BASE_BUTTON_FRONTGRAY,"灰度正面");
 	}
 	else
 	{
@@ -926,7 +940,6 @@ void CPage_Base::OnBase_Btn_Check_FrontBw()
 		m_btn_frontbw.SetState(TRUE);
 		m_btn_frontbw.SetButtonStyle(BS_DEFPUSHBUTTON);
 
-		//UpdateButton(IDC_BASE_BUTTON_FRONTBW,"黑白正面");
 		SetCapMulti();
 		SetFrontBW();	
 	}
@@ -1422,14 +1435,26 @@ void CPage_Base::SetBackBW()
 void CPage_Base::OnBase_Btn_Autofrontcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetAutoFrontColor();
+	UpdateData(TRUE);
+	if(m_check_autofrontcolor.GetCheck())
+	{
+		SetAutoFrontColor();
+		UpdateButton(IDC_BASE_BUTTON_AUTOFRONTCOLOR,"自动彩色");
+	}
+	UpdateData(FALSE);	
 }
 
 
 void CPage_Base::OnBase_Btn_Autobackcolor()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetAutoBackColor();
+	UpdateData(TRUE);
+	if(m_check_autobackcolor.GetCheck())
+	{
+		SetAutoBackColor();
+		UpdateButton(IDC_BASE_BUTTON_AUTOBACKCOLOR,"自动彩色");
+	}
+	UpdateData(FALSE);	
 }
 
 void CPage_Base::OnBase_Btn_FrontColor()

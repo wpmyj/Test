@@ -7,7 +7,7 @@
 class MFC_UI;
 // CBase_Tab_BW ¶Ô»°¿ò
 
-class CBase_Tab_BW : public CPropertyPage, public CPage_Custom
+class CBase_Tab_BW : public CDialogEx, public CPage_Custom
 {
 	DECLARE_DYNAMIC(CBase_Tab_BW)
 
@@ -81,5 +81,5 @@ public:
 	void SetBinarization(void);
 	void SetScroll();
 	void SetCompressValue();
-
+	void SetCompress();
 };

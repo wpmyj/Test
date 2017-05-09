@@ -257,22 +257,7 @@ void CBase_Tab_Gray::UpdateControls(void)
 	SetDlgItemText(IDC_TABGRAY_EDIT_COMPRESSVALUE,strText);
 
 	//本地保存
-	if(MultiCapValue == 0) //多流未选中
-	{
-		nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFG);
-	}
-	else
-	{
-		switch(basebutton)
-		{
-		case 0: //正面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEFG);
-			break;
-		case 1: //背面
-			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVEBG);
-			break;
-		}
-	}
+	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_NATIVESAVE);
 	m_check_nativesave.SetCheck(nCapIndex);
 
 }
@@ -731,21 +716,5 @@ void CBase_Tab_Gray::OnBaseTab_Gray_Btn_Check_Nativesave()
 	{
 		nval = FALSE;
 	}
-	int MultiCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTISTREAM));
-	if(MultiCapValue == 0) //多流未选中
-	{
-		m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval);
-	}
-	else
-	{
-		switch(basebutton)
-		{
-		case 0: //正面
-			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBC,nval); 
-			break;
-		case 1: //背面
-			m_pUI->SetCapValueInt(UDSCAP_NATIVESAVEBG,nval); 
-			break;
-		}
-	}
+	m_pUI->SetCapValueInt(UDSCAP_NATIVESAVE,nval); //本地保存直接保持一致
 }

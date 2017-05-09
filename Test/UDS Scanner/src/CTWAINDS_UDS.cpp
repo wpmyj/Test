@@ -536,10 +536,7 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKPROMODE,0,TWON_ONEVALUE);
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_BACKPROFILLCOLOR,0,TWON_ONEVALUE); 
 	//本地保存
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NATIVESAVEFC,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NATIVESAVEFG,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NATIVESAVEBC,0,TWON_ONEVALUE);
-	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NATIVESAVEBG,0,TWON_ONEVALUE); 
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_NATIVESAVE,0,TWON_ONEVALUE);
 	//边缘扩充方向
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EDGE_ORIENTATION,0,TWON_ONEVALUE); 
 	//边缘扩充--未扫描部分边角填充颜色
@@ -691,10 +688,7 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKPROMODE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_BACKPROFILLCOLOR,0);
 	//本地保存
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NATIVESAVEFC,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NATIVESAVEFG,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NATIVESAVEBC,0);
-	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NATIVESAVEBG,0);
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_NATIVESAVE,0);
 	//边缘扩充方向
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EDGE_ORIENTATION,0);
 	//边缘扩充--未扫描部分边角填充颜色
@@ -866,10 +860,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_BACKPROMODE)
 	 || !pnCap->Add(UDSCAP_BACKPROFILLCOLOR)
 	 //本地保存
-	 || !pnCap->Add(UDSCAP_NATIVESAVEFC)
-	 || !pnCap->Add(UDSCAP_NATIVESAVEFG)
-	 || !pnCap->Add(UDSCAP_NATIVESAVEBC)
-	 || !pnCap->Add(UDSCAP_NATIVESAVEBG)
+	 || !pnCap->Add(UDSCAP_NATIVESAVE)
 	 //边缘扩充方向
 	 || !pnCap->Add(UDSCAP_EDGE_ORIENTATION)
 	 //边缘扩充--未扫描部分边角填充颜色
@@ -1102,39 +1093,12 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		 return TWRC_FAILURE;
 	 }
 
-	 m_IndependantCapMap[UDSCAP_NATIVESAVEFC] = new CTWAINContainerBool(UDSCAP_NATIVESAVEFC, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_NATIVESAVEFC]))
+	 m_IndependantCapMap[UDSCAP_NATIVESAVE] = new CTWAINContainerBool(UDSCAP_NATIVESAVE, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_NATIVESAVE]))
 		 || !pbCap->Add(FALSE, true)
 		 || !pbCap->Add(TRUE) )
 	 {
-		 ::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NATIVESAVEFC !"),MB_CAPTION,MB_OK);
-		 setConditionCode(TWCC_LOWMEMORY);
-		 return TWRC_FAILURE;
-	 }
-	 m_IndependantCapMap[UDSCAP_NATIVESAVEFG] = new CTWAINContainerBool(UDSCAP_NATIVESAVEFG, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_NATIVESAVEFG]))
-		 || !pbCap->Add(FALSE, true)
-		 || !pbCap->Add(TRUE) )
-	 {
-		 ::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NATIVESAVEFG !"),MB_CAPTION,MB_OK);
-		 setConditionCode(TWCC_LOWMEMORY);
-		 return TWRC_FAILURE;
-	 }
-	 m_IndependantCapMap[UDSCAP_NATIVESAVEBC] = new CTWAINContainerBool(UDSCAP_NATIVESAVEBC, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_NATIVESAVEBC]))
-		 || !pbCap->Add(FALSE, true)
-		 || !pbCap->Add(TRUE) )
-	 {
-		 ::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NATIVESAVEBC !"),MB_CAPTION,MB_OK);
-		 setConditionCode(TWCC_LOWMEMORY);
-		 return TWRC_FAILURE;
-	 }
-	 m_IndependantCapMap[UDSCAP_NATIVESAVEBG] = new CTWAINContainerBool(UDSCAP_NATIVESAVEBG, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
-	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_NATIVESAVEBG]))
-		 || !pbCap->Add(FALSE, true)
-		 || !pbCap->Add(TRUE) )
-	 {
-		 ::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NATIVESAVEBG !"),MB_CAPTION,MB_OK);
+		 ::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_NATIVESAVE !"),MB_CAPTION,MB_OK);
 		 setConditionCode(TWCC_LOWMEMORY);
 		 return TWRC_FAILURE;
 	 }
@@ -1304,7 +1268,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_UNITS]))
    || !pnCap->Add(TWUN_INCHES, true)
    || !pnCap->Add(TWUN_PIXELS)
-   || !pnCap->Add(TWUN_CENTIMETERS) )
+   || !pnCap->Add(TWUN_MILLIMETERS) )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_UNITS !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_UNITS" << endl;
@@ -1484,7 +1448,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 		|| !pfixCap->Add(TWOR_ROT90)
 		|| !pfixCap->Add(TWOR_ROT180)
 		|| !pfixCap->Add(TWOR_ROT270)
-		|| !pfixCap->Add(TWOR_DEFINED)
+		//|| !pfixCap->Add(TWOR_DEFINED)
 		) //zhu
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_ROTATION !"),MB_CAPTION,MB_OK);
@@ -3480,45 +3444,15 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	}
 
 	//多流本地保存
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_NATIVESAVEFC))))
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_NATIVESAVE))))
 	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NATIVESAVEFC!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NATIVESAVE!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
 		pbCap->GetCurrent(bVal);
-		settings.m_bNativeSave[0] = bVal;
-	}
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_NATIVESAVEFG))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NATIVESAVEFG!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pbCap->GetCurrent(bVal);
-		settings.m_bNativeSave[1] = bVal;
-	}
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_NATIVESAVEBC))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NATIVESAVEBC!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pbCap->GetCurrent(bVal);
-		settings.m_bNativeSave[2] = bVal;
-	}
-	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_NATIVESAVEBG))))
-	{
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_NATIVESAVEBG!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pbCap->GetCurrent(bVal);
-		settings.m_bNativeSave[3] = bVal;
+		settings.m_bNativeSave = bVal;
 	}
 
 	//end新增

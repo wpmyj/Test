@@ -217,9 +217,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClCompile Include="src\Page_Base.cpp" />
     <ClCompile Include="src\Device_Base.cpp" />
     <ClCompile Include="src\Page_Custom.cpp" />
-    <ClCompile Include="src\Page_Filter.cpp" />
     <ClCompile Include="src\Page_Info.cpp" />
-    <ClCompile Include="src\Page_Paper.cpp" />
     <ClCompile Include="src\Page_Profile.cpp" />
     <ClCompile Include="src\Page_Set.cpp" />
     <ClCompile Include="src\PngButton.cpp" />
@@ -276,9 +274,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\bin\Spilt.jpg" "c:\windows\twain_32\U
     <ClInclude Include="src\Page_Advanced.h" />
     <ClInclude Include="src\Page_Base.h" />
     <ClInclude Include="src\Page_Custom.h" />
-    <ClInclude Include="src\Page_Filter.h" />
     <ClInclude Include="src\Page_Info.h" />
-    <ClInclude Include="src\Page_Paper.h" />
     <ClInclude Include="src\Page_Profile.h" />
     <ClInclude Include="src\Page_Set.h" />
     <ClInclude Include="src\PngButton.h" />

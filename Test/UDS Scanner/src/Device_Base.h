@@ -216,7 +216,7 @@ public:
 	int               m_nBackProFill;               /**< 背景处理填补颜色 */
 	float             m_fBackProStrenth;            /**< 背景处理强度 */
 
-	bool              m_bNativeSave[4];             /**< 本地保存 */
+	bool              m_bNativeSave;             /**< 本地保存 */
 
 	bool              m_bOverLength;                /**< 超出预定长度检测 */
 	bool              m_bSeperatePage;              /**< 分隔页 */

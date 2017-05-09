@@ -101,6 +101,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fPreFeedValue        = settings.m_fPreFeedValue;
 	m_fWaitTime            = settings.m_fWaitTime;
 	m_nCodeStandard        = settings.m_nCodeStandard;
+	m_bNativeSave          = settings.m_bNativeSave;
 
 	for(int i=0; i<6; i++)
 	{
@@ -114,7 +115,6 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	for(int i=0; i<4; i++)
 	{
 		m_fContra[i] = settings.m_fContra[i];
-		m_bNativeSave[i] = settings.m_bNativeSave[i];
 	}
 
 	for(int i=0; i<2; i++)

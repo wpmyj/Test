@@ -12,7 +12,7 @@
 IMPLEMENT_DYNAMIC(CBase_Tab_BW, CPropertyPage)
 
 CBase_Tab_BW::CBase_Tab_BW(MFC_UI *pUI)
-	: m_pUI(pUI),CPropertyPage(CBase_Tab_BW::IDD)
+	: m_pUI(pUI),CDialogEx(CBase_Tab_BW::IDD)
 {
 }
 
@@ -22,7 +22,7 @@ CBase_Tab_BW::~CBase_Tab_BW()
 
 void CBase_Tab_BW::DoDataExchange(CDataExchange* pDX)
 {
-	CPropertyPage::DoDataExchange(pDX);
+	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TABBW_COMBO_RESOLUTION, m_combo_resolution);
 	DDX_Control(pDX, IDC_TABBW_SLIDER_BRIGHTNESS, m_slider_brightness);
 	DDX_Control(pDX, IDC_TABBW_EDIT_THRESHOLD, m_edit_threshold);
@@ -44,7 +44,7 @@ void CBase_Tab_BW::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CBase_Tab_BW, CPropertyPage)
+BEGIN_MESSAGE_MAP(CBase_Tab_BW, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_TABBW_COMBO_RESOLUTION, &CBase_Tab_BW::OnCbnSelchangeTabbw_Combo_Resolution)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_TABBW_SLIDER_BRIGHTNESS, &CBase_Tab_BW::OnNMCustomdrawTabbw_Slider_Brightness)
 	ON_EN_CHANGE(IDC_TABBW_EDIT_BRIGHTNESS, &CBase_Tab_BW::OnEnChangeTabbw_Edit_Brightness)
@@ -354,9 +354,10 @@ void CBase_Tab_BW::UpdateControls(void)
 		case 1: //背面
 			nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_COMPRESSIONBB);
 			break;
-		}
+	}
 		m_radio_compress = nCapIndex;
 	}	
+	SetCompress();
 
 	// 压缩比 
 	if(MultiCapValue == 0) //多流未选中
@@ -1057,6 +1058,7 @@ void CBase_Tab_BW::OnTabBW_RadioBtn_CompressG4()
 		}
 		break;
 	}
+	SetCompress();
 	UpdateData(FALSE);
 }
 
@@ -1117,6 +1119,23 @@ void CBase_Tab_BW::OnCbnSelchangeTabBW_Combo_Compressquality()
 	}
 	m_combo_compressquality.SetCurSel(nIndex);
 	SetCompressValue();
+}
+
+void CBase_Tab_BW::SetCompress()
+{
+	if(m_radio_compress == 0)
+	{
+		m_combo_compressquality.EnableWindow(FALSE);
+		m_slider_compressvalue.EnableWindow(FALSE);
+		m_edit_compressvalue.EnableWindow(FALSE);
+	}
+	else
+	{
+		m_combo_compressquality.EnableWindow(TRUE);
+		m_slider_compressvalue.EnableWindow(TRUE);
+		m_edit_compressvalue.EnableWindow(TRUE);
+		SetCompressValue();
+	}
 }
 
 void CBase_Tab_BW::SetCompressValue()

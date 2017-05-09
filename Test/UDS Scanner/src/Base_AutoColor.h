@@ -10,7 +10,7 @@
 class MFC_UI;
 // CBase_AutoColor ¶Ô»°¿ò
 
-class CBase_AutoColor : public CPropertyPage, public CPage_Custom
+class CBase_AutoColor : public CDialogEx, public CPage_Custom
 {
 	DECLARE_DYNAMIC(CBase_AutoColor)
 

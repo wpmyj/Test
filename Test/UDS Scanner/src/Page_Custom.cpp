@@ -80,7 +80,7 @@ int CPage_Custom::FindUnit(int index)
 		nval = TWUN_PIXELS;
 		break;
 	case 2:
-		nval = TWUN_CENTIMETERS;
+		nval = TWUN_MILLIMETERS;
 		break;
 	default:
 		nval = TWUN_INCHES;
