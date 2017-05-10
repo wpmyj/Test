@@ -1382,7 +1382,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT_VALUE] = new CTWAINContainerInt(UDSCAP_MULTIFEEDDETECT_VALUE, TWTY_UINT16, TWON_ENUMERATION);
 	if(NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT_VALUE]))
 		|| !pnCap->Add(TWMV_PAUSE, true)  
-		|| !pnCap->Add(TWMV_CONTINUE) 
+		|| !pnCap->Add(TWMV_REMIND)
+		|| !pnCap->Add(TWMV_STOP)
 		)  
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTIFEEDDETECT_VALUE !"),MB_CAPTION,MB_OK);

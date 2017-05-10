@@ -7,8 +7,6 @@
 #include "ximage.h"  // CXImage
 
 extern HWND g_hwndDLG;
-char m_szSourceImagePath[PATH_MAX];  /**< image used with FreeImage */
-char szTWAIN_DS_DIR[PATH_MAX];     /**< 驱动DS的路径 */
 /**
 * Environment vars to get the Xfer Count.  Create this enviroment Varable on your system to simulate the 
 * number of pages sitting in the scanner waiting to be scanned.
@@ -19,11 +17,10 @@ char szTWAIN_DS_DIR[PATH_MAX];     /**< 驱动DS的路径 */
 	extern HINSTANCE   g_hinstance;
 #endif 
 
-#define IMAGENAME_FRONT "Scanner_leaflet_front.jpg"
-#define IMAGENAME_BACK "Scanner_leaflet_back.jpg"
-#define IMAGENAME_REMOVEPUNCH "RemovePunch.jpg"
-#define IMAGENAME_AUTOCORRECT "AutoCorrect.jpg"
-
+#define IMAGENAME_FRONT _T("image\\Scanner_leaflet_front.jpg")
+#define IMAGENAME_BACK _T("image\\Scanner_leaflet_back.jpg")
+#define IMAGENAME_REMOVEPUNCH _T("image\\RemovePunch.jpg")
+#define IMAGENAME_AUTOCORRECT _T("image\\AutoCorrect.jpg")
 
 CScanner_OpenCV::CScanner_OpenCV(void) :
 	m_nScanLine(0),

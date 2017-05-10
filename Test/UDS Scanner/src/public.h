@@ -48,4 +48,9 @@ typedef enum DEVICE_NUMBER
 	DEVICE_G6600	    = 4,   /**< É¨ÃèÒÇG6600 */
 };
 
+/** Ðý×ªÏÔÊ¾Í¼Æ¬ */
+#define PICTURENAME_ROTATE   TEXT("image\\Rotate.jpg")
+/** ·Ö¸îÏÔÊ¾Í¼Æ¬ */
+#define PICTURENAME_SPILT    TEXT("image\\Spilt.jpg")
+
 #endif //__PUBLIC_H__

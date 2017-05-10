@@ -172,8 +172,11 @@ void CPage_Advanced::UpdateControls(void)
 		case TWMV_PAUSE:
 			m_combo_mdvalue.InsertString(i,"停止扫描");
 			break;
-		case TWMV_CONTINUE:
-			m_combo_mdvalue.InsertString(i,"继续扫描，结束后提醒");
+		case TWMV_REMIND:
+			m_combo_mdvalue.InsertString(i,"结束后提醒");
+			break;
+		case TWMV_STOP:
+			m_combo_mdvalue.InsertString(i,"结束后停止");
 			break;
 		default:
 			continue;
@@ -2338,9 +2341,13 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Findoverlay()
 	{
 		nval = TWEC_WHITE;
 	}
-	else if(strCBText.Find("继续扫描，结束后提醒") >= 0)
+	else if(strCBText.Find("结束后提醒") >= 0)
 	{
-		nval = TWMV_CONTINUE;
+		nval = TWMV_REMIND;
+	}
+	else if(strCBText.Find("结束后停止") >= 0)
+	{
+		nval = TWMV_STOP;
 	}
 	else
 	{}

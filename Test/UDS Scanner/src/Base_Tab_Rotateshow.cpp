@@ -6,9 +6,7 @@
 #include "Base_Tab_Rotateshow.h"
 #include "afxdialogex.h"
 
-extern char m_szSourceImagePath[PATH_MAX];
-extern char szTWAIN_DS_DIR[PATH_MAX]; /**< 驱动DS的路径 */
-
+extern void GetFilePath( char* szFileName, char* szFilePath);
 // CBase_Tab_Rotateshow 对话框
 
 IMPLEMENT_DYNAMIC(CBase_Tab_Rotateshow, CDialogEx)
@@ -43,11 +41,9 @@ BOOL CBase_Tab_Rotateshow::OnInitDialog()
 	__super::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	strcpy_s(m_szSourceImagePath, PATH_MAX, szTWAIN_DS_DIR);
-	strcat(m_szSourceImagePath,  "\\");
-	strcat(m_szSourceImagePath, "Rotate.jpg");
-
-	m_image.Load(m_szSourceImagePath,CXIMAGE_FORMAT_JPG);
+	char path[PATH_MAX]; 
+	GetFilePath(PICTURENAME_ROTATE,path);
+	m_image.Load(path,CXIMAGE_FORMAT_JPG);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE

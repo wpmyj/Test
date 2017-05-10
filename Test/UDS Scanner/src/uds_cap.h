@@ -326,8 +326,8 @@
 #define TWOR_DEFINED                 7  //自定义
 
 /*UDSCAP_EDGE_ORIENTATION values (EO_ means EDGE_ORIENTATION )边缘扩充方向*/
-#define TWEO_IN                      0  //向内
-#define TWEO_OUT                     1  //向外
+#define TWEO_IN                       0  //向内
+#define TWEO_OUT                      1  //向外
 
 /*UDSCAP_EDGE_CORNERCOLOR values (EN_ means EDGE_CORNERCOLOR )边缘扩充--未扫描部分边角填充颜色*/
 #define TWEN_WHITE                     0  //白色
@@ -335,7 +335,8 @@
 
 /*UDSCAP_MULTIFEEDDETECT_VALUE values (MV_ means MULTIFEEDDETECT_VALUE )重张选择值*/
 #define TWMV_PAUSE                     0  //暂停
-#define TWMV_CONTINUE                  1  //继续扫描，扫描完后提示
+#define TWMV_REMIND                    1  //继续扫描，扫描完后提示
+#define TWMV_STOP                      2  //继续扫描，扫描后停止
 
 /*UDSCAP_CODESTANDARD values (CS_ means CODESTANDARD )重张选择值*/
 #define TWCS_1D                        0  //1D
