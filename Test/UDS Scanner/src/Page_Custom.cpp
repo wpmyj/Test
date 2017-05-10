@@ -18,7 +18,7 @@ int CPage_Custom::FindPaperSize(int index)
 	switch(index)
 	{
 	case 0:
-		nval = TWSS_NONE; //自动
+		nval = TWSS_NONE; //自定义
 		break;
 	case 1:
 		nval = TWSS_AUTOCROP; //自动裁切

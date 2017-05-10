@@ -427,9 +427,7 @@ bool CScanner_G6X00::preScanPrep()
 		Rect rect = RemoveBlack(matAutoCrop);
 		Mat imageSave = matAutoCrop(rect);
 		imageSave.copyTo(m_mat_image);
-		//matAutoCrop = RemoveBlack(matAutoCrop);
 		//matAutoCrop.copyTo(m_mat_image);
-
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 	}
@@ -1446,11 +1444,11 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	Mat midImage,dstImage;
 	Canny(srcImage, midImage, 200, 150, 3);
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
-
+	
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	HoughLinesP(midImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/2,srcImage.rows/2), 50);
-
+	
 	//【4】依次在图中绘制出每条线段
 	Vec4i maxline = lines[0];
 	float dx = 0.0;
@@ -1472,7 +1470,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		}
 	}
 	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
-
+	
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
 	bool mark = false;
@@ -1510,7 +1508,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		}
 	}
 	theta = theta/CV_PI*180; //弧度转角度
-
+	
 	int nRows = srcImage.rows; //高11420
 	int nCols = srcImage.cols; //宽4202
 
@@ -1533,7 +1531,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	m_image_out.create(Size(m_width_rotate, m_height_rotate), srcImage.type());
 	warpAffine(srcImage, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
-
+	
 	if(mark)
 	{
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
