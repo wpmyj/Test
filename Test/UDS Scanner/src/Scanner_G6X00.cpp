@@ -223,7 +223,7 @@ short CScanner_G6X00::getDocumentCount() const
 bool CScanner_G6X00::acquireImage()
 {
 	//::MessageBox(g_hwndDLG,TEXT("acquireImage!"),MB_CAPTION,MB_OK);
-	
+
 	if (true == m_bMultiStream)
 	{
 		if(false == m_bMultiSkip)  // 则同一张纸需要跳过扫描
@@ -2733,7 +2733,7 @@ bool CScanner_G6X00::RunScan()
 		GetLastStatusCode(NULL, &lStatus);
 		if ( CODE_SUCCESS != lStatus )
 		{
-			::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);						
+			::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);	
 			m_nDocCount = 0;
 			EndScanJob ();
 			return false;
@@ -2779,8 +2779,9 @@ bool CScanner_G6X00::RunScan()
 		m_nDocCount = 0;
 		//DoCancel();
 		//StopScan(); 
-		EndScanJob();
+		EndScanJob();		
 	}
+
 	return true;
 }
 

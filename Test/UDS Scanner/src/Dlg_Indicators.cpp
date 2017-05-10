@@ -123,10 +123,10 @@ void CDlg_Indicators::OnCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//DestroyWindow();
-	if (m_pDS)
-	{
-		m_pDS->CancelScan();
-	}
+	//if (m_pDS)
+	//{
+	//	m_pDS->CancelScan();
+	//}
 	CDialogEx::OnCancel();
 }
 

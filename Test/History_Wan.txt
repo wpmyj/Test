@@ -528,4 +528,5 @@ date 17.05.08
 解决方法：CTWAIN_UDS::transfer()中，增加判断m_bShowIndicators == true；
 2.与朱裕莎的代码融合；
 3.修复扫描进度开启与关闭切换出错的bug;
-
+解决方法：CAP_INDICATORS = FALSE时，需要将m_bShowIndicators设置为false;
+4.暂时隐藏扫描进度对话框的【取消】按钮；
