@@ -181,6 +181,7 @@ bool CScanner_OpenCV::resetScanner()
 
 	m_bIndicators           = TRUE;
 	m_bNativeSave           = FALSE;
+	m_bEnmergency           = FALSE;
 
 	for(int i=0; i<6; i++)
 	{
@@ -563,7 +564,7 @@ bool CScanner_OpenCV::preScanPrep()
 	}
 
 	//自动裁切与校正
-	if(m_nCutMethod == TWCT_AUTO)
+	if(m_bAutoCrop == TWAC_AUTO)
 	{
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect();//先自动校正	

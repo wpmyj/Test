@@ -354,6 +354,9 @@ void CPage_Base::UpdateControls(void)
 	{
 		switch(lstCapValues->at(i))
 		{
+		case TWJI_NONE:
+			m_combo_joinimage.InsertString(i,"²»Æ´½Ó");
+			break;
 		case TWJI_LEFTRIGHT:
 			m_combo_joinimage.InsertString(i,"×óÓÒÆ´½Ó");
 			break;
@@ -1620,7 +1623,11 @@ void CPage_Base::OnCbnSelchangeBase_Combo_Joinimg()
 	CString strCBText; 
 	m_combo_joinimage.GetLBText( nIndex, strCBText);
 	int nval;
-	if (strCBText.Find("×óÓÒÆ´½Ó") >= 0)
+	if (strCBText.Find("²»Æ´½Ó") >= 0)
+	{
+		nval = TWJI_NONE;
+	}
+	else if (strCBText.Find("×óÓÒÆ´½Ó") >= 0)
 	{
 		nval = TWJI_LEFTRIGHT;
 	}

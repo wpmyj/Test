@@ -32,6 +32,7 @@ void CPage_Set::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SET_SLIDER_SAVEPOWER, m_slider_savepower);
 	DDX_Control(pDX, IDC_SET_CHECK_TURNVIDEO, m_check_turnvideo);
 	DDX_Control(pDX, IDC_SET_CHECK_SHOWSCHEDULE, m_check_indicator);
+	DDX_Control(pDX, IDC_SET_CHECK_EMERGENCY, m_check_enmergency);
 }
 
 
@@ -42,6 +43,7 @@ BEGIN_MESSAGE_MAP(CPage_Set, CPropertyPage)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SET_SLIDER_OFFTIME, &CPage_Set::OnNMCustomdrawSet_Slider_Offtime)
 ON_BN_CLICKED(IDC_SET_CHECK_TURNVIDEO, &CPage_Set::OnSet_Btn_Check_TurnVideo)
 ON_BN_CLICKED(IDC_SET_CHECK_SHOWSCHEDULE, &CPage_Set::OnSet_Btn_Check_Showschedule)
+ON_BN_CLICKED(IDC_SET_CHECK_EMERGENCY, &CPage_Set::OnSet_Btn_Check_Emergency)
 END_MESSAGE_MAP()
 
 
@@ -52,27 +54,6 @@ void CPage_Set::SetCapValue(void)
 	if (true == m_setmap.empty())
 	{
 		return;
-	}
-	for(iter = m_setmap.begin(); iter != m_setmap.end(); iter++)
-	{
-		switch(iter->first)
-		{
-		case UDSCAP_POWERSAVING: //节电模式
-		case UDSCAP_POWEROFF: //关机时间
-		case UDSCAP_TURNVIDEO: //扫描仪无纸时转高拍仪
-		case CAP_INDICATORS: //显示扫描进度
-			{
-				m_pUI->SetCapValueInt(iter->first,(int)(iter->second));
-				break;
-			}	
-
-		case UDSCAP_POWERSAVING_TIME: //节电模式值
-		case UDSCAP_POWEROFF_TIME: //关机时间值
-			{			
-				m_pUI->SetCapValueFloat(iter->first,iter->second);
-				break;
-			}
-		}
 	}
 
 	// 设置待机时间与关机时间
@@ -132,14 +113,15 @@ void CPage_Set::UpdateControls(void)
 	SetDlgItemText(IDC_SET_STATIC_OFFTIME, strText);
 	m_setmap[UDSCAP_POWEROFF_TIME] = float(nCapValue);
 
-	//关机时间
+	//无纸转高拍
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_TURNVIDEO));
 	m_check_turnvideo.SetCheck(nCapValue);
-	m_setmap[UDSCAP_TURNVIDEO] = float(nCapValue);
 	//显示扫描进度
 	nCapValue = (int)(m_pUI->GetCapValueBool(CAP_INDICATORS));
 	m_check_indicator.SetCheck(nCapValue);
-	m_setmap[CAP_INDICATORS] = float(nCapValue);
+	//紧急按钮
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_EMERGENCY));
+	m_check_enmergency.SetCheck(nCapValue);
 	UpdateData(FALSE);
 }
 
@@ -150,12 +132,27 @@ BOOL CPage_Set::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
+	InitBasemap();
 	UpdateControls();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
+void CPage_Set::InitBasemap(void)
+{
+	m_setmap.erase(m_setmap.begin(),m_setmap.end());//清空
+
+	int nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWERSAVING));
+	m_setmap[UDSCAP_POWERSAVING] = (float)nCapValue;
+	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_POWEROFF));
+	m_setmap[UDSCAP_POWEROFF] = (float)nCapValue;
+
+	float value = m_pUI->GetCapValueFloat(UDSCAP_POWERSAVING_TIME);
+	m_setmap[UDSCAP_POWERSAVING_TIME] = value; // 初始化时添加UDSCAP_MULTISTREAM_VALUE，保证SetCapValue()会更新该Cap的值
+	value = m_pUI->GetCapValueFloat(UDSCAP_POWEROFF_TIME);
+	m_setmap[UDSCAP_POWEROFF_TIME] = value;
+}
 
 void CPage_Set::InitSliderCtrl()
 {
@@ -185,6 +182,7 @@ void CPage_Set::OnSet_Btn_Check_SavePower()
 		nval = TWSP_DISABLE;
 	}
 	m_setmap[UDSCAP_POWERSAVING] = (float)nval;
+	m_pUI->SetCapValueInt(UDSCAP_POWERSAVING,nval);
 	SetSavePower();
 }
 
@@ -202,6 +200,7 @@ void CPage_Set::OnSet_Btn_Check_OffTime()
 		nval = TWOT_DISABLE;
 	}
 	m_setmap[UDSCAP_POWEROFF] = (float)nval;
+	m_pUI->SetCapValueInt(UDSCAP_POWEROFF,nval);	
 	SetOffTime();
 }
 
@@ -214,6 +213,7 @@ void CPage_Set::OnNMCustomdrawSet_Slider_SavePower(NMHDR *pNMHDR, LRESULT *pResu
 	CString str;
 	int sldValue = m_slider_savepower.GetPos();  // 获取滑块当前位置
 	m_setmap[UDSCAP_POWERSAVING_TIME] = (float)sldValue;
+	m_pUI->SetCapValueFloat(UDSCAP_POWERSAVING_TIME,(float)sldValue);
 
 	str.Format("%d分", sldValue);
 	SetDlgItemText(IDC_SET_STATIC_SAVEPOWER, str);
@@ -235,10 +235,10 @@ void CPage_Set::OnNMCustomdrawSet_Slider_Offtime(NMHDR *pNMHDR, LRESULT *pResult
 	if(sldValue <= sldValue_temp)//关机时间必须大于节电模式设置的时间
 	{
 		sldValue = sldValue_temp;
-		//m_slider_offtime.SetPos(sldValue);
 	}
 	
 	m_setmap[UDSCAP_POWEROFF_TIME] = (float)sldValue;
+	m_pUI->SetCapValueFloat(UDSCAP_POWEROFF_TIME,(float)sldValue);
 	
 	str.Format("%d分", sldValue);
 	SetDlgItemText(IDC_SET_STATIC_OFFTIME, str);
@@ -351,7 +351,7 @@ void CPage_Set::OnSet_Btn_Check_TurnVideo()
 	{
 		nval = TWTV_DISABLE;
 	}
-	m_setmap[UDSCAP_TURNVIDEO] = (float)nval;
+	m_pUI->SetCapValueInt(UDSCAP_TURNVIDEO,nval);
 }
 
 
@@ -376,5 +376,21 @@ void CPage_Set::OnSet_Btn_Check_Showschedule()
 	{
 		nval = FALSE;
 	}
-	m_setmap[CAP_INDICATORS] = (float)nval;
+	m_pUI->SetCapValueInt(CAP_INDICATORS,nval);
+}
+
+
+void CPage_Set::OnSet_Btn_Check_Emergency()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nval;
+	if (m_check_enmergency.GetCheck())
+	{
+		nval = TRUE;
+	} 
+	else
+	{
+		nval = FALSE;
+	}
+	m_pUI->SetCapValueInt(UDSCAP_EMERGENCY,nval);
 }

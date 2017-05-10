@@ -18,48 +18,51 @@ int CPage_Custom::FindPaperSize(int index)
 	switch(index)
 	{
 	case 0:
-		nval = TWSS_NONE;
+		nval = TWSS_NONE; //自动
 		break;
 	case 1:
-		nval = TWSS_USLETTER;
+		nval = TWSS_AUTOCROP; //自动裁切
 		break;
 	case 2:
-		nval = TWSS_USLEGAL;
+		nval = TWSS_USLETTER;
 		break;
 	case 3:
-		nval = TWSS_A4;
+		nval = TWSS_USLEGAL;
 		break;
 	case 4:
-		nval = TWSS_A5;
+		nval = TWSS_A4;
 		break;
 	case 5:
-		nval = TWSS_A6;
+		nval = TWSS_A5;
 		break;
 	case 6:
-		nval = TWSS_A7;
+		nval = TWSS_A6;
 		break;
 	case 7:
-		nval = TWSS_ISOB5;
+		nval = TWSS_A7;
 		break;
 	case 8:
-		nval = TWSS_ISOB6;
+		nval = TWSS_ISOB5;
 		break;
 	case 9:
-		nval = TWSS_ISOB7;
+		nval = TWSS_ISOB6;
 		break;
 	case 10:
-		nval = TWSS_JISB5;
+		nval = TWSS_ISOB7;
 		break;
 	case 11:
-		nval = TWSS_JISB6;
+		nval = TWSS_JISB5;
 		break;
 	case 12:
-		nval = TWSS_JISB7;
+		nval = TWSS_JISB6;
 		break;
 	case 13:
-		nval = UDSCAP_LONGDOCUMENT;
+		nval = TWSS_JISB7;
 		break;
 	case 14:
+		nval = UDSCAP_LONGDOCUMENT;
+		break;
+	case 15:
 		nval = TWSS_MAXSIZE;
 		break;
 	default:

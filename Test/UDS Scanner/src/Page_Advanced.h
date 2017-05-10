@@ -57,7 +57,6 @@ private:
 	CEdit m_edit_ypos;
 	CScrollBar m_scroll_xpos;
 	CScrollBar m_scroll_ypos;
-	CComboBox m_combo_cutmethod;
 	int m_radio_edgeorientation;
 	int m_radio_cornercolor;
 	CComboBox m_combo_edgecolor;
@@ -97,8 +96,6 @@ public:
 	void SetScroll(); ///<根据edit的值更新滚动条的值;以及根据单位设定宽、高滚动条的范围;
 	void SetPrefeed(); ///<设置预先进纸编辑框是否可用
 	void SetOverlength(); ///<设置超出预定长度是否可用
-	void SetCutMethod(); ///<设置纸张大小为长纸时,不能纠偏
-
 
 private:
 	virtual BOOL OnInitDialog();
@@ -108,7 +105,6 @@ private:
 	afx_msg void OnAdvanced_Btn_Check_RemovePunch();
 	afx_msg void OnClicked_Check_Multifeeddetect();
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Standardsizes();
-	afx_msg void OnCbnSelchangeAdvanced_Combo_Cutmethod();
 
 	//2.0版本
 	afx_msg void OnCbnSelchangeAdvanced_Combo_Uints();	

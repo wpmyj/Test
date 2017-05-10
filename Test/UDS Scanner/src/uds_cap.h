@@ -137,7 +137,7 @@
 #define UDSCAP_BACKPROMODE                   CAP_CUSTOMBASE+87 /**< 背景处理模式 */
 #define UDSCAP_BACKPROFILLCOLOR              CAP_CUSTOMBASE+88 /**< 背景处理填补颜色 */
 
-#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+89  /**< 色彩校正 */ 
+#define UDSCAP_COLORCORRECT                  CAP_CUSTOMBASE+89  /**<  色彩校正 */ 
 #define UDSCAP_COLORCORRECTFC                CAP_CUSTOMBASE+90  /**<  多流色彩优化*/
 #define UDSCAP_COLORCORRECTBC                CAP_CUSTOMBASE+91  /**<  多流色彩优化*/
 
@@ -158,6 +158,9 @@
 #define UDSCAP_PREFEEDVALUE                  CAP_CUSTOMBASE+101  /**<  预先进纸值*/
 
 #define UDSCAP_WAITTIME                      CAP_CUSTOMBASE+102 /**<  连续扫描等待放纸时间*/
+
+#define UDSCAP_EMERGENCY                     CAP_CUSTOMBASE+103 /**<  紧急按钮*/
+
 //end 2.0版本
 
 /** UDSCAP_BINARIZATION values (BZ_ means BINARIZATION) 二值化对应取值 */
@@ -211,6 +214,7 @@
 /* UDSCAP_AUTOCROP values (AC_ means AUTOCROP)自动裁切校正。*/
 #define TWAC_DISABLE              FALSE
 #define TWAC_AUTO                 TRUE
+#define TWSS_AUTOCROP             100 //纸张大小中的自动裁切
 
 /* UDSCAP_FRONTCOLOR values (FC_ means FRONTCOLOR)彩色正面。*/
 #define TWFC_DISABLE              FALSE 
@@ -305,9 +309,10 @@
 #define TWBI_DIFF                  1 //相反朝向
 
 /* UDSCAP_JOINIMAGE values (JI_ means UDSCAP_JOINIMAGE )图像拼接*/
-#define TWJI_LEFTRIGHT               0  //左右拼接
-#define TWJI_UPDOWN                  1  //上下拼接
-#define TWJI_UPDOWNBACKTURN          2  //上下拼接（背面倒转）
+#define TWJI_NONE                    0  //不拼接
+#define TWJI_LEFTRIGHT               1  //左右拼接
+#define TWJI_UPDOWN                  2  //上下拼接
+#define TWJI_UPDOWNBACKTURN          3  //上下拼接（背面倒转）
 
 /* UDSCAP_BACKPROCESS values (BS_ means UDSCAP_BACKPROCESS )背景处理*/
 #define TWBS_NONE                    0  //无

@@ -551,7 +551,9 @@ bool CTWAINDS_UDS::StoreCustomDSdata(stringstream &DsData)
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_PREFEEDVALUE,0,TWON_ONEVALUE); 
 	bResult = bResult && StoreCapInStream(DsData,UDSCAP_WAITTIME,0,TWON_ONEVALUE);
 	//扫描进度
-	bResult = bResult && StoreCapInStream(DsData,CAP_INDICATORS,0,TWON_ONEVALUE);
+	bResult = bResult && StoreCapInStream(DsData,CAP_INDICATORS,0,TWON_ONEVALUE); 
+	//紧急按钮
+	bResult = bResult && StoreCapInStream(DsData,UDSCAP_EMERGENCY,0,TWON_ONEVALUE);
 	return bResult;
 }
 
@@ -703,7 +705,9 @@ bool CTWAINDS_UDS::ReadCustomDSdata(stringstream &DsData)
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_PREFEEDVALUE,0);
 	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_WAITTIME,0);
 	//扫描进度
-	bResult = bResult && ReadCapFromStream(DsData,CAP_INDICATORS,0);
+	bResult = bResult && ReadCapFromStream(DsData,CAP_INDICATORS,0); 
+	bResult = bResult && ReadCapFromStream(DsData,UDSCAP_EMERGENCY,0); //紧急按钮
+	
 	return bResult;
 }
 
@@ -876,6 +880,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 || !pnCap->Add(UDSCAP_WAITTIME)
 	 //扫描进度
 	 || !pnCap->Add(CAP_INDICATORS)
+	 || !pnCap->Add(UDSCAP_EMERGENCY)
    )
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create CAP_SUPPORTEDCAPS !"),MB_CAPTION,MB_OK);
@@ -884,6 +889,17 @@ TW_INT16 CTWAINDS_UDS::Initialize()
     return TWRC_FAILURE;
   }
 	 
+	 //紧急按钮
+	 m_IndependantCapMap[UDSCAP_EMERGENCY] = new CTWAINContainerBool(UDSCAP_EMERGENCY, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
+	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_EMERGENCY]))
+		 || !pbCap->Add(FALSE, true)
+		 || !pbCap->Add(TRUE) )
+	 {
+		 ::MessageBox(g_hwndDLG,TEXT("Could not create CAP_INDICATORS !"),MB_CAPTION,MB_OK);
+		 setConditionCode(TWCC_LOWMEMORY);
+		 return TWRC_FAILURE;
+	 }
+
 	 //扫描进度
 	 m_IndependantCapMap[CAP_INDICATORS] = new CTWAINContainerBool(CAP_INDICATORS, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	 if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[CAP_INDICATORS]))
@@ -1004,7 +1020,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	 //图像拼接
 	 m_IndependantCapMap[UDSCAP_JOINIMAGE] = new CTWAINContainerInt(UDSCAP_JOINIMAGE, TWTY_UINT16, TWON_ENUMERATION);
 	 if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_JOINIMAGE]))
-		 || !pnCap->Add(TWJI_LEFTRIGHT, true)
+		 || !pnCap->Add(TWJI_NONE, true)
+		 || !pnCap->Add(TWJI_LEFTRIGHT)
 		 || !pnCap->Add(TWJI_UPDOWN)
 		 || !pnCap->Add(TWJI_UPDOWNBACKTURN))
 	 {
@@ -1416,7 +1433,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//纸张大小
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
-   || !pnCap->Add(TWSS_NONE) //zhu
+	 //|| !pnCap->Add(TWSS_NONE) //zhu 自定义
+	 || !pnCap->Add(TWSS_AUTOCROP)  //zhu 自动裁切与校正
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
@@ -3248,6 +3266,18 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	CTWAINContainerBool* pbCap = 0; //zhu
 
 	//新界面新增
+	//紧急按钮
+	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_EMERGENCY))))
+	{
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_EMERGENCY!"),MB_CAPTION,MB_OK);
+		bret = false;
+	}
+	else
+	{
+		pbCap->GetCurrent(bVal);
+		settings.m_bEnmergency = bVal;
+	}
+
 	//扫描进度
 	if(0 == (pbCap = dynamic_cast<CTWAINContainerBool*>(findCapability(CAP_INDICATORS))))
 	{

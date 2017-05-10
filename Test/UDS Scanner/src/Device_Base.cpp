@@ -102,6 +102,7 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_fWaitTime            = settings.m_fWaitTime;
 	m_nCodeStandard        = settings.m_nCodeStandard;
 	m_bNativeSave          = settings.m_bNativeSave;
+	m_bEnmergency          = settings.m_bEnmergency;
 
 	for(int i=0; i<6; i++)
 	{

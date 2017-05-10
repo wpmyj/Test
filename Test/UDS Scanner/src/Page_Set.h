@@ -17,7 +17,6 @@ public:
 	CPage_Set(MFC_UI *pUI);
 	virtual ~CPage_Set();
 
-// ¶Ô»°¿òÊý¾Ý
 	enum { IDD = IDD_PROPPAGE_SET };
 
 protected:
@@ -27,9 +26,9 @@ protected:
 
 private:
 	/**
-	* @brief Ö÷½çÃæ
+	* @brief 
 	* @see  MFC_UI::DisplayTWAINGUI()
-	* @note ´ÓÍâ²¿½ÓÊÕÖµ
+	* @note 
 	*/
 	MFC_UI  *m_pUI;
 	HMODULE m_hDLL;
@@ -38,8 +37,9 @@ public:
 	void InitSliderCtrl();  ///< ³õÊ¼»¯»¬¶¯Ìõ¿Ø¼þ
 	void SetCapValue(void); ///<ÉèÖÃ²ÎÊý
 	void SetSavePower(void); ///<ÉèÖÃ½ÚµãÄ£Ê½»¬¶¯ÌõÊÇ·ñ¿ÉÓÃ
-	void SetOffTime(void); ///<ÉèÖÃ¹Ø»úÊ±¼ä»¬¶¯ÌõÊÇ·ñ¿ÉÓÃ
-	
+	void SetOffTime(void); ///<ÉèÖÃ¹Ø»úÊ±¼ä»¬¶¯ÌõÊÇ·ñ¿ÉÓÃ	
+	void InitBasemap(void);
+
 private:
 	MAP_CAP m_setmap;  ///<ÓÃÓÚ±£´æ²ÎÊý¸Ä±äºóµÄÖµ
 
@@ -71,4 +71,6 @@ private:
 public:
 	CButton m_check_indicator;
 	afx_msg void OnSet_Btn_Check_Showschedule();
+	CButton m_check_enmergency;
+	afx_msg void OnSet_Btn_Check_Emergency();
 };

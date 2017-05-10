@@ -47,7 +47,7 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_YPOS, m_edit_ypos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_YPOS, m_scroll_ypos);
-	DDX_Control(pDX, IDC_ADVANCED_COMBO_CUTMETHOD, m_combo_cutmethod);
+	//  DDX_Control(pDX, IDC_ADVANCED_COMBO_CUTMETHOD, m_combo_cutmethod);
 	DDX_Radio(pDX, IDC_ADVANCED_RADIO_EDGEMETHOD_IN, m_radio_edgeorientation);
 	DDX_Radio(pDX, IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, m_radio_cornercolor);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_EDGECOLOR, m_combo_edgecolor);
@@ -79,7 +79,7 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_LEFT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeLeft)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_RIGHT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
-	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
+//	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_IN, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_OUT, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Cornercolor)
@@ -134,29 +134,6 @@ void CPage_Advanced::UpdateControls(void)
 	CString strText;
 	int nval;
 	float fCapValue;
-	
-	// 图像裁切方式 
-	m_combo_cutmethod.ResetContent();
-	nCapIndex = m_pUI->GetCurrentCapIndex(UDSCAP_CUTMETHOD);
-	lstCapValues = m_pUI->GetValidCap(UDSCAP_CUTMETHOD);
-	for(unsigned int i=0; i<lstCapValues->size();i++)
-	{
-		switch(lstCapValues->at(i))
-		{
-		case TWCT_NONE:
-			m_combo_cutmethod.InsertString(i,"不裁切");
-			break;
-		case TWCT_AUTO:
-			m_combo_cutmethod.InsertString(i,"自动裁切与纠偏");
-			break;
-		case TWCT_SPECIFY:
-			m_combo_cutmethod.InsertString(i,"指定长度、宽度");
-			break;
-		default:
-			continue;
-		}
-	}
-	m_combo_cutmethod.SetCurSel(nCapIndex);
 
 	//重张检测：默认使用
 	nCapValue = (int)(m_pUI->GetCapValueBool(UDSCAP_MULTIFEEDDETECT));
@@ -571,7 +548,10 @@ void CPage_Advanced::UpdateControls(void)
 		switch(lstCapValues->at(i))
 		{
 		case TWSS_NONE:
-			m_combo_standardsizes.InsertString(i,"自动");
+			m_combo_standardsizes.InsertString(i,"自定义");
+			break;
+		case TWSS_AUTOCROP:
+			m_combo_standardsizes.InsertString(i,"自动裁切与纠偏");
 			break;
 		case TWSS_USLETTER:
 			m_combo_standardsizes.InsertString(i,"US Letter (8.5\" x 11\")");  //216mm x 280mm
@@ -1067,35 +1047,24 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	int nIndex = m_combo_standardsizes.GetCurSel();
 	int nval = FindPaperSize(nIndex);
 	m_combo_standardsizes.SetCurSel(nIndex);
+	
+	if(nval == TWSS_AUTOCROP) //自动裁切与校正
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_AUTO);
+	} 
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+	}
 	SetPaperSize();
 	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, nval); //能够直接响应
 	UpdateControls(); //更新宽、高
 }
 
-
-void CPage_Advanced::SetCutMethod()
-{
-	UpdateData(TRUE);
-	int nIndex = m_combo_standardsizes.GetCurSel();
-	int nval = FindPaperSize(nIndex);
-	if(nval == UDSCAP_LONGDOCUMENT) //长纸模式
-	{
-		m_combo_cutmethod.SetCurSel(0);//设置不裁切
-		m_combo_cutmethod.EnableWindow(FALSE);
-	}
-	else
-	{
-		m_combo_cutmethod.EnableWindow(TRUE);
-	}
-	UpdateData(FALSE);
-}
-
-
 void CPage_Advanced::SetPaperSize(void)
 {
-	SetXYPos();
-	SetCutMethod();
-	
+	SetXYPos();	
+
 	int nIndex = m_combo_standardsizes.GetCurSel(); 
 	int nval = FindPaperSize(nIndex);
 	int nIndex_unit = m_combo_uints.GetCurSel();
@@ -1131,14 +1100,14 @@ void CPage_Advanced::SetPaperSize(void)
 		m_scroll_height.ShowWindow(TRUE);
 	}
 
-	/*if(nval == TWSS_NONE)  //纸张大小：自动。
+	if(nval == TWSS_NONE)  //纸张大小：自定义。
 	{
 		m_edit_width.EnableWindow(TRUE);
 		m_edit_height.EnableWindow(TRUE);
 		m_scroll_width.EnableWindow(TRUE);
 		m_scroll_height.EnableWindow(TRUE);
 	} 
-	else*/
+	else
 	{
 		m_edit_width.EnableWindow(FALSE);
 		m_edit_height.EnableWindow(FALSE);
@@ -1152,9 +1121,10 @@ void CPage_Advanced::SetXYPos()
 	int index = m_combo_standardsizes.GetCurSel();	
 	switch(index)
 	{
-		//自动与US Legal
+		//自定义、自动裁切与US Legal
 	case 0:
-	case 2:
+	case 1:
+	case 3:
 		{
 			m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(FALSE);
@@ -1164,7 +1134,7 @@ void CPage_Advanced::SetXYPos()
 		}
 
 		//US Letter
-	case 1:
+	case 2:
 		{
 			m_edit_xpos.EnableWindow(FALSE);
 			m_edit_ypos.EnableWindow(TRUE);
@@ -1174,7 +1144,6 @@ void CPage_Advanced::SetXYPos()
 		}
 
 		//其他
-	case 3:
 	case 4:
 	case 5:
 	case 6:
@@ -1186,6 +1155,7 @@ void CPage_Advanced::SetXYPos()
 	case 12:
 	case 13:
 	case 14:
+	case 15:
 		{
 			m_edit_xpos.EnableWindow(TRUE);
 			m_edit_ypos.EnableWindow(TRUE);
@@ -2224,50 +2194,6 @@ void CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown()
 	UpdateData(FALSE);  // 更新控件
 }
 
-
-void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	int nIndex = m_combo_cutmethod.GetCurSel();
-	CString strCBText; 
-	m_combo_cutmethod.GetLBText( nIndex, strCBText);
-	int nval;
-	if (strCBText.Find("不裁切") >= 0)
-	{
-		nval = TWCT_NONE;
-	}
-	else if(strCBText.Find("自动裁切与纠偏") >= 0)
-	{
-		nval = TWCT_AUTO; 
-	}
-	else if(strCBText.Find("指定长度、宽度") >= 0)
-	{
-		nval = TWCT_SPECIFY; 
-	}
-	else
-	{}
-
-	m_pUI->SetCapValueInt(UDSCAP_CUTMETHOD,nval); 
-	m_combo_cutmethod.SetCurSel(nIndex);
-
-	if(nIndex == 1) //自动裁切与校正
-	{
-		nval = TWAC_AUTO;
-	} 
-	else
-	{
-		nval = TWAC_DISABLE;
-	}
-	if(m_combo_cutmethod.IsWindowEnabled())
-	{
-		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,nval);
-	}
-	else
-	{
-		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
-	}
-	
-}
 
 void CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation()
 {

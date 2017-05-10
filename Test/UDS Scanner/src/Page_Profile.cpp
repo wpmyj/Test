@@ -479,6 +479,13 @@ void CPage_Profile::OnProfile_Btn_Delete()
 void CPage_Profile::OnProfile_Btn_Reset()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	Reset();
+}
+
+
+void CPage_Profile::Reset()
+{
+	// TODO: 在此添加控件通知处理程序代码
 	m_pUI->ResetAllCaps();
 	m_list_profile.SetItemState(0, LVNI_FOCUSED | LVIS_SELECTED, LVNI_FOCUSED | LVIS_SELECTED);
 	LoadTemplate();

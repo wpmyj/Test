@@ -56,7 +56,7 @@ public:
 	void SetLastTemplate(void); ///<往listbox插入模板，并设置存在“上次使用模板”的情况
 	void SetDelete(void); ///<设置删除按钮是否可用
 	void SetRename(void); ///<设置重命名按钮是否可用
-
+	void Reset(); ///<恢复默认值
 	/**
 	*  @brief  新建指定参数模板
 	*  @param[in]  profilename 模板名
@@ -76,9 +76,7 @@ public:
 	/** 父类指针*/
 	CPage_Custom* m_pBasePage;
 	CPage_Custom* m_pAdPage;
-	//CPage_Custom* m_pPaperPage;
 	CPage_Custom* m_pSetPage;
-	//CPage_Custom* m_pFilterPage;
 
 	CPage_Custom* m_pBaseTabAutoColor;
 	CPage_Custom* m_pBaseTabColor;
