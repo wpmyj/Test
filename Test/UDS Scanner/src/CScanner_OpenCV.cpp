@@ -1299,7 +1299,10 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	{
 		tmpMat.copyTo(tmpMat);
 	}
-	threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
+	if(m_nPixelType != TWPT_BW)
+	{
+		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
+	}
 	
 	int width = tmpMat.cols;
 	int height = tmpMat.rows;
@@ -1309,83 +1312,105 @@ Mat CScanner_OpenCV::RemoveBlack(Mat src_img)
 	int up = 0;
 	int down = height; //行 高2808
 
+	int num = 0; //记录某一行白点数目
+
 	int i = 0, j = 0;
 	//上侧
 	for(i = 0; i < height; i++)
 	{
-		for(j = 1; j < width/2; j++)
+		//for(j = 1; j < width/2; j++)
+		for(j = 2; j < width-2; j++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 					(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
+			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
+			&& num >  15)
 		{
 			up = i; 
 			break;
 		}	
 	}
+	num = 0;
 	//左侧
 	for(j = 0; j < width; j++)
 	{
-		for(i = 1; i < height/2; i++)
+		//for(i = 1; i < height/2; i++)
+		for(i = 2; i < height-2; i++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 				(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
+			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
+			&& num > 15)
 		{
 			left = j; 
 			break;
 		}	
 	}
-
+	num = 0;
 	//下侧
-	for(i = height-2; i >= height/2; i--)
+	/*for(i = height-2; i >= height/2; i--)
 	{
-		for(j = width-2; j >= width/2; j--)
+	for(j = width-2; j >= width/2; j--)
+	{*/
+	for(i = height-2; i >= 2; i--)
+	{
+		for(j = width-2; j >= 2; j--)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black
 				 &&(int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
+			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
+			&& num > 15)
 		{
 			down = i;	
 			break;
 		}	
 	}
+	num = 0;
 	//右侧
-	for(j = width-2; j >= width/2; j--)
+	/*for(j = width-2; j >= width/2; j--)
 	{
 		for(i = height-2; i >= height/2; i--)
+		{*/
+	for(j = width-2; j >= 2; j--)
+	{
+		for(i = height-2; i >= 2; i--)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black
 				&&(int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
+			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
+			&& num > 15)
 		{
 			right = j; 	
 			break;
 		}	
 	}
-	
+
 	Rect rect(left, up, right-left, down-up); //(856.1030)
 	
 	Mat imageSave = inputImg(rect);

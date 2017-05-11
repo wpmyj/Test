@@ -41,9 +41,9 @@ BEGIN_MESSAGE_MAP(CPage_Set, CPropertyPage)
 	ON_BN_CLICKED(IDC_SET_CHECK_OFFTIME, &CPage_Set::OnSet_Btn_Check_OffTime)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SET_SLIDER_SAVEPOWER, &CPage_Set::OnNMCustomdrawSet_Slider_SavePower)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SET_SLIDER_OFFTIME, &CPage_Set::OnNMCustomdrawSet_Slider_Offtime)
-ON_BN_CLICKED(IDC_SET_CHECK_TURNVIDEO, &CPage_Set::OnSet_Btn_Check_TurnVideo)
-ON_BN_CLICKED(IDC_SET_CHECK_SHOWSCHEDULE, &CPage_Set::OnSet_Btn_Check_Showschedule)
-ON_BN_CLICKED(IDC_SET_CHECK_EMERGENCY, &CPage_Set::OnSet_Btn_Check_Emergency)
+  ON_BN_CLICKED(IDC_SET_CHECK_TURNVIDEO, &CPage_Set::OnSet_Btn_Check_TurnVideo)
+  ON_BN_CLICKED(IDC_SET_CHECK_SHOWSCHEDULE, &CPage_Set::OnSet_Btn_Check_Showschedule)
+  ON_BN_CLICKED(IDC_SET_CHECK_EMERGENCY, &CPage_Set::OnSet_Btn_Check_Emergency)
 END_MESSAGE_MAP()
 
 
@@ -132,14 +132,14 @@ BOOL CPage_Set::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
-	InitBasemap();
+	InitSetmap();
 	UpdateControls();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
 
-void CPage_Set::InitBasemap(void)
+void CPage_Set::InitSetmap(void)
 {
 	m_setmap.erase(m_setmap.begin(),m_setmap.end());//清空
 
@@ -394,3 +394,9 @@ void CPage_Set::OnSet_Btn_Check_Emergency()
 	}
 	m_pUI->SetCapValueInt(UDSCAP_EMERGENCY,nval);
 }
+
+
+//void CPage_Set::OnSet_Btn_Default()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//}

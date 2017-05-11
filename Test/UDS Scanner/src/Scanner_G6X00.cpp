@@ -379,7 +379,6 @@ bool CScanner_G6X00::preScanPrep()
 		}
 	}
 
-
 	if(m_nPixelType == TWPT_BW)
 	{
 		threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU);
@@ -417,13 +416,16 @@ bool CScanner_G6X00::preScanPrep()
 		mat_hMirror.copyTo(m_mat_image);
 	}
 
-
+	//imwrite("C:\\Users\\Administrator\\Desktop\\校正前.jpg", m_mat_image);
 	//自动裁切与校正
-	//if(m_bAutoCrop == TWAC_AUTO) 
-	if(m_nCutMethod == TWCT_AUTO)
+	if(m_bAutoCrop == TWAC_AUTO) 
+	//if(m_nCutMethod == TWCT_AUTO)
 	{
+		//AfxMessageBox("m_bAutoCrop");
 		Mat matAutoCrop; 
 		matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	
+
+		//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
 		Rect rect = RemoveBlack(matAutoCrop);
 		Mat imageSave = matAutoCrop(rect);
 		imageSave.copyTo(m_mat_image);
@@ -431,7 +433,7 @@ bool CScanner_G6X00::preScanPrep()
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 	}
-	//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", m_mat_image);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
 
 	//色彩翻转
 	if(m_bColorFlip == TWCF_AUTO)
@@ -440,7 +442,6 @@ bool CScanner_G6X00::preScanPrep()
 		ColorFlip(m_mat_image, mat_hColorflip);
 		mat_hColorflip.copyTo(m_mat_image);
 	}
-
 
 	//去除噪声
 	if(m_bDenoise == TWDN_AUTO) 
@@ -478,7 +479,6 @@ bool CScanner_G6X00::preScanPrep()
 		m_nHeight = m_mat_image.rows;
 	}
 
-
 	//锐化
 	int index = FindDepth(m_mat_image); //index为图像的深度
 	//锐化图像
@@ -500,7 +500,6 @@ bool CScanner_G6X00::preScanPrep()
 			imgdst.copyTo(m_mat_image);
 		}	
 	}
-
 
 	//去除背景
 	if(m_bRemoveBack == TWRB_AUTO) 
@@ -1530,10 +1529,12 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	Mat m_image_out;
 	m_image_out.create(Size(m_width_rotate, m_height_rotate), srcImage.type());
 	warpAffine(srcImage, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
+
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
 	if(mark)
 	{
+		//AfxMessageBox("1");
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
 
 		double scale = m_dRat;
@@ -1549,10 +1550,11 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	}
 	else
 	{
+		//AfxMessageBox("2");
+		//imwrite("C:\\Users\\Administrator\\Desktop\\rotateImg.jpg", m_image_out);
 		return m_image_out;
 	}
 }
-
 
 //cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
 Rect CScanner_G6X00::RemoveBlack(Mat src_img)
@@ -1571,7 +1573,10 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	{
 		tmpMat.copyTo(tmpMat);
 	}
-	threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
+	if(m_nPixelType != TWPT_BW)
+	{
+		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
+	}
 	
 	int width = tmpMat.cols;
 	int height = tmpMat.rows;
@@ -1581,77 +1586,105 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	int up = 0;
 	int down = height; //行 高2808
 
+	int num = 0; //记录某一行白点数目
+
 	int i = 0, j = 0;
 	//上侧
 	for(i = 0; i < height; i++)
 	{
-		for(j = 1; j < width/2; j++)
+	for(j = 1; j < width/2; j++)
+		//for(j = 2; j < width-2; j++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 					(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
+			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
+			&& num > 15
+			)
 		{
 			up = i; 
 			break;
 		}	
 	}
+	num = 0;
 	//左侧
 	for(j = 0; j < width; j++)
 	{
 		for(i = 1; i < height/2; i++)
+		//for(i = 2; i < height-2; i++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 				(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
+			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
+			&& num > 15
+			)
 		{
 			left = j; 
 			break;
 		}	
 	}
 
+	num = 0;
 	//下侧
-	for(i = height-2; i >= height/2; i--)
+	/*for(i = height-2; i >= height/2; i--)
 	{
-		for(j = width-2; j >= width/2; j--)
+	for(j = width-2; j >= width/2; j--)
+	{*/
+	for(i = height-2; i >= 2; i--)
+	{
+		for(j = width-2; j >= 2; j--)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black
 				 &&(int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
+			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
+			&& num > 15
+			)
 		{
 			down = i;	
 			break;
 		}	
 	}
-	//右侧
-	for(j = width-2; j >= width/2; j--)
+
+	num = 0;
+	////右侧
+	//for(j = width-2; j >= width/2; j--)
+	//{
+	//	for(i = height-2; i >= height/2; i--)
+	//	{
+	for(j = width-2; j >= 2; j--)
 	{
-		for(i = height-2; i >= height/2; i--)
+		for(i = height-2; i >= 2; i--)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black
 				&&(int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
 			{
+				num++;
 				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
+			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
+			&& num > 15
+			)
 		{
 			right = j; 	
 			break;

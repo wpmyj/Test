@@ -7,7 +7,7 @@
 
 class MFC_UI;
 
-// CPage_Set ¶Ô»°¿ò
+// CPage_Set 
 
 class CPage_Set : public CPropertyPage, public CPage_Custom
 {
@@ -20,7 +20,7 @@ public:
 	enum { IDD = IDD_PROPPAGE_SET };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);     // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
 
@@ -33,16 +33,15 @@ private:
 	MFC_UI  *m_pUI;
 	HMODULE m_hDLL;
 public:
-	void UpdateControls(void);  ///< ¸üÐÂ¿Ø¼þ×´Ì¬
-	void InitSliderCtrl();  ///< ³õÊ¼»¯»¬¶¯Ìõ¿Ø¼þ
-	void SetCapValue(void); ///<ÉèÖÃ²ÎÊý
-	void SetSavePower(void); ///<ÉèÖÃ½ÚµãÄ£Ê½»¬¶¯ÌõÊÇ·ñ¿ÉÓÃ
-	void SetOffTime(void); ///<ÉèÖÃ¹Ø»úÊ±¼ä»¬¶¯ÌõÊÇ·ñ¿ÉÓÃ	
-	void InitBasemap(void);
+	void UpdateControls(void);  ///< 更新控件状态
+	void InitSliderCtrl();  ///< 初始化滑动条
+	void SetCapValue(void); ///<设置参数
+	void SetSavePower(void); ///<设置节电模式滑动条是否可用
+	void SetOffTime(void); ///<设置关机时间滑动条是否可用
+	void InitSetmap(void); ///<初始化map
 
 private:
-	MAP_CAP m_setmap;  ///<ÓÃÓÚ±£´æ²ÎÊý¸Ä±äºóµÄÖµ
-
+	MAP_CAP m_setmap;  ///<用于保存参数改变后的值
 
 private:
 	afx_msg void OnSet_Btn_Check_SavePower();
@@ -52,25 +51,26 @@ private:
 	afx_msg void OnSet_Btn_Check_TurnVideo();
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnSetActive();
+
+	afx_msg void OnSet_Btn_Check_Showschedule();
+	afx_msg void OnSet_Btn_Check_Emergency();
+
 private:
 	CButton m_check_savepower;
 	CButton m_check_offtime;
 	CSliderCtrl m_slider_offtime;
 	CSliderCtrl m_slider_savepower;
 	CButton m_check_turnvideo;
-		
+	CButton m_check_indicator;
+	CButton m_check_enmergency;
+
 private:
-	bool LoadDLL();   ///< ¼ÓÔØG6400»òG6600¶ÔÓ¦µÄdll
+	bool LoadDLL();   ///< 加载DLL
 
 	InitializeDriverProc               InitializeDriver;
 	InitializeScannerProc              InitializeScanner;
 	TerminateDriverProc                TerminateDriver;
 	ReadNVMDataProc                    ReadNVMData;
-	SetNVRAMValueProc                  SetNVRAMValue;  // ÉèÖÃ´ý»úÊ±¼ä¡¢¹Ø»úÊ±¼ä
+	SetNVRAMValueProc                  SetNVRAMValue;  // 
 
-public:
-	CButton m_check_indicator;
-	afx_msg void OnSet_Btn_Check_Showschedule();
-	CButton m_check_enmergency;
-	afx_msg void OnSet_Btn_Check_Emergency();
 };

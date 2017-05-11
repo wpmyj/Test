@@ -147,13 +147,13 @@ void CPage_Advanced::UpdateControls(void)
 		switch(lstCapValues->at(i))
 		{
 		case TWMV_PAUSE:
-			m_combo_mdvalue.InsertString(i,"停止扫描");
+			m_combo_mdvalue.InsertString(i,"直接停止");
 			break;
 		case TWMV_REMIND:
-			m_combo_mdvalue.InsertString(i,"结束后提醒");
+			m_combo_mdvalue.InsertString(i,"全部扫描后提醒");
 			break;
 		case TWMV_STOP:
-			m_combo_mdvalue.InsertString(i,"结束后停止");
+			m_combo_mdvalue.InsertString(i,"重张页扫描后停止");
 			break;
 		default:
 			continue;
@@ -1048,14 +1048,6 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Standardsizes()
 	int nval = FindPaperSize(nIndex);
 	m_combo_standardsizes.SetCurSel(nIndex);
 	
-	if(nval == TWSS_AUTOCROP) //自动裁切与校正
-	{
-		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_AUTO);
-	} 
-	else
-	{
-		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
-	}
 	SetPaperSize();
 	m_pUI->SetCapValueInt(ICAP_SUPPORTEDSIZES, nval); //能够直接响应
 	UpdateControls(); //更新宽、高
@@ -1067,6 +1059,16 @@ void CPage_Advanced::SetPaperSize(void)
 
 	int nIndex = m_combo_standardsizes.GetCurSel(); 
 	int nval = FindPaperSize(nIndex);
+
+	if(nval == TWSS_AUTOCROP) //自动裁切与校正
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_AUTO);
+	} 
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+	}
+
 	int nIndex_unit = m_combo_uints.GetCurSel();
 	int nval_unit = FindUnit(nIndex_unit);
 	CString str;
@@ -2263,15 +2265,15 @@ void CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Findoverlay()
 	CString strCBText; 
 	m_combo_mdvalue.GetLBText( nIndex, strCBText);
 	int nval;
-	if (strCBText.Find("停止扫描") >= 0)
+	if (strCBText.Find("直接停止") >= 0)
 	{
 		nval = TWEC_WHITE;
 	}
-	else if(strCBText.Find("结束后提醒") >= 0)
+	else if(strCBText.Find("全部扫描后提醒") >= 0)
 	{
 		nval = TWMV_REMIND;
 	}
-	else if(strCBText.Find("结束后停止") >= 0)
+	else if(strCBText.Find("重张页扫描后停止") >= 0)
 	{
 		nval = TWMV_STOP;
 	}
