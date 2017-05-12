@@ -281,7 +281,8 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 
 bool CScanner_G6X00::preScanPrep()
 {
-	
+	bool status = true; //初始状态赋为true,一旦有错误，返回false
+
 	m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 	m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
 	// 屏蔽原因：多流扫描存在问题
@@ -379,10 +380,31 @@ bool CScanner_G6X00::preScanPrep()
 		}
 	}
 
-	if(m_nPixelType == TWPT_BW)
+	//自动裁切与校正
+	if(m_bAutoCrop == TWAC_AUTO) 
 	{
-		threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU);
-	} 
+		Mat matAutoCrop; 
+		//matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	
+		status = AutoCorrect(m_mat_image, matAutoCrop);
+		if(status)
+		{
+			//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
+			Rect rect = RemoveBlack(matAutoCrop);
+			Mat imageSave = matAutoCrop(rect);
+			imageSave.copyTo(m_mat_image);
+			//matAutoCrop.copyTo(m_mat_image);
+			//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
+			m_nWidth = m_mat_image.cols; 
+			m_nHeight = m_mat_image.rows;
+		}	
+	}
+	else 
+	{
+		if(m_nPixelType == TWPT_BW)
+		{
+			threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU);
+		} 
+	}
 
 	if(m_nOrientation == TWOR_LANDSCAPE) //横向
 	{		
@@ -415,25 +437,6 @@ bool CScanner_G6X00::preScanPrep()
 		hMirrorTrans(m_mat_image, mat_hMirror);
 		mat_hMirror.copyTo(m_mat_image);
 	}
-
-	//imwrite("C:\\Users\\Administrator\\Desktop\\校正前.jpg", m_mat_image);
-	//自动裁切与校正
-	if(m_bAutoCrop == TWAC_AUTO) 
-	//if(m_nCutMethod == TWCT_AUTO)
-	{
-		//AfxMessageBox("m_bAutoCrop");
-		Mat matAutoCrop; 
-		matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	
-
-		//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
-		Rect rect = RemoveBlack(matAutoCrop);
-		Mat imageSave = matAutoCrop(rect);
-		imageSave.copyTo(m_mat_image);
-		//matAutoCrop.copyTo(m_mat_image);
-		m_nWidth = m_mat_image.cols; 
-		m_nHeight = m_mat_image.rows;
-	}
-	//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
 
 	//色彩翻转
 	if(m_bColorFlip == TWCF_AUTO)
@@ -581,18 +584,17 @@ bool CScanner_G6X00::preScanPrep()
 
 
 	//去除空白页
-	bool bEmpty = false; //默认不是空白页
+	//bool bEmpty = false; //默认不是空白页
 	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
 	{
 		Mat matRemoveBlank;
 		m_mat_image.copyTo(matRemoveBlank);
-		bEmpty = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
 	}
-
-  if (bEmpty)
+  /*if (status)
   {
 		return false;
-  }
+  }*/
 
 
 	switch(m_nPixelType)
@@ -608,7 +610,6 @@ bool CScanner_G6X00::preScanPrep()
 		m_nDestBytesPerRow = BYTES_PERLINE(m_nWidth, 24);
 		break;
 	}
-
 	
 	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
 	Mat tempmat;
@@ -616,12 +617,11 @@ bool CScanner_G6X00::preScanPrep()
 	//BYTE *temp = NULL;
 	Mat2uchar(tempmat);
 
-
-
 	// setup some convenience vars because they are used during 
 	// every strip request
 	m_nScanLine       = 0;
-	return true;
+	//return true;
+	return status;
 }
 
 bool CScanner_G6X00::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
@@ -1431,28 +1431,50 @@ BYTE * CScanner_G6X00::GetScanLine(int scanline)
 	return ps;
 }
 
-cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
+bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
+//cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 {
 	//ChangeImage(IMAGENAME_AUTOCORRECT);
 	//Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\src_img.jpg", src_img);
-
+	
 	Mat srcImage;
 	src_img.copyTo(srcImage);
-
+	
 	Mat midImage,dstImage;
 	Canny(srcImage, midImage, 200, 150, 3);
-	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
+	
+	Mat RoiImage(midImage.rows, midImage.cols, midImage.type());
+	//设置感兴趣区域,拷贝
+	midImage(Rect(0, 0, midImage.cols, midImage.rows/5)).copyTo(RoiImage); //midImage.rows/2
+	cvtColor(RoiImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
 	
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
-	HoughLinesP(midImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/2,srcImage.rows/2), 50);
-	
+	HoughLinesP(RoiImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/2,srcImage.rows/2), 50);
+
+	int linenum = lines.size();
+	if(linenum == 0)
+	{
+		HoughLinesP(RoiImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/4,srcImage.rows/4), 50);
+		linenum = lines.size();
+	}
+
 	//【4】依次在图中绘制出每条线段
-	Vec4i maxline = lines[0];
 	float dx = 0.0;
 	float dy = 0.0;
-	for( size_t i = 0; i < lines.size(); i++ )
+	Vec4i maxline;
+	if(linenum != 0)
+	{
+		maxline = lines[0];
+	}
+	else
+	{
+		//若两次HoughLinesP后还未检查出线段，返回false
+		return false;
+	}
+
+	for( size_t i = 0; i < linenum; i++ )
 	{
 		Vec4i l = lines[i];
 		//每一条线由具有四个元素的矢量(x_1,y_1, x_2, y_2）表示，
@@ -1462,14 +1484,12 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 
 		float maxi = (maxline[2]-maxline[0])*(maxline[2]-maxline[0]) + (maxline[3]-maxline[1]) * (maxline[3]-maxline[1]);
 		int maxsqrt = sqrt(maxi);
-
 		if(xi > maxsqrt)
 		{
 			maxline = lines[i];
 		}
 	}
 	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
-	
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
 	bool mark = false;
@@ -1507,7 +1527,7 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		}
 	}
 	theta = theta/CV_PI*180; //弧度转角度
-	
+
 	int nRows = srcImage.rows; //高11420
 	int nCols = srcImage.cols; //宽4202
 
@@ -1529,12 +1549,10 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 	Mat m_image_out;
 	m_image_out.create(Size(m_width_rotate, m_height_rotate), srcImage.type());
 	warpAffine(srcImage, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
-
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
 	if(mark)
 	{
-		//AfxMessageBox("1");
 		copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
 
 		double scale = m_dRat;
@@ -1545,20 +1563,22 @@ cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
 		Mat rotateImg = Mat::ones(Size(m_image_out.rows, m_image_out.cols), m_image_out.type()); 
 		warpAffine(m_image_out, rotateImg, rotateMat, rotateImg.size());  
 
-		//imwrite("C:\\Users\\Administrator\\Desktop\\rotateImg.jpg", rotateImg);
-		return rotateImg;
+		//return rotateImg;
+		rotateImg.copyTo(dst_img); 
 	}
 	else
 	{
-		//AfxMessageBox("2");
-		//imwrite("C:\\Users\\Administrator\\Desktop\\rotateImg.jpg", m_image_out);
-		return m_image_out;
+		//return m_image_out;
+		m_image_out.copyTo(dst_img);
 	}
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dst_img.jpg", dst_img);
+	return true;
 }
 
 //cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
 Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 {
+	//AfxMessageBox("RemoveBlack");
 	const int black = 10;
 	const int white = 250;
 
@@ -1573,27 +1593,27 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	{
 		tmpMat.copyTo(tmpMat);
 	}
+
 	if(m_nPixelType != TWPT_BW)
 	{
 		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
 	}
 	
-	int width = tmpMat.cols;
-	int height = tmpMat.rows;
+	int width = tmpMat.cols; //列
+	int height = tmpMat.rows; //行
 	
 	int left = 0;
 	int right = width; //列 宽2323
 	int up = 0;
 	int down = height; //行 高2808
-
-	int num = 0; //记录某一行白点数目
+	int num = 0;
 
 	int i = 0, j = 0;
 	//上侧
 	for(i = 0; i < height; i++)
 	{
-	for(j = 1; j < width/2; j++)
-		//for(j = 2; j < width-2; j++)
+	//for(j = 1; j < width/4; j++)
+		for(j = 2; j < width-2; j++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 					(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
@@ -1604,19 +1624,24 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
-			&& num > 15
 			)
 		{
-			up = i; 
-			break;
+			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
+				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j+5) >= white) 
+				&& num > 15)
+			{
+				up = i; 
+				break;
+			}		
 		}	
 	}
+
 	num = 0;
 	//左侧
 	for(j = 0; j < width; j++)
 	{
-		for(i = 1; i < height/2; i++)
-		//for(i = 2; i < height-2; i++)
+		//for(i = 1; i < height/2; i++)
+		for(i = 2; i < height-2; i++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 				(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
@@ -1625,9 +1650,9 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				break;
 			}	
 		}
+
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
-			&& num > 15
 			)
 		{
 			left = j; 
@@ -1655,20 +1680,25 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
-			&& num > 15
+			//&& num > 15
 			)
 		{
-			down = i;	
-			break;
+			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
+				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j-5) >= white) 
+				&& num > 15)
+			{
+				down = i;	
+				break;	
+			}		
 		}	
 	}
 
 	num = 0;
 	////右侧
-	//for(j = width-2; j >= width/2; j--)
-	//{
-	//	for(i = height-2; i >= height/2; i--)
-	//	{
+	/*for(j = width-2; j >= width/2; j--)
+	{
+	for(i = height-2; i >= height/2; i--)
+	{*/
 	for(j = width-2; j >= 2; j--)
 	{
 		for(i = height-2; i >= 2; i--)
@@ -1683,14 +1713,22 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
-			&& num > 15
+			//&& num > 15
 			)
 		{
 			right = j; 	
 			break;
 		}	
 	}
-	
+	/*CString str;
+	str.Format("%d",up);
+	AfxMessageBox(str);
+	str.Format("%d",down);
+	AfxMessageBox(str);
+	str.Format("%d",left);
+	AfxMessageBox(str);
+	str.Format("%d",right);
+	AfxMessageBox(str);*/
 	Rect rect(left, up, right-left, down-up); //(856.1030)
 	
 	return rect;

@@ -237,7 +237,7 @@ protected:
 	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
 	*  @param[out]  输出校正后的图像
 	*/
-	Mat AutoCorrect(Mat src_img);
+	bool AutoCorrect(Mat src_img , Mat &dst_img);
 
 	/**
 	*  @brief  去除黑边

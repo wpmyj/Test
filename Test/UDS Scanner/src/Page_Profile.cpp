@@ -71,7 +71,6 @@ void CPage_Profile::OnOK()
 	}
 	else  
 	{
-		//AfxMessageBox("m_pUI->Scan();");
 		m_pUI->Scan();
 	}
 

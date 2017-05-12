@@ -129,7 +129,6 @@ void CPage_Set::UpdateControls(void)
 BOOL CPage_Set::OnInitDialog()
 {
 	__super::OnInitDialog();
-
 	// TODO:  在此添加额外的初始化
 	InitSliderCtrl(); //初始化滑块 要放在UpdateControls之前，否则设置滑块的步长无效
 	InitSetmap();
