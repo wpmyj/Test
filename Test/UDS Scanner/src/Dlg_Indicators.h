@@ -4,6 +4,7 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 #include "CTWAINDS_UDS.h"
+#include "SkinControls.h" // 自绘控件库 UDS_Skin.dll
 //#include "afxwin.h"
 
 // CDlg_Indicators 对话框
@@ -26,15 +27,15 @@ protected:
 
 protected:
 	DWORD    m_dwElaspedTime;       /**< 经过时间（单位秒） */
-	CProgressCtrl m_Progress;       /**< 传输进度条 */
-	CStatic m_static_progress;      /**< 百分比（%） */
-	CStatic m_static_elapsedtime;   /**< 经过时间 */
-	CStatic m_static_pagecount;     /**< 扫描页数 */
-	CStatic m_static_pagesize;      /**< 图像大小 */
-	CStatic m_static_totalsize;     /**< 总共大小 */
-	CStatic m_static_speed;         /**< 传输速度 */
+	CSkinProgressCtrl m_Progress;       /**< 传输进度条 */
+	CSkinStatic m_static_progress;      /**< 百分比（%） */
+	CSkinStatic m_static_elapsedtime;   /**< 经过时间 */
+	CSkinStatic m_static_pagecount;     /**< 扫描页数 */
+	CSkinStatic m_static_pagesize;      /**< 图像大小 */
+	CSkinStatic m_static_totalsize;     /**< 总共大小 */
+	CSkinStatic m_static_speed;         /**< 传输速度 */
 	DWORD   m_dwSpeed;              /**< 速度值 */
-
+	CSkinButton m_button_close;
 public:
 	CTWAINDS_UDS *m_pDS;
 
@@ -76,12 +77,18 @@ public:
 	*/
 	void SetSpeed(const DWORD _dwSpeed);
 
+	/**
+	*  @brief 控件初始化
+	*/
+	void InitControls();
+
 	virtual BOOL OnInitDialog();
 	virtual void PostNcDestroy();
 
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnCancel();
-
-
+	afx_msg void OnPaint();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);	
+	afx_msg LRESULT OnNcHitTest(CPoint point);
 };

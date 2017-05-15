@@ -128,7 +128,7 @@ void CDlg_Device::OnBnClickedDeviceCheck_Noui()
 	CString strTemp;
 	TCHAR szINIPath[MAX_PATH];  // INIÎÄ¼þÂ·¾¶
 	GetFilePath(FILENAME_INI,szINIPath);
-	if (m_check_noui.GetChecked())    
+	if (m_check_noui.GetCheck())    
 	{
 		strTemp = TEXT("Y");
 	} 

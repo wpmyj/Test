@@ -530,3 +530,13 @@ date 17.05.08
 3.修复扫描进度开启与关闭切换出错的bug;
 解决方法：CAP_INDICATORS = FALSE时，需要将m_bShowIndicators设置为false;
 4.暂时隐藏扫描进度对话框的【取消】按钮；
+
+date 17.05.12
+------------------------------------------------------------
+1.新增CDlg_Error，用于显示扫描页错误信息；
+2.新增函数CreateUIThread()与DeleteUIThread()，分别用于新建或删除UI线程；
+3.修复扫描仪显示错误信息后，扫描进度对话框未关闭的bug;
+方法：acquireImage()返回false，则调用DeleteUIThread();
+4.修复扫描速度显示不正确的bug;
+5.为了解决Static控件更新内容时闪烁的问题，重新编译库UDS_Skin.dll，增加类CSkin_Static(
+6.利用UDS_Skin.dll更换扫描进度对话框控件的皮肤；

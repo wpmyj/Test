@@ -180,6 +180,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\skin\*.*" "c:\windows\twain_32\UDS Un
     <ClCompile Include="src\CTWAINDS_Base.cpp" />
     <ClCompile Include="src\CTWAINDS_UDS.cpp" />
     <ClCompile Include="src\Dlg_Device.cpp" />
+    <ClCompile Include="src\Dlg_Error.cpp" />
     <ClCompile Include="src\Dlg_Indicators.cpp" />
     <ClCompile Include="src\Dlg_Profile.cpp" />
     <ClCompile Include="src\Dlg_Rename.cpp" />
@@ -237,6 +238,7 @@ copy "$(ProjectDir)\..\..\..\testfiles\pub\skin\*.*" "c:\windows\twain_32\UDS Un
     <ClInclude Include="src\CTWAINDS_Base.h" />
     <ClInclude Include="src\CTWAINDS_UDS.h" />
     <ClInclude Include="src\Dlg_Device.h" />
+    <ClInclude Include="src\Dlg_Error.h" />
     <ClInclude Include="src\Dlg_Indicators.h" />
     <ClInclude Include="src\Dlg_Profile.h" />
     <ClInclude Include="src\Dlg_Rename.h" />

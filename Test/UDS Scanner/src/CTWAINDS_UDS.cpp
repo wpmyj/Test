@@ -2761,19 +2761,13 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 			// need in order to prepare for the next few calls and the scan.
 			// get the scanner to load the image so that image info calls can be done
 
-			if ( (true == bIndicators) && 
-				(DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber) )
+			if (true == bIndicators)
 			{
-				m_bShowIndicators = true; 				
-				m_pUIThread = AfxBeginThread(RUNTIME_CLASS(CShowIndicators)); // 创建用户界面线程
-				m_pUIThread->m_bAutoDelete = FALSE;
-				if (m_pUIThread == NULL)
+				if (DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber)
 				{
-					::MessageBox(g_hwndDLG,TEXT("用户界面线程启动失败!"),MB_CAPTION,MB_OK|MB_ICONERROR);
+					m_bShowIndicators = true; 				
+					CreateUIThread();
 				}
-				WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
-				m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
-				m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DS, (LPARAM)this); 
 			}
 			else
 			{
@@ -2786,6 +2780,12 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
 				//cerr << "ds: There was an error while trying to get scanner to acquire image" << endl;
 				m_CurrentState = dsState_Open;
 				setConditionCode(TWCC_SEQERROR);
+
+				if (true == m_bShowIndicators)
+				{
+					DeleteUIThread();
+				}
+
 				return TWRC_FAILURE;
 			}
 
@@ -3002,16 +3002,13 @@ TW_INT16 CTWAINDS_UDS::transfer()
 		DWORD nImageSize = 0;
 		DWORD nDestBytesPerRow = 0;
 		DWORD dwTotalSize = 0;
-		//if (DEVICE_CAMERA == g_nDeviceNumber)
-		//{
-		//	nImageSize = g_dwImageSize;
-		//} 
-		//else
-		//{
-			nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
-			nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
-			dwTotalSize = nImageSize;
-		//}
+
+		nDestBytesPerRow = BYTES_PERLINE(m_ImageInfo.ImageWidth, m_ImageInfo.BitsPerPixel);
+		nImageSize       = nDestBytesPerRow * m_ImageInfo.ImageLength;
+		dwTotalSize      = nImageSize;
+		//TCHAR buf[1024] = {0};
+		//_stprintf_s(buf, "待传总大小：%u", dwTotalSize);
+		//::MessageBox(g_hwndDLG,TEXT(buf),MB_CAPTION,MB_OK);
 		
     //If we had a previous image then get rid of it.
     if(m_hImageData)
@@ -3057,26 +3054,15 @@ TW_INT16 CTWAINDS_UDS::transfer()
 						dwSize += dwReceived;
 						int pos = dwSize * 100 / dwTotalSize;
 						m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_PROGRESS,  (LPARAM)pos); // 更新进度
-						m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SPEED, (LPARAM)dwSize);  // 传输速度
+						m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SPEED, (LPARAM)dwReceived);  // 传输速度
 					}
-
 					nImageSize -= dwReceived;  //dwReceived=20400 nImageSize=11158800
-				}while(nImageSize>0 && twrc == TWRC_SUCCESS);
-				
+				}while(nImageSize>0 && twrc == TWRC_SUCCESS);	
+				//TCHAR buf[1024] = {0};
+				//_stprintf_s(buf, "接收总大小：%u", dwSize);
+				//::MessageBox(g_hwndDLG,TEXT(buf),MB_CAPTION,MB_OK);
 			}
 			break;
-		//case DEVICE_G6400:  // CScanner_G6400
-		//	{				
-		//		m_pScanner->GetImageData(pImageData,dwReceived);
-		//		pImageData += dwReceived;
-		//	}
-		//	break;
-		//case DEVICE_OPENCV:
-		//	{
-		//		m_pScanner->GetImageData(pImageData,dwReceived);
-		//		//::MessageBox(g_hwndDLG,TEXT("GetImageData success!"),MB_CAPTION,MB_OK);
-		//	}
-		//	break;
 		default:
 			{
 				::MessageBox(g_hwndDLG,TEXT("不支持的设备!"),MB_CAPTION,MB_OK);
@@ -3164,28 +3150,15 @@ TW_INT16 CTWAINDS_UDS::endXfer(pTW_PENDINGXFERS _pXfers)
   {
     m_CurrentState = dsState_Enabled;
     m_pScanner->Unlock();
+  }
 
+	if (0 == m_Xfers.Count)
+	{
 		if (true == m_bShowIndicators)
 		{
-			//Sleep(2000);  // 等待2秒，再关闭扫描进度对话框
-			m_dwPageCount = 0; // 扫描页数清零
-			m_dwTotalSize = 0; // 清空总共大小
-			m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DESTROY, 1); // 销毁窗口		
-
-			if(m_pUIThread)   
-			{  
-				// 1. 发一个WM_QUIT　消息结　UI　线程  
-				m_pUIThread->PostThreadMessage(WM_QUIT, NULL, NULL);  
-				// 2. 等待　UI　线程正常退出  
-				if (WAIT_OBJECT_0 == WaitForSingleObject(m_pUIThread->m_hThread, INFINITE))  
-				{  
-					 // 3. 删除 UI 线程对象，只有当你设置了m_bAutoDelete = FALSE;　时才调用  
-					   delete   m_pUIThread;   
-				}  
-
-			}
+			DeleteUIThread();
 		}
-  }
+	}
 
   if( _pXfers == 0 )
   {
@@ -5013,18 +4986,13 @@ bool CTWAINDS_UDS::StartScanning()
 		pbCap->GetCurrent(bIndicators);
 	} 
 
-	if ( (true == bIndicators) && 
-		(DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber) )
+	if (true == bIndicators)
 	{
-		m_bShowIndicators = true;
-		m_pUIThread = AfxBeginThread(RUNTIME_CLASS(CShowIndicators)); // 创建用户界面线程
-		m_pUIThread->m_bAutoDelete = FALSE;
-		if (m_pUIThread == NULL)
+		if (DEVICE_G6400 == g_nDeviceNumber || DEVICE_G6600 == g_nDeviceNumber)
 		{
-			::MessageBox(g_hwndDLG,TEXT("用户界面线程启动失败!"),MB_CAPTION,MB_OK|MB_ICONERROR);
+			m_bShowIndicators = true; 				
+			CreateUIThread();
 		}
-		WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
-		m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
 	}
 	else
 	{
@@ -5043,10 +5011,10 @@ bool CTWAINDS_UDS::StartScanning()
 };
 
 
-void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagepath)
-{
-//	m_pScanner->SetImagePath_Multi(vector_string_imagepath);
-}
+//void CTWAINDS_UDS::SetScannerImagePath_Multi(vector<string> vector_string_imagepath)
+//{
+////	m_pScanner->SetImagePath_Multi(vector_string_imagepath);
+//}
 
 void CTWAINDS_UDS::FormatSize(const DWORD _dwSize, CString& _strSize)
 {
@@ -5106,6 +5074,40 @@ void CTWAINDS_UDS::CancelScan()
 	{
 		((CScanner_G6X00*)m_pScanner)->m_bCancel = true;
 	}
+}
+
+void CTWAINDS_UDS::DeleteUIThread()
+{
+	//::MessageBox(g_hwndDLG,TEXT("true == m_bShowIndicators!"),MB_CAPTION,MB_OK);
+	//Sleep(2000);  // 等待2秒，再关闭扫描进度对话框
+	m_dwPageCount = 0; // 扫描页数清零
+	m_dwTotalSize = 0; // 清空总共大小
+	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DESTROY, 1); // 销毁窗口		
+
+	if(m_pUIThread)   
+	{  
+		// 1. 发一个WM_QUIT　消息结　UI　线程  
+		m_pUIThread->PostThreadMessage(WM_QUIT, NULL, NULL);  
+		// 2. 等待　UI　线程正常退出  
+		if (WAIT_OBJECT_0 == WaitForSingleObject(m_pUIThread->m_hThread, INFINITE))  
+		{  
+			// 3. 删除 UI 线程对象，只有当你设置了m_bAutoDelete = FALSE;　时才调用  
+			delete   m_pUIThread;   
+		}  
+	}
+}
+
+void CTWAINDS_UDS::CreateUIThread()
+{
+	m_pUIThread = AfxBeginThread(RUNTIME_CLASS(CShowIndicators)); // 创建用户界面线程
+	m_pUIThread->m_bAutoDelete = FALSE;
+	if (m_pUIThread == NULL)
+	{
+		::MessageBox(g_hwndDLG,TEXT("用户界面线程启动失败!"),MB_CAPTION,MB_OK|MB_ICONERROR);
+	}
+	WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
+	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
+	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DS, (LPARAM)this); 
 }
 
 //void CTWAINDS_UDS::GetImagePathFromINI()

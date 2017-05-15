@@ -39,6 +39,7 @@ void CShowIndicators::OnThreadInfo(WPARAM wParam,LPARAM lParam)
 {
 	PageInfo* pPageInfo = (PageInfo*)lParam;
 	CTWAINDS_UDS *pDS = (CTWAINDS_UDS*)lParam;
+
 	switch (wParam)
 	{
 	case INDICATORS_SHOWUI:
@@ -63,7 +64,7 @@ void CShowIndicators::OnThreadInfo(WPARAM wParam,LPARAM lParam)
 		m_pDlgIndicators->DestroyWindow();
 		break;
 	case INDICATORS_SPEED:
-		m_pDlgIndicators->UpdateSpeed(lParam);
+		m_pDlgIndicators->SetSpeed(lParam);
 		break;
 	case INDICATORS_DS:
 		m_pDlgIndicators->m_pDS = pDS;

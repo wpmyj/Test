@@ -5,9 +5,7 @@
 #include <vector>
 
 #include "ximage.h"  // CXImage
-
-
-
+#include "Dlg_Error.h"
 
 extern HWND g_hwndDLG;
 extern std::vector<std::string> g_vector_imagepath;
@@ -188,6 +186,7 @@ bool CScanner_G6X00::isFeederLoaded()
 		rtn = false;
 		m_nDocCount = m_nMaxDocCount;// Reloaded the scanner with paper
 		Release(); // 传输结束，清理内存
+		EndScanJob (); // 结束本次扫描任务
 	}
 	return rtn;
 }
@@ -346,7 +345,7 @@ bool CScanner_G6X00::preScanPrep()
 				if ( (m_byteADFStatus & 0x1) != 1)  // ADF中无纸，则停止扫描
 				{
 					m_nDocCount = 0; 
-					EndScanJob ();
+					//EndScanJob ();
 				}	
 			}
 			else  // 传输未完毕
@@ -954,6 +953,12 @@ bool CScanner_G6X00::LoadDLL()
 	if(FALSE == InitializeScanner())
 	{
 		::MessageBox(g_hwndDLG, TEXT("Run InitializeScanner Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	if(FALSE == StartScanJob())
+	{
+		::MessageBox(g_hwndDLG, TEXT("Run StartScanJob Failed!"), MB_CAPTION, MB_OK);
 		return false;
 	}
 
@@ -2053,7 +2058,7 @@ void CScanner_G6X00::SpiltImage(const Mat &src_img, int m, int n)
 		if ( (m_byteADFStatus & 0x1) != 1)
 		{
 			m_nDocCount = 0;
-			EndScanJob ();
+			//EndScanJob ();
 			//::MessageBox(g_hwndDLG,TEXT("m_nDocCount = 0!"),MB_CAPTION,MB_OK);
 		}	
 	}
@@ -2766,7 +2771,7 @@ bool CScanner_G6X00::RunScan()
 	//static bool bFlag = false;
 	//if (!bFlag)  // 屏蔽原因：EndScanJob()执行后，必须先再次执行StartScanJob()，否则会出错。
 	{
-		StartScanJob();
+		//StartScanJob();
 		if (!AdjustParameter())
 		{
 			return false;
@@ -2802,9 +2807,13 @@ bool CScanner_G6X00::RunScan()
 		GetLastStatusCode(NULL, &lStatus);
 		if ( CODE_SUCCESS != lStatus )
 		{
-			::MessageBox(g_hwndDLG,TranslateError(lStatus),MB_CAPTION,MB_ICONERROR);	
+			if (ERROR_LONG_READ_ABORT != lStatus) // “取消”键按下，不显示对话框
+			{
+				CDlg_Error dlg(TranslateError(lStatus));  // 显示错误信息，TopMost
+				dlg.DoModal();
+			}
 			m_nDocCount = 0;
-			EndScanJob ();
+			//EndScanJob ();
 			return false;
 		}
 	}
@@ -2833,7 +2842,7 @@ bool CScanner_G6X00::RunScan()
 		if ( (m_byteADFStatus & 0x1) != 1)
 		{
 			m_nDocCount = 0;
-			EndScanJob ();
+			//EndScanJob ();
 		}	
 	}
 

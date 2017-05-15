@@ -7,6 +7,8 @@
 #include "afxdialogex.h"
 
 #include "public.h"
+#include "ximage.h"  // CXImage
+
 //#include <MMSystem.h>
 //#pragma comment(lib, "Winmm.lib")  // 播放音声音需要
 // CDlg_Video 对话框

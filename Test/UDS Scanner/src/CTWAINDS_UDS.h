@@ -226,7 +226,7 @@ public:
   */
   TW_INT16 validateCapabilitySet(TW_UINT16 _Cap, TW_UINT16  _ConType, BYTE* _pContainer);
 
-	///** 
+	//** 
 	//* @brief 设置单张待扫图片路径
 	//* @param[in] szImagePath 图片路径
 	//*/
@@ -236,13 +236,20 @@ public:
 	*  @brief  设置多张待扫图片路径
 	*  @param[in]  vector_string_imagepath 图片路径
 	*/
-	void SetScannerImagePath_Multi(vector<string> vector_string_imagepath);
+	//void SetScannerImagePath_Multi(vector<string> vector_string_imagepath);
 
 	/**
 	*  @brief  从INI文件读取图片数量及路径(未完...) 
 	*  @todo
 	*/
 	//void GetImagePathFromINI();
+
+
+	//////////////////////////////////////////////////////////////////////////////
+  /**
+  * @name 自定义函数
+  * @{
+  */
 
 	/**
 	*  @brief  将图片大小转化为对应字符串
@@ -257,7 +264,26 @@ public:
 	*/
 	void UpdatePageInfo();
 
+	/**
+	*  @brief  取消扫描
+	*  @note 只针对G6X00有效
+	*/
 	void CancelScan();
+
+	/**
+	*  @brief  新建UI线程，用于显示扫描进度
+	*/
+	void CreateUIThread();
+
+	/**
+	*  @brief  删除UI线程
+	*/
+	void DeleteUIThread();
+
+	// END 自定义函数
+  /**
+  * @}
+  */
 
 protected:
 	//CScanner_FreeImage        m_Scanner;                 /**< The main scanner. */
