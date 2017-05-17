@@ -35,6 +35,8 @@ struct INI_VIDEO
 	//int  DpiIndex;            /**< DPI编号 */
 	//int  PixelType;           /**< 颜色编号 */
 	bool AutoCrop;            /**< 是否自动裁切 */ 
+	bool NoStop;
+	bool Running;
 	//bool ShowInfo;            /**< 是否显示视频信息 */
 	//bool playSound;           /**< 是否播放声音 */
 	CString CameraName;       /**< 摄像头名称 */
@@ -69,9 +71,13 @@ private:
 	int m_nFileCount;         ///< 已拍照片数量
 	int m_nDPI;               ///< DPI
 	//int m_nDPIIndex;          ///< DPI编号
+public:
 	bool m_bInitialend;       ///< 是否初始化成功
+private:
 	bool m_bIsDPI;            ///< 是否显示DPI（否则为分辨率）
 	bool m_bAutoCrop;         ///< 是否自动裁切
+	bool m_bNoStop;           ///< 是否拍照后关闭摄像头
+	bool m_bRunning;          
 	//bool m_bShowInfo;         ///< 是否显示视频信息
 	//bool m_bPlaySound;        ///< 是否播放声音
 
@@ -111,6 +117,7 @@ public:
 	CStatic m_sCaptureCount;  ///< 显示已拍照照片数
 	CImageList	m_imagelist;  ///< 缩略图对应ImageList控件
 	CListCtrl   m_listctrl;   ///< 缩略图对应ListCtrl控件
+
 	//CToolTipCtrl m_ToolTipCtrl;
 	//int b;
 	//std::vector<std::string> m_vector_thumbnail;
@@ -195,7 +202,7 @@ protected:
 	void LoadThumbNail();
 
 
-		/**
+	/**
 	*  @brief  图像处理
 	*/
 	enum enum_image_handle  
@@ -211,6 +218,10 @@ protected:
 	*  @param[in]  eMethod 处理方法
 	*/
 	void ImageHandle(enum_image_handle eMethod);	
+
+	bool CheckFilePathExist(LPCSTR pPath);
+public:
+	void CaptureOne();
 
 public:
 	virtual BOOL OnInitDialog();

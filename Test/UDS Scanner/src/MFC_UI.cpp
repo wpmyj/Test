@@ -112,6 +112,8 @@ TW_INT16 MFC_UI::DisplayTWAINGUI(TW_USERINTERFACE Data, bool bSetup, bool bIndic
 		{
 			m_pDlgVideo->Create(CDlg_Video::IDD,pMainWnd);
 			m_pDlgVideo->ShowWindow(SW_SHOW);
+			//Sleep(5000);
+			//CameraCapture();
 		} 
 		else
 		{
@@ -254,4 +256,22 @@ string MFC_UI::GetProfileNamePath()
 void MFC_UI::PreViewStatus()
 {
 	m_pSheet->SetPreViewStatus();
+}
+
+void MFC_UI::CameraCapture()
+{
+	//do 
+	//{
+	//	Sleep(100);
+	//	if (m_pDlgVideo->m_bInitialend)
+	//		break;	
+	//} while (1);  // 等待Camera初始化完成
+
+	//m_pDlgVideo->OnBnClickedButton_Capture();
+	//::PostMessage(m_pDlgVideo->m_hWnd, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), NULL);  // 发送模拟按键按下消息
+
+	m_pDlgVideo->CaptureOne();
+
+	//m_pDlgVideo->OnOk();
+	//::MessageBox(g_hwndDLG,TEXT("CameraCapture out!"),MB_CAPTION,MB_OK);
 }

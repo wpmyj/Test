@@ -32,14 +32,14 @@ CScanner_G6X00::CScanner_G6X00(void)
   , m_nMultiFront(0)    
 {
 	// set default cap value
+	LoadDLL();
 	resetScanner();
-	//LoadDLL();
 }
 
 
 CScanner_G6X00::~CScanner_G6X00(void)
 {
-	TerminateDriver();
+	//TerminateDriver();
 	FreeLibrary(m_hDLL);
 }
 
@@ -168,10 +168,11 @@ bool CScanner_G6X00::resetScanner()
 
 	//m_pCxImage = NULL;
 	//LoadDLL();
-	if (false == LoadDLL())
-	{
-		return false;
-	}
+	//if (false == LoadDLL())
+	//{
+	//	return false;
+	//}
+	StartScanJob();
 	InitDriverParamter();
 
 	return true;
@@ -956,11 +957,11 @@ bool CScanner_G6X00::LoadDLL()
 		return false;
 	}
 
-	if(FALSE == StartScanJob())
-	{
-		::MessageBox(g_hwndDLG, TEXT("Run StartScanJob Failed!"), MB_CAPTION, MB_OK);
-		return false;
-	}
+	//if(FALSE == StartScanJob())
+	//{
+	//	::MessageBox(g_hwndDLG, TEXT("Run StartScanJob Failed!"), MB_CAPTION, MB_OK);
+	//	return false;
+	//}
 
 	return true;
 }
@@ -1192,11 +1193,11 @@ bool CScanner_G6X00::AdjustParameter()
 
 void CScanner_G6X00::SetParameter()
 {
-	BatchScanParameter Param;
-	memset(&Param,0,sizeof(BatchScanParameter));
+	//BatchScanParameter Param;
+	//memset(&Param,0,sizeof(BatchScanParameter));
 	//Param.dwMaximumCachePage = 10;
 	//Param.dwMaximumCacheSize = 640*1024*1024; // 640MB
-	SetBatchScanParameter(&Param);
+	//SetBatchScanParameter(&Param);
 	SetScanParameter(&m_scanParameter);	
 	m_pGammaTable = new BYTE[256];
 	CalGammaTable(m_pGammaTable, m_fBrightness, m_fContrast, 255, 0, m_fGamma);  //CalGammaTable(m_pGammaTable,0,0,255,0,100);
@@ -2813,7 +2814,9 @@ bool CScanner_G6X00::RunScan()
 				dlg.DoModal();
 			}
 			m_nDocCount = 0;
-			//EndScanJob ();
+			EndScanJob ();
+			//TerminateDriver();
+			//FreeLibrary(m_hDLL);
 			return false;
 		}
 	}
@@ -2855,9 +2858,11 @@ bool CScanner_G6X00::RunScan()
 	if (true == m_bCancel)
 	{
 		m_nDocCount = 0;
-		//DoCancel();
+		////DoCancel();
 		//StopScan(); 
 		EndScanJob();		
+		return false;
+
 	}
 
 	return true;
@@ -2897,6 +2902,7 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 			{
 				m_nPixelType = TWPT_GRAY;
 				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				//m_bAutoCrop = TWAC_DISABLE;
 			}
 			else{}
 			src_img.copyTo(dst_img);

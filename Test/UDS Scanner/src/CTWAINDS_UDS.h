@@ -195,7 +195,7 @@ public:
   CTWAINContainer* getICAP_BITDEPTH();
   
   bool StartScanning();
-  bool StopScanning(){m_bCanceled = true;return true;};
+  bool StopScanning(){m_bCanceled = true;	/*Camera2Scanner();*/return true;};
   bool ReadCustomDSdata(stringstream &DsData);
   bool StoreCustomDSdata(stringstream &DsData);
   bool StoreCapInStream(stringstream &_DsData, TW_UINT16 _unCapID, TW_UINT16 _unCapIdx, TW_UINT16 unContType);
@@ -280,11 +280,30 @@ public:
 	*/
 	void DeleteUIThread();
 
+	/**
+	*  @brief  加载G6400或G6600的dll
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool LoadDLL();
+
+
+	void Scanner2Camera();
+
+	void Camera2Scanner();
 	// END 自定义函数
   /**
   * @}
   */
 
+protected:
+	InitializeDriverProc               InitializeDriver;
+	InitializeScannerProc              InitializeScanner;
+	TerminateDriverProc                TerminateDriver;
+	GetADFStatusProc                   GetADFStatus;
+
+	HMODULE m_hDLL;                    /**< DLL的句柄 */
+	int     m_nDeviceNumber;           /**< 当前设备编号，设备切换需要 */
 protected:
 	//CScanner_FreeImage        m_Scanner;                 /**< The main scanner. */
 	//CScanner_G6400            m_Scanner;                 /**< The main scanner. */   
@@ -303,7 +322,8 @@ protected:
 	bool                        m_bShowIndicators;        /**< 是否显示扫描进度 */
 	CWinThread                 *m_pUIThread;              /**< 用户界面线程，用于显示扫描进度对话框 */
 	PageInfo                    m_pageInfo;               /**< 扫描页信息 */
-
+	
+	bool                        m_bSwitched;              /**< Scanner switch to Camera finished */
 };
 
 

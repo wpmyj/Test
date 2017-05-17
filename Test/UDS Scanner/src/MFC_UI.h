@@ -61,6 +61,8 @@ public:
 	*/
 	void PreViewStatus();
 
+
+	void CameraCapture();
 public:
   CSheet_Scanner* m_pSheet;  ///< 属性页对话框
 	CDlg_Video*     m_pDlgVideo;  ///< 基于UDS_Video.ocx控件的摄像头对话框

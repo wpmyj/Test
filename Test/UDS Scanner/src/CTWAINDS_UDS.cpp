@@ -25,6 +25,7 @@
 
 #include "public.h"
 #include "ShowIndicators.h"
+#include "MFC_UI.h"
 /** 字节转换定义 */  
 #define KBYTES  1024
 #define GBYTES  1073741824  
@@ -190,10 +191,13 @@ CTWAINDS_UDS::CTWAINDS_UDS(TW_IDENTITY AppID) :
 		}		
 	}
 
+	m_nDeviceNumber    = g_nDeviceNumber; 
 	m_bShowIndicators  = false;
 	m_pUIThread        = NULL;
 	m_dwPageCount      = 0;
 	m_dwTotalSize      = 0;
+	m_hDLL             = NULL;
+	m_bSwitched        = false;
 	return;
 	
 }
@@ -2568,6 +2572,12 @@ CTWAINDS_UDS::~CTWAINDS_UDS()
 		m_pScanner = NULL;
 	}
 
+	if (m_hDLL)
+	{
+		delete m_hDLL;
+		m_hDLL = NULL;
+	}
+
   return;
 }
 
@@ -2643,6 +2653,7 @@ TW_INT16 CTWAINDS_UDS::getImageInfo(pTW_IMAGEINFO _pImageInfo)
 //////////////////////////////////////////////////////////////////////////////
 TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
 {
+	//::MessageBox(g_hwndDLG,TEXT("openDS!"),MB_CAPTION,MB_OK);
   TW_INT16 ret = TWRC_SUCCESS;
   // this basic version of the DS only supports one connection from the DSM
   if( m_App.Id != 0 )
@@ -2676,7 +2687,7 @@ TW_INT16 CTWAINDS_UDS::openDS(pTW_IDENTITY  _pOrigin)
   }
 
 	m_pGUI->TW_LoadProfileFromFile("上次使用模板");
-
+	//::MessageBox(g_hwndDLG,TEXT("openDS out!"),MB_CAPTION,MB_OK);
   return ret;
 }
 
@@ -2693,8 +2704,8 @@ TW_INT16 CTWAINDS_UDS::closeDS()
   memset(&m_App, 0, sizeof(m_App));
 
 	// 释放最后一张纸占用内存
-	m_pScanner->Release();
-
+	//m_pScanner->Release();
+	//::MessageBox(g_hwndDLG,TEXT("closeDS!"),MB_CAPTION,MB_OK);
   return TWRC_SUCCESS;
 }
 
@@ -2710,6 +2721,8 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
   m_CurrentState = dsState_Enabled;
   m_bCanceled = false;
 
+	Scanner2Camera();
+	
 	// 防止有些APP再次扫描，未OpenDS,直接EnableDS，需要重置参数
 	if(!m_pScanner->resetScanner())
 	{	
@@ -2815,6 +2828,13 @@ TW_INT16 CTWAINDS_UDS::enableDS(pTW_USERINTERFACE _pData)
     setConditionCode(TWCC_OPERATIONERROR);
     return TWRC_FAILURE;
   }
+	 
+
+	if (m_bSwitched)
+	{
+		//Sleep(3000);  // 等待Camera初始化完成，这个时间可能不固定
+		((MFC_UI*)m_pGUI)->CameraCapture();
+	} 
 
   return TWRC_SUCCESS;
 }
@@ -2861,6 +2881,7 @@ TW_INT16 CTWAINDS_UDS::disableDS(pTW_USERINTERFACE _pData)
   // There is no UI in this text interface so there is nothing
   // to do here.
   m_CurrentState = dsState_Open;
+	Camera2Scanner();
   return TWRC_SUCCESS;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -5108,6 +5129,138 @@ void CTWAINDS_UDS::CreateUIThread()
 	WaitForSingleObject(m_pUIThread->m_hThread,10);  // 等待10ms
 	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_SHOWUI, 1); // 显示界面
 	m_pUIThread->PostThreadMessage(WM_THREADINFO, INDICATORS_DS, (LPARAM)this); 
+}
+
+bool CTWAINDS_UDS::LoadDLL()
+{
+	TCHAR DllPath[MAX_PATH];
+
+	if (DEVICE_G6400 == g_nDeviceNumber)
+	{
+		GetFilePath(FILENAME_DLL_GL1, DllPath);
+	} 
+	else if(DEVICE_G6600 == g_nDeviceNumber)
+	{
+		GetFilePath(FILENAME_DLL_GL2, DllPath);
+	}
+	else
+	{
+		return false;
+	}
+
+	m_hDLL = LoadLibrary(DllPath);
+	if(m_hDLL == NULL)
+	{
+		::MessageBox(g_hwndDLG, TEXT("Load Dll Failed!"), MB_CAPTION, MB_OK);
+		return false;
+	}
+
+	InitializeDriver = (InitializeDriverProc)GetProcAddress(m_hDLL, "InitializeDriver");
+	if(InitializeDriver == NULL)
+	{
+		return false;
+	}
+
+	InitializeScanner = (InitializeScannerProc)GetProcAddress(m_hDLL, "InitializeScanner");
+	if(InitializeScanner == NULL)
+	{
+		return false;
+	}
+
+	TerminateDriver  = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
+	if(TerminateDriver  == NULL)
+	{
+		return false;
+	}
+
+	GetADFStatus = (GetADFStatusProc)GetProcAddress(m_hDLL, "GetADFStatus");
+	if(GetADFStatus == NULL)
+	{
+		return false;
+	}
+
+	if (FALSE == InitializeDriver())
+	{
+		return false;
+	}
+
+	if(FALSE == InitializeScanner())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void CTWAINDS_UDS::Scanner2Camera()
+{
+	CTWAINContainerBool *pb = dynamic_cast<CTWAINContainerBool*>(findCapability(UDSCAP_TURNVIDEO));
+	bool bTurn = FALSE;
+	if(pb)
+	{
+		pb->GetCurrent(bTurn);
+	} 
+	//static int nDeviceNumber = g_nDeviceNumber; // 保存初始设备编号
+	if (bTurn && (DEVICE_G6400 == m_nDeviceNumber || DEVICE_G6600 == m_nDeviceNumber))
+	{
+		//if (DEVICE_G6400 == m_nDeviceNumber || DEVICE_G6600 == m_nDeviceNumber)
+		//{
+			LoadDLL();
+			BYTE  status;
+			GetADFStatus(&status);
+			FreeLibrary(m_hDLL);
+			m_hDLL = NULL;
+
+			if ( (status & 0x1 ) != 1)  // ADF no paper, transfer to Camera
+			{
+				if (m_pScanner)
+				{
+					delete m_pScanner;
+					m_pScanner = NULL;
+				}
+				m_pScanner = new CCamera_CxImage;
+				g_nDeviceNumber = DEVICE_CAMERA;
+				m_bSwitched = true;
+			}
+			else // 有纸，再转回来
+			{
+				Camera2Scanner();
+				m_bSwitched = false;
+			}
+		//}
+	} // if (bTurn && (DEVICE_G6400 == m_nDeviceNumber || DEVICE_G6600 == m_nDeviceNumber))
+	else
+	{
+		m_bSwitched = false;
+	}
+}
+
+void CTWAINDS_UDS::Camera2Scanner()
+{
+	//if (DEVICE_G6400 == m_nDeviceNumber || DEVICE_G6600 == m_nDeviceNumber)
+	//{
+	//	if (DEVICE_CAMERA == g_nDeviceNumber)
+	//	{
+	//		if (m_pScanner)
+	//		{
+	//			delete m_pScanner;
+	//			m_pScanner = NULL;
+	//		}
+	//		m_pScanner = new CScanner_G6X00; 
+	//		g_nDeviceNumber = m_nDeviceNumber;
+	//	}
+	//}
+
+	if (m_bSwitched)
+	{		
+		if (m_pScanner)
+		{
+			delete m_pScanner;
+			m_pScanner = NULL;
+		}
+		m_pScanner = new CScanner_G6X00; 
+		g_nDeviceNumber = m_nDeviceNumber;	
+	}
 }
 
 //void CTWAINDS_UDS::GetImagePathFromINI()

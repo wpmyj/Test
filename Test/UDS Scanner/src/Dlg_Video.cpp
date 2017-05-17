@@ -33,10 +33,12 @@ CDlg_Video::CDlg_Video(MFC_UI *pUI,CWnd* pParent /*= NULL*/)
 	, m_bIsDPI(true)
   //, m_nDPIIndex(0)
 	, m_bAutoCrop(false)
+	, m_bNoStop(false)
+	, m_bRunning(false)
 	//, m_bShowInfo(false)
 	//, m_bPlaySound(false)
 {
-
+	
 }
 
 CDlg_Video::~CDlg_Video()
@@ -129,7 +131,11 @@ BOOL CDlg_Video::OnInitDialog()
 	AddPngToControl();
 	ReadSetting();
 	CenterWindow();  // 窗口居中
-	OcxInit();
+	//if (!m_bRunning)
+	{
+		OcxInit();
+	}
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
@@ -491,7 +497,7 @@ void CDlg_Video::OnBnClickedCheck_Manual()
 void CDlg_Video::OnBnClickedButton_Capture()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
+	
 	//CString path = TEXT("");
 	//m_editPath.GetWindowText(path);
 	if (TEXT("") == m_strTempPath)
@@ -526,7 +532,7 @@ void CDlg_Video::OnBnClickedButton_Capture()
 	str.Format(TEXT("%d"), MillSec);
 	m_sCaptureName = m_strTempPath + TEXT("\\") + tt.Format("%Y_%m_%d_%H_%M_%S_") 
 		+ str + _subfix;
-	int retval = m_ocx.CaptureImage(m_sCaptureName);  // 成功：0
+	m_ocx.CaptureImage(m_sCaptureName);  // 成功：0
 
 	g_vector_imagepath.push_back(m_sCaptureName.GetBuffer());
 
@@ -542,7 +548,8 @@ void CDlg_Video::OnBnClickedButton_Capture()
 
 	SaveThumbNail(m_sCaptureName);
 	LoadThumbNail();
-
+	//OnOK();
+	//::MessageBox(NULL,TEXT("OnBnClickedButton_Capture out!"),MB_CAPTION,MB_OK);
 }
 
 
@@ -783,6 +790,12 @@ void CDlg_Video::SetCapValue(void)
 void CDlg_Video::OnOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//::MessageBox(NULL,TEXT("ok!"),MB_CAPTION,MB_OK);
+	////if (!m_bRunning)
+	//{
+	//	m_ocx.StopRun();
+	//	m_ocx.Uninitial();
+	//}
 	m_ocx.StopRun();
 	m_ocx.Uninitial();
 	if (0 == m_nFileCount)  // 一张都没拍取消扫描
@@ -886,6 +899,21 @@ void CDlg_Video::ReadSetting()
 		tempINI.AutoCrop = false;
 	}
 
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_NOSTOP,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.NoStop = true;
+	} 
+	else {
+		tempINI.NoStop = false;
+	}
+
+	GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_RUNNING,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
+	if (strTemp.Find(TEXT("Y")) >= 0) {
+		tempINI.Running = true;
+	} 
+	else {
+		tempINI.Running = false;
+	}
 	//GetPrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_SHOWINFO,TEXT(""),strTemp.GetBufferSetLength(nMaxLength),nMaxLength,szINIPath);
 	//if (strTemp.Find(TEXT("Y")) >= 0) {
 	//	tempINI.ShowInfo = true;
@@ -912,7 +940,7 @@ void CDlg_Video::ReadSetting()
 	m_bAutoCrop  = tempINI.AutoCrop;
 	//m_bShowInfo  = tempINI.ShowInfo;
 	//m_bPlaySound = tempINI.playSound;
-
+	m_bNoStop = tempINI.NoStop;
 	strTemp.ReleaseBuffer(nMaxLength);
 }
 
@@ -926,6 +954,7 @@ void CDlg_Video::WriteSetting()
 	CString strTemp;
 	strTemp = m_sCameraName;
 	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_CAMERANAME,strTemp,szINIPath);
+
 
 	//int->CString
 	//strTemp.Format(TEXT("%d"), m_nDevIndex);
@@ -945,6 +974,10 @@ void CDlg_Video::WriteSetting()
 		strTemp = TEXT("N");
 	}
 	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_AUTOCROP,strTemp,szINIPath);
+
+	
+	strTemp = TEXT("Y");
+	WritePrivateProfileString(INI_APP_CAMERASETTING,INI_KEY_RUNNING,strTemp,szINIPath);
 
 	//if (m_bShowInfo) {
 	//	strTemp = TEXT("Y");
@@ -1666,3 +1699,37 @@ void CDlg_Video::ImageHandle(enum_image_handle eMethod)
 
 	LoadThumbNail();
 }
+
+void CDlg_Video::CaptureOne()
+{
+	do 
+	{
+		Sleep(100);
+		if (m_bInitialend)
+			break;	
+	} while (1);  // 等待Camera初始化完成
+	Sleep(5000);
+	OnBnClickedButton_Capture();
+	//::MessageBox(NULL,TEXT(m_sCaptureName),MB_CAPTION,MB_OK);
+	do 
+	{
+		Sleep(100);
+		if (CheckFilePathExist(m_sCaptureName))
+			break;
+	} while (1);
+	//Sleep(1000);
+	::PostMessage(this->m_hWnd, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), NULL);  // 发送模拟按键按下消息
+
+}
+
+bool CDlg_Video::CheckFilePathExist(LPCSTR pPath)
+{
+	DWORD dwAttributes = GetFileAttributes(pPath);//判断属性是否存在 
+	if(0xFFFFFFFF==dwAttributes)
+	{ 
+		return false;
+	}
+	return true;
+}
+
+//bool CheckFilePathExist(LPCSTR pPath) { DWORDdwAttributes=GetFileAttributes(pPath);//判断属性是否存在 if(0xFFFFFFFF==dwAttributes){ returnfalse;}returntrue;}

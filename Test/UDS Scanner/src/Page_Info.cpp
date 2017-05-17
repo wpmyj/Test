@@ -457,7 +457,6 @@ bool CPage_Info::LoadDLL()
 		return false;
 	}
 
-
 	TerminateDriver  = (TerminateDriverProc)GetProcAddress(m_hDLL, "TerminateDriver");
 	if(TerminateDriver  == NULL)
 	{

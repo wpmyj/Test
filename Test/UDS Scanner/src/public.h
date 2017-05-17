@@ -29,6 +29,8 @@
 #define INI_KEY_CAMERANAME                   TEXT("CameraName")
 #define INI_KEY_PLAYSOUND                    TEXT("PlaySound")
 #define INI_KEY_NOUI                         TEXT("NoUI")
+#define INI_KEY_NOSTOP                       TEXT("NoStop")
+#define INI_KEY_RUNNING                      TEXT("Running")
 #define INI_KEY_DSNAME                       TEXT("DSName")
 /** 消息框标题或驱动名称 */    
 #define MB_CAPTION TEXT("UDS Universal TWAIN DS")
