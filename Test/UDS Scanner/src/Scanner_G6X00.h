@@ -233,6 +233,27 @@ protected:
 	BYTE *GetScanLine(int scanline);
 
 	/**
+	*  @brief  去除扫描仪自身的两条线段
+	*  @param[in]  src：黑白图像
+	*/
+	void RemoveScnnerLine(Mat &src_img);
+
+	/**
+	*  @brief  自动校正
+	*  @param[in]  src_img：彩色图像
+	*  @param[out] dst_img :彩色图像
+	*  @param[out] true 或 false
+	*/
+	bool getContoursByCplus(Mat src_img, Mat &dst_img);  
+
+	/**
+	*  @brief  自动校正
+	*  @param[in]  src：黑白图像
+	*  @param[out]  图像上端的中的线段
+	*/
+	bool GetLines(Mat src_img, Vec4i &line); 
+
+	/**
 	*  @brief  自动校正
 	*  @param[in]  src：无，直接从驱动中读取有旋转角度的图
 	*  @param[out]  输出校正后的图像

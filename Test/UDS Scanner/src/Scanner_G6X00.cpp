@@ -7,6 +7,9 @@
 #include "ximage.h"  // CXImage
 #include "Dlg_Error.h"
 
+const int black = 10;
+const int white = 250;
+
 extern HWND g_hwndDLG;
 extern std::vector<std::string> g_vector_imagepath;
 extern int g_nDeviceNumber;
@@ -1437,32 +1440,170 @@ BYTE * CScanner_G6X00::GetScanLine(int scanline)
 	return ps;
 }
 
-bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
-//cv::Mat CScanner_G6X00::AutoCorrect(Mat src_img)
+bool CScanner_G6X00::GetLines(Mat src_img, Vec4i &line)
 {
-	//ChangeImage(IMAGENAME_AUTOCORRECT);
-	//Mat img = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\src_img.jpg", src_img);
+	Mat srcimg;
+	src_img(Rect(src_img.cols/2, 0, src_img.cols/4, src_img.rows)).copyTo(srcimg); 
+	//imwrite("C:\\Users\\Administrator\\Desktop\\srcimg.jpg", srcimg);
+
+	int width = srcimg.cols; //列
+	int height = srcimg.rows; //行
+
+	int left = 0;
+	int right = width; //列 
+	int up = 0;
+	int down = height; //行 
+
+	int i,j;
 	
+	//检测上端线段的夹角
+	for(j = 0; j < width; j++)
+	{
+		for(i = 2; i < height-2; i++)
+		{
+			if((int)srcimg.at<uchar>(i,j) <= black && 
+				(int)srcimg.at<uchar>(i-1,j) <= black && (int)srcimg.at<uchar>(i+1,j) >= white)
+			{
+				break;
+			}	
+		}
+
+		if((int)srcimg.at<uchar>(i,j) <= black && 
+			(int)srcimg.at<uchar>(i-1,j) <= black && (int)srcimg.at<uchar>(i+1,j) >= white)
+		{
+			line[0] = j;
+			line[1] = i;
+			break;
+		}	
+	}
+
+	for(i = 0; i < height; i++)
+	{
+		for(j = 2; j < width-2; j++)
+		{
+			if((int)srcimg.at<uchar>(i,j) <= black && 
+				(int)srcimg.at<uchar>(i,j-1) <= black && (int)srcimg.at<uchar>(i,j+1) >= white)
+			{
+				break;
+			}	
+		}
+
+		if( (int)srcimg.at<uchar>(i,j) <= black && 
+			(int)srcimg.at<uchar>(i,j-1) <= black && (int)srcimg.at<uchar>(i,j+1) >= white )
+		{
+			line[2] = j;
+			line[3] = i;
+			break;	
+		}	
+	}
+
+	return true;
+}
+
+bool CScanner_G6X00::getContoursByCplus(Mat src_img,Mat &dst_img)
+{
+	Mat src, dst, canny_output;  
+	src = src_img.clone();
+
+	if (!src.data)  
+	{  
+		return false;  
+	}  
+	blur(src, src, Size(3, 3));  
+
+	//the pram. for findContours,  
+	vector<vector<Point> > contours;  
+	vector<Vec4i> hierarchy;  
+
+	//Canny(src, canny_output, 80, 255, 3);  
+	Canny(src, canny_output, 200, 150, 3);  
+	findContours(canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));  //findContours后会对输入的2值图像改变
+
+	double minarea = 200; //区域内的像素点数
+	double whRatio = 1;
+	//double minpoint = 200; //轮廓上点的个数
+
+	double maxarea = 0;  
+	int maxAreaIdx = 0;  
+	//寻找最大的区域
+	for (int i = 0; i < contours.size(); i++)  
+	{  
+		double tmparea = fabs(contourArea(contours[i]));  
+		if (tmparea>maxarea)  
+		{  
+			maxarea = tmparea;  
+			maxAreaIdx = i;  
+			continue;  
+		}  
+
+		if (tmparea < minarea)  
+		{  
+			//删除面积小于设定值的轮廓  
+			contours.erase(contours.begin() + i);   
+			continue;  
+		}  
+		//计算轮廓的直径宽高  
+		Rect aRect = boundingRect(contours[i]);  
+		if ((aRect.width / aRect.height) < 2 || (aRect.height/aRect.width < 2))
+		{  
+			//删除宽高比例小于设定值的轮廓  
+			contours.erase(contours.begin() + i);   
+			continue;  
+		}  
+	}  
+	// Draw contours,彩色轮廓  
+	dst = Mat::zeros(canny_output.size(), CV_8UC3);  
+	for(int i = 0; i< contours.size(); i++)  
+	//int i = maxAreaIdx;
+	{  
+		//随机颜色  
+		drawContours(dst, contours, i, Scalar(0,0,255), 2, 8, hierarchy, 0, Point());  
+	}  
+	
+	dst.copyTo(dst_img);
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dst.jpg", dst);
+
+	return true;
+}
+
+void CScanner_G6X00::RemoveScnnerLine(Mat &src_img)//, int reso)
+{
+	int height = src_img.rows;
+
+	int i,j;
+	//涂黑扫描仪固定位置的两条平行线，左右多5个像素
+	for(i = 0; i < height; i++)
+	{
+		//for(j = 834*(reso/200); j < 851*(reso/200); j++) //(200dpi：839--846，中间6个像素为黑)
+		for(j = 834; j < 851; j++) 
+		{
+			src_img.at<uchar>(i,j) = 0;	
+		}	
+	}
+}
+
+bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
+{
 	Mat srcImage;
 	src_img.copyTo(srcImage);
 	
-	Mat midImage,dstImage;
-	Canny(srcImage, midImage, 200, 150, 3);
-	
-	Mat RoiImage(midImage.rows, midImage.cols, midImage.type());
-	//设置感兴趣区域,拷贝
-	midImage(Rect(0, 0, midImage.cols, midImage.rows/5)).copyTo(RoiImage); //midImage.rows/2
-	cvtColor(RoiImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
-	
+	Mat dstImage,midImage;
+	if(!getContoursByCplus(srcImage, dstImage)) //画了红线的图像
+	{
+		return false;
+	}
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dst.jpg", dstImage);
+
+	Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
-	HoughLinesP(RoiImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/2,srcImage.rows/2), 50);
+	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
+	HoughLinesP(midImage, lines, 1, CV_PI/180, 150, max(srcImage.cols/2,srcImage.rows/2), 5);
 
 	int linenum = lines.size();
 	if(linenum == 0)
-	{
-		HoughLinesP(RoiImage, lines, 1, CV_PI/180, 20, min(srcImage.cols/4,srcImage.rows/4), 50);
+	{	
+		HoughLinesP(midImage, lines, 1, CV_PI/180, 100, max(srcImage.cols/2,srcImage.rows/2), 30);
 		linenum = lines.size();
 	}
 
@@ -1476,8 +1617,14 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		//若两次HoughLinesP后还未检查出线段，返回false
-		return false;
+		HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(srcImage.cols/4,srcImage.rows/4), 50);
+		linenum = lines.size();
+		if(linenum==0)
+		{
+			//AfxMessageBox("a");
+			//若三次HoughLinesP后还未检查出线段，返回false
+			return false;
+		}
 	}
 
 	for( size_t i = 0; i < linenum; i++ )
@@ -1496,12 +1643,18 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		}
 	}
 	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
-
-	bool mark = false;
+	
+	/*CString strtemp;
+	CString str;
+	strtemp.Format("%d",maxline[0]);
+	str = "C:\\Users\\Administrator\\Desktop\\dstImage"+strtemp+".jpg";
+	imwrite(str.GetBuffer(0), dstImage);*/
 
 	dx = (float)(maxline[2]-maxline[0]);
 	dy = (float)(maxline[3]-maxline[1]);
+
+	bool mark = false;
+
 	double temp;
 	double theta;
 	if(dy > 0)
@@ -1569,25 +1722,18 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		Mat rotateImg = Mat::ones(Size(m_image_out.rows, m_image_out.cols), m_image_out.type()); 
 		warpAffine(m_image_out, rotateImg, rotateMat, rotateImg.size());  
 
-		//return rotateImg;
 		rotateImg.copyTo(dst_img); 
 	}
 	else
 	{
-		//return m_image_out;
 		m_image_out.copyTo(dst_img);
 	}
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dst_img.jpg", dst_img);
 	return true;
 }
 
-//cv::Mat CScanner_G6X00::RemoveBlack(Mat src_img)
 Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 {
-	//AfxMessageBox("RemoveBlack");
-	const int black = 10;
-	const int white = 250;
-
 	Mat inputImg = src_img;
 	Mat tmpMat = inputImg.clone();
 	
@@ -1618,7 +1764,6 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	//上侧
 	for(i = 0; i < height; i++)
 	{
-	//for(j = 1; j < width/4; j++)
 		for(j = 2; j < width-2; j++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
@@ -1630,11 +1775,11 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 		}
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
+			&& num > 20
 			)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
-				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j+5) >= white) 
-				&& num > 15)
+				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j+5) >= white) )
 			{
 				up = i; 
 				break;
@@ -1646,7 +1791,6 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	//左侧
 	for(j = 0; j < width; j++)
 	{
-		//for(i = 1; i < height/2; i++)
 		for(i = 2; i < height-2; i++)
 		{
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
@@ -1659,7 +1803,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
-			)
+			&& num > 20)
 		{
 			left = j; 
 			break;
@@ -1668,10 +1812,6 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 	num = 0;
 	//下侧
-	/*for(i = height-2; i >= height/2; i--)
-	{
-	for(j = width-2; j >= width/2; j--)
-	{*/
 	for(i = height-2; i >= 2; i--)
 	{
 		for(j = width-2; j >= 2; j--)
@@ -1686,12 +1826,11 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
-			//&& num > 15
-			)
+			&& num > 20)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
 				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j-5) >= white) 
-				&& num > 15)
+				)
 			{
 				down = i;	
 				break;	
@@ -1700,11 +1839,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	}
 
 	num = 0;
-	////右侧
-	/*for(j = width-2; j >= width/2; j--)
-	{
-	for(i = height-2; i >= height/2; i--)
-	{*/
+	//右侧
 	for(j = width-2; j >= 2; j--)
 	{
 		for(i = height-2; i >= 2; i--)
@@ -1719,7 +1854,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
-			//&& num > 15
+			&& num > 20
 			)
 		{
 			right = j; 	
@@ -1738,8 +1873,6 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	Rect rect(left, up, right-left, down-up); //(856.1030)
 	
 	return rect;
-	//Mat imageSave = inputImg(rect);
-	//return imageSave;
 }
 
 void CScanner_G6X00::ColorFlip(const Mat& src, Mat& dst)
