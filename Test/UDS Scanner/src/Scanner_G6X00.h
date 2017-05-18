@@ -247,7 +247,7 @@ protected:
 	bool getContoursByCplus(Mat src_img, Mat &dst_img);  
 
 	/**
-	*  @brief  自动校正
+	*  @brief  获取图像中的线段
 	*  @param[in]  src：黑白图像
 	*  @param[out]  图像上端的中的线段
 	*/
@@ -265,7 +265,6 @@ protected:
 	*  @param[in]  src ：输入图像
 	*  @param[out]  输出去黑边后的图像
 	*/
-	//Mat RemoveBlack(Mat src_img);
 	Rect RemoveBlack(Mat src_img);
 
 	/**
@@ -319,6 +318,27 @@ protected:
 	*  @param[in]  height 分割后的图像的高
 	*/
 	void SpiltImage(const Mat &src_img, int m, int n);
+
+	/**
+	*  @brief  锐化图像
+	*  @param[in]  src 输入图像
+	*  @param[out] dst_img 锐化后的图像
+	*/
+	void SharpenImage(const Mat &src_img, Mat &dst_img);
+
+	/**
+	*  @brief  去除背景
+	*  @param[in]  src_img ：输入图像
+	*  @param[out]  dst_img :去背景后的图像
+	*/
+	void RemoveBack(const Mat &src_img, Mat &dst_img);
+
+	/**
+	*  @brief  边缘扩充
+	*  @param[in]  src_img ：输入图像
+	*  @param[out]  dst_img : 扩充后的数据
+	*/
+	void EdgeBorder(const Mat &src_img, Mat &dst_img);
 
 	/**
 	*  @brief  去除空白页
@@ -401,8 +421,10 @@ protected:
 	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 
-	bool              m_bSkip;                  /**< 是否跳过下次扫描 */
+	bool              m_bSpiltSkip;            /**< 是否跳过下次扫描 */
 	bool              m_bMultiSkip;
+	bool              m_bImageProSkip;         /**< 是否跳过图像处理*/
+	cv::Mat           m_mat_muilt;             /**< 多流时，最高等级的数据 */
 
 private:
 	BYTE* m_pGammaTable;
@@ -416,7 +438,6 @@ private:
 	SCANNERABILITY m_scannerAbility;
 	SCANPARAMETER m_scanParameter;
   HMODULE m_hDLL;
-	
 
 	int   m_nMultiTotal;  /**< 多流总的纸张数 */
 	int   m_nMultiBack;   /**< 多流背面纸张数 */

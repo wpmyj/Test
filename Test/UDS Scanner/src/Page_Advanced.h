@@ -96,6 +96,7 @@ public:
 	void SetScroll(); ///<根据edit的值更新滚动条的值;以及根据单位设定宽、高滚动条的范围;
 	void SetPrefeed(); ///<设置预先进纸编辑框是否可用
 	void SetOverlength(); ///<设置超出预定长度是否可用
+	void SetMulitfeed(); ///<设置重张进纸Combox是否可用
 
 private:
 	virtual BOOL OnInitDialog();

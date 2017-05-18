@@ -47,7 +47,6 @@ void CPage_Advanced::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ADVANCED_EDIT_YPOS, m_edit_ypos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_XPOS, m_scroll_xpos);
 	DDX_Control(pDX, IDC_ADVANCED_SCROLLBAR_YPOS, m_scroll_ypos);
-	//  DDX_Control(pDX, IDC_ADVANCED_COMBO_CUTMETHOD, m_combo_cutmethod);
 	DDX_Radio(pDX, IDC_ADVANCED_RADIO_EDGEMETHOD_IN, m_radio_edgeorientation);
 	DDX_Radio(pDX, IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, m_radio_cornercolor);
 	DDX_Control(pDX, IDC_ADVANCED_COMBO_EDGECOLOR, m_combo_edgecolor);
@@ -79,7 +78,6 @@ BEGIN_MESSAGE_MAP(CPage_Advanced, CPropertyPage)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_LEFT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeLeft)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_RIGHT, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeRight)
 	ON_EN_CHANGE(IDC_ADVANCED_EDIT_DOWN, &CPage_Advanced::OnEnChangeAdvanced_Edit_EdgeDown)
-//	ON_CBN_SELCHANGE(IDC_ADVANCED_COMBO_CUTMETHOD, &CPage_Advanced::OnCbnSelchangeAdvanced_Combo_Cutmethod)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_IN, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_EDGEMETHOD_OUT, &CPage_Advanced::OnAdvanced_RadioBtn_Edgeorientation)
 	ON_BN_CLICKED(IDC_ADVANCED_RADIO_CORNERCOLOR_WHITE, &CPage_Advanced::OnAdvanced_RadioBtn_Cornercolor)
@@ -160,6 +158,7 @@ void CPage_Advanced::UpdateControls(void)
 		}
 	}
 	m_combo_mdvalue.SetCurSel(nCapIndex);
+	SetMulitfeed();
 
 	//V2.0版本
 	//纸张设置-单位
@@ -1018,19 +1017,6 @@ BOOL CPage_Advanced::PreTranslateMessage(MSG* pMsg)
 	return __super::PreTranslateMessage(pMsg);
 }
 
-void CPage_Advanced::OnClicked_Check_Multifeeddetect()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_check_multifeeddetect.GetCheck()) //点中
-	{
-		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,TRUE);
-	} 
-	else
-	{
-		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,FALSE);
-		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,FALSE);
-	}
-}
 
 BOOL CPage_Advanced::OnSetActive()
 {
@@ -2302,6 +2288,34 @@ void CPage_Advanced::OnAdvanced_Btn_Check_Overlength()
 	m_pUI->SetCapValueInt(UDSCAP_OVERLENGTH,nval);
 }
 
+void CPage_Advanced::OnClicked_Check_Multifeeddetect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetMulitfeed();
+	if (m_check_multifeeddetect.GetCheck()) //点中
+	{
+		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,TRUE);
+	} 
+	else
+	{
+		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT,FALSE);
+		m_pUI->SetCapValueInt(UDSCAP_MULTIFEEDDETECT_VALUE,FALSE);
+	}
+}
+
+void CPage_Advanced::SetMulitfeed()
+{
+	UpdateData(TRUE);
+	if(m_check_multifeeddetect.GetCheck())
+	{
+		GetDlgItem(IDC_ADVANCED_COMBO_MUILTSTREAM_FINDOVERLAY)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_ADVANCED_COMBO_MUILTSTREAM_FINDOVERLAY)->EnableWindow(FALSE);
+	}
+	UpdateData(FALSE);
+}
 
 void CPage_Advanced::OnAdvanced_Btn_Check_Prefeed()
 {

@@ -28,8 +28,9 @@ CScanner_G6X00::CScanner_G6X00(void)
 	, m_nImageNumber(0)
 	, m_nScanLine(0)
 	, m_nDestBytesPerRow(0)
-	, m_bSkip(false)
+	, m_bSpiltSkip(false)
 	, m_bMultiSkip(false)
+	, m_bImageProSkip(false)
 	, m_nMultiTotal(0) 
   , m_nMultiBack(0) 
   , m_nMultiFront(0)    
@@ -247,7 +248,7 @@ bool CScanner_G6X00::acquireImage()
 			bChanged = true;
 		}
 
-		if(false == m_bSkip)  // 若拆分，则同一张纸需要跳过扫描
+		if(false == m_bSpiltSkip)  // 若拆分，则同一张纸需要跳过扫描
 		{
 			if (false == RunScan())
 			{
@@ -272,7 +273,6 @@ bool CScanner_G6X00::acquireImage()
 		return false;
 	}
 
-
 	return true;
 }
 
@@ -285,6 +285,7 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 bool CScanner_G6X00::preScanPrep()
 {
 	bool status = true; //初始状态赋为true,一旦有错误，返回false
+	m_bImageProSkip = false;
 
 	m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 	m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
@@ -319,7 +320,7 @@ bool CScanner_G6X00::preScanPrep()
 		if (nTempCount > 0)
 		{
 			Mat matMuilt(m_nSourceHeight, m_nSourceWidth, CV_8UC3, m_pSaveBuffer, m_dwBytesPerRow); // 多流都是按彩色扫描
-
+			//imwrite("C:\\Users\\Administrator\\Desktop\\matMuilt.jpg", matMuilt);
 			BYTE m_byteMuilt = m_byteMultiValue;
 			m_byteMuilt = SwitchBYTE(m_byteMuilt);  // 判断哪面哪种颜色（总共6种）
 			m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
@@ -381,13 +382,12 @@ bool CScanner_G6X00::preScanPrep()
 			Mat iMat(m_nSourceHeight, m_nSourceWidth, nType, m_pSaveBuffer, m_dwBytesPerRow); 
 			iMat.copyTo(m_mat_image);
 		}
-	}
-
-	//自动裁切与校正
-	if(m_bAutoCrop == TWAC_AUTO) 
+	}	
+	
+	if(!m_bImageProSkip) //数据首次传输时，所有图像均处理
 	{
-		Mat matAutoCrop; 
-		//matAutoCrop = AutoCorrect(m_mat_image);//先自动校正	
+		//自动裁切与校正
+		Mat matAutoCrop;
 		status = AutoCorrect(m_mat_image, matAutoCrop);
 		if(status)
 		{
@@ -397,171 +397,141 @@ bool CScanner_G6X00::preScanPrep()
 			imageSave.copyTo(m_mat_image);
 			//matAutoCrop.copyTo(m_mat_image);
 			//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
-			m_nWidth = m_mat_image.cols; 
-			m_nHeight = m_mat_image.rows;
 		}	
-	}
-	else 
-	{
-		if(m_nPixelType == TWPT_BW)
+		else
 		{
-			threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_OTSU);
-		} 
-	}
-
-	if(m_nOrientation == TWOR_LANDSCAPE) //横向
-	{		
-		RotateImage(m_mat_image, m_mat_image, 90);
-	}
-
-	// 旋转
-	switch((int)m_fRotation)
-	{
-	case TWOR_ROT0: 
-		RotateImage(m_mat_image, m_mat_image, 0);
-		break;								
-	case TWOR_ROT90: 
-		RotateImage(m_mat_image, m_mat_image, -90);
-		break;										
-	case TWOR_ROT180: 
-		RotateImage(m_mat_image, m_mat_image, -180);
-		break;										
-	case TWOR_ROT270: 
-		RotateImage(m_mat_image, m_mat_image, -270);
-		break;									
-	default: 
-		break;					 
-	} 
-
-	//图像镜像处理
-	if(m_bMirror == TWMR_AUTO)
-	{ 
-		Mat mat_hMirror;
-		hMirrorTrans(m_mat_image, mat_hMirror);
-		mat_hMirror.copyTo(m_mat_image);
-	}
-
-	//色彩翻转
-	if(m_bColorFlip == TWCF_AUTO)
-	{ 
-		Mat mat_hColorflip;
-		ColorFlip(m_mat_image, mat_hColorflip);
-		mat_hColorflip.copyTo(m_mat_image);
-	}
-
-	//去除噪声
-	if(m_bDenoise == TWDN_AUTO) 
-	{	
-		Mat matDenoise;
-		medianBlur(m_mat_image, matDenoise, 3);
-		matDenoise.copyTo(m_mat_image);
-		//IplImage *out;
-	//	MedianSmooth(m_mat_image/*, out*/);
-		//Mat mTemp(out,0);
-		//mTemp.copyTo(m_mat_image);
-	}
-
-	//去网纹
-	if(m_bDescreen == TWDS_AUTO) 
-	{
-		//::MessageBox(g_hwndDLG,TEXT("去网纹!"),MB_CAPTION,MB_OK);
-		Mat matDescreen;
-		m_mat_image.copyTo(matDescreen);
-		//Size(5,5)模板大小，为奇数，要更精确需要自己生成模板
-		//x方向方差
-		//Y方向方差
-		GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
-		matDescreen.copyTo(m_mat_image);		
-	}
-
-	//去除穿孔
-	if(m_bRemovePunch == TWRP_AUTO) 
-	{	 
-		Mat matRemovepunch(m_mat_image);
-		matRemovepunch = RemovePunch(matRemovepunch, 200, 30); //去除穿孔 原22
-		matRemovepunch.copyTo(m_mat_image);
-
+			status = true; //未检测到线段时；防止直接返回false，不扫描后续图像
+		}
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
-	}
 
-	//锐化
-	int index = FindDepth(m_mat_image); //index为图像的深度
-	//锐化图像
-	if(m_bSharpen == TWSN_AUTO) 
-	{	
-		if(m_nPixelType != TWPT_BW)
+		//横向
+		if(m_nOrientation == TWOR_LANDSCAPE) //横向
+		{		
+			RotateImage(m_mat_image, m_mat_image, 90);
+		}
+
+		// 旋转
+		switch((int)m_fRotation)
 		{
-			Mat matSharpen;
-			//USM 锐化
-			float amount = 1;  
-			m_mat_image.copyTo(matSharpen);
-			Mat imgblur;
-			Mat imgdst;
-			Mat lowContrastMask;
-			GaussianBlur(matSharpen, imgblur, Size(), 3, 3);  
-			lowContrastMask = abs(matSharpen - imgblur)<0;  
-			imgdst  = matSharpen*(1+amount) + imgblur*(-amount);  
-			matSharpen.copyTo(imgdst, lowContrastMask); 
-			imgdst.copyTo(m_mat_image);
-		}	
-	}
+		case TWOR_ROT0: 
+			RotateImage(m_mat_image, m_mat_image, 0);
+			break;								
+		case TWOR_ROT90: 
+			RotateImage(m_mat_image, m_mat_image, -90);
+			break;										
+		case TWOR_ROT180: 
+			RotateImage(m_mat_image, m_mat_image, -180);
+			break;										
+		case TWOR_ROT270: 
+			RotateImage(m_mat_image, m_mat_image, -270);
+			break;									
+		default: 
+			break;					 
+		} 
 
-	//去除背景
-	if(m_bRemoveBack == TWRB_AUTO) 
-	{
-		if(m_nPixelType != TWPT_BW)
+		//图像镜像处理--水平镜像
+		if(m_bMirror == TWMR_AUTO)
+		{ 
+			Mat mat_hMirror;
+			hMirrorTrans(m_mat_image, mat_hMirror);
+			mat_hMirror.copyTo(m_mat_image);
+		}
+
+		//色彩翻转
+		if(m_bColorFlip == TWCF_AUTO)
+		{ 
+			Mat mat_hColorflip;
+			ColorFlip(m_mat_image, mat_hColorflip);
+			mat_hColorflip.copyTo(m_mat_image);
+		}
+
+		//去除噪声（？？？？）
+		if(m_bDenoise == TWDN_AUTO) 
 		{	
-			Mat matRemoveBack;	
-			m_mat_image.copyTo(matRemoveBack);
-		
-			Mat bwMat;
-			GaussianBlur(matRemoveBack, bwMat, Size(), 3, 3);  
-			cvtColor(bwMat, bwMat, CV_BGR2GRAY);
-			int thresoldvalue = otsu(bwMat); //171	
-			threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
+			Mat matDenoise;
+			medianBlur(m_mat_image, matDenoise, 3);
+			matDenoise.copyTo(m_mat_image);
+		}
 
-			Mat dstMat(matRemoveBack.rows, matRemoveBack.cols, CV_8UC3);
-			//将黑白图中的黑色像素点还原为原图中的像素点
-			for(int j = 0; j < bwMat.rows; j++)
+		//去网纹
+		if(m_bDescreen == TWDS_AUTO) 
+		{
+			//::MessageBox(g_hwndDLG,TEXT("去网纹!"),MB_CAPTION,MB_OK);
+			Mat matDescreen;
+			m_mat_image.copyTo(matDescreen);
+			//Size(5,5)模板大小，为奇数，要更精确需要自己生成模板
+			//x方向方差
+			//Y方向方差
+			GaussianBlur(matDescreen, matDescreen, Size(5,5), 0, 0);  //  高斯滤波
+			matDescreen.copyTo(m_mat_image);		
+		}
+
+		//去除穿孔
+		if(m_bRemovePunch == TWRP_AUTO) 
+		{	 
+			Mat matRemovepunch(m_mat_image);
+			matRemovepunch = RemovePunch(matRemovepunch, 200, 30); //去除穿孔 原22
+			matRemovepunch.copyTo(m_mat_image);
+
+			m_nWidth = m_mat_image.cols; 
+			m_nHeight = m_mat_image.rows;
+		}
+
+		//锐化 ??验证
+		int index = FindDepth(m_mat_image); //index为图像的深度
+		//锐化图像
+		if(m_bSharpen == TWSN_AUTO) 
+		{	
+			if(m_nPixelType != TWPT_BW)
 			{
-				for(int i = 0; i < bwMat.cols; i++)
-				{
-					if((int)(bwMat.at<uchar>(j,i)) == 0)
-					{
-						dstMat.at<Vec3b>(j,i)[0] = matRemoveBack.at<Vec3b>(j,i)[0];
-						dstMat.at<Vec3b>(j,i)[1] = matRemoveBack.at<Vec3b>(j,i)[1];
-						dstMat.at<Vec3b>(j,i)[2] = matRemoveBack.at<Vec3b>(j,i)[2];
-					}
-					else
-					{
-						dstMat.at<Vec3b>(j,i)[0] = 255;
-						dstMat.at<Vec3b>(j,i)[1] = 255;
-						dstMat.at<Vec3b>(j,i)[2] = 255;
-					}
-				} //i for end
-			} //j for end		
-			dstMat.copyTo(m_mat_image);
-		}//if end
+				Mat matSharpen;
+				SharpenImage(m_mat_image, matSharpen);
+				matSharpen.copyTo(m_mat_image);
+			}	
+		}
+
+		//去除背景  ???验证
+		if(m_bRemoveBack == TWRB_AUTO) 
+		{
+			if(m_nPixelType != TWPT_BW)  //?只有灰度图像才去
+			{	
+				Mat matRemoveback;
+				RemoveBack(m_mat_image, matRemoveback);
+				matRemoveback.copyTo(m_mat_image);
+			}
+		}
+		
+		//去除空白页
+		if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
+		{
+			Mat matRemoveBlank;
+			m_mat_image.copyTo(matRemoveBlank);
+			status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+		}
+
 	}
-
-
-	//偏移量以及边缘扩充
-	float temp[10]; 
-	temp[0] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素		
-	temp[1] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[2] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-
-	temp[3] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[4] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[5] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	m_nHeight = m_nHeight + (int)temp[3] + (int)temp[1] + (int)temp[2];
-	m_nWidth = m_nWidth + (int)temp[0] + (int)temp[4] + (int)temp[5];
-	
+	else //为true时不再次做图像处理，直接做图像类型转换
 	{
-		Mat borderMat;
-		copyMakeBorder(m_mat_image, borderMat, (int)temp[1], (int)temp[2]+(int)temp[3], (int)temp[4], (int)temp[5]+(int)temp[0], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
-		borderMat.copyTo(m_mat_image);
+		//自动裁切与校正
+		if(m_bAutoCrop == TWAC_AUTO) 
+		{
+			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
+			m_mat_muilt.copyTo(m_mat_image);
+
+			if(m_nPixelType == TWPT_GRAY)
+			{
+				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+			} 
+			else if(m_nPixelType == TWPT_BW)
+			{
+				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+				threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
+			} 
+			{}
+		}
+		m_nWidth = m_mat_image.cols; 
+		m_nHeight = m_mat_image.rows;
 	}
 
 	//图像分割
@@ -573,7 +543,6 @@ bool CScanner_G6X00::preScanPrep()
 		m_nWidth = m_mat_image.cols; 
 		m_nHeight = m_mat_image.rows;
 
-		
 	}
 	else if(m_nSpiltImage == TWSI_VERTICAL) //垂直分割
 	{
@@ -585,20 +554,18 @@ bool CScanner_G6X00::preScanPrep()
 	else if(m_nSpiltImage == TWSI_DEFINED)
 	{}
 
-
-	//去除空白页
-	//bool bEmpty = false; //默认不是空白页
-	if(m_bRemoveBlank == TWRA_AUTO)//checkbox可用
+	//边缘扩充---自动裁切时，是不能扩展边缘的；就算扩了，也裁掉了
 	{
-		Mat matRemoveBlank;
-		m_mat_image.copyTo(matRemoveBlank);
-		status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
+		Mat matBorder;
+		EdgeBorder(m_mat_image, matBorder);
+		matBorder.copyTo(m_mat_image);
 	}
-  /*if (status)
-  {
-		return false;
-  }*/
 
+	if(!m_bImageProSkip)
+	{
+		m_mat_image.copyTo(m_mat_muilt);
+		//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
+	}
 
 	switch(m_nPixelType)
 	{
@@ -618,13 +585,77 @@ bool CScanner_G6X00::preScanPrep()
 	Mat tempmat;
 	m_mat_image.copyTo(tempmat);
 	//BYTE *temp = NULL;
-	Mat2uchar(tempmat);
+	Mat2uchar(tempmat);	
 
 	// setup some convenience vars because they are used during 
 	// every strip request
 	m_nScanLine       = 0;
-	//return true;
+
 	return status;
+}
+
+void CScanner_G6X00::EdgeBorder(const Mat &src_img, Mat &dst_img)
+{
+	//偏移量以及边缘扩充
+	float temp[10]; 
+	temp[0] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素		
+	temp[1] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[2] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+
+	temp[3] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[4] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[5] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	m_nHeight = m_nHeight + (int)temp[3] + (int)temp[1] + (int)temp[2];
+	m_nWidth = m_nWidth + (int)temp[0] + (int)temp[4] + (int)temp[5];
+
+	copyMakeBorder(src_img, dst_img, (int)temp[1], (int)temp[2]+(int)temp[3], (int)temp[4], (int)temp[5]+(int)temp[0], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+}
+
+
+void CScanner_G6X00::RemoveBack(const Mat &src_img, Mat &dst_img)
+{
+	Mat matTemp;	
+	src_img.copyTo(matTemp);
+
+	Mat bwMat;
+	GaussianBlur(matTemp, bwMat, Size(), 3, 3);  
+	cvtColor(bwMat, bwMat, CV_BGR2GRAY);
+	int thresoldvalue = otsu(bwMat); //171	
+	threshold(bwMat, bwMat, (double)thresoldvalue, 255, THRESH_BINARY);  //OTSU也是171
+
+	//将黑白图中的黑色像素点还原为原图中的像素点
+	for(int j = 0; j < bwMat.rows; j++)
+	{
+		for(int i = 0; i < bwMat.cols; i++)
+		{
+			if((int)(bwMat.at<uchar>(j,i)) == 0)
+			{
+				dst_img.at<Vec3b>(j,i)[0] = matTemp.at<Vec3b>(j,i)[0];
+				dst_img.at<Vec3b>(j,i)[1] = matTemp.at<Vec3b>(j,i)[1];
+				dst_img.at<Vec3b>(j,i)[2] = matTemp.at<Vec3b>(j,i)[2];
+			}
+			else
+			{
+				dst_img.at<Vec3b>(j,i)[0] = 255;
+				dst_img.at<Vec3b>(j,i)[1] = 255;
+				dst_img.at<Vec3b>(j,i)[2] = 255;
+			}
+		} //i for end
+	} //j for end		
+}
+
+void CScanner_G6X00::SharpenImage(const Mat &src_img, Mat &dst_img)
+{
+	Mat matTemp;
+	//USM 锐化
+	float amount = 1;  
+	src_img.copyTo(matTemp);
+	Mat imgblur;
+	Mat lowContrastMask;
+	GaussianBlur(matTemp, imgblur, Size(), 3, 3);  
+	lowContrastMask = abs(matTemp - imgblur)<0;  
+	dst_img  = matTemp*(1+amount) + imgblur*(-amount);  
+	matTemp.copyTo(dst_img, lowContrastMask); 
 }
 
 bool CScanner_G6X00::getScanStrip(BYTE *pTransferBuffer, DWORD dwRead, DWORD &dwReceived)
@@ -2143,7 +2174,7 @@ void CScanner_G6X00::SpiltImage(const Mat &src_img, int m, int n)
 	Mat matTemp;
 
 
-	if( false == m_bSkip) //拆分的第一张
+	if( false == m_bSpiltSkip) //拆分的第一张
 	{
 		cvSetImageROI(&Iplsrc,cvRect(0, 0, ceil_width, ceil_height)); 
 		Ipldst = cvCreateImage(cvSize(ceil_width, ceil_height),  IPL_DEPTH_8U,  Iplsrc.nChannels); 
@@ -2156,7 +2187,7 @@ void CScanner_G6X00::SpiltImage(const Mat &src_img, int m, int n)
 		matTemp.copyTo(m_mat_image);
 		cvReleaseImage(&Ipldst);  
 
-		m_bSkip = true;  // 告诉Acquire跳过一次扫描
+		m_bSpiltSkip = true;  // 告诉Acquire跳过一次扫描
 	}
 	else
 	{
@@ -2187,7 +2218,7 @@ void CScanner_G6X00::SpiltImage(const Mat &src_img, int m, int n)
 			cvReleaseImage(&Ipldst); 
 		}	
 
-		m_bSkip = false;
+		m_bSpiltSkip = false;
 		GetADFStatus(&m_byteADFStatus);
 		if ( (m_byteADFStatus & 0x1) != 1)
 		{
@@ -3006,24 +3037,52 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 	Mat dst_img;
 	switch(muilt)
 	{
-		//正面
-	case 0x01:  //彩色单张
+	case 0x01:  //彩色
 	case 0x10:
 		{
 			m_nPixelType = TWPT_RGB;	
 			src_img.copyTo(dst_img);
-			//::MessageBox(g_hwndDLG,TEXT("彩色单张!"),MB_CAPTION,MB_OK);
 		}	
 		break;
-	case 0x02:  //灰度单张
+	case 0x02:  //灰度
 	case 0x20:
 		{
 			m_nPixelType = TWPT_GRAY;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
+
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{//不裁切时，才转换；裁切时，在裁切前转换
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
 			src_img.copyTo(dst_img);
-			//::MessageBox(g_hwndDLG,TEXT("灰度单张!"),MB_CAPTION,MB_OK);
 		}		
 		break;
+	case 0x04:  //黑白
+	case 0x40:
+		{	
+			m_nPixelType = TWPT_BW;
+
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x08:  //自动
+	case 0x80:
+		{
+			break;
+		}
+		/*
 	case 0x03:  //灰度、彩色
 	case 0x30:
 		{
@@ -3034,23 +3093,22 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
 				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				//m_bAutoCrop = TWAC_DISABLE;
+
+				if(m_bAutoCrop == TWAC_DISABLE) 
+				{//不裁切时，才转换；裁切时，在裁切前转换
+					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				}
+				else
+				{
+					m_bAutoCropSkip = true;
+				}
 			}
 			else{}
 			src_img.copyTo(dst_img);
 		}	
 		break;
-
-	case 0x04:  //黑白单张
-	case 0x40:
-		{	
-			m_nPixelType = TWPT_BW;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
-			src_img.copyTo(dst_img);
-		}	
-		break;
+*/
+		/*
 	case 0x05:  //黑白、彩色
 	case 0x50:
 		{
@@ -3061,8 +3119,15 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
 				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+				if(m_bAutoCrop == TWAC_DISABLE) 
+				{
+					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+				}
+				else
+				{
+					m_bAutoCropSkip = true;
+				}
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -3079,8 +3144,16 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 			else if(0 == m_nDocCount) //两张中的第二张
 			{
 				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				if(m_bAutoCrop == TWAC_DISABLE) 
+				{
+					cvtColor(src_img, src_img, CV_BGR2GRAY);
+					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+				}
+				else
+				{
+					m_bAutoCropSkip = true;
+				}
 			}
 			else{}
 			src_img.copyTo(dst_img);
@@ -3096,18 +3169,35 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 			else if(1 == m_nDocCount) //三张中的第二张
 			{
 				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+
+				if(m_bAutoCrop == TWAC_DISABLE) 
+				{
+					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				}
+				else
+				{
+					m_bAutoCropSkip = true;
+				}
 			}
 			else if(0 == m_nDocCount) //三张中的第三张
 			{
 				m_nPixelType = TWPT_BW;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
+		
+				if(m_bAutoCrop == TWAC_DISABLE)
+				{
+					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
+				}
+				else
+				{
+					m_bAutoCropSkip = true;
+				}
 			}
 			else{}
 			src_img.copyTo(dst_img);
 		}
 		break;
+		*/
 	}
 
 	return dst_img;
