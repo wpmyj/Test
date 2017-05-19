@@ -239,14 +239,6 @@ protected:
 	void RemoveScnnerLine(Mat &src_img);
 
 	/**
-	*  @brief  自动校正
-	*  @param[in]  src_img：彩色图像
-	*  @param[out] dst_img :彩色图像
-	*  @param[out] true 或 false
-	*/
-	bool getContoursByCplus(Mat src_img, Mat &dst_img);  
-
-	/**
 	*  @brief  获取图像中的线段
 	*  @param[in]  src：黑白图像
 	*  @param[out]  图像上端的中的线段

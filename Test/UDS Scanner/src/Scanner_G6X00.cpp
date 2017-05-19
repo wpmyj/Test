@@ -1531,71 +1531,6 @@ bool CScanner_G6X00::GetLines(Mat src_img, Vec4i &line)
 	return true;
 }
 
-bool CScanner_G6X00::getContoursByCplus(Mat src_img,Mat &dst_img)
-{
-	Mat src, dst, canny_output;  
-	src = src_img.clone();
-
-	if (!src.data)  
-	{  
-		return false;  
-	}  
-	blur(src, src, Size(3, 3));  
-
-	//the pram. for findContours,  
-	vector<vector<Point> > contours;  
-	vector<Vec4i> hierarchy;  
-
-	//Canny(src, canny_output, 80, 255, 3);  
-	Canny(src, canny_output, 200, 150, 3);  
-	findContours(canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));  //findContours后会对输入的2值图像改变
-
-	double minarea = 200; //区域内的像素点数
-	double whRatio = 1;
-	//double minpoint = 200; //轮廓上点的个数
-
-	double maxarea = 0;  
-	int maxAreaIdx = 0;  
-	//寻找最大的区域
-	for (int i = 0; i < contours.size(); i++)  
-	{  
-		double tmparea = fabs(contourArea(contours[i]));  
-		if (tmparea>maxarea)  
-		{  
-			maxarea = tmparea;  
-			maxAreaIdx = i;  
-			continue;  
-		}  
-
-		if (tmparea < minarea)  
-		{  
-			//删除面积小于设定值的轮廓  
-			contours.erase(contours.begin() + i);   
-			continue;  
-		}  
-		//计算轮廓的直径宽高  
-		Rect aRect = boundingRect(contours[i]);  
-		if ((aRect.width / aRect.height) < 2 || (aRect.height/aRect.width < 2))
-		{  
-			//删除宽高比例小于设定值的轮廓  
-			contours.erase(contours.begin() + i);   
-			continue;  
-		}  
-	}  
-	// Draw contours,彩色轮廓  
-	dst = Mat::zeros(canny_output.size(), CV_8UC3);  
-	for(int i = 0; i< contours.size(); i++)  
-	//int i = maxAreaIdx;
-	{  
-		//随机颜色  
-		drawContours(dst, contours, i, Scalar(0,0,255), 2, 8, hierarchy, 0, Point());  
-	}  
-	
-	dst.copyTo(dst_img);
-	//imwrite("C:\\Users\\Administrator\\Desktop\\dst.jpg", dst);
-
-	return true;
-}
 
 void CScanner_G6X00::RemoveScnnerLine(Mat &src_img)//, int reso)
 {
@@ -1617,24 +1552,31 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 {
 	Mat srcImage;
 	src_img.copyTo(srcImage);
-	
-	Mat dstImage,midImage;
-	if(!getContoursByCplus(srcImage, dstImage)) //画了红线的图像
-	{
-		return false;
-	}
-	//imwrite("C:\\Users\\Administrator\\Desktop\\dst.jpg", dstImage);
+	int width = srcImage.cols;
+	int height = srcImage.rows;
 
-	Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
+	//去除中间字的影响
+	Mat matTemp,dstImage, midImage;
+	Mat mask = Mat::zeros(height, width, CV_8UC1); //全黑图片
+	int ww = min(3*width/8, 3*height/8); //介于二分之一与四分之一之间
+	int hh = max(3*width/8, 3*height/8);
+	//circle(mask, Point(width/2,height/2), hh, Scalar(255,255,255), -1, 8, 0); //去圆使得运算量更少 
+	ellipse(mask,Point(width/2,height/2),Size(ww,hh),0,0,360,Scalar(255,255,255),-1,8,0);
+	srcImage.copyTo(matTemp, mask);
+	dstImage = srcImage - matTemp;
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
+
+	//Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
+	Canny(dstImage, midImage, 80, 255, 3); 
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
-	HoughLinesP(midImage, lines, 1, CV_PI/180, 150, max(srcImage.cols/2,srcImage.rows/2), 5);
+	HoughLinesP(midImage, lines, 1, CV_PI/1800, 50, max(width/2,height/2), 5);
 
 	int linenum = lines.size();
 	if(linenum == 0)
 	{	
-		HoughLinesP(midImage, lines, 1, CV_PI/180, 100, max(srcImage.cols/2,srcImage.rows/2), 30);
+		HoughLinesP(midImage, lines, 1, CV_PI/1800, 50, max(width/4,height/4), 20);
 		linenum = lines.size();
 	}
 
@@ -1648,11 +1590,10 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(srcImage.cols/4,srcImage.rows/4), 50);
+		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 50);
 		linenum = lines.size();
 		if(linenum==0)
 		{
-			//AfxMessageBox("a");
 			//若三次HoughLinesP后还未检查出线段，返回false
 			return false;
 		}
@@ -1674,8 +1615,9 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		}
 	}
 	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
-	
-	/*CString strtemp;
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
+	/*
+	CString strtemp;
 	CString str;
 	strtemp.Format("%d",maxline[0]);
 	str = "C:\\Users\\Administrator\\Desktop\\dstImage"+strtemp+".jpg";
@@ -1718,23 +1660,20 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	theta = theta/CV_PI*180; //弧度转角度
 
-	int nRows = srcImage.rows; //高11420
-	int nCols = srcImage.cols; //宽4202
-
 	//仿射变换校正***********************
 	float   degree = theta;
 	double  angle  = degree/180*CV_PI; //角度转弧度
 	double  a = sin(angle), b = cos(angle);
-	int     m_width_rotate = int(nRows *fabs(a) + nCols *fabs(b));
-	int     m_height_rotate = int(nCols *fabs(a) + nRows *fabs(b));
+	int     m_width_rotate = int(height *fabs(a) + width *fabs(b));
+	int     m_height_rotate = int(width *fabs(a) + height *fabs(b));
 	float   map[6];
 	Mat     m_map_matrix(2,3,CV_32F, map);
 
-	CvPoint2D32f center = cvPoint2D32f(nCols/2, nRows/2);  
+	CvPoint2D32f center = cvPoint2D32f(width/2, height/2);  
 	CvMat map_matrix2 = m_map_matrix;  
 	cv2DRotationMatrix(center, degree, 1.0, &map_matrix2);  //degree为角度，不是弧度
-	map[2] += (m_width_rotate - nCols)/2;
-	map[5] += (m_height_rotate - nRows)/2;
+	map[2] += (m_width_rotate - width)/2;
+	map[5] += (m_height_rotate - height)/2;
 
 	Mat m_image_out;
 	m_image_out.create(Size(m_width_rotate, m_height_rotate), srcImage.type());
