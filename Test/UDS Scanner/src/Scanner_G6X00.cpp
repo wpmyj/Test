@@ -1570,13 +1570,21 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	dstImage = srcImage - matTemp;
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
+	double dFx,dFy;
+	dFx = (double)m_fXResolution/200; 
+	dFy = (double)m_fYResolution/200;
+	WORD unNewWidth = (WORD)(width * dFx); 
+	WORD unNewHeight = (WORD)(height * dFy); 
+	resize(dstImage, dstImage, cv::Size(unNewWidth/2, unNewHeight/2), 0, 0);	
+
 	//Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
 	Canny(dstImage, midImage, 80, 255, 3); 
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
 	//HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(width/2,height/2), 5);
-	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/2,height/2), 50);
+	//HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/2,height/2), 50); //G6400无误，6600不对
+	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 50);
 
 	int linenum = lines.size();
 
@@ -1590,7 +1598,7 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 20);
+		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, min(width/4,height/4), 50);
 		linenum = lines.size();
 		if(linenum==0)
 		{
@@ -1720,7 +1728,9 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	{
 		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
 	}
-	
+	//imwrite("C:\\Users\\Administrator\\Desktop\\tmpMat.jpg", tmpMat);
+	CString str;
+
 	int width = tmpMat.cols; //列
 	int height = tmpMat.rows; //行
 	
@@ -1739,13 +1749,24 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 					(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
 			{
+				/*str.Format("%d",i);
+				AfxMessageBox(str);
+				str.Format("%d",j);
+				AfxMessageBox(str);*/
 				num++;
-				break;
+				if(num > 20)
+				{
+					/*str.Format("%d",i);
+					AfxMessageBox(str);
+					str.Format("%d",j);
+					AfxMessageBox(str);*/
+					break;
+				}
 			}	
 		}
+	
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
-			&& num > 20
 			)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
@@ -1754,7 +1775,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				up = i; 
 				break;
 			}		
-		}	
+		}
 	}
 
 	num = 0;
@@ -1767,19 +1788,21 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
 			{
 				num++;
-				break;
+				if(num > 20)
+				{
+					break;
+				}	
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
-			&& num > 20)
+			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
 		{
 			left = j; 
 			break;
-		}	
+		}
 	}
-
+	
 	num = 0;
 	//下侧
 	for(i = height-2; i >= 2; i--)
@@ -1790,13 +1813,15 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				 &&(int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
 			{
 				num++;
-				break;
+				if(num > 20)
+				{
+					break;
+				}
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
-			&& num > 20)
+			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
 				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j-5) >= white) 
@@ -1804,8 +1829,8 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 			{
 				down = i;	
 				break;	
-			}		
-		}	
+			}
+		}		
 	}
 
 	num = 0;
@@ -1818,18 +1843,21 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				&&(int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
 			{
 				num++;
-				break;
+				if(num > 20)
+				{
+					break;
+				}
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
-			&& num > 20
 			)
 		{
 			right = j; 	
 			break;
 		}	
+		
 	}
 	/*CString str;
 	str.Format("%d",up);
