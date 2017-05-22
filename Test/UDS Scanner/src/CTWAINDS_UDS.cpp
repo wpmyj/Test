@@ -1390,8 +1390,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	//zhu 重张检测
 	m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT] = new CTWAINContainerBool(UDSCAP_MULTIFEEDDETECT, (m_AppID.SupportedGroups&DF_APP2)!=0, TWQC_ALL);
 	if( NULL == (pbCap = dynamic_cast<CTWAINContainerBool*>(m_IndependantCapMap[UDSCAP_MULTIFEEDDETECT]))
-		|| !pbCap->Add(FALSE)
-		|| !pbCap->Add(TRUE, true) )
+		|| !pbCap->Add(FALSE, true)
+		|| !pbCap->Add(TRUE) )
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_MULTIFEEDDETECT !"),MB_CAPTION,MB_OK);
 		//cerr << "Could not create UDSCAP_MULTIFEEDDETECT" << endl;

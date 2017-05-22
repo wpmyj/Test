@@ -386,25 +386,28 @@ bool CScanner_G6X00::preScanPrep()
 	
 	if(!m_bImageProSkip) //数据首次传输时，所有图像均处理
 	{
-		//自动裁切与校正
-		Mat matAutoCrop;
-		status = AutoCorrect(m_mat_image, matAutoCrop);
-		if(status)
+		if(m_bAutoCrop == TWAC_AUTO)
 		{
-			//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
-			Rect rect = RemoveBlack(matAutoCrop);
-			Mat imageSave = matAutoCrop(rect);
-			imageSave.copyTo(m_mat_image);
-			//matAutoCrop.copyTo(m_mat_image);
-			//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
-		}	
-		else
-		{
-			status = true; //未检测到线段时；防止直接返回false，不扫描后续图像
+			//自动裁切与校正
+			Mat matAutoCrop;
+			status = AutoCorrect(m_mat_image, matAutoCrop);
+			if(status)
+			{
+				//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
+				Rect rect = RemoveBlack(matAutoCrop);
+				Mat imageSave = matAutoCrop(rect);
+				imageSave.copyTo(m_mat_image);
+				//matAutoCrop.copyTo(m_mat_image);
+				//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
+			}	
+			else
+			{
+				status = true; //未检测到线段时；防止直接返回false，不扫描后续图像
+			}
+			m_nWidth = m_mat_image.cols; 
+			m_nHeight = m_mat_image.rows;
 		}
-		m_nWidth = m_mat_image.cols; 
-		m_nHeight = m_mat_image.rows;
-
+		
 		//横向
 		if(m_nOrientation == TWOR_LANDSCAPE) //横向
 		{		
@@ -1548,6 +1551,7 @@ void CScanner_G6X00::RemoveScnnerLine(Mat &src_img)//, int reso)
 	}
 }
 
+
 bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 {
 	Mat srcImage;
@@ -1571,14 +1575,10 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
-	HoughLinesP(midImage, lines, 1, CV_PI/1800, 50, max(width/2,height/2), 5);
+	//HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(width/2,height/2), 5);
+	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/2,height/2), 50);
 
 	int linenum = lines.size();
-	if(linenum == 0)
-	{	
-		HoughLinesP(midImage, lines, 1, CV_PI/1800, 50, max(width/4,height/4), 20);
-		linenum = lines.size();
-	}
 
 	//【4】依次在图中绘制出每条线段
 	float dx = 0.0;
@@ -1590,11 +1590,11 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 50);
+		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 20);
 		linenum = lines.size();
 		if(linenum==0)
 		{
-			//若三次HoughLinesP后还未检查出线段，返回false
+			//两次HoughLinesP后还未检查出线段，返回false
 			return false;
 		}
 	}
