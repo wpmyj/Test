@@ -26,18 +26,19 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 protected:
-	DWORD    m_dwElaspedTime;       /**< 经过时间（单位秒） */
-	CSkinProgressCtrl m_Progress;       /**< 传输进度条 */
-	CSkinStatic m_static_progress;      /**< 百分比（%） */
-	CSkinStatic m_static_elapsedtime;   /**< 经过时间 */
-	CSkinStatic m_static_pagecount;     /**< 扫描页数 */
-	CSkinStatic m_static_pagesize;      /**< 图像大小 */
-	CSkinStatic m_static_totalsize;     /**< 总共大小 */
-	CSkinStatic m_static_speed;         /**< 传输速度 */
-	DWORD   m_dwSpeed;              /**< 速度值 */
-	CSkinButton m_button_close;
+	DWORD                 m_dwElaspedTime;        /**< 经过时间（单位秒） */
+	CSkinProgressCtrl     m_Progress;             /**< 传输进度条 */
+	CSkinStatic           m_static_progress;      /**< 百分比（%） */
+	CSkinStatic           m_static_elapsedtime;   /**< 经过时间 */
+	CSkinStatic           m_static_pagecount;     /**< 扫描页数 */
+	CSkinStatic           m_static_pagesize;      /**< 图像大小 */
+	CSkinStatic           m_static_totalsize;     /**< 总共大小 */
+	CSkinStatic           m_static_speed;         /**< 传输速度 */
+	DWORD                 m_dwSpeed;              /**< 速度值 */
+	CSkinButton           m_button_close;         /**< 关闭按钮 */
+	CSkinButton           m_button_cancel;        /**< 取消按钮 */
 public:
-	CTWAINDS_UDS *m_pDS;
+	CTWAINDS_UDS         *m_pDS;                  
 
 public:
 	/**
@@ -91,4 +92,5 @@ public:
 	afx_msg void OnPaint();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);	
 	afx_msg LRESULT OnNcHitTest(CPoint point);
+
 };

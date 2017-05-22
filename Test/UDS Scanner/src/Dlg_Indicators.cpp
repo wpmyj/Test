@@ -59,6 +59,7 @@ void CDlg_Indicators::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_INDICATOR_STATIC_TOTALSIZE, m_static_totalsize);
 	DDX_Control(pDX, IDC_INDICATOR_STATIC_SPEED, m_static_speed);
 	DDX_Control(pDX, IDOK, m_button_close);
+	DDX_Control(pDX, IDCANCEL, m_button_cancel);
 }
 
 
@@ -227,6 +228,10 @@ void CDlg_Indicators::InitControls()
 	GetFilePath(SKIN_BUTTON_CLOSE, path);
 	m_button_close.SetButtonImage(path, CXIMAGE_FORMAT_PNG);
 	m_button_close.SetToolTips(_T("关闭"));
+
+	GetFilePath(SKIN_BUTTON, path);
+	m_button_cancel.SetButtonImage(path, CXIMAGE_FORMAT_PNG);
+	m_button_cancel.SetToolTips(_T("停止扫描与传输数据"));
 
 	m_static_speed.SetTextColor(COLOR_GREEN_BRIGHT);	//tc:设置文本颜色
 	m_static_speed.SetMyFont(90,_T("微软雅黑"));			//tc:设置字体及其大小
