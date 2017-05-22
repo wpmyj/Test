@@ -391,18 +391,16 @@ bool CScanner_G6X00::preScanPrep()
 			//自动裁切与校正
 			Mat matAutoCrop;
 			status = AutoCorrect(m_mat_image, matAutoCrop);
-			if(status)
+			//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
+			Rect rect = RemoveBlack(matAutoCrop);
+			Mat imageSave = matAutoCrop(rect);
+			imageSave.copyTo(m_mat_image);
+			//matAutoCrop.copyTo(m_mat_image);
+			//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
+			if(!status)
 			{
-				//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
-				Rect rect = RemoveBlack(matAutoCrop);
-				Mat imageSave = matAutoCrop(rect);
-				imageSave.copyTo(m_mat_image);
-				//matAutoCrop.copyTo(m_mat_image);
-				//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
-			}	
-			else
-			{
-				status = true; //未检测到线段时；防止直接返回false，不扫描后续图像
+				AfxMessageBox("status为false");
+				status = true; //暂时这样，防止AutoCorrect返回false，后续数据不传输了
 			}
 			m_nWidth = m_mat_image.cols; 
 			m_nHeight = m_mat_image.rows;
@@ -1564,27 +1562,35 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	Mat mask = Mat::zeros(height, width, CV_8UC1); //全黑图片
 	int ww = min(3*width/8, 3*height/8); //介于二分之一与四分之一之间
 	int hh = max(3*width/8, 3*height/8);
-	//circle(mask, Point(width/2,height/2), hh, Scalar(255,255,255), -1, 8, 0); //去圆使得运算量更少 
-	ellipse(mask,Point(width/2,height/2),Size(ww,hh),0,0,360,Scalar(255,255,255),-1,8,0);
+	circle(mask, Point(width/2,height/2), ww, Scalar(255,255,255), -1, 8, 0); //去圆使得运算量更少 
+	//ellipse(mask,Point(width/2,height/2),Size(ww,hh),0,0,360,Scalar(255,255,255),-1,8,0);
 	srcImage.copyTo(matTemp, mask);
 	dstImage = srcImage - matTemp;
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
 	double dFx,dFy;
-	dFx = (double)m_fXResolution/200; 
-	dFy = (double)m_fYResolution/200;
+	if(m_fXResolution >= 200.00)
+	{
+		dFx = (double)m_fXResolution/200.00; 
+		dFy = (double)m_fYResolution/200.00;
+	}
+	else
+	{
+		dFx = (double)m_fXResolution; 
+		dFy = (double)m_fYResolution;
+	}
 	WORD unNewWidth = (WORD)(width * dFx); 
 	WORD unNewHeight = (WORD)(height * dFy); 
-	resize(dstImage, dstImage, cv::Size(unNewWidth/2, unNewHeight/2), 0, 0);	
+	resize(dstImage, midImage, cv::Size(unNewWidth/2, unNewHeight/2), 0, 0);	
 
 	//Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
-	Canny(dstImage, midImage, 80, 255, 3); 
+	Canny(midImage, midImage, 80, 255, 3); 
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
 	//HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(width/2,height/2), 5);
 	//HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/2,height/2), 50); //G6400无误，6600不对
-	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/4,height/4), 50);
+	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, min(width/4,height/4), 20);
 
 	int linenum = lines.size();
 
@@ -1598,11 +1604,12 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, min(width/4,height/4), 50);
+		HoughLinesP(midImage, lines, 1, CV_PI/3600, 10, min(width/4,height/4), 50);
 		linenum = lines.size();
 		if(linenum==0)
 		{
 			//两次HoughLinesP后还未检查出线段，返回false
+			dstImage.copyTo(dst_img);
 			return false;
 		}
 	}
@@ -1624,8 +1631,8 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	line(dstImage, Point(maxline[0], maxline[1]), Point(maxline[2], maxline[3]), Scalar(0,0,255), 1, CV_AA);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
-	/*
-	CString strtemp;
+
+	/*CString strtemp;
 	CString str;
 	strtemp.Format("%d",maxline[0]);
 	str = "C:\\Users\\Administrator\\Desktop\\dstImage"+strtemp+".jpg";
@@ -1729,7 +1736,6 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
 	}
 	//imwrite("C:\\Users\\Administrator\\Desktop\\tmpMat.jpg", tmpMat);
-	CString str;
 
 	int width = tmpMat.cols; //列
 	int height = tmpMat.rows; //行
@@ -1749,31 +1755,24 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 			if((int)tmpMat.at<uchar>(i,j) <= black && 
 					(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white)
 			{
-				/*str.Format("%d",i);
-				AfxMessageBox(str);
-				str.Format("%d",j);
-				AfxMessageBox(str);*/
 				num++;
-				if(num > 20)
+				if(num > 10)
 				{
-					/*str.Format("%d",i);
-					AfxMessageBox(str);
-					str.Format("%d",j);
-					AfxMessageBox(str);*/
 					break;
-				}
+				}			
 			}	
 		}
 	
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
 			(int)tmpMat.at<uchar>(i,j-1) <= black && (int)tmpMat.at<uchar>(i,j+1) >= white
+			&& num > 10
 			)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
 				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j+5) >= white) )
 			{
 				up = i; 
-				break;
+				break;	
 			}		
 		}
 	}
@@ -1788,15 +1787,14 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
 			{
 				num++;
-				if(num > 20)
-				{
-					break;
-				}	
+				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black && 
-			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white)
+			(int)tmpMat.at<uchar>(i-1,j) <= black && (int)tmpMat.at<uchar>(i+1,j) >= white
+			&& num > 20
+			)
 		{
 			left = j; 
 			break;
@@ -1813,15 +1811,17 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				 &&(int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
 			{
 				num++;
-				if(num > 20)
+				if(num > 10)
 				{
 					break;
-				}
+				}		
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
-			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white)
+			&& (int)tmpMat.at<uchar>(i,j+1) <= black && (int)tmpMat.at<uchar>(i,j-1) >= white
+			&& num > 10
+			)
 		{
 			if( (j > 5 && (int)tmpMat.at<uchar>(i,j-5) >= white)
 				|| (j < width-5 && (int)tmpMat.at<uchar>(i,j-5) >= white) 
@@ -1843,15 +1843,13 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 				&&(int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white)
 			{
 				num++;
-				if(num > 20)
-				{
-					break;
-				}
+				break;
 			}	
 		}
 
 		if((int)tmpMat.at<uchar>(i,j) <= black
 			&& (int)tmpMat.at<uchar>(i+1,j) <= black && (int)tmpMat.at<uchar>(i-1,j) >= white
+			&& num > 20
 			)
 		{
 			right = j; 	
