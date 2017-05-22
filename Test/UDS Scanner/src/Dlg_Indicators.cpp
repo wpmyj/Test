@@ -26,7 +26,7 @@
 /** 淡绿色 */    
 #define COLOR_GREEN_PALE             RGB(55, 141, 0)
 /** 紫色 */    
-#define COLOR_GREEN_VIOLET             RGB(129, 42, 142)
+#define COLOR_VIOLET                 RGB(129, 42, 142)
                                  
 // CDlg_Indicators 对话框
 
