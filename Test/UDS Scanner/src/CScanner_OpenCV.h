@@ -294,7 +294,7 @@ protected:
 	*  @param[out] mat 目标图像 
 	*/
 	Mat SetMuiltStream(Mat img, BYTE muilt, float& resol, float& bright, float& contra, 
-		int &compre, float &compval, int &binari, float &thres, float &removespots);
+		int &compre, float &compval, int &compqua, int &binari, float &thres, float &removespots);
 
 	/**
 	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1

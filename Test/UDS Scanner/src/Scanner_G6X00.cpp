@@ -150,19 +150,14 @@ bool CScanner_G6X00::resetScanner()
 		m_nCompre[i]  = m_nCompress;
 		m_fCompVal[i] = m_fCompressValue;
 		m_nCompQua[i] = m_nCompressQuality;
-	}
 
-	for(int i=0; i<4; i++)
-	{
 		m_fContra[i] = m_fContrast;
-	}
-
-	for(int i=0; i<2; i++)
-	{
 		m_nBinari[i] = m_nBinarization;
 		m_fThres[i]  = m_fThreshold;
 		m_fRemovespots[i] = m_fSensitiveThreshold_removespots;
 	}
+
+	
 	m_byte_image = NULL;
 	//m_bSkip = false;
 	if (false == m_mat_image.empty())

@@ -104,25 +104,30 @@ void CDevice_Base::setSetting(CDevice_Base settings)
 	m_bNativeSave          = settings.m_bNativeSave;
 	m_bEnmergency          = settings.m_bEnmergency;
 
-	for(int i=0; i<6; i++)
+	for(int i=0; i<8; i++)
 	{
 		m_fBright[i]  = settings.m_fBright[i];
 		m_fResolu[i]  = settings.m_fResolu[i];
 		m_nCompre[i]  = settings.m_nCompre[i];
 		m_fCompVal[i] = settings.m_fCompVal[i];
 		m_nCompQua[i] = settings.m_nCompQua[i];
-	}
 
-	for(int i=0; i<4; i++)
-	{
 		m_fContra[i] = settings.m_fContra[i];
-	}
-
-	for(int i=0; i<2; i++)
-	{
 		m_nBinari[i] = settings.m_nBinari[i];
 		m_fThres[i]  = settings.m_fThres[i];
 		m_fRemovespots[i] = settings.m_fRemovespots[i];
+	}
+
+	//for(int i=0; i<4; i++)
+	{
+		//m_fContra[i] = settings.m_fContra[i];
+	}
+
+//	for(int i=0; i<2; i++)
+	{
+		//m_nBinari[i] = settings.m_nBinari[i];
+		//m_fThres[i]  = settings.m_fThres[i];
+		//m_fRemovespots[i] = settings.m_fRemovespots[i];
 	}
 
 	//新界面新增

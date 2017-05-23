@@ -3556,7 +3556,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompQua[3] = nVal;
+		settings.m_nCompQua[4] = nVal;
 	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYBG))))
 	{
@@ -3566,7 +3566,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompQua[4] = nVal;
+		settings.m_nCompQua[5] = nVal;
 	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSQUALITYBB))))
 	{
@@ -3576,7 +3576,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompQua[5] = nVal;
+		settings.m_nCompQua[6] = nVal;
 	}
 
 	//压缩
@@ -3634,7 +3634,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[3] = nVal;
+		settings.m_nCompre[4] = nVal;
 	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBG))))
 	{
@@ -3645,7 +3645,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[4] = nVal;
+		settings.m_nCompre[5] = nVal;
 	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBB))))
 	{
@@ -3656,7 +3656,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[5] = nVal;
+		settings.m_nCompre[6] = nVal;
 	}
 
     //图像裁切方式
@@ -3835,7 +3835,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fCompVal[3] = fVal;
+		settings.m_fCompVal[4] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_COMPRESSIONVALUEBG))))
 	{
@@ -3845,7 +3845,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fCompVal[4] = fVal;
+		settings.m_fCompVal[5] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_COMPRESSIONVALUEBB))))
 	{
@@ -3855,7 +3855,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fCompVal[5] = fVal;
+		settings.m_fCompVal[6] = fVal;
 	}
 
 	//纸张大小
@@ -4037,7 +4037,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfCap->GetCurrent(fVal);
-		settings.m_fResolu[3] = fVal;
+		settings.m_fResolu[4] = fVal;
 	}
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_RESOLUTIONBG))))
 	{
@@ -4047,7 +4047,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfCap->GetCurrent(fVal);
-		settings.m_fResolu[4] = fVal;
+		settings.m_fResolu[5] = fVal;
 	}
 	if(0 == (pfCap = dynamic_cast<CTWAINContainerFix32*>(findCapability(UDSCAP_RESOLUTIONBB))))
 	{
@@ -4057,7 +4057,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfCap->GetCurrent(fVal);
-		settings.m_fResolu[5] = fVal;
+		settings.m_fResolu[6] = fVal;
 	}
 
   // set the image dimensions设置图像尺寸
@@ -4103,7 +4103,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fThres[0] = fVal;
+		settings.m_fThres[2] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_THRESHOLDBB))))
 	{
@@ -4113,7 +4113,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fThres[1] = fVal;
+		settings.m_fThres[6] = fVal;
 	}
 
 	// 对比度
@@ -4157,7 +4157,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fContra[2] = fVal;
+		settings.m_fContra[4] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_CONTRASTBG))))
 	{
@@ -4167,7 +4167,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fContra[3] = fVal;
+		settings.m_fContra[5] = fVal;
 	}
 
 	// 亮度
@@ -4221,7 +4221,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fBright[3] = fVal;
+		settings.m_fBright[4] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_BRIGHTNESSBG))))
 	{
@@ -4231,7 +4231,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fBright[4] = fVal;
+		settings.m_fBright[5] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_BRIGHTNESSBB))))
 	{
@@ -4241,7 +4241,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fBright[5] = fVal;
+		settings.m_fBright[6] = fVal;
 	}
 
 	//去除斑点
@@ -4264,7 +4264,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fRemovespots[0] = fVal;
+		settings.m_fRemovespots[2] = fVal;
 	}
 	if(0 == (pfRCap = dynamic_cast<CTWAINContainerFix32Range*>(findCapability(UDSCAP_REMOVESPOTSBB))))
 	{
@@ -4274,7 +4274,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pfRCap->GetCurrent(fVal);
-		settings.m_fRemovespots[1] = fVal;
+		settings.m_fRemovespots[6] = fVal;
 	}
 
 	// 图像旋转
@@ -4546,7 +4546,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nBinari[0] = nVal;
+		settings.m_nBinari[2] = nVal;
 	}//zhu
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_BINARIZATIONBB))))
 	{
@@ -4556,7 +4556,7 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 	else
 	{
 		pnCap->GetCurrent(nVal);
-		settings.m_nBinari[1] = nVal;
+		settings.m_nBinari[6] = nVal;
 	}//zhu
 
 	// 纸张数
