@@ -5,7 +5,93 @@ CDevice_Base::CDevice_Base():
 	m_bReadOnly(false),
 	m_byteMultiValue(0x00)
 {
-        
+	//2*2æÿ’Û
+	m_fpArray2[0][0] = 0.0 ;
+	m_fpArray2[0][1] = 2.0 ;
+	m_fpArray2[0][2] = 3.0 ;
+	m_fpArray2[0][3] = 1.0 ;
+	//4*4æÿ’Û
+	m_fpArray4[0][0] = 0.0 ;
+	m_fpArray4[0][1] = 8.0 ;
+	m_fpArray4[0][2] = 2.0 ;
+	m_fpArray4[0][3] = 10.0 ;
+	m_fpArray4[1][0] = 12.0 ;
+	m_fpArray4[1][1] = 4.0 ;
+	m_fpArray4[1][2] = 14.0 ;
+	m_fpArray4[1][3] = 6.0 ;
+	m_fpArray4[2][0] = 3.0 ;
+	m_fpArray4[2][1] = 11.0 ;
+	m_fpArray4[2][2] = 1.0 ;
+	m_fpArray4[2][3] = 9.0 ;
+	m_fpArray4[3][0] = 15.0 ;
+	m_fpArray4[3][1] = 7.0 ;
+	m_fpArray4[3][2] = 13.0 ;
+	m_fpArray4[3][3] = 5.0 ;
+	//8*8
+	m_fpArray8[0][0] = 0.0f;  						
+	m_fpArray8[0][1] = 32.0f;
+	m_fpArray8[0][2] = 8.0f;
+	m_fpArray8[0][3] = 40.0f;
+	m_fpArray8[0][4] = 2.0f;
+	m_fpArray8[0][5] = 34.0f;
+	m_fpArray8[0][6] = 10.0f;
+	m_fpArray8[0][7] = 42.0f;
+	m_fpArray8[1][0] = 48.0f;
+	m_fpArray8[1][1] = 16.0f;
+	m_fpArray8[1][2] = 56.0f;
+	m_fpArray8[1][3] = 24.0f;
+	m_fpArray8[1][4] = 50.0f;
+	m_fpArray8[1][5] = 18.0f;
+	m_fpArray8[1][6] = 58.0f;
+	m_fpArray8[1][7] = 26.0f;
+	m_fpArray8[2][0] = 12.0f;
+	m_fpArray8[2][1] = 44.0f;
+	m_fpArray8[2][2] = 4.0f;
+	m_fpArray8[2][3] = 36.0f;
+	m_fpArray8[2][4] = 14.0f;
+	m_fpArray8[2][5] = 46.0f;
+	m_fpArray8[2][6] = 6.0f;
+	m_fpArray8[2][7] = 38.0f;
+	m_fpArray8[3][0] = 60.0f;
+	m_fpArray8[3][1] = 28.0f;
+	m_fpArray8[3][2] = 52.0f;
+	m_fpArray8[3][3] = 20.0f;
+	m_fpArray8[3][4] = 62.0f;
+	m_fpArray8[3][5] = 30.0f;
+	m_fpArray8[3][6] = 54.0f;
+	m_fpArray8[3][7] = 22.0f;  
+	m_fpArray8[4][0] = 3.0f;
+	m_fpArray8[4][1] = 35.0f;
+	m_fpArray8[4][2] = 11.0f;
+	m_fpArray8[4][3] = 43.0f;
+	m_fpArray8[4][4] = 1.0f;
+	m_fpArray8[4][5] = 33.0f;
+	m_fpArray8[4][6] = 9.0f;
+	m_fpArray8[4][7] = 41.0f;
+	m_fpArray8[5][0] = 51.0f;
+	m_fpArray8[5][1] = 19.0f;
+	m_fpArray8[5][2] = 59.0f;
+	m_fpArray8[5][3] = 27.0f;
+	m_fpArray8[5][4] = 49.0f;
+	m_fpArray8[5][5] = 17.0f;
+	m_fpArray8[5][6] = 57.0f;
+	m_fpArray8[5][7] = 25.0f;
+	m_fpArray8[6][0] = 15.0f;
+	m_fpArray8[6][1] = 47.0f;
+	m_fpArray8[6][2] = 7.0f;
+	m_fpArray8[6][3] = 39.0f;
+	m_fpArray8[6][4] = 13.0f;
+	m_fpArray8[6][5] = 45.0f;
+	m_fpArray8[6][6] = 5.0f;
+	m_fpArray8[6][7] = 37.0f;
+	m_fpArray8[7][0] = 63.0f;
+	m_fpArray8[7][1] = 31.0f;
+	m_fpArray8[7][2] = 55.0f;
+	m_fpArray8[7][3] = 23.0f;
+	m_fpArray8[7][4] = 61.0f;
+	m_fpArray8[7][5] = 29.0f;
+	m_fpArray8[7][6] = 53.0f;
+	m_fpArray8[7][7] = 21.0f;
 }
 
 

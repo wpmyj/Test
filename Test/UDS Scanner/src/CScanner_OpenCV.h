@@ -332,6 +332,15 @@ protected:
 	//Mat applyLookUp(const Mat &src, const Mat &lookup);
 	
 
+	/**
+	*  @brief Bayer模式抖动 2*2矩阵
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*  @param[in]  Bayer矩阵值
+	*/
+	bool BayerPatternDither(Mat &src, float Array[2][2]);
+	//bool BayerPatternDither(Mat &src, float Array[4][4]);
+	//bool BayerPatternDither(Mat &src, float Array[8][8]);
+
 protected:
   //FIBITMAP         *m_pDIB;                   /**< Pointer to current scanned image, 保存着位图信息和像素数据，是FreeImage 的核心 */ 
   WORD              m_nScanLine;              /**< Current scan line of image in FreeImage */

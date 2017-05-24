@@ -202,12 +202,13 @@ protected:
 	void Invert(BYTE* pBuffer, int length, int BitsPerPixel);
 
 	/**
-	*  @brief  获取最大的DPI值
-	*  @param[in]  _multi 多流值 
-	*  @param[in]  _resolution  存储多流DPI的数组指针 
-	*  @param[out] _max 最大DPI 
+	*  @brief 
+	*  @param[in] 
+	*  @param[in]  
+	*  @param[out]
 	*/
 	void GetMaxResolution(const BYTE _multi, float (&_resolution)[8], float& _max);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// 利用OpenCV进行图像处理函数
@@ -371,23 +372,33 @@ protected:
 	int BitCount(BYTE n);
 
 	/**
-	*  @brief  设置多流输出
-	*  @param[in]  src 原图 
-	*  @param[in]  muilt BYTE类型的数据
+	*  @brief Bayer模式抖动 2*2矩阵
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*  @param[in]  Bayer矩阵值
+	*/
+	bool BayerPatternDither(Mat &src, float Array[2][2]);
+	//bool BayerPatternDither(Mat &src, float Array[4][4]);
+	//bool BayerPatternDither(Mat &src, float Array[8][8]);
 
-	*  @param[out] resol 分辨率
-	*  @param[out] bright 亮度
-	*  @param[out] contra 对比度
-	*  @param[out] compre 压缩选项
-	*  @param[out] compval 压缩值
-	*  @param[out] binari 二值化
-	*  @param[out] thres 阈值
-	*  @param[out] removespots 去除斑点
+	/**
+	*  @brief  
+	*  @param[in]  src 
+	*  @param[in]  muilt 
 
-	*  @param[out] mat 目标图像 
+	*  @param[out] resol
+	*  @param[out] bright 
+	*  @param[out] contra 
+	*  @param[out] compre 
+	*  @param[out] compval
+	*  @param[out] binari 
+	*  @param[out] thres 
+	*  @param[out] removespots 
+
+	*  @param[out] mat
 	*/
 	Mat SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra, 
 		int &compre, float &compval, int &compqua, int &binari, float &thres, float &removespots);
+
 
 protected:
 	InitializeDriverProc               InitializeDriver;

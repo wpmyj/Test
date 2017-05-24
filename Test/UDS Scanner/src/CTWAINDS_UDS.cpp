@@ -3592,60 +3592,15 @@ bool CTWAINDS_UDS::updateScannerFromCaps()
 		settings.m_nCompress = nVal;
 	}
 	//多流
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFC))))
-	{
-		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFC!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[0] = nVal;
-	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFG))))
-	{
-		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFG!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[1] = nVal;
-	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONFB))))
 	{
-		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFC!"),MB_CAPTION,MB_OK);
+		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONFB!"),MB_CAPTION,MB_OK);
 		bret = false;
 	}
 	else
 	{
 		pnCap->GetCurrent(nVal);
 		settings.m_nCompre[2] = nVal;
-	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBC))))
-	{
-		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONBC!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[4] = nVal;
-	}
-	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBG))))
-	{
-		//cerr << "Could not get ICAP_SUPPORTEDSIZES" << endl;
-		::MessageBox(g_hwndDLG,TEXT("Could not get UDSCAP_COMPRESSIONBG!"),MB_CAPTION,MB_OK);
-		bret = false;
-	}
-	else
-	{
-		pnCap->GetCurrent(nVal);
-		settings.m_nCompre[5] = nVal;
 	}
 	if(0 == (pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(UDSCAP_COMPRESSIONBB))))
 	{

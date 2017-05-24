@@ -2092,3 +2092,32 @@ void CScanner_OpenCV::Release()
 	}	
 }
 
+bool CScanner_OpenCV::BayerPatternDither(Mat &src, float Array[2][2])
+{
+	int i,j;
+	float bayerPattren[2][2];
+	for(i=0; i<2; i++)
+	{
+		for(j=0; j<2; j++)
+		{
+			bayerPattren[i][j] = Array[i][j]; //位Bayer表赋值
+		}
+	}
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if(src.at<uchar>(j,i+6) > (BYTE)bayerPattren[j&3][i&3]){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+		}
+	}
+
+	return true;
+}

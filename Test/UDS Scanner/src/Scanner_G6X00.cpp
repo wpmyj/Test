@@ -143,10 +143,10 @@ bool CScanner_G6X00::resetScanner()
 	//m_dlgIndicators       = NULL;
 
 
-	for(int i=0; i<8; i++)
+	for(int i=0; i<6; i++)
 	{
 		m_fBright[i]  = m_fBrightness;
-		m_fResolu[i]  = 0;
+		m_fResolu[i]  = m_fXResolution;
 		m_nCompre[i]  = m_nCompress;
 		m_fCompVal[i] = m_fCompressValue;
 		m_nCompQua[i] = m_nCompressQuality;
@@ -425,7 +425,6 @@ bool CScanner_G6X00::preScanPrep()
 			//imwrite("C:\\Users\\Administrator\\Desktop\\纠偏图.jpg", m_mat_image);
 			if(!status)
 			{
-				AfxMessageBox("status为false");
 				status = true; //暂时这样，防止AutoCorrect返回false，后续数据不传输了
 			}
 			m_nWidth = m_mat_image.cols; 
@@ -553,7 +552,10 @@ bool CScanner_G6X00::preScanPrep()
 			else if(m_nPixelType == TWPT_BW)
 			{
 				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+				//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image灰度.jpg", m_mat_image);
 				threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
+				//BayerPatternDither(m_mat_image, m_fpArray2);
+				//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image黑白.jpg", m_mat_image);
 			} 
 			{}
 		}
@@ -3085,122 +3087,6 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 		{
 			break;
 		}
-		/*
-	case 0x03:  //灰度、彩色
-	case 0x30:
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-
-				if(m_bAutoCrop == TWAC_DISABLE) 
-				{//不裁切时，才转换；裁切时，在裁切前转换
-					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				}
-				else
-				{
-					m_bAutoCropSkip = true;
-				}
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}	
-		break;
-*/
-		/*
-	case 0x05:  //黑白、彩色
-	case 0x50:
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-				if(m_bAutoCrop == TWAC_DISABLE) 
-				{
-					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-				}
-				else
-				{
-					m_bAutoCropSkip = true;
-				}
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-	case 0x06:  //黑白、灰度
-	case 0x60:
-		{
-			if(1 == m_nDocCount) //两张中的第一张
-			{
-				m_nPixelType = TWPT_GRAY;
-				cvtColor(src_img, src_img, CV_BGR2GRAY);
-			}
-			else if(0 == m_nDocCount) //两张中的第二张
-			{
-				m_nPixelType = TWPT_BW;
-
-				if(m_bAutoCrop == TWAC_DISABLE) 
-				{
-					cvtColor(src_img, src_img, CV_BGR2GRAY);
-					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
-				}
-				else
-				{
-					m_bAutoCropSkip = true;
-				}
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-	case 0x07:  //黑白、灰度、彩色
-	case 0x70:
-		{
-			if(2 == m_nDocCount) //三张中的第一张
-			{
-				m_nPixelType = TWPT_RGB;
-			}
-			else if(1 == m_nDocCount) //三张中的第二张
-			{
-				m_nPixelType = TWPT_GRAY;
-
-				if(m_bAutoCrop == TWAC_DISABLE) 
-				{
-					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-				}
-				else
-				{
-					m_bAutoCropSkip = true;
-				}
-			}
-			else if(0 == m_nDocCount) //三张中的第三张
-			{
-				m_nPixelType = TWPT_BW;
-		
-				if(m_bAutoCrop == TWAC_DISABLE)
-				{
-					cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
-					threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白		
-				}
-				else
-				{
-					m_bAutoCropSkip = true;
-				}
-			}
-			else{}
-			src_img.copyTo(dst_img);
-		}
-		break;
-		*/
 	}
 
 	return dst_img;
@@ -3241,7 +3127,14 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 	case 0x02:  //灰度单张
 		{
 			m_nPixelType = TWPT_GRAY;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{//不裁切时，才转换；裁切时，在裁切前转换
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
 			src_img.copyTo(dst_img);
 
 			resol = m_fResolu[1];
@@ -3254,7 +3147,14 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 	case 0x20:
 		{
 			m_nPixelType = TWPT_GRAY;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{//不裁切时，才转换；裁切时，在裁切前转换
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
 			src_img.copyTo(dst_img);
 
 			resol = m_fResolu[5];
@@ -3264,7 +3164,7 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 			compqua = m_nCompQua[5];
 		}		
 		break;
-
+		/*
 		//正面
 	case 0x03:  //灰度、彩色
 		{
@@ -3320,13 +3220,20 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 			src_img.copyTo(dst_img);
 		}	
 		break;
-
+		*/
 		//正面
 	case 0x04:  //黑白单张
 		{	
 			m_nPixelType = TWPT_BW;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
 			src_img.copyTo(dst_img);
 
 			resol = m_fResolu[2];
@@ -3343,8 +3250,15 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 	case 0x40: //背面
 		{	
 			m_nPixelType = TWPT_BW;
-			cvtColor(src_img, src_img, CV_BGR2GRAY);
-			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
+			if(m_bAutoCrop == TWAC_DISABLE) 
+			{
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+			}
+			else
+			{
+				m_bImageProSkip = true;
+			}
 			src_img.copyTo(dst_img);
 
 			resol = m_fResolu[6];
@@ -3358,7 +3272,12 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 			removespots = m_fRemovespots[6];
 		}	
 		break;
-
+	case 0x08:  //自动
+	case 0x80:
+		{
+			break;
+		}
+/*
 		//正面
 	case 0x05:  //黑白、彩色 z正面
 		{
@@ -3580,6 +3499,7 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, fl
 			src_img.copyTo(dst_img);
 		}
 		break;
+		*/
 	}
 	return dst_img;
 }
@@ -3701,4 +3621,36 @@ void CScanner_G6X00::GetMaxResolution(const BYTE _multi, float (&_resolution)[8]
 	}
 	_max = fMax;
 }
+
+bool CScanner_G6X00::BayerPatternDither(Mat &src, float Array[2][2])
+{
+	int i,j;
+	float bayerPattren[2][2];
+	for(i=0; i<2; i++)
+	{
+		for(j=0; j<2; j++)
+		{
+			bayerPattren[i][j] = Array[i][j]; //位Bayer表赋值
+		}
+	}
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if((src.at<uchar>(j,i)>>6) > (BYTE)bayerPattren[j&3][i&3]){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+		}
+	}
+
+	return true;
+}
+
+
 
