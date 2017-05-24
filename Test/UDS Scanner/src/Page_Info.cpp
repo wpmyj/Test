@@ -415,7 +415,7 @@ void CPage_Info::ShowComputerAndScannerInfo()
 		fclose(pFile);
 	}
 
-	TerminateDriver();
+	//TerminateDriver();
 	FreeLibrary(m_hDLL);
 	
 }

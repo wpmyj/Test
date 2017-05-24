@@ -596,16 +596,19 @@ bool CScanner_OpenCV::preScanPrep()
 		m_nHeight = m_mat_image.rows;
 	}
 
-	if(m_nWidth <= 0 || m_nHeight <= 0)
-	{
-		m_nWidth  = m_nSourceWidth = m_mat_image.cols;
-		m_nHeight = m_nSourceHeight = m_mat_image.rows;
-	}
-	else
-	{
-		m_nSourceWidth  = m_mat_image.cols;
-		m_nSourceHeight = m_mat_image.rows;
-	}
+	//if(m_nWidth <= 0 || m_nHeight <= 0)
+	//{
+	//	m_nWidth  = m_nSourceWidth = m_mat_image.cols;
+	//	m_nHeight = m_nSourceHeight = m_mat_image.rows;
+	//}
+	//else
+	//{
+	//	m_nSourceWidth  = m_mat_image.cols;
+	//	m_nSourceHeight = m_mat_image.rows;
+	//}
+
+	m_nWidth  = m_nSourceWidth = m_mat_image.cols;
+	m_nHeight = m_nSourceHeight = m_mat_image.rows;
 
 	//Æ«ÒÆÁ¿ÒÔ¼°±ßÔµÀ©³ä
 	float temp[10]; 

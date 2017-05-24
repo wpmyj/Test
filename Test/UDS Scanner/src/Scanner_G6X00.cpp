@@ -143,10 +143,10 @@ bool CScanner_G6X00::resetScanner()
 	//m_dlgIndicators       = NULL;
 
 
-	for(int i=0; i<6; i++)
+	for(int i=0; i<8; i++)
 	{
 		m_fBright[i]  = m_fBrightness;
-		m_fResolu[i]  = m_fXResolution;
+		m_fResolu[i]  = 0;
 		m_nCompre[i]  = m_nCompress;
 		m_fCompVal[i] = m_fCompressValue;
 		m_nCompQua[i] = m_nCompressQuality;
@@ -292,6 +292,17 @@ bool CScanner_G6X00::preScanPrep()
 	
 	m_dRat = (double)m_nSourceWidth/m_nSourceHeight;
 
+	float XReso;
+	float YReso;
+	float Bright;
+	float Contra;
+	int Compre;
+	float CompVal;
+	int CompQua;
+	int Binari;
+	float Thres;
+	float Removespots;
+
 	//多流输出
 	if(m_bMultiStream)
 	{
@@ -318,7 +329,11 @@ bool CScanner_G6X00::preScanPrep()
 			//imwrite("C:\\Users\\Administrator\\Desktop\\matMuilt.jpg", matMuilt);
 			BYTE m_byteMuilt = m_byteMultiValue;
 			m_byteMuilt = SwitchBYTE(m_byteMuilt);  // 判断哪面哪种颜色（总共6种）
-			m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
+			//m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt);
+			m_mat_image = SetMuiltStream(matMuilt, m_byteMuilt, 
+				XReso, Bright, Contra, Compre, CompVal, CompQua, Binari, Thres, Removespots);
+			YReso = XReso;
+
 			nTempCount --;
 
 			if ((0 == m_nMultiFront) || (0 == m_nMultiBack)) // 只有一面选中
@@ -379,6 +394,22 @@ bool CScanner_G6X00::preScanPrep()
 		}
 	}	
 	
+
+	long lXDPI = m_fXResolution; //获得图像x轴分辨率
+	long lYDPI = m_fYResolution;
+
+	double dFx = (double)XReso/lXDPI;
+	double dFy = (double)YReso/lYDPI;
+
+	WORD unNewWidth= (WORD)(m_nSourceWidth * dFx); //1770 ;根据DPI需要调节图像大小
+	WORD unNewHeight = (WORD)(m_nSourceHeight * dFy); //2200
+
+	cv::Mat matTemp;
+	cv::resize(m_mat_image, matTemp, cv::Size(unNewWidth, unNewHeight), 0, 0);		
+	matTemp.copyTo(m_mat_image);  // 深拷贝
+	m_dRat = (double)unNewWidth/unNewHeight;
+
+
 	if(!m_bImageProSkip) //数据首次传输时，所有图像均处理
 	{
 		if(m_bAutoCrop == TWAC_AUTO)
@@ -563,6 +594,9 @@ bool CScanner_G6X00::preScanPrep()
 		//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
 	}
 
+	m_nWidth  = m_nSourceWidth = m_mat_image.cols;
+	m_nHeight = m_nSourceHeight = m_mat_image.rows;
+
 	switch(m_nPixelType)
 	{
 	case TWPT_BW:
@@ -577,11 +611,15 @@ bool CScanner_G6X00::preScanPrep()
 		break;
 	}
 	
+
+
 	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
 	Mat tempmat;
 	m_mat_image.copyTo(tempmat);
 	//BYTE *temp = NULL;
 	Mat2uchar(tempmat);	
+
+
 
 	// setup some convenience vars because they are used during 
 	// every strip request
@@ -1154,6 +1192,11 @@ bool CScanner_G6X00::AdjustParameter()
 	m_scanParameter.RExposure = 0;                //Keep original exposure time ,Not all scanner model can support exposure time control
 	m_scanParameter.GExposure = 0;
 	m_scanParameter.BExposure = 0;
+
+	float fMax = 0;
+	GetMaxResolution(m_byteMultiValue, m_fResolu, fMax);
+	m_fXResolution = m_fYResolution = fMax;
+
 	m_scanParameter.XRes = static_cast<WORD>(m_fXResolution);  // float->WORD
 	m_scanParameter.YRes = static_cast<WORD>(m_fYResolution);  // float->WORD
 	//m_scanParameter.CompressionArgument = 80;
@@ -3163,6 +3206,384 @@ cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt)
 	return dst_img;
 }
 
+cv::Mat CScanner_G6X00::SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra, int &compre, float &compval, int &compqua, int &binari, float &thres, float &removespots)
+{
+	Mat dst_img;
+	switch(muilt)
+	{
+		//正面
+	case 0x01:  //彩色单张
+		{
+			m_nPixelType = TWPT_RGB;	
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[0];
+			bright = m_fBright[0];
+			contra = m_fContra[0];
+			compval = m_fCompVal[0];
+			compqua = m_nCompQua[0];
+		}
+		break;
+	case 0x10:
+		{
+			m_nPixelType = TWPT_RGB;	
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[4];
+			bright = m_fBright[4];
+			contra = m_fContra[4];
+			compval = m_fCompVal[4];
+			compqua = m_nCompQua[4];
+		}	
+		break;
+
+		//正面
+	case 0x02:  //灰度单张
+		{
+			m_nPixelType = TWPT_GRAY;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[1];
+			bright = m_fBright[1];
+			contra = m_fContra[1];
+			compval = m_fCompVal[1];
+			compqua = m_nCompQua[1];
+		}		
+		break;
+	case 0x20:
+		{
+			m_nPixelType = TWPT_GRAY;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[5];
+			bright = m_fBright[5];
+			contra = m_fContra[5];
+			compval = m_fCompVal[5];
+			compqua = m_nCompQua[5];
+		}		
+		break;
+
+		//正面
+	case 0x03:  //灰度、彩色
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[0];
+				bright = m_fBright[0];
+				contra = m_fContra[0];
+				compval = m_fCompVal[0];
+				compqua = m_nCompQua[0];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+
+				resol = m_fResolu[1];
+				bright = m_fBright[1];
+				contra = m_fContra[1];
+				compval = m_fCompVal[1];
+				compqua = m_nCompQua[1];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+	case 0x30: //背面
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[4];
+				bright = m_fBright[4];
+				contra = m_fContra[4];
+				compval = m_fCompVal[4];
+				compqua = m_nCompQua[4];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+
+				resol = m_fResolu[5];
+				bright = m_fBright[5];
+				contra = m_fContra[5];
+				compval = m_fCompVal[5];
+				compqua = m_nCompQua[5];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}	
+		break;
+
+		//正面
+	case 0x04:  //黑白单张
+		{	
+			m_nPixelType = TWPT_BW;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[2];
+			bright = m_fBright[2];
+			compre = m_nCompre[2];
+			compval = m_fCompVal[2];
+			compqua = m_nCompQua[2];
+
+			binari = m_nBinari[2];
+			thres = m_fThres[2];
+			removespots = m_fRemovespots[2];
+		}	
+		break;
+	case 0x40: //背面
+		{	
+			m_nPixelType = TWPT_BW;
+			cvtColor(src_img, src_img, CV_BGR2GRAY);
+			threshold(src_img, src_img, 0, 255, THRESH_OTSU);
+			src_img.copyTo(dst_img);
+
+			resol = m_fResolu[6];
+			bright = m_fBright[6];
+			compre = m_nCompre[6];
+			compval = m_fCompVal[6];
+			compqua = m_nCompQua[6];
+
+			binari = m_nBinari[6];
+			thres = m_fThres[6];
+			removespots = m_fRemovespots[6];
+		}	
+		break;
+
+		//正面
+	case 0x05:  //黑白、彩色 z正面
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[0];
+				bright = m_fBright[0];
+				contra = m_fContra[0];
+				compval = m_fCompVal[0];
+				compqua = m_nCompQua[0];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[2];
+				bright = m_fBright[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+				compqua = m_nCompQua[2];
+
+				binari = m_nBinari[2];
+				thres = m_fThres[2];
+				removespots = m_fRemovespots[2];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x50:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[4];
+				bright = m_fBright[4];
+				contra = m_fContra[4];
+				compval = m_fCompVal[4];
+				compqua = m_nCompQua[4];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[6];
+				bright = m_fBright[6];
+				compre = m_nCompre[6];
+				compval = m_fCompVal[6];
+				compqua = m_nCompQua[6];
+
+				binari = m_nBinari[6];
+				thres = m_fThres[6];
+				removespots = m_fRemovespots[6];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+
+		//正面
+	case 0x06:  //黑白、灰度 正面
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+
+				resol = m_fResolu[1];
+				bright = m_fBright[1];
+				contra = m_fContra[1];
+				compval = m_fCompVal[1];
+				compqua = m_nCompQua[1];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[2];
+				bright = m_fBright[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+				compqua = m_nCompQua[2];
+
+				binari = m_nBinari[2];
+				thres = m_fThres[2];
+				removespots = m_fRemovespots[2];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x60:
+		{
+			if(1 == m_nDocCount) //两张中的第一张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+
+				resol = m_fResolu[5];
+				bright = m_fBright[5];
+				contra = m_fContra[5];
+				compval = m_fCompVal[5];
+				compqua = m_nCompQua[5];
+			}
+			else if(0 == m_nDocCount) //两张中的第二张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[6];
+				bright = m_fBright[6];
+				compre = m_nCompre[6];
+				compval = m_fCompVal[6];
+				compqua = m_nCompQua[6];
+
+				binari = m_nBinari[6];
+				thres = m_fThres[6];
+				removespots = m_fRemovespots[6];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+
+		//正面
+	case 0x07:  //黑白、灰度、彩色 正面
+		{
+			if(2 == m_nDocCount) //三张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[0];
+				bright = m_fBright[0];
+				contra = m_fContra[0];
+				compval = m_fCompVal[0];
+				compqua = m_nCompQua[0];
+			}
+			else if(1 == m_nDocCount) //三张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+
+				resol = m_fResolu[1];
+				bright = m_fBright[1];
+				contra = m_fContra[1];
+				compval = m_fCompVal[1];
+				compqua = m_nCompQua[1];
+			}
+			else if(0 == m_nDocCount) //三张中的第三张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[2];
+				bright = m_fBright[2];
+				compre = m_nCompre[2];
+				compval = m_fCompVal[2];
+				compqua = m_nCompQua[2];
+
+				binari = m_nBinari[2];
+				thres = m_fThres[2];
+				removespots = m_fRemovespots[2];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	case 0x70:
+		{
+			if(2 == m_nDocCount) //三张中的第一张
+			{
+				m_nPixelType = TWPT_RGB;
+
+				resol = m_fResolu[4];
+				bright = m_fBright[4];
+				contra = m_fContra[4];
+				compval = m_fCompVal[4];
+				compqua = m_nCompQua[4];
+			}
+			else if(1 == m_nDocCount) //三张中的第二张
+			{
+				m_nPixelType = TWPT_GRAY;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+
+				resol = m_fResolu[5];
+				bright = m_fBright[5];
+				contra = m_fContra[5];
+				compval = m_fCompVal[5];
+				compqua = m_nCompQua[5];
+			}
+			else if(0 == m_nDocCount) //三张中的第三张
+			{
+				m_nPixelType = TWPT_BW;
+				cvtColor(src_img, src_img, CV_BGR2GRAY);//matMuilt彩色转为灰度bwMat
+				threshold(src_img, src_img, m_fThreshold, 255, CV_THRESH_BINARY); //灰度变黑白
+
+				resol = m_fResolu[6];
+				bright = m_fBright[6];
+				compre = m_nCompre[6];
+				compval = m_fCompVal[6];
+				compqua = m_nCompQua[6];
+
+				binari = m_nBinari[6];
+				thres = m_fThres[6];
+				removespots = m_fRemovespots[6];
+			}
+			else{}
+			src_img.copyTo(dst_img);
+		}
+		break;
+	}
+	return dst_img;
+}
+
 BYTE CScanner_G6X00::SwitchBYTE(const BYTE src)
 {
 	static BYTE tempbyte = src;
@@ -3260,5 +3681,24 @@ int CScanner_G6X00::BitCount(BYTE n)
 void CScanner_G6X00::GetCurrentPageSize(DWORD& _dwSize)
 {
 	_dwSize = m_nDestBytesPerRow * m_nHeight; 
+}
+
+void CScanner_G6X00::GetMaxResolution(const BYTE _multi, float (&_resolution)[8], float& _max)
+{
+	float fMax = 0;
+	BYTE temp = _multi;
+
+	for(unsigned int i = 0; i < 8; i++)
+	{
+		if( (temp >> i) &1 )  // 判断第i位是否为真，即改多流选项是否选中
+		{
+			if (_resolution[i] > fMax)
+			{
+				fMax = _resolution[i];
+			}	
+		}
+		temp = _multi;
+	}
+	_max = fMax;
 }
 

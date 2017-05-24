@@ -201,6 +201,14 @@ protected:
 	*/
 	void Invert(BYTE* pBuffer, int length, int BitsPerPixel);
 
+	/**
+	*  @brief  获取最大的DPI值
+	*  @param[in]  _multi 多流值 
+	*  @param[in]  _resolution  存储多流DPI的数组指针 
+	*  @param[out] _max 最大DPI 
+	*/
+	void GetMaxResolution(const BYTE _multi, float (&_resolution)[8], float& _max);
+
 ////////////////////////////////////////////////////////////////////////////////
 /// 利用OpenCV进行图像处理函数
 	/**
@@ -361,6 +369,25 @@ protected:
 	*  @param[out] n 该十进制数的二进制表示中1的个数 
 	*/
 	int BitCount(BYTE n);
+
+	/**
+	*  @brief  设置多流输出
+	*  @param[in]  src 原图 
+	*  @param[in]  muilt BYTE类型的数据
+
+	*  @param[out] resol 分辨率
+	*  @param[out] bright 亮度
+	*  @param[out] contra 对比度
+	*  @param[out] compre 压缩选项
+	*  @param[out] compval 压缩值
+	*  @param[out] binari 二值化
+	*  @param[out] thres 阈值
+	*  @param[out] removespots 去除斑点
+
+	*  @param[out] mat 目标图像 
+	*/
+	Mat SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra, 
+		int &compre, float &compval, int &compqua, int &binari, float &thres, float &removespots);
 
 protected:
 	InitializeDriverProc               InitializeDriver;
