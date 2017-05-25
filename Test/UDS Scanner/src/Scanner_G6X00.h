@@ -349,14 +349,6 @@ protected:
 	bool RemoveBlank(Mat src_img, float fValue);
 
 	/**
-	*  @brief  设置多流输出
-	*  @param[in]  src 原图 
-	*  @param[in]  muilt BYTE类型的数据
-	*  @param[out] dst 目标图像 
-	*/
-	Mat SetMuiltStream(Mat src_img, BYTE muilt);
-
-	/**
 	*  @brief  多流输出相关函数，用来判断输入BYTE是哪一位为1
 	*  @param[in]  src 原图 
 	*  @note 仅有为1的那一位还是1，其他均为0
@@ -381,24 +373,24 @@ protected:
 	//bool BayerPatternDither(Mat &src, float Array[8][8]);
 
 	/**
-	*  @brief  
-	*  @param[in]  src 
-	*  @param[in]  muilt 
-
-	*  @param[out] resol
-	*  @param[out] bright 
-	*  @param[out] contra 
-	*  @param[out] compre 
-	*  @param[out] compval
-	*  @param[out] binari 
-	*  @param[out] thres 
-	*  @param[out] removespots 
-
-	*  @param[out] mat
+	*  @brief  多流处理
+	*  @param[in]  image 原始图像 
+	*  @param[in]  multi 多流值
+	*  @param[out] info 多流信息 
+	*  @return  处理后图像
 	*/
-	Mat SetMuiltStream(Mat src_img, BYTE muilt, float& resol, float& bright, float& contra, 
-		int &compre, float &compval, int &compqua, int &binari, float &thres, float &removespots);
+  Mat MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INFO& info);
 
+	/**
+	*  @brief  对比度与亮度调节
+	*  @param[out]  pdstImage 目标图 
+	*  @param[in] psrcImage 原图 
+	*  @param[in] nBrightValue 亮度值
+	*  @param[in] nContraValue 对比度值
+	*  @retval true 表示成功
+	*  @retval false 表示失败  
+	*/
+	bool ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBrightValue,int nContraValue);
 
 protected:
 	InitializeDriverProc               InitializeDriver;
@@ -447,7 +439,7 @@ protected:
 	double            m_dRat;                   /**< 宽/高 */
 	Vector<Mat>       m_ceil_img;               /**< 分割后的图像 */
 
-	char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
+	//char szTWAIN_DS_DIR[PATH_MAX];              /**< 驱动DS的路径 */
 	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 

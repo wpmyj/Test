@@ -12,6 +12,20 @@
 #include "Common.h"
 #include "twain.h"
 
+/** 多流信息 */    
+typedef struct _MULTI_INFO
+{
+	float resol;
+	float bright;
+	float contra;
+	int compre;
+	float compval;
+	int compqua;
+	int binari;
+	float thres;
+	float removespots;
+}MULTISTREAM_INFO;
+
 //class CDevice_Base
 class CDevice_Base
 {
