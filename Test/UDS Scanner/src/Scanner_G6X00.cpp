@@ -405,6 +405,20 @@ bool CScanner_G6X00::preScanPrep()
 			m_nWidth = m_mat_image.cols; 
 			m_nHeight = m_mat_image.rows;
 		}
+		else
+		{
+			if(m_bAutoCrop == TWAC_AUTO) 
+			{
+				if(m_nPixelType == TWPT_GRAY)
+				{
+					cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+				}
+				else if(m_nPixelType == TWPT_BW){
+					BinariProcess(m_mat_image, info.binari);
+				}
+				else{}
+			}
+		}
 	
 		//横向
 		if(m_nOrientation == TWOR_LANDSCAPE) //横向
@@ -526,6 +540,7 @@ bool CScanner_G6X00::preScanPrep()
 			else if(m_nPixelType == TWPT_BW){
 				BinariProcess(m_mat_image,info.binari);
 			}
+			else{}
 		}
 
 	  m_nWidth = m_mat_image.cols; 
