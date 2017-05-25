@@ -417,13 +417,12 @@ protected:
 	bool ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBrightValue,int nContraValue);
 
 	/**
-	*  @brief  黑白灰度图像的处理
+	*  @brief  黑白图像的处理
 	*  @param[in]  src_img ：输入图像
-	*  @param[in]  imgtype ：图像类型
 	*  @param[in]  binaritype ：二值化类型
 	*  @param[out]  src_img
 	*/
-	bool BWGrayImageProcess(Mat &src_img, WORD imgtype, int &binaritype);
+	bool BinariProcess(Mat &src_img, int &binaritype);
 
 protected:
 	InitializeDriverProc               InitializeDriver;

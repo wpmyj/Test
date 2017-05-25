@@ -405,11 +405,7 @@ bool CScanner_G6X00::preScanPrep()
 			m_nWidth = m_mat_image.cols; 
 			m_nHeight = m_mat_image.rows;
 		}
-		else
-		{
-			BWGrayImageProcess(m_mat_image, m_nPixelType, info.binari);
-		}
-		
+	
 		//横向
 		if(m_nOrientation == TWOR_LANDSCAPE) //横向
 		{		
@@ -523,7 +519,13 @@ bool CScanner_G6X00::preScanPrep()
 		{
 			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
 			m_mat_muilt.copyTo(m_mat_image);
-			BWGrayImageProcess(m_mat_image, m_nPixelType, info.binari);	
+			if(m_nPixelType == TWPT_GRAY)
+			{
+				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			}
+			else if(m_nPixelType == TWPT_BW){
+				BinariProcess(m_mat_image,info.binari);
+			}
 		}
 
 	  m_nWidth = m_mat_image.cols; 
@@ -4018,8 +4020,9 @@ cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INF
 			m_nPixelType = TWPT_BW;
 			if(m_bAutoCrop == TWAC_DISABLE) 
 			{
-				cvtColor(image, image, CV_BGR2GRAY); // matMuilt彩色转为灰度m_mat_image
-				threshold(image, image, m_fThreshold, 255, CV_THRESH_BINARY); // 灰度变黑白
+				BinariProcess(image,info.binari);
+				//cvtColor(image, image, CV_BGR2GRAY); // matMuilt彩色转为灰度m_mat_image
+				//threshold(image, image, m_fThreshold, 255, CV_THRESH_BINARY); // 灰度变黑白
 			}
 		break;
 	case 0x08:  //自动
@@ -4051,54 +4054,38 @@ cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INF
 	return image_out;
 }
 
-bool CScanner_G6X00::BWGrayImageProcess(Mat &src_img, WORD imgtype, int &binaritype)
+bool CScanner_G6X00::BinariProcess(Mat &src_img, int &binaritype)
 {
-	if(imgtype == TWPT_GRAY)
+	cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+	switch(binaritype)
 	{
-		cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
-	} 
-	else if(imgtype == TWPT_BW)
-	{
-		cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
-
-		if(binaritype == TWBZ_FIXEDTHRESHOLD)
-		{
-			threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
-		}
-		else if(binaritype == TWBZ_HALFTONE1)
-		{
-			BayerPatternDither(m_mat_image, m_fpArray2);
-		}
-		else if(binaritype == TWBZ_HALFTONE2)
-		{
-			BayerPatternDither(m_mat_image, m_fpArray4);
-		}
-		else if(binaritype == TWBZ_HALFTONE3)
-		{
-			BayerPatternDither(m_mat_image, m_fpArray8);
-		}
-		else if(binaritype == TWBZ_HALFTONE4)
-		{
-			//BurkersDither(m_mat_image);
-			//imwrite("C:\\Users\\Administrator\\Desktop\\TWBZ_HALFTONE4.jpg", m_mat_image);
-		}
-		else if(binaritype == TWBZ_HALFTONE5)
-		{
-			//StuckiDither(m_mat_image);
-			//JarvisDither(m_mat_image);
-			//imwrite("C:\\Users\\Administrator\\Desktop\\TWBZ_HALFTONE5.jpg", m_mat_image);
-		}
-		else if(binaritype == TWBZ_ERRORDIFF) //误差扩散
-		{
-			FloydSteinbergDither(m_mat_image);
-			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image.jpg", m_mat_image);
-		}
-		else
-		{
-			threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
-		}
+	case TWBZ_FIXEDTHRESHOLD:
+		threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
+		break;
+	case TWBZ_HALFTONE1:
+		BayerPatternDither(m_mat_image, m_fpArray2);
+		break;
+	case TWBZ_HALFTONE2:
+		BayerPatternDither(m_mat_image, m_fpArray4);
+		break;
+	case TWBZ_HALFTONE3:
+		BayerPatternDither(m_mat_image, m_fpArray8);
+		break;
+	case TWBZ_HALFTONE4:
+		//BurkersDither(m_mat_image);
+		break;
+	case TWBZ_HALFTONE5:
+		//StuckiDither(m_mat_image);
+		//JarvisDither(m_mat_image);
+		break;
+	case TWBZ_ERRORDIFF:
+		FloydSteinbergDither(m_mat_image);
+		break;
+	default:
+		threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
+		break;
 	}
-	else{}
+
 	return true;
 }
 
