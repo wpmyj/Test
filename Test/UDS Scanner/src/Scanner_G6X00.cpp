@@ -30,7 +30,7 @@ CScanner_G6X00::CScanner_G6X00(void)
 	, m_nDestBytesPerRow(0)
 	, m_bSpiltSkip(false)
 	, m_bMultiSkip(false)
-	, m_bImageProSkip(false)
+	, m_bImagehandle(false)
 	, m_nMultiTotal(0) 
   , m_nMultiBack(0) 
   , m_nMultiFront(0)    
@@ -227,10 +227,15 @@ bool CScanner_G6X00::acquireImage()
 	{
 		if(false == m_bMultiSkip)  // 则同一张纸需要跳过扫描
 		{
+			m_bImagehandle = true;
 			if (false == RunScan())
 			{
 				return false;
 			}
+		}
+		else
+		{
+			m_bImagehandle = false;
 		}
 	}
 	else
@@ -280,7 +285,6 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 bool CScanner_G6X00::preScanPrep()
 {
 	bool status = true; //初始状态赋为true,一旦有错误，返回false
-	//m_bImageProSkip = false;
 
 	m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 	m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
@@ -292,16 +296,6 @@ bool CScanner_G6X00::preScanPrep()
 	
 	m_dRat = (double)m_nSourceWidth/m_nSourceHeight;
 
-	//float XReso;
-	//float YReso;
-	//float Bright;
-	//float Contra;
-	//int Compre;
-	//float CompVal;
-	//int CompQua;
-	//int Binari;
-	//float Thres;
-	//float Removespots;
 	MULTISTREAM_INFO info;
 	memset(&info, 0, sizeof(info));
 	//多流输出
@@ -391,7 +385,7 @@ bool CScanner_G6X00::preScanPrep()
 	}	
 	
 
-	if(!m_bMultiSkip) //数据首次传输时，所有图像均处理
+	if(m_bImagehandle) //数据首次传输时，所有图像均处理
 	{
 		if(m_bAutoCrop == TWAC_AUTO)
 		{
@@ -583,10 +577,9 @@ bool CScanner_G6X00::preScanPrep()
 		matBorder.copyTo(m_mat_image);
 	}
 
-	if(!m_bMultiSkip)
+	if(m_bImagehandle)
 	{
 		m_mat_image.copyTo(m_mat_muilt);
-		//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
 	}
 
 	m_nSourceWidth = m_mat_image.cols;
@@ -776,6 +769,7 @@ void CScanner_G6X00::Release()
 	}
 
 	m_mat_image.release();
+	m_mat_muilt.release();
 	if(m_byte_image)
 	{
 		free(m_byte_image);

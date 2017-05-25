@@ -443,10 +443,10 @@ protected:
 	uchar             *m_byte_image;            /**< m_mat_image转为的字节对齐的uchar类型数据*/
 	int               m_widthstep;              /**< 字节对齐后的每行的字节数*/
 
-	bool              m_bSpiltSkip;            /**< 是否跳过下次扫描 */
+	bool              m_bSpiltSkip;             /**< 是否跳过下次扫描 */
 	bool              m_bMultiSkip;
-	bool              m_bImageProSkip;         /**< 是否跳过图像处理*/
-	cv::Mat           m_mat_muilt;             /**< 多流时，最高等级的数据 */
+	bool              m_bImagehandle;           /**< 是否执行图像处理*/
+	cv::Mat           m_mat_muilt;              /**< 多流时，最高等级的数据 */
 
 private:
 	BYTE* m_pGammaTable;
