@@ -405,6 +405,10 @@ bool CScanner_G6X00::preScanPrep()
 			m_nWidth = m_mat_image.cols; 
 			m_nHeight = m_mat_image.rows;
 		}
+		else
+		{
+			BWGrayImageProcess(m_mat_image, m_nPixelType, info.binari);
+		}
 		
 		//横向
 		if(m_nOrientation == TWOR_LANDSCAPE) //横向
@@ -519,20 +523,7 @@ bool CScanner_G6X00::preScanPrep()
 		{
 			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
 			m_mat_muilt.copyTo(m_mat_image);
-
-			if(m_nPixelType == TWPT_GRAY)
-			{
-				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
-			} 
-			else if(m_nPixelType == TWPT_BW)
-			{
-				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
-				//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image灰度.jpg", m_mat_image);
-				threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
-				//BayerPatternDither(m_mat_image, m_fpArray2);
-				//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image黑白.jpg", m_mat_image);
-			} 
-			{}
+			BWGrayImageProcess(m_mat_image, m_nPixelType, info.binari);	
 		}
 
 	  m_nWidth = m_mat_image.cols; 
@@ -570,12 +561,6 @@ bool CScanner_G6X00::preScanPrep()
 	else if(m_nSpiltImage == TWSI_DEFINED)
 	{}
 
-	//边缘扩充---自动裁切时，是不能扩展边缘的；就算扩了，也裁掉了
-	{
-		Mat matBorder;
-		EdgeBorder(m_mat_image, matBorder);
-		matBorder.copyTo(m_mat_image);
-	}
 
 	if(m_bImagehandle)
 	{
@@ -601,6 +586,15 @@ bool CScanner_G6X00::preScanPrep()
 
 	m_nWidth  = m_nSourceWidth = m_mat_image.cols;
 	m_nHeight = m_nSourceHeight = m_mat_image.rows;
+
+	//边缘扩充内改变了m_nWidth与m_nHeight，放在后面
+	//边缘扩充---自动裁切时，是不能扩展边缘的；就算扩了，也裁掉了
+	if(m_bAutoCrop == TWAC_DISABLE)
+	{
+		Mat matBorder;
+		EdgeBorder(m_mat_image, matBorder, m_nWidth, m_nHeight);
+		matBorder.copyTo(m_mat_image);
+	}
 
 	switch(m_nPixelType)
 	{
@@ -633,21 +627,31 @@ bool CScanner_G6X00::preScanPrep()
 	return status;
 }
 
-void CScanner_G6X00::EdgeBorder(const Mat &src_img, Mat &dst_img)
+void CScanner_G6X00::EdgeBorder(const Mat &src_img, Mat &dst_img, int &width, int &height)
 {
 	//偏移量以及边缘扩充
-	float temp[10]; 
-	temp[0] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素		
-	temp[1] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[2] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	float temp[6]; 
+	temp[0] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[1] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
 
-	temp[3] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[4] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[5] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	m_nHeight = m_nHeight + (int)temp[3] + (int)temp[1] + (int)temp[2];
-	m_nWidth = m_nWidth + (int)temp[0] + (int)temp[4] + (int)temp[5];
+	temp[2] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	temp[3] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	width = width + (int)temp[0] + (int)temp[1];
+	height = height + (int)temp[2] + (int)temp[3];
 
-	copyMakeBorder(src_img, dst_img, (int)temp[1], (int)temp[2]+(int)temp[3], (int)temp[4], (int)temp[5]+(int)temp[0], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+	if(m_nEdgeOrientation == TWEO_IN)//向内
+	{
+		temp[4] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素
+		temp[5] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+
+
+
+	}
+	else //向外
+	{
+		copyMakeBorder(src_img, dst_img, (int)temp[0], (int)temp[1], (int)temp[2], (int)temp[3], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
+
+	}
 }
 
 
@@ -3213,6 +3217,781 @@ bool CScanner_G6X00::ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBright
 	return true;
 }
 
+bool CScanner_G6X00::BayerPatternDither(Mat &src, float Array[4][4])
+{
+	int i,j;
+	float bayerPattren[4][4];
+	for(i=0; i<4; i++)
+	{
+		for(j=0; j<4; j++)
+		{
+			bayerPattren[i][j] = Array[i][j]; //位Bayer表赋值
+		}
+	}
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if((src.at<uchar>(j,i)>>4) > (BYTE)bayerPattren[j&3][i&3]){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+		}
+	}
+
+	return true;
+}
+
+bool CScanner_G6X00::BayerPatternDither(Mat &src, float Array[8][8])
+{
+	int i,j;
+	float bayerPattern1[8][8];
+	float bayerPattern2[8][8];	
+	float bayerPattern3[8][8];
+	float bayerPattern4[8][8];
+	for(i=0; i<8; i++)
+	{
+		for(j=0; j<8; j++)
+		{
+			bayerPattern1[i][j] = Array[i][j];//位Bayer表赋值
+			bayerPattern2[i][j] = Array[8-i][j];
+			bayerPattern3[i][j] = Array[i][8-j];
+			bayerPattern4[i][j] = Array[8-i][8-j];
+		}
+	}
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+
+	j = 0;
+	while(j < nHeight)
+	{
+		i = 0;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern1[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 1;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern2[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 2;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern3[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 3;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern4[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		j=j+4;	
+	}
+
+	j = 1;
+	while(j < nHeight)
+	{
+		i = 0;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern1[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 1;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern2[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 2;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern3[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 3;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern4[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		j=j+4;	
+	}
+
+	j = 2;
+	while(j < nHeight)
+	{
+		i = 0;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern1[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 1;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern2[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 2;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern3[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 3;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern4[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		j=j+4;	
+	}
+
+	j = 3;
+	while(j < nHeight)
+	{
+		i = 0;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern1[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 1;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern2[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 2;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern3[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		i = 3;
+		while(i<nWidth)
+		{
+			if( (src.at<uchar>(j,i)>>2) > (BYTE)bayerPattern4[j&7][i&7] ){
+				src.at<uchar>(j,i) = 255; //打白点
+			}
+			else{
+				src.at<uchar>(j,i) = 0; //打黑点
+			}
+
+			i=i+4;
+		}
+
+		j=j+4;	
+	}
+
+	return true;
+}
+
+bool CScanner_G6X00::FloydSteinbergDither(Mat &src)
+{
+	int i,j;
+	double temp, error;//误差传播系数
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+	for(j=0; j<nHeight; j++)
+	{
+		if(j%2==0)
+		{
+			for(i=0; i<nWidth; i++)
+			{
+				if(src.at<uchar>(j,i) > 128)
+				{
+					error = (double)(src.at<uchar>(j,i) - 255.0); //计算误差
+					src.at<uchar>(j,i) = 255;//打白点
+				}
+				else
+				{
+					error = (double)(src.at<uchar>(j,i));
+					src.at<uchar>(j,i) = 0;
+				}
+
+				//如果不是右边界
+				if(i<nWidth-1)
+				{
+					//向右传播
+					temp = (float)(src.at<uchar>(j,i+1));
+					temp = temp + error*(3.5/8.0);
+					if(temp>255.0){
+						temp = 255.0;
+					}
+					src.at<uchar>(j,i+1) = (int)temp;
+				}
+
+				//如果不是下边界
+				if(j<nHeight-1)
+				{
+					//向下传播
+					temp = (float)(src.at<uchar>(j+1,i));
+					temp = temp + error*(2.5/8.0);
+					src.at<uchar>(j+1,i) = (int)temp;
+
+					if(i<nWidth-1)
+					{
+						//向右下传播
+						temp = (float)(src.at<uchar>(j+1,i+1));
+						temp = temp + error*(1.0/16.0);
+						src.at<uchar>(j+1,i+1) = (int)temp;
+					}
+
+					if(i>0)
+					{
+						//向左下传播
+						temp = (float)(src.at<uchar>(j+1,i-1));
+						temp = temp + error*(1.5/8.0);
+						src.at<uchar>(j+1,i-1) = (int)temp;
+					}
+				}
+			}
+		}//end if(j%2==0)
+		else if(j%2==1)
+		{
+			for(i=nWidth-1; i>=0; i--)
+			{
+				if(src.at<uchar>(j,i) > 128) //128为中值
+				{
+					error = (double)(src.at<uchar>(j,i) - 255.0);
+					src.at<uchar>(j,i) = 255;//打白点
+				}
+				else
+				{
+					error = (double)(src.at<uchar>(j,i));
+					src.at<uchar>(j,i) = 0;//打黑点
+				}
+
+				//如果不是左边界
+				if(i>0)
+				{
+					//向左传播
+					temp = (float)(src.at<uchar>(j,i-1));
+					temp = temp + error*(3.5/8.0);
+					if(temp > 255.0)
+					{
+						temp = 255.0;
+					}
+
+					src.at<uchar>(j,i-1) = (int)temp;
+				}
+
+				//如果不是下边界
+				if(j<nHeight-1)
+				{
+					//向下传播
+					temp = (float)(src.at<uchar>(j+1,i));
+					temp = temp + error*(2.5/8.0);
+					src.at<uchar>(j+1,i) = (int)temp;
+
+					if(i<nWidth-1)
+					{
+						//向右下传播
+						temp = (float)(src.at<uchar>(j+1,i+1));
+						temp = temp + error*(1.5/8.0);
+						src.at<uchar>(j+1,i+1) = (int)temp;
+					}
+
+					if(i>0)
+					{
+						//向左下传播
+						temp = (float)(src.at<uchar>(j+1,i-1));
+						temp = temp + error*(1.0/16.0);
+						src.at<uchar>(j+1,i-1) = (int)temp;
+					}
+				}
+			}
+		}//end else if(j%2==1)
+		else{}
+	}//end 外for循环
+	return true;
+}
+
+bool CScanner_G6X00::BurkersDither(Mat &src)
+{
+	int i,j;
+	double temp, error;
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if(src.at<uchar>(j,i) > 128)
+			{
+				error = (double)(src.at<uchar>(j,i) - 255.0); //计算误差
+				src.at<uchar>(j,i) = 255;//打白点
+			}
+			else
+			{
+				error = (double)(src.at<uchar>(j,i)); //计算误差
+				src.at<uchar>(j,i) = 0;//打黑点
+			}
+
+			//如果不是边界
+			if(i<nWidth-2)
+			{
+				//向右传播1
+				temp = (float)(src.at<uchar>(j,i+1));
+				temp = temp + error*(1.0/4.0);
+				if(temp > 255.0){
+					temp = 255.0;
+				}
+				src.at<uchar>(j,i+1) = (int)temp;
+			}
+
+			if(i<nWidth-1)
+			{
+				//向右传播2
+				temp = (float)(src.at<uchar>(j,i+2));
+				temp = temp + error*(1.0/8.0);
+				if(temp>255.0){
+					temp = 255.0;
+				}
+				src.at<uchar>(j,i+2) = (int)temp;
+			}
+
+			//如果不是边界
+			if(j<nHeight-1)
+			{
+				//向下传播
+				temp = (float)(src.at<uchar>(j+1,i));
+				temp = temp + error*(1.0/4.0);
+				src.at<uchar>(j+1,i) = (int)temp;
+
+				if(i<nWidth-2)
+				{
+					//向右下传播1
+					temp = (float)(src.at<uchar>(j+1,i+1));
+					temp = temp + error*(1.0/8.0);
+					src.at<uchar>(j+1,i+1) = (int)temp;
+				}
+
+				if(i<nWidth-1)
+				{
+					//向右下传播2
+					temp = (float)(src.at<uchar>(j+1,i+2));
+					temp = temp + error*(1.0/16.0);
+					src.at<uchar>(j+1,i+2) = (int)temp;
+				}
+
+				if(i>0)
+				{
+					//向左下传播1
+					temp = (float)(src.at<uchar>(j+1,i-1));
+					temp = temp + error*(1.0/8.0);
+					src.at<uchar>(j+1,i-1) = (int)temp;
+				}
+
+				if(i<nWidth-1)
+				{
+					//向左下传播2
+					temp = (float)(src.at<uchar>(j+1,i-2));
+					temp = temp + error*(1.0/16.0);
+					src.at<uchar>(j+1,i-2) = (int)temp;
+				}
+			}
+		}//end:i的for循环
+	}//end：j的for循环
+
+	return true;
+}
+
+bool CScanner_G6X00::StuckiDither(Mat &src)
+{
+	int i,j;
+	double temp, error;
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+
+	//将图象二值化，并用Jarvis.Judice & Nine算法抖动生成图象
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if(src.at<uchar>(j,i) > 128)
+			{
+				error = (double)(src.at<uchar>(j,i) - 255.0); //计算误差
+				src.at<uchar>(j,i) = 255;//打白点
+			}
+			else
+			{
+				error = (double)(src.at<uchar>(j,i)); //计算误差
+				src.at<uchar>(j,i) = 0;//打黑点
+			}
+
+			//不是下边界，则向下传播
+			//if(i<nWidth-1)
+			if(j<nHeight-1)
+			{
+				temp = (double)(src.at<uchar>(j+1,i));
+				temp = temp + error*(8.0/42.0);
+				src.at<uchar>(j+1,i) = (int)temp;
+
+				//if(i<nWidth-2)
+				if(j<nHeight-2)
+				{
+					temp = (double)(src.at<uchar>(j+2,i));
+					temp = temp + error*(4.0/42.0);
+					src.at<uchar>(j+2,i) = (int)temp;
+				}
+			}
+
+			//不是左边界
+			//if(j>0)
+			if(i>0)
+			{
+				//if(i<nWidth-1)
+				if(j<nHeight-1)
+				{
+					temp = (double)(src.at<uchar>(j+1,i-1));
+					temp = temp + error*(4.0/42.0);
+					src.at<uchar>(j+1,i-1) = (int)temp;
+
+					//if(i<nWidth-2)
+					if(j<nHeight-2)
+					{
+						temp = (double)(src.at<uchar>(j+2,i-1));
+						temp = temp + error*(1.0/42.0);
+						src.at<uchar>(j+2,i-1) = (int)temp;
+					}
+				}
+
+				//if(j>1)
+				if(i>1)
+				{
+					//if(i<nWidth-1)
+					if(j<nHeight-1)
+					{
+						temp = (double)(src.at<uchar>(j+1,i-2));
+						temp = temp + error*(2.0/42.0);
+						src.at<uchar>(j+1,i-2) = (int)temp;
+
+						//if(i<nWidth-2)
+						if(j<nHeight-2)
+						{
+							temp = (double)(src.at<uchar>(j+2,i-2));
+							temp = temp + error*(1.0/42.0);
+							src.at<uchar>(j+2,i-2) = (int)temp;
+						}
+					}
+				}
+			}//end if(j>0)
+
+			//不是右边界
+			//if(j<nHeight-1)
+			if(i<nWidth-1)
+			{
+				//向右传播一列
+				temp = (double)(src.at<uchar>(j,i+1));
+				temp = temp + error*(8.0/42.0);
+				src.at<uchar>(j,i+1) = (int)temp;
+
+				//if(i<nWidth-1)
+				if(j<nHeight-1)
+				{
+					temp = (float)(src.at<uchar>(j+1,i+1));
+					temp = temp + error*(4.0/42.0);
+					src.at<uchar>(j+1,i+1) = (int)temp;
+
+					//if(i<nWidth-2)
+					if(j<nHeight-2)
+					{
+						temp = (float)(src.at<uchar>(j+2,i+1));
+						temp = temp + error*(2.0/42.0);
+						src.at<uchar>(j+2,i+1) = (int)temp;
+					}
+				}
+
+				//倒数第三列以前的可以向右及右下传播
+				//if(j<nHeight-2)
+				if(i<nWidth-2)
+				{
+					temp = (float)(src.at<uchar>(j,i+2));
+					temp = temp + error*(4.0/42.0);
+					src.at<uchar>(j,i+2) = (int)temp;
+
+					//不是下边界，则向右下传播
+					//if(i<nWidth-1)
+					if(j<nHeight-1)
+					{
+						temp = (double)(src.at<uchar>(j+1,i+2));
+						temp = temp + error*(4.0/42.0);
+						src.at<uchar>(j+1,i+2) = (int)temp;
+
+						//if(i<nWidth-2)
+						if(j<nHeight-2)
+						{
+							temp = (double)(src.at<uchar>(j+2,i+2));
+							temp = temp + error*(1.0/42.0);
+							src.at<uchar>(j+2,i+2) = (int)temp;
+						}
+					}
+				}
+			}//end if(j<nHeight-1)
+		}//end i 循环
+	}//end j 循环
+
+	return true;
+}
+
+bool CScanner_G6X00::JarvisDither(Mat &src)
+{
+	int i,j;
+	double temp, error;
+
+	int nWidth = src.cols;
+	int nHeight = src.rows;
+
+	//将图象二值化，并用Jarvis.Judice & Nine算法抖动生成图象
+	for(j=0; j<nHeight; j++)
+	{
+		for(i=0; i<nWidth; i++)
+		{
+			if(src.at<uchar>(j,i) > 128)
+			{
+				error = (double)(src.at<uchar>(j,i) - 255.0); //计算误差
+				src.at<uchar>(j,i) = 255;//打白点
+			}
+			else
+			{
+				error = (double)(src.at<uchar>(j,i)); //计算误差
+				src.at<uchar>(j,i) = 0;//打黑点
+			}
+
+			//不是下边界，则向下传播
+			//if(i<nWidth-1)
+			if(j<nHeight-1)
+			{
+				temp = (double)(src.at<uchar>(j+1,i));
+				temp = temp + error*(7.0/48.0);
+				src.at<uchar>(j+1,i) = (int)temp;
+
+				//if(i<nWidth-2)
+				if(j<nHeight-2)
+				{
+					temp = (double)(src.at<uchar>(j+2,i));
+					temp = temp + error*(5.0/48.0);
+					src.at<uchar>(j+2,i) = (int)temp;
+				}
+			}
+
+			//不是左边界
+			//if(j>0)
+			if(i>0)
+			{
+				//if(i<nWidth-1)
+				if(j<nHeight-1)
+				{
+					temp = (double)(src.at<uchar>(j+1,i-1));
+					temp = temp + error*(5.0/48.0);
+					src.at<uchar>(j+1,i-1) = (int)temp;
+
+					//if(i<nWidth-2)
+					if(j<nHeight-2)
+					{
+						temp = (double)(src.at<uchar>(j+2,i-1));
+						temp = temp + error*(3.0/48.0);
+						src.at<uchar>(j+2,i-1) = (int)temp;
+					}
+				}
+
+				//if(j>1)
+				if(i>1)
+				{
+					//if(i<nWidth-1)
+					if(j<nHeight-1)
+					{
+						temp = (double)(src.at<uchar>(j+1,i-2));
+						temp = temp + error*(3.0/48.0);
+						src.at<uchar>(j+1,i-2) = (int)temp;
+
+						//if(i<nWidth-2)
+						if(j<nHeight-2)
+						{
+							temp = (double)(src.at<uchar>(j+2,i-2));
+							temp = temp + error*(1.0/48.0);
+							src.at<uchar>(j+2,i-2) = (int)temp;
+						}
+					}
+				}
+			}
+
+			//不是右边界
+			//if(j<nHeight-1)
+			if(i<nWidth-1)
+			{
+				temp = (double)(src.at<uchar>(j,i+1));
+				temp = temp + error*(7.0/48.0);
+				src.at<uchar>(j,i+1) = (int)temp;
+
+				//if(i<nWidth-1)
+				if(j<nHeight-1)
+				{
+					temp = (double)(src.at<uchar>(j+1,i+1));
+					temp = temp + error*(5.0/48.0);
+					src.at<uchar>(j+1,i+1) = (int)temp;
+
+					//if(i<nWidth-2)
+					if(j<nHeight-2)
+					{
+						temp = (double)(src.at<uchar>(j+2,i+1));
+						temp = temp + error*(3.0/48.0);
+						src.at<uchar>(j+2,i+1) = (int)temp;
+					}
+				}
+
+				 //倒数第三列以前的可以向右及右下传播
+				//if(j<nHeight-2)
+				if(i<nWidth-2)
+				{
+					temp = (double)(src.at<uchar>(j,i+2));
+					temp = temp + error*(5.0/48.0);
+					src.at<uchar>(j,i+2) = (int)temp;
+
+					//if(i<nWidth-1)
+					if(j<nHeight-1)
+					{
+						temp = (double)(src.at<uchar>(j+1,i+2));
+						temp = temp + error*(3.0/48.0);
+						src.at<uchar>(j+1,i+2) = (int)temp;
+
+						//if(i<nWidth-2)
+						if(j<nHeight-2)
+						{
+							temp = (double)(src.at<uchar>(j+2,i-2));
+							temp = temp + error*(1.0/48.0);
+							src.at<uchar>(j+2,i-2) = (int)temp;
+						}
+					}
+				}
+			}//end if(j<nHeight-1)
+		}//end i for循环
+	}//end j for 循环
+
+	return true;
+}
 cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INFO& info)
 {
 	Mat image_out;
@@ -3272,5 +4051,54 @@ cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INF
 	return image_out;
 }
 
+bool CScanner_G6X00::BWGrayImageProcess(Mat &src_img, WORD imgtype, int &binaritype)
+{
+	if(imgtype == TWPT_GRAY)
+	{
+		cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+	} 
+	else if(imgtype == TWPT_BW)
+	{
+		cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
 
+		if(binaritype == TWBZ_FIXEDTHRESHOLD)
+		{
+			threshold(m_mat_image, m_mat_image, m_fThreshold, 255, THRESH_BINARY);
+		}
+		else if(binaritype == TWBZ_HALFTONE1)
+		{
+			BayerPatternDither(m_mat_image, m_fpArray2);
+		}
+		else if(binaritype == TWBZ_HALFTONE2)
+		{
+			BayerPatternDither(m_mat_image, m_fpArray4);
+		}
+		else if(binaritype == TWBZ_HALFTONE3)
+		{
+			BayerPatternDither(m_mat_image, m_fpArray8);
+		}
+		else if(binaritype == TWBZ_HALFTONE4)
+		{
+			//BurkersDither(m_mat_image);
+			//imwrite("C:\\Users\\Administrator\\Desktop\\TWBZ_HALFTONE4.jpg", m_mat_image);
+		}
+		else if(binaritype == TWBZ_HALFTONE5)
+		{
+			//StuckiDither(m_mat_image);
+			//JarvisDither(m_mat_image);
+			//imwrite("C:\\Users\\Administrator\\Desktop\\TWBZ_HALFTONE5.jpg", m_mat_image);
+		}
+		else if(binaritype == TWBZ_ERRORDIFF) //误差扩散
+		{
+			FloydSteinbergDither(m_mat_image);
+			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image.jpg", m_mat_image);
+		}
+		else
+		{
+			threshold(m_mat_image, m_mat_image, 128, 255, THRESH_OTSU);
+		}
+	}
+	else{}
+	return true;
+}
 

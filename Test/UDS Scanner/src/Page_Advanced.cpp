@@ -110,6 +110,15 @@ void CPage_Advanced::SetCapValue(void)
 		case ICAP_SUPPORTEDSIZES:  //纸张大小 //必须此处设置，否则在回到默认模板时，默认模板中对应的是USletter大小
 			{
 				m_pUI->SetCapValueInt(iter->first,iter->second); 
+
+				if(iter->second == TWSS_AUTOCROP) //自动裁切与校正
+				{
+					m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_AUTO);
+				} 
+				else
+				{
+					m_pUI->SetCapValueInt(UDSCAP_AUTOCROP,TWAC_DISABLE);
+				}
 				break;
 			}	
 

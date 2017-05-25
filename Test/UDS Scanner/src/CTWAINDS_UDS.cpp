@@ -1438,11 +1438,11 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_SUPPORTEDSIZES] = new CTWAINContainerInt(ICAP_SUPPORTEDSIZES, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_SUPPORTEDSIZES]))
 	 || !pnCap->Add(TWSS_NONE) //zhu 自定义
-	 || !pnCap->Add(TWSS_AUTOCROP)  //zhu 自动裁切与校正
+	 || !pnCap->Add(TWSS_AUTOCROP, true)  //zhu 自动裁切与校正
 	 || !pnCap->Add(TWSS_USLETTER)  //纸张大小，默认USLETTER
 	 || !pnCap->Add(TWSS_USLEGAL)
 	 //|| !pnCap->Add(TWSS_A3)  
-	 || !pnCap->Add(TWSS_A4, true) 
+	 || !pnCap->Add(TWSS_A4) 
 	 || !pnCap->Add(TWSS_A5)  //wan
 	 || !pnCap->Add(TWSS_A6)  //
 	 || !pnCap->Add(TWSS_A7)  //wan

@@ -339,7 +339,7 @@ protected:
 	*  @param[in]  src_img ：输入图像
 	*  @param[out]  dst_img : 扩充后的数据
 	*/
-	void EdgeBorder(const Mat &src_img, Mat &dst_img);
+	void EdgeBorder(const Mat &src_img, Mat &dst_img, int &width, int &height);
 
 	/**
 	*  @brief  去除空白页
@@ -369,9 +369,33 @@ protected:
 	*  @param[in]  Bayer矩阵值
 	*/
 	bool BayerPatternDither(Mat &src, float Array[2][2]);
-	//bool BayerPatternDither(Mat &src, float Array[4][4]);
-	//bool BayerPatternDither(Mat &src, float Array[8][8]);
+	bool BayerPatternDither(Mat &src, float Array[4][4]);
+	bool BayerPatternDither(Mat &src, float Array[8][8]);
 
+	/**
+	*  @brief FloydSteinberg抖动 
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*/
+	bool FloydSteinbergDither(Mat &src);
+
+	/**
+	*  @brief Burkers抖动 
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*/
+	bool BurkersDither(Mat &src);
+
+	/**
+	*  @brief Stucki抖动 
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*/
+	bool StuckiDither(Mat &src);
+
+	/**
+	*  @brief Jarvis抖动 
+	*  @param[in]  图像数据灰度图像数据，256色单通道数据
+	*/
+	bool JarvisDither(Mat &src);
+	
 	/**
 	*  @brief  多流处理
 	*  @param[in]  image 原始图像 
@@ -391,6 +415,15 @@ protected:
 	*  @retval false 表示失败  
 	*/
 	bool ContrastAndBright(Mat *pdstImage,Mat *psrcImage,int nBrightValue,int nContraValue);
+
+	/**
+	*  @brief  黑白灰度图像的处理
+	*  @param[in]  src_img ：输入图像
+	*  @param[in]  imgtype ：图像类型
+	*  @param[in]  binaritype ：二值化类型
+	*  @param[out]  src_img
+	*/
+	bool BWGrayImageProcess(Mat &src_img, WORD imgtype, int &binaritype);
 
 protected:
 	InitializeDriverProc               InitializeDriver;

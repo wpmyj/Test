@@ -681,3 +681,6 @@ date 17.05.24
 ------------------------------------------------------------
 @author zhu
 1、融合代码，修改G6X00的SetMuiltstream函数，只需保留0x01,0x02,0x04,0x10,0x20,0x40几种情况，不需要遍历所有。
+2、完成Bayer有序抖动算法BayerPatternDither，参数分别为Array[2][2]，Array[4][4]，Array[8][8]时，函数的多态。
+3、新增FloydSteinbergDither函数:该函数是对灰度图像做FloydSteinberg抖动操作，俗称的误差扩散方法。
+4、新增三个函数：BurkersDither、StuckiDither、JarvisDither，这三个函数是误差扩散方法的改进，使用的过滤器不一样。但使用这三个函数处理图像与误差扩散方法对比差别不大，暂时保留。
