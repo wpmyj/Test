@@ -394,7 +394,7 @@ bool CScanner_G6X00::preScanPrep()
 			//imwrite("C:\\Users\\Administrator\\Desktop\\原图.jpg", m_mat_image);
 			status = AutoCorrect(m_mat_image, matAutoCrop);
 			//imwrite("C:\\Users\\Administrator\\Desktop\\校正图.jpg", matAutoCrop);
-			Rect rect = RemoveBlack(matAutoCrop);
+			Rect rect = AutoCrop(matAutoCrop);
 			Mat imageSave = matAutoCrop(rect);
 			imageSave.copyTo(m_mat_image);
 			//matAutoCrop.copyTo(m_mat_image);
@@ -403,8 +403,8 @@ bool CScanner_G6X00::preScanPrep()
 			{
 				status = true; //暂时这样，防止AutoCorrect返回false，后续数据不传输了
 			}
-			m_nWidth = m_mat_image.cols; 
-			m_nHeight = m_mat_image.rows;
+			//m_nWidth = m_mat_image.cols; 
+			//m_nHeight = m_mat_image.rows;
 		}
 		else
 		{
@@ -1629,34 +1629,46 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	int ww = min(3*width/8, 3*height/8); //介于二分之一与四分之一之间
 	int hh = max(3*width/8, 3*height/8);
 	circle(mask, Point(width/2,height/2), ww, Scalar(255,255,255), -1, 8, 0); //去圆使得运算量更少 
-	//ellipse(mask,Point(width/2,height/2),Size(ww,hh),0,0,360,Scalar(255,255,255),-1,8,0);
+	ellipse(mask,Point(width/2,height/2),Size(ww,hh),0,0,360,Scalar(255,255,255),-1,8,0);
 	srcImage.copyTo(matTemp, mask);
 	dstImage = srcImage - matTemp;
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dstImage.jpg", dstImage);
 
 	double dFx,dFy;
-	if(m_fXResolution >= 200.00)
+	if(m_fXResolution > 200.00)
 	{
-		dFx = (double)m_fXResolution/200.00; 
-		dFy = (double)m_fYResolution/200.00;
+		dFx = (double) 200.00 / m_fXResolution; 
+		dFy = (double) 200.00 / m_fYResolution;
+		//dFx = dFy = 0.5;
 	}
 	else
 	{
-		dFx = (double)m_fXResolution; 
-		dFy = (double)m_fYResolution;
+		dFx = 1.0; 
+		dFy = 1.0;
 	}
 	WORD unNewWidth = (WORD)(width * dFx); 
 	WORD unNewHeight = (WORD)(height * dFy); 
-	resize(dstImage, midImage, cv::Size(unNewWidth/2, unNewHeight/2), 0, 0);	
+	resize(dstImage, midImage, cv::Size(unNewWidth, unNewHeight), 0, 0);	
 
 	//Canny(dstImage, midImage, 200, 150, 3); //得到黑白图	
 	Canny(midImage, midImage, 80, 255, 3); 
+
+
 	//【3】进行概率霍夫线变换
 	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
 	cvtColor(midImage, dstImage, CV_GRAY2BGR);//转化边缘检测后的图为彩图，但实际看起来仍然是灰度图
 	//HoughLinesP(midImage, lines, 1, CV_PI/180, 50, max(width/2,height/2), 5);
 	//HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, max(width/2,height/2), 50); //G6400无误，6600不对
-	HoughLinesP(midImage, lines, 1, CV_PI/1800, 20, min(width/4,height/4), 20);
+	//HoughLinesP(midImage, lines, 1, 10 * CV_PI/1800, 20, min(width/4,height/4), 10);
+	HoughLinesP(midImage, lines, 1, 5*CV_PI/1800, 20, min(width/4,height/4), 50);
+
+	//for( size_t i = 0; i < lines.size(); i++ )  
+	//{  
+	//	Vec4i l = lines[i];  
+	//	line( midImage, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,255), 1, CV_AA);  
+	//}  
+	//imwrite("C:\\Users\\Administrator\\Desktop\\HoughLinesP_1.jpg", midImage);
+
 
 	int linenum = lines.size();
 
@@ -1670,7 +1682,8 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	}
 	else
 	{
-		HoughLinesP(midImage, lines, 1, CV_PI/3600, 10, min(width/4,height/4), 50);
+		HoughLinesP(midImage, lines, 1, CV_PI/1800, 10, min(width/4,height/4), 50);
+
 		linenum = lines.size();
 		if(linenum==0)
 		{
@@ -1686,11 +1699,12 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		//每一条线由具有四个元素的矢量(x_1,y_1, x_2, y_2）表示，
 		//其中，(x_1, y_1)和(x_2, y_2) 是是每个检测到的线段的起点和结束点。
 		float mi = (l[2]-l[0]) * (l[2]-l[0]) + (l[3]-l[1]) * (l[3]-l[1]);
-		int xi = sqrt(mi);
+		//int xi = sqrt(mi);
 
 		float maxi = (maxline[2]-maxline[0])*(maxline[2]-maxline[0]) + (maxline[3]-maxline[1]) * (maxline[3]-maxline[1]);
-		int maxsqrt = sqrt(maxi);
-		if(xi > maxsqrt)
+		//int maxsqrt = sqrt(maxi);
+		//if(xi > maxsqrt)
+		if(mi > maxi)
 		{
 			maxline = lines[i];
 		}
@@ -1775,6 +1789,8 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	warpAffine(srcImage, m_image_out, m_map_matrix, Size( m_width_rotate, m_height_rotate),1,0,0);
 	//imwrite("C:\\Users\\Administrator\\Desktop\\m_image_out.jpg", m_image_out);
 	
+	m_image_out.copyTo(dst_img);
+
 	//if(mark)
 	//{
 	//	copyMakeBorder(m_image_out, m_image_out, m_nHeight/8, m_nHeight/8, m_nWidth/8, m_nWidth/8, BORDER_CONSTANT, Scalar::all(0));
@@ -1791,14 +1807,13 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 	//}
 	//else
 	//{
-		m_image_out.copyTo(dst_img);
+	//	m_image_out.copyTo(dst_img);
 	//}
-
 	//imwrite("C:\\Users\\Administrator\\Desktop\\dst_img.jpg", dst_img);
 	return true;
 }
 
-Rect CScanner_G6X00::RemoveBlack(Mat src_img)
+Rect CScanner_G6X00::AutoCrop(Mat src_img)
 {
 	Mat inputImg = src_img;
 	Mat tmpMat = inputImg.clone();
@@ -1825,7 +1840,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 	int up = 0;
 	int down = height; //行 高2808
 	//int num = 0;
-	const int bar_length = 10;  // 白条长度，待定
+	const int bar_weight = 30;  // 白条宽度，待定
 	int leftpoint_j = 0;  // 白条右边点 j 的值
 	int rightpoint_j = 0; // 白条左边点 j 的值
 	int i = 0, j = 0;
@@ -1848,7 +1863,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 			}	
 		}
 
-		if (rightpoint_j- leftpoint_j >= bar_length)
+		if (rightpoint_j- leftpoint_j >= bar_weight)
 		{
 			up = i; 
 			break;
@@ -1874,13 +1889,12 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 			}	
 
 		}
-		if (abs(rightpoint_j- leftpoint_j) >= bar_length)
+		if (abs(rightpoint_j- leftpoint_j) >= bar_weight)
 		{
 			down = i; 
 			break;
 		}	
 	}
-
 
 	//左侧
 	for(j = 0; j < width; j++)
@@ -1924,8 +1938,7 @@ Rect CScanner_G6X00::RemoveBlack(Mat src_img)
 		}			
 	}
 
-	Rect rect(left, up, right-left, down-up); //(856.1030)
-	
+	Rect rect(left, up, right-left, down-up); //(856.1030)	
 	return rect;
 }
 
@@ -1972,7 +1985,7 @@ cv::Mat CScanner_G6X00::RemovePunch(const Mat &src, double threshold1, double th
 {
 	//ChangeImage(IMAGENAME_REMOVEPUNCH);
 	//Mat src = imread(m_szSourceImagePath, CV_LOAD_IMAGE_UNCHANGED);
-	Rect rect = RemoveBlack(src);
+	Rect rect = AutoCrop(src);
 	Mat tempMat = src(rect);  //设置感兴趣区域
 
 	vector<Rect> rects;
