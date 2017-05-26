@@ -2370,7 +2370,7 @@ TW_INT16 CTWAINDS_UDS::Initialize()
 	if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[UDSCAP_EDGE_COLOR]))
 		|| !pnCap->Add(TWEC_WHITE)
 		|| !pnCap->Add(TWEC_BLACK, true)
-		|| !pnCap->Add(TWEC_DEFINED)
+		//|| !pnCap->Add(TWEC_DEFINED)
 		)
 	{
 		::MessageBox(g_hwndDLG,TEXT("Could not create UDSCAP_FILTERCOLOR !"),MB_CAPTION,MB_OK);

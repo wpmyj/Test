@@ -403,8 +403,8 @@ bool CScanner_G6X00::preScanPrep()
 			{
 				status = true; //暂时这样，防止AutoCorrect返回false，后续数据不传输了
 			}
-			//m_nWidth = m_mat_image.cols; 
-			//m_nHeight = m_mat_image.rows;
+		//	m_nWidth = m_mat_image.cols; 
+		//	m_nHeight = m_mat_image.rows;
 		}
 		else
 		{
@@ -606,13 +606,19 @@ bool CScanner_G6X00::preScanPrep()
 	m_nHeight = m_nSourceHeight = m_mat_image.rows;
 
 	//边缘扩充内改变了m_nWidth与m_nHeight，放在后面
-	//边缘扩充---自动裁切时，是不能扩展边缘的；就算扩了，也裁掉了
-	if(m_bAutoCrop == TWAC_DISABLE)
 	{
 		Mat matBorder;
 		EdgeBorder(m_mat_image, matBorder, m_nWidth, m_nHeight);
 		matBorder.copyTo(m_mat_image);
 	}
+	//XY偏移量
+	if(m_bAutoCrop == TWAC_DISABLE)
+	{
+		Mat xyPosMat;
+		AdjustXYPos(m_mat_image, xyPosMat);
+		xyPosMat.copyTo(m_mat_image);
+	}
+	//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_image.jpg", m_mat_image);
 
 	switch(m_nPixelType)
 	{
@@ -645,33 +651,130 @@ bool CScanner_G6X00::preScanPrep()
 	return status;
 }
 
-void CScanner_G6X00::EdgeBorder(const Mat &src_img, Mat &dst_img, int &width, int &height)
+void CScanner_G6X00::EdgeBorder(Mat &src_img, Mat &dst_img, int &width, int &height)
 {
 	//偏移量以及边缘扩充
-	float temp[6]; 
-	temp[0] = ConvertUnits(m_fEdgeUp, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[1] = ConvertUnits(m_fEdgeDown, m_nUnits, TWUN_PIXELS, m_fXResolution); 
+	float temp[6]; //模板始终存的是英寸值
+	temp[0] = ConvertUnits(m_fEdgeUp, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
+	temp[1] = ConvertUnits(m_fEdgeDown, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
 
-	temp[2] = ConvertUnits(m_fEdgeLeft, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	temp[3] = ConvertUnits(m_fEdgeRight, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-	width = width + (int)temp[0] + (int)temp[1];
-	height = height + (int)temp[2] + (int)temp[3];
-
+	temp[2] = ConvertUnits(m_fEdgeLeft, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
+	temp[3] = ConvertUnits(m_fEdgeRight, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
+	
 	if(m_nEdgeOrientation == TWEO_IN)//向内
 	{
-		temp[4] = ConvertUnits(m_fXPos, m_nUnits, TWUN_PIXELS, m_fXResolution); //转换为像素
-		temp[5] = ConvertUnits(m_fYPos, m_nUnits, TWUN_PIXELS, m_fXResolution); 
-
-
+		temp[4] = ConvertUnits(m_fXPos, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); //转换为像素
+		temp[5] = ConvertUnits(m_fYPos, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
+		
+		//上
+		for(int j = 0; j < width; j++)
+		{
+			for(int i = 0; i < temp[0]; i++)
+			{
+				ChangePixel(src_img, m_nEdgeColor, i, j);
+			}
+		}
+		//下
+		for(int j = width-1; j > 0; j--)
+		{
+			for(int i = height-1; i > height-temp[1]; i--)
+			{
+				ChangePixel(src_img, m_nEdgeColor, i, j);
+			}
+		}
+		//左
+		for(int i = 0; i < height; i++)
+		{
+			for(int j = 0; j < temp[2]; j++)
+			{
+				ChangePixel(src_img, m_nEdgeColor, i, j);
+			}
+		}
+		//右
+		for(int i = height-1; i > 0; i--)
+		{
+			for(int j = width-1; j > width-temp[3]; j--)
+			{
+				ChangePixel(src_img, m_nEdgeColor, i, j);
+			}
+		}
+		
+		src_img.copyTo(dst_img);
 
 	}
 	else //向外
 	{
+		width = width + (int)temp[0] + (int)temp[1];
+		height = height + (int)temp[2] + (int)temp[3];
 		copyMakeBorder(src_img, dst_img, (int)temp[0], (int)temp[1], (int)temp[2], (int)temp[3], BORDER_CONSTANT, cv::Scalar(0,0,0)); //以常量形式扩充边界,为BORDER_CONSTANT时，最后一个是填充所需的像素的值
-
 	}
+
+	//imwrite("C:\\Users\\Administrator\\Desktop\\dst_img.jpg", dst_img);
 }
 
+bool CScanner_G6X00::ChangePixel(Mat &src_img, int &edgecolor, int &j, int &i)
+{
+	if(src_img.channels() == 3)
+	{
+		switch(edgecolor)
+		{
+		case TWEC_WHITE:
+			src_img.at<Vec3b>(j,i)[0] = 255;
+			src_img.at<Vec3b>(j,i)[1] = 255;
+			src_img.at<Vec3b>(j,i)[2] = 255;
+			break;
+		case TWEC_BLACK:
+			src_img.at<Vec3b>(j,i)[0] = 0;
+			src_img.at<Vec3b>(j,i)[1] = 0;
+			src_img.at<Vec3b>(j,i)[2] = 0;
+			break;
+		}		
+	}
+	else if(src_img.channels() == 1)
+	{
+		switch(edgecolor)
+		{
+		case TWEC_WHITE:
+			src_img.at<uchar>(j,i) = 255;
+			break;
+		case TWEC_BLACK:
+			src_img.at<uchar>(j,i) = 0;
+			break;
+		}
+	}
+	else{}
+
+	return true;
+}
+
+bool CScanner_G6X00::AdjustXYPos(Mat &src_img, Mat &dst_img)
+{
+	int width = src_img.cols;
+	int height = src_img.rows;
+
+	//X是向左移的量，Y为向上
+	float xpos = ConvertUnits(m_fXPos, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); //转换为像素
+	float ypos = ConvertUnits(m_fYPos, TWUN_INCHES, TWUN_PIXELS, m_fXResolution); 
+	
+	Mat dstimage;
+	if(src_img.channels() == 3)
+	{
+	  dstimage = Mat::zeros(height, width, CV_8UC3); //全黑图片
+	}
+	else if(src_img.channels() == 1)
+	{
+		dstimage = Mat::zeros(height, width, CV_8UC1); 
+	}
+	else{}
+
+	Mat imgROI = dstimage(Rect(0, 0, width-(int)xpos, height-(int)ypos)); 
+	Rect rect(xpos, ypos, width-(int)xpos, height-(int)ypos);
+	Mat tempmat = src_img(rect);
+	tempmat.copyTo(imgROI, tempmat);//掩膜拷贝
+
+	dstimage.copyTo(dst_img);
+	return true;
+}
 
 void CScanner_G6X00::RemoveBack(const Mat &src_img, Mat &dst_img)
 {

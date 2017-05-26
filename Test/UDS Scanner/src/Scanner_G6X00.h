@@ -339,7 +339,7 @@ protected:
 	*  @param[in]  src_img ：输入图像
 	*  @param[out]  dst_img : 扩充后的数据
 	*/
-	void EdgeBorder(const Mat &src_img, Mat &dst_img, int &width, int &height);
+	void EdgeBorder(Mat &src_img, Mat &dst_img, int &width, int &height);
 
 	/**
 	*  @brief  去除空白页
@@ -423,6 +423,24 @@ protected:
 	*  @param[out]  src_img
 	*/
 	bool BinariProcess(Mat &src_img, int &binaritype);
+
+	/**
+	*  @brief  根据扩充颜色，改变图像像素值
+	*  @param[in]  src_img ：输入图像：彩色或者黑白
+	*  @param[in]  edgecolor ：扩充颜色
+	*  @param[in]  j ：高,行
+	*  @param[in]  i ：宽,列
+	*  @param[out]  src_img
+	*/
+	bool ChangePixel(Mat &src_img, int &edgecolor, int &j, int &i);
+
+	/**
+	*  @brief  调节XY偏移量
+	*  @param[in]  src_img ：输入图像：彩色或者黑白
+	*  @param[out]  dst_img ：输出图像：根据XY偏移量调节后的图像
+	*/
+	bool AdjustXYPos(Mat &src_img, Mat &dst_img);
+
 
 protected:
 	InitializeDriverProc               InitializeDriver;

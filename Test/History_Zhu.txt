@@ -691,3 +691,11 @@ date 17.05.25
 @author zhu
 1、修改EdgeBorder函数
 2、增加BinariProcess函数，处理黑白图像
+3、连调去黑边算法，重新理顺思路，原算法框架正确，但在最终取对应边界点时的条件判断错误：最后改为分别记录白条左侧与右侧点的j坐标，两者相减大于一定值（该值与dpi相关）时，才确认边界。测试该方法能够很好的去除多余的白条。
+
+date 17.05.26
+
+------------------------------------------------------------
+@author zhu
+1、修改边缘扩充函数为EdgeBorder(Mat &src_img, Mat &dst_img, int &width, int &height)；根据向内、向外以及扩充颜色来控制。扩充值转换时：需要将值由英寸转为像素，模板内均存的是英寸值。该函数内嵌套ChangePixel(Mat &src_img, int &edgecolor, int &j, int &i)函数，改变向内扩充时边缘的像素值。
+2、新增bool AdjustXYPos(Mat &src_img, Mat &dst_img)；为图像调节XY偏移量，函数内使用掩膜拷贝的方式，直接将rect(xpos, ypos, width-(int)xpos, height-(int)ypos)区域拷贝到一张全黑图中，不用再遍历所有像素逐个拷贝，速度提高。
