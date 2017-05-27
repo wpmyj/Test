@@ -33,7 +33,8 @@ CScanner_G6X00::CScanner_G6X00(void)
 	, m_bImagehandle(false)
 	, m_nMultiTotal(0) 
   , m_nMultiBack(0) 
-  , m_nMultiFront(0)    
+  , m_nMultiFront(0) 
+	, m_bIsGray(false)
 {
 	// set default cap value
 	LoadDLL();
@@ -285,7 +286,7 @@ void CScanner_G6X00::setSetting(CDevice_Base settings)
 bool CScanner_G6X00::preScanPrep()
 {
 	bool status = true; //初始状态赋为true,一旦有错误，返回false
-
+	
 	m_nWidth  = m_nSourceWidth  = m_scanParameter.PixelNum;
 	m_nHeight = m_nSourceHeight = m_scanParameter.LineNum;
 	// 屏蔽原因：多流扫描存在问题
@@ -402,25 +403,9 @@ bool CScanner_G6X00::preScanPrep()
 			if(!status)
 			{
 				status = true; //暂时这样，防止AutoCorrect返回false，后续数据不传输了
-			}
-		//	m_nWidth = m_mat_image.cols; 
-		//	m_nHeight = m_mat_image.rows;
-		}
-		else
-		{
-			if(m_bAutoCrop == TWAC_AUTO) 
-			{
-				if(m_nPixelType == TWPT_GRAY)
-				{
-					cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-				}
-				else if(m_nPixelType == TWPT_BW){
-					BinariProcess(m_mat_image, info.binari);
-				}
-				else{}
-			}
-		}
-	
+			}		
+		}	
+		
 		//横向
 		if(m_nOrientation == TWOR_LANDSCAPE) //横向
 		{		
@@ -526,28 +511,44 @@ bool CScanner_G6X00::preScanPrep()
 			status = RemoveBlank(matRemoveBlank, m_fRemoveBlank);
 		}
 
+		if(m_nPixelType == TWPT_GRAY)
+		{
+			cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			m_bIsGray = true;
+		}
+		else if(m_nPixelType == TWPT_BW){
+			cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+			BinariProcess(m_mat_image,info.binari);
+		}
+		else{}
+
 	}
 	else //为true时不再次做图像处理，直接做图像类型转换
 	{
-		//自动裁切与校正
-		if(m_bAutoCrop == TWAC_AUTO) 
+		m_mat_muilt.copyTo(m_mat_image);
+
+		if(m_nPixelType == TWPT_GRAY)
 		{
-			//imwrite("C:\\Users\\Administrator\\Desktop\\m_mat_muilt.jpg", m_mat_muilt);
-			m_mat_muilt.copyTo(m_mat_image);
-			if(m_nPixelType == TWPT_GRAY)
-			{
-				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-			}
-			else if(m_nPixelType == TWPT_BW){
+			cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+		}
+		else if(m_nPixelType == TWPT_BW)
+		{
+			if(m_bIsGray){
 				BinariProcess(m_mat_image,info.binari);
 			}
-			else{}
+			else
+			{
+				cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
+				BinariProcess(m_mat_image,info.binari);
+			}		
 		}
-
-	  m_nWidth = m_mat_image.cols; 
-		m_nHeight = m_mat_image.rows;
+		else{}		
 	}
 
+	//imwrite("C:\\Users\\Administrator\\Desktop\\裁切图.jpg", m_mat_image);
+
+	m_nWidth = m_mat_image.cols; 
+	m_nHeight = m_mat_image.rows;
 
 	// 对比度和亮度
 	//if (m_nPixelType != TWPT_BW)
@@ -634,15 +635,11 @@ bool CScanner_G6X00::preScanPrep()
 		break;
 	}
 	
-
-
 	//Mat数据转为字节对齐的uchar,必须放在最后，否则其他图像处理操作无效
 	Mat tempmat;
 	m_mat_image.copyTo(tempmat);
 	//BYTE *temp = NULL;
 	Mat2uchar(tempmat);	
-
-
 
 	// setup some convenience vars because they are used during 
 	// every strip request
@@ -1790,6 +1787,7 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		linenum = lines.size();
 		if(linenum==0)
 		{
+			AfxMessageBox("linenum==0");
 			//两次HoughLinesP后还未检查出线段，返回false
 			dstImage.copyTo(dst_img);
 			return false;
@@ -1921,19 +1919,8 @@ Rect CScanner_G6X00::AutoCrop(Mat src_img)
 	Mat inputImg = src_img;
 	Mat tmpMat = inputImg.clone();
 	
-	if (tmpMat.channels() != 1)
-	{
-		cvtColor(tmpMat, tmpMat, CV_RGB2GRAY);
-	} 
-	else
-	{
-		tmpMat.copyTo(tmpMat);
-	}
-
-	if(m_nPixelType != TWPT_BW)
-	{
-		threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
-	}
+	cvtColor(tmpMat, tmpMat, CV_RGB2GRAY);
+	threshold(tmpMat, tmpMat, 128, 255, CV_THRESH_OTSU);
 
 	const int width = tmpMat.cols; //列
 	const int height = tmpMat.rows; //行
@@ -2040,6 +2027,16 @@ Rect CScanner_G6X00::AutoCrop(Mat src_img)
 			break;
 		}			
 	}
+	/*
+	CString str;
+	str.Format("%d",up);
+	AfxMessageBox(str);
+	str.Format("%d",down);
+	AfxMessageBox(str);
+	str.Format("%d",left);
+	AfxMessageBox(str);
+	str.Format("%d",right);
+	AfxMessageBox(str);*/
 
 	Rect rect(left, up, right-left, down-up); //(856.1030)	
 	return rect;
@@ -2378,16 +2375,16 @@ bool CScanner_G6X00::RemoveBlank(Mat src_img, float fValue)
 	int count = 0; //记录黑点的个数
 	const float range = fValue/100; //当整个图中黑点占总像素的比例小于range时，就认为是空白页
 
-	if(m_nPixelType == TWPT_RGB)
+	//if(m_nPixelType == TWPT_RGB)
 	{
 		cvtColor(dst_img, dst_img, CV_BGR2GRAY);
 		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); 	
 	}
-	else if(m_nPixelType == TWPT_GRAY)
-	{
-		threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); //通过 Otsu 算法自行选择阈值，此时对于threshold的设定不在起作用
-	}
-	else{}
+	//else if(m_nPixelType == TWPT_GRAY)
+	//{
+		//threshold(dst_img, dst_img, 0, 255, THRESH_OTSU); //通过 Otsu 算法自行选择阈值，此时对于threshold的设定不在起作用
+	//}
+	//else{}
 
 	for(int j = 0; j < width; j++)
 	{
@@ -4133,21 +4130,20 @@ cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INF
 	case 0x02:  //灰度单张
 	case 0x20:
 			m_nPixelType = TWPT_GRAY;
-			if(m_bAutoCrop == TWAC_DISABLE)  // 不裁切时，才转换；裁切时，在裁切前转换
-			{
-				cvtColor(image, image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
-			}
+			//if()
+			//{
+			//	cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			//}
 		break;
 		//正面
 	case 0x04:  //黑白单张
 	case 0x40: //背面
 			m_nPixelType = TWPT_BW;
-			if(m_bAutoCrop == TWAC_DISABLE) 
-			{
-				BinariProcess(image,info.binari);
-				//cvtColor(image, image, CV_BGR2GRAY); // matMuilt彩色转为灰度m_mat_image
-				//threshold(image, image, m_fThreshold, 255, CV_THRESH_BINARY); // 灰度变黑白
-			}
+			//if()
+			//{
+			//	cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);//matMuilt彩色转为灰度m_mat_image
+			//	BinariProcess(m_mat_image,info.binari);
+			//}
 		break;
 	case 0x08:  //自动
 	case 0x80:
@@ -4180,7 +4176,6 @@ cv::Mat CScanner_G6X00::MultiStreamHandle(Mat image, BYTE multi, MULTISTREAM_INF
 
 bool CScanner_G6X00::BinariProcess(Mat &src_img, int &binaritype)
 {
-	cvtColor(m_mat_image, m_mat_image, CV_BGR2GRAY);
 	switch(binaritype)
 	{
 	case TWBZ_FIXEDTHRESHOLD:

@@ -418,7 +418,7 @@ protected:
 
 	/**
 	*  @brief  黑白图像的处理
-	*  @param[in]  src_img ：输入图像
+	*  @param[in]  src_img ：输入图像,灰度图像
 	*  @param[in]  binaritype ：二值化类型
 	*  @param[out]  src_img
 	*/
@@ -516,5 +516,7 @@ private:
 	int   m_nMultiFront;  /**< 多流正面纸张数 */
 public:
 	bool  m_bCancel;
+	bool  m_bIsGray; //记录多流的第一张是否为灰度图
+
 };
 
