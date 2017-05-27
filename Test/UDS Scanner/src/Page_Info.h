@@ -38,7 +38,9 @@ protected:
 	InitializeScannerProc              InitializeScanner;
 	TerminateDriverProc                TerminateDriver;
 	ReadNVMDataProc                    ReadNVMData;
-
+	WriteNVMDataProc                   WriteNVMData;
+	SetNVRAMValueProc                  SetNVRAMValue;
+		 
 private:
 	virtual BOOL OnInitDialog();
 

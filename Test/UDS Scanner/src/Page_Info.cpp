@@ -58,12 +58,32 @@ void CPage_Info::OnInfo_Btn_Report()
 
 void CPage_Info::OnInfo_Btn_ClearDicideNum()
 {
-
+	if (false == LoadDLL())
+	{
+		return;
+	}
+	NVMDATA data;
+	ReadNVMData(&data);
+	data.PadScanCount = 0;
+	SetNVRAMValue(&data, sizeof(data), NVRAM_PAD_COUNT);
+	FreeLibrary(m_hDLL);
+	ShowComputerAndScannerInfo();
 }
 
 void CPage_Info::OnInfo_Btn_ClearFeedNum()
 {
+	if (false == LoadDLL())
+	{
+		return;
+	}
 
+	NVMDATA data;
+	ReadNVMData(&data);
+	data.RollerCount = 0;
+	BOOL ret = SetNVRAMValue(&data, sizeof(data), NVRAM_PAD_COUNT);
+
+	FreeLibrary(m_hDLL);
+	ShowComputerAndScannerInfo();
 }
 
 BOOL CPage_Info::OnInitDialog()
@@ -465,6 +485,18 @@ bool CPage_Info::LoadDLL()
 
 	ReadNVMData = (ReadNVMDataProc)GetProcAddress(m_hDLL, "ReadNVMData");
 	if(ReadNVMData == NULL)
+	{
+		return false;
+	}
+
+	WriteNVMData = (WriteNVMDataProc)GetProcAddress(m_hDLL, "WriteNVMData");
+	if(WriteNVMData == NULL)
+	{
+		return false;
+	}
+
+	SetNVRAMValue = (SetNVRAMValueProc)GetProcAddress(m_hDLL, "SetNVRAMValue");
+	if(SetNVRAMValue == NULL)
 	{
 		return false;
 	}

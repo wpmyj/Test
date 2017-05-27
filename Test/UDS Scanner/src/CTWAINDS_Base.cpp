@@ -45,6 +45,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sstream>
+#include "pdflib.h"
+#pragma comment(lib,"pdflib.lib")
 
 extern HWND g_hwndDLG;
 //////////////////////////////////////////////////////////////////////////////
@@ -1587,6 +1589,9 @@ TW_INT16 CTWAINDS_Base::saveImageFile()
       twrc = saveImageFileAsTIFF();
       break;
 
+		case TWFF_PDF:
+			twrc = saveImageFileAsPDF();
+			break;
     /* 
     Untill compression is implimented we  support Jpeg
     case TWFF_JFIF:
@@ -2262,101 +2267,81 @@ TW_INT16 CTWAINDS_Base::saveImageFileAsPDF()
 	TW_INT32      nHeight  = m_ImageInfo.ImageLength;
 	TW_INT16      nBPP     = m_ImageInfo.BitsPerPixel;
 	TW_INT32      nBPL     = BYTES_PERLINE(nWidth, nBPP);
-	CTiffWriter  *pTifImg  = new CTiffWriter(m_CurFileExferName, nWidth, nHeight, nBPP, nBPL);
-	if(!pTifImg)
-	{
-		setConditionCode(TWCC_LOWMEMORY);
-		return TWRC_FAILURE;
-	}
 
-	pTifImg->setXResolution(m_ImageInfo.XResolution.Whole, 1);
-	pTifImg->setYResolution(m_ImageInfo.YResolution.Whole, 1);
-	pTifImg->writeImageHeader();
+	PDF *p;
+	int image;
+	const char *imagefile = "pic.jpg";
+	/* This is where font/image/PDF input files live. Adjust as necessary. */
+	const char *searchpath = "./";
 
 	BYTE *pImage = (BYTE *)_DSM_LockMemory(m_hImageData);
 	if(pImage == NULL)
 	{
 		setConditionCode(TWCC_BADVALUE);
-		delete pTifImg;
 		return TWRC_FAILURE;
 	}
 
-	bool bSwitch = true;
-	CTWAINContainerInt *pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_BITORDER));
-	if(pnCap)
+	/* create a new PDFlib object */
+	if ((p = PDF_new()) == (PDF *) 0)
 	{
-		int nVal;
-		if(pnCap->GetCurrent(nVal))
-		{
-			bSwitch = nVal==TWBO_LSBFIRST? true:false;
-		}
+		//printf("Couldn't create PDFlib object (out of memory)!\n");
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
 	}
 
 	// write the received image data to the image file
-	if( m_ImageInfo.BitsPerPixel < 24 // BW or Gray
-		|| m_ImageInfo.BitsPerPixel > 24 && !bSwitch) //Color but  have to switch between RGB and BGR
-	{
-		if(!pTifImg->WriteTIFFData(reinterpret_cast<char*>(pImage), nBPL*nHeight))
-		{
+	PDF_TRY(p){
+		/* This means we must check return values of load_font() etc. */
+		PDF_set_parameter(p, "errorpolicy", "return");
+		
+		/* This line is required to avoid problems on Japanese systems */
+		PDF_set_parameter(p, "hypertextencoding", "host");
+
+		if (PDF_begin_document(p, m_CurFileExferName, 0, "") == -1) {
+			//printf("Error: %s\n", PDF_get_errmsg(p));
 			setConditionCode(TWCC_FILEWRITEERROR);
 			_DSM_UnlockMemory(m_hImageData);
-			delete pTifImg;
 			return TWRC_FAILURE;
 		}
+
+		PDF_set_parameter(p, "SearchPath", searchpath);
+		PDF_set_info(p, "Creator", "UDS DS");
+		PDF_set_info(p, "Author", "UDS");
+		PDF_set_info(p, "Title", "UDS (C)");
+		
+		PDF_create_pvf(p, imagefile, 0, (const char*)pImage, nBPL*nHeight, "");
+		image = PDF_load_image(p, "auto", imagefile, 0, "");
+
+		if (image == -1) {
+			setConditionCode(TWCC_FILEWRITEERROR);
+			_DSM_UnlockMemory(m_hImageData);
+			return TWRC_FAILURE;
+			//char logInfo[1024];
+			//sprintf(logInfo, "Error: 加载PVF图像数据失败！错误号：%d, %s:%d\r\n", PDF_get_errmsg(p), __FILE__, __LINE__);
+		}
+
+		/* dummy page size, will be adjusted by PDF_fit_image() */
+		PDF_begin_page_ext(p, 10, 10, "");
+		PDF_fit_image(p, image, 0.0, 0.0, "adjustpage dpi {200 200}");
+		PDF_end_page_ext(p, "");
+
+		/* Delete the virtual file to free the allocated memory */
+		PDF_delete_pvf(p, imagefile, 0);	
+		PDF_end_document(p, "");    
+	}	
+	PDF_CATCH(p) {
+		//char logInfo[1024];
+		//sprintf(logInfo, "EXCEPTION: PDFlib接口调用过程发生异常！错误信息：[%d] %s: %s, %s:%d\r\n", 
+		//	PDF_get_errmsg(p), PDF_get_apiname(p), PDF_get_errmsg(p), __FILE__, __LINE__);
+		//AfxMessageBox(logInfo);
+
+		PDF_delete(p);
+		setConditionCode(TWCC_FILEWRITEERROR);
+		_DSM_UnlockMemory(m_hImageData);
+		return TWRC_FAILURE;
 	}
-	else // color
-	{
-		// we need to reverse the color from BRG to RGB
-		BYTE      *pLineBuff = NULL;
-		TW_HANDLE  hLineBuff = _DSM_Alloc(nBPL);
 
-		if( NULL == hLineBuff )
-		{
-			setConditionCode(TWCC_LOWMEMORY);
-			return TWRC_FAILURE;
-		}
-
-		pLineBuff = (BYTE*)_DSM_LockMemory(hLineBuff);
-		if(NULL == pLineBuff)
-		{
-			_DSM_Free(hLineBuff);
-			setConditionCode(TWCC_LOWMEMORY);
-			return TWRC_FAILURE;
-		}
-
-		BYTE *pSource = pImage;
-		BYTE *pDest   = NULL;
-
-
-		for(TW_INT32 row=0; row<nHeight; row++)
-		{
-			pSource = pImage + row*nBPL;
-			pDest   = pLineBuff;
-
-			// need to switch from BGR to RGB
-			for(TW_INT32 nCol=0; nCol<nWidth; nCol++)
-			{
-				*pDest++ = pSource[2];
-				*pDest++ = pSource[1];
-				*pDest++ = pSource[0];
-				pSource += 3;
-			}
-
-			// Save each line after it is converted.
-			if(!pTifImg->WriteTIFFData(reinterpret_cast<char*>(pLineBuff), nBPL))
-			{
-				setConditionCode(TWCC_FILEWRITEERROR);
-				_DSM_UnlockMemory(m_hImageData);
-				delete pTifImg;
-				return TWRC_FAILURE;
-			}
-		}
-
-		_DSM_UnlockMemory(hLineBuff);
-		_DSM_Free(hLineBuff);
-
-	}
-	delete pTifImg;
+	PDF_delete(p);
 	_DSM_UnlockMemory(m_hImageData);
 
 	return TWRC_XFERDONE;

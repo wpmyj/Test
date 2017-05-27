@@ -1367,7 +1367,8 @@ TW_INT16 CTWAINDS_UDS::Initialize()
   m_IndependantCapMap[ICAP_IMAGEFILEFORMAT] = new CTWAINContainerInt(ICAP_IMAGEFILEFORMAT, TWTY_UINT16, TWON_ENUMERATION);
   if( NULL == (pnCap = dynamic_cast<CTWAINContainerInt*>(m_IndependantCapMap[ICAP_IMAGEFILEFORMAT]))
    || !pnCap->Add(TWFF_BMP, true)
-   || !pnCap->Add(TWFF_TIFF) )
+   || !pnCap->Add(TWFF_TIFF) 
+	 || !pnCap->Add(TWFF_PDF))
   {
 		::MessageBox(g_hwndDLG,TEXT("Could not create ICAP_IMAGEFILEFORMAT !"),MB_CAPTION,MB_OK);
     //cerr << "Could not create ICAP_IMAGEFILEFORMAT" << endl;

@@ -76,8 +76,8 @@ void CPage_Set::SetCapValue(void)
 		dwPowerOff = 0;
 	}
 
-	SetNVRAMValue( &dwPowerSaving, sizeof(dwPowerSaving), 0x000A);
-	SetNVRAMValue( &dwPowerOff, sizeof(dwPowerOff), 0x0010);
+	SetNVRAMValue( &dwPowerSaving, sizeof(dwPowerSaving), NVRAM_POWER_SAVING);
+	SetNVRAMValue( &dwPowerOff, sizeof(dwPowerOff), NVRAM_POWER_OFF_TIME);
 	//TerminateDriver();
 	FreeLibrary(m_hDLL);
 

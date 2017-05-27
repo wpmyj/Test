@@ -1787,9 +1787,9 @@ bool CScanner_G6X00::AutoCorrect(Mat src_img , Mat &dst_img)
 		linenum = lines.size();
 		if(linenum==0)
 		{
-			AfxMessageBox("linenum==0");
+			//AfxMessageBox("linenum==0");
 			//两次HoughLinesP后还未检查出线段，返回false
-			dstImage.copyTo(dst_img);
+			srcImage.copyTo(dst_img);
 			return false;
 		}
 	}
