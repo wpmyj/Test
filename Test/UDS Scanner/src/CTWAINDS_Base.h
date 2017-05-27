@@ -444,6 +444,12 @@ public:
   */
   TW_INT16 saveImageFileAsTIFF();
 
+	/**
+  * 将图像保存为PDF格式
+  * @return a valid TWRC_xxxx return code, TWRC_XFERDONE on success.
+  */
+  TW_INT16 saveImageFileAsPDF();
+
   /**
   * Request the DSM that we are ready to send images.
   * @return true if successful.

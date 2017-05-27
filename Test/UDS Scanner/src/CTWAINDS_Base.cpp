@@ -2255,3 +2255,109 @@ TW_INT16 CTWAINDS_Base::SetGustomDSData(pTW_CUSTOMDSDATA _pDSData)
   setConditionCode(TWCC_BADPROTOCOL);
   return TWRC_FAILURE;
 }
+
+TW_INT16 CTWAINDS_Base::saveImageFileAsPDF()
+{
+	TW_INT32      nWidth   = m_ImageInfo.ImageWidth;
+	TW_INT32      nHeight  = m_ImageInfo.ImageLength;
+	TW_INT16      nBPP     = m_ImageInfo.BitsPerPixel;
+	TW_INT32      nBPL     = BYTES_PERLINE(nWidth, nBPP);
+	CTiffWriter  *pTifImg  = new CTiffWriter(m_CurFileExferName, nWidth, nHeight, nBPP, nBPL);
+	if(!pTifImg)
+	{
+		setConditionCode(TWCC_LOWMEMORY);
+		return TWRC_FAILURE;
+	}
+
+	pTifImg->setXResolution(m_ImageInfo.XResolution.Whole, 1);
+	pTifImg->setYResolution(m_ImageInfo.YResolution.Whole, 1);
+	pTifImg->writeImageHeader();
+
+	BYTE *pImage = (BYTE *)_DSM_LockMemory(m_hImageData);
+	if(pImage == NULL)
+	{
+		setConditionCode(TWCC_BADVALUE);
+		delete pTifImg;
+		return TWRC_FAILURE;
+	}
+
+	bool bSwitch = true;
+	CTWAINContainerInt *pnCap = dynamic_cast<CTWAINContainerInt*>(findCapability(ICAP_BITORDER));
+	if(pnCap)
+	{
+		int nVal;
+		if(pnCap->GetCurrent(nVal))
+		{
+			bSwitch = nVal==TWBO_LSBFIRST? true:false;
+		}
+	}
+
+	// write the received image data to the image file
+	if( m_ImageInfo.BitsPerPixel < 24 // BW or Gray
+		|| m_ImageInfo.BitsPerPixel > 24 && !bSwitch) //Color but  have to switch between RGB and BGR
+	{
+		if(!pTifImg->WriteTIFFData(reinterpret_cast<char*>(pImage), nBPL*nHeight))
+		{
+			setConditionCode(TWCC_FILEWRITEERROR);
+			_DSM_UnlockMemory(m_hImageData);
+			delete pTifImg;
+			return TWRC_FAILURE;
+		}
+	}
+	else // color
+	{
+		// we need to reverse the color from BRG to RGB
+		BYTE      *pLineBuff = NULL;
+		TW_HANDLE  hLineBuff = _DSM_Alloc(nBPL);
+
+		if( NULL == hLineBuff )
+		{
+			setConditionCode(TWCC_LOWMEMORY);
+			return TWRC_FAILURE;
+		}
+
+		pLineBuff = (BYTE*)_DSM_LockMemory(hLineBuff);
+		if(NULL == pLineBuff)
+		{
+			_DSM_Free(hLineBuff);
+			setConditionCode(TWCC_LOWMEMORY);
+			return TWRC_FAILURE;
+		}
+
+		BYTE *pSource = pImage;
+		BYTE *pDest   = NULL;
+
+
+		for(TW_INT32 row=0; row<nHeight; row++)
+		{
+			pSource = pImage + row*nBPL;
+			pDest   = pLineBuff;
+
+			// need to switch from BGR to RGB
+			for(TW_INT32 nCol=0; nCol<nWidth; nCol++)
+			{
+				*pDest++ = pSource[2];
+				*pDest++ = pSource[1];
+				*pDest++ = pSource[0];
+				pSource += 3;
+			}
+
+			// Save each line after it is converted.
+			if(!pTifImg->WriteTIFFData(reinterpret_cast<char*>(pLineBuff), nBPL))
+			{
+				setConditionCode(TWCC_FILEWRITEERROR);
+				_DSM_UnlockMemory(m_hImageData);
+				delete pTifImg;
+				return TWRC_FAILURE;
+			}
+		}
+
+		_DSM_UnlockMemory(hLineBuff);
+		_DSM_Free(hLineBuff);
+
+	}
+	delete pTifImg;
+	_DSM_UnlockMemory(m_hImageData);
+
+	return TWRC_XFERDONE;
+}

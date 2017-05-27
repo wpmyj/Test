@@ -123,7 +123,7 @@ void CDlg_Indicators::OnTimer(UINT_PTR nIDEvent)
 	m_dwElaspedTime ++;
 	CString strElapsedTime;
 
-	strElapsedTime.Format("%u 时 %u 分 %u 秒",m_dwElaspedTime/3600,
+	strElapsedTime.Format("%02u:%02u:%02u",m_dwElaspedTime/3600,
 		m_dwElaspedTime/60%60,m_dwElaspedTime%60);
 
 	m_static_elapsedtime.ShowWindow(SW_HIDE); // 刷新，否则会重叠显示内容
